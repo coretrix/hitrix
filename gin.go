@@ -65,13 +65,13 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler) *gi
 	ginEngine.Use(contextToContextMiddleware())
 	ginEngine.Use(afterRequestMiddleware())
 
+	if ginInitHandler != nil {
+		ginInitHandler(ginEngine)
+	}
+
 	if app.devPanel != nil {
 		devRouter := app.devPanel.Router
 		devRouter(ginEngine)
-	}
-
-	if ginInitHandler != nil {
-		ginInitHandler(ginEngine)
 	}
 
 	ginEngine.POST("/query", timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server))))
