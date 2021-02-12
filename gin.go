@@ -49,20 +49,26 @@ func afterRequestMiddleware() gin.HandlerFunc {
 }
 
 func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler) *gin.Engine {
-	if DIC().App().IsInProdMode() {
+	app := DIC().App()
+	if app.IsInProdMode() {
 		gin.SetMode(gin.ReleaseMode)
-	} else if DIC().App().IsInTestMode() {
+	} else if app.IsInTestMode() {
 		gin.SetMode(gin.TestMode)
 	}
 
 	ginEngine := gin.New()
 
-	if !DIC().App().IsInProdMode() {
+	if !app.IsInProdMode() {
 		ginEngine.Use(gin.Logger())
 	}
 
 	ginEngine.Use(contextToContextMiddleware())
 	ginEngine.Use(afterRequestMiddleware())
+
+	if app.devPanel != nil {
+		devRouter := app.devPanel.Router
+		devRouter(ginEngine)
+	}
 
 	if ginInitHandler != nil {
 		ginInitHandler(ginEngine)

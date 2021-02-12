@@ -1,6 +1,9 @@
 package hitrix
 
-import "github.com/sarulabs/di"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/sarulabs/di"
+)
 
 const ModeLocal = "local"
 const ModeTest = "test"
@@ -8,7 +11,7 @@ const ModeProd = "prod"
 
 type DevPanel struct {
 	UserEntity DevPanelUserEntity
-	Router     func()
+	Router     func(ginEngine *gin.Engine)
 	PoolStream *string
 }
 
