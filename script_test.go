@@ -29,7 +29,7 @@ func (script *testScript) Description() string {
 }
 
 func TestRunScript(t *testing.T) {
-	r := New("test_script").RegisterDIService()
+	r := New("test_script", "secret").RegisterDIService()
 	testService := &ServiceDefinition{
 		Name:   "test_service",
 		Global: true,

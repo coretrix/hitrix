@@ -1,16 +1,17 @@
 package account
 
 import (
+	"fmt"
+
 	"github.com/coretrix/hitrix"
-	hitrixErrors "github.com/coretrix/hitrix/pkg/error"
 	"github.com/coretrix/hitrix/pkg/view/account"
 	"github.com/gin-gonic/gin"
 	"github.com/juju/errors"
 )
 
 type LoginDevForm struct {
-	Username string `binding:"required,min=3,max=60" json:"Username"`
-	Password string `binding:"required,min=3,max=60" json:"Password"`
+	Username string `binding:"required,min=6,max=60" json:"Username"`
+	Password string `binding:"required,min=8,max=60" json:"Password"`
 }
 
 func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
@@ -24,14 +25,27 @@ func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
 	if !has {
 		return "", "", errors.New("orm is not registered")
 	}
-	if l.Username == "DevUser" && l.Password == "$umm3r" {
-		token, refreshToken, err := account.GenerateDevTokenAndRefreshToken(ormService)
-		if err != nil {
-			return "", "", err
-		}
 
-		return token, refreshToken, err
+	passwordService, has := hitrix.DIC().Password()
+	if !has {
+		return "", "", errors.New("Please load Password service")
 	}
 
-	return "", "", hitrixErrors.HandleCustomErrors(map[string]string{"Password": "Wrong password"}, c)
+	devPanelUserEntity := hitrix.DIC().App().DevPanel().UserEntity
+	ok := ormService.CachedSearchOne(devPanelUserEntity, "UserEmailIndex", l.Username)
+
+	if !ok {
+		return "", "", fmt.Errorf("invalid username or password")
+	}
+
+	if !passwordService.VerifyPassword(l.Password, devPanelUserEntity.GetPassword()) {
+		return "", "", fmt.Errorf("invalid username or password")
+	}
+
+	token, refreshToken, err := account.GenerateDevTokenAndRefreshToken(ormService, devPanelUserEntity.GetID())
+	if err != nil {
+		return "", "", err
+	}
+
+	return token, refreshToken, err
 }

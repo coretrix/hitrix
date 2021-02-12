@@ -45,12 +45,13 @@ func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
 
 func (controller *DevPanelController) PostGenerateTokenAction(c *gin.Context) {
 	ormService, has := hitrix.DIC().OrmEngineForContext(c)
-
 	if !has {
 		panic("orm is not registered")
 	}
 
-	token, refreshToken, err := account.GenerateDevTokenAndRefreshToken(ormService)
+	devPanelUserEntity := c.MustGet(account.LoggedDevPanelUserEntity).(hitrix.DevPanelUserEntity)
+
+	token, refreshToken, err := account.GenerateDevTokenAndRefreshToken(ormService, devPanelUserEntity.GetID())
 	if err != nil {
 		response.ErrorResponseGlobal(c, err, nil)
 		return
@@ -76,33 +77,47 @@ func (controller *DevPanelController) GetClearCacheAction(c *gin.Context) {
 	c.JSON(200, gin.H{})
 }
 
-//func (controller *DevPanelController) GetClearRedisStreamsAction(c *gin.Context) {
-//	ormService, has := hitrix.DIC().OrmEngineForContext(c)
-//
-//	if !has {
-//		panic("orm is not registered")
-//	}
-//
-//	redisStreamsService := ormService.GetRedis(redis.PoolStreams)
-//	redisStreamsService.FlushDB()
-//
-//	c.JSON(200, gin.H{})
-//}
+func (controller *DevPanelController) GetClearRedisStreamsAction(c *gin.Context) {
+	ormService, has := hitrix.DIC().OrmEngineForContext(c)
 
-//func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
-//	ormService := c.MustGet(service.OrmContextService).(*orm.Engine)
-//
-//	redisStreamService := ormService.GetRedis(redis.PoolStreams)
-//
-//	name := c.Param("name")
-//	if name == "" {
-//		panic("provide stream name")
-//	}
-//
-//	redisStreamService.XTrim(name, 0, false)
-//
-//	c.JSON(200, gin.H{})
-//}
+	if !has {
+		panic("orm is not registered")
+	}
+
+	devPanel := hitrix.DIC().App().DevPanel()
+	if devPanel == nil || devPanel.PoolStream == nil {
+		panic("stream pool is not defined")
+	}
+
+	redisStreamsService := ormService.GetRedis(*devPanel.PoolStream)
+	redisStreamsService.FlushDB()
+
+	c.JSON(200, gin.H{})
+}
+
+func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
+	ormService, has := hitrix.DIC().OrmEngineForContext(c)
+
+	if !has {
+		panic("orm is not registered")
+	}
+
+	devPanel := hitrix.DIC().App().DevPanel()
+	if devPanel == nil || devPanel.PoolStream == nil {
+		panic("stream pool is not defined")
+	}
+
+	redisStreamService := ormService.GetRedis(*devPanel.PoolStream)
+
+	name := c.Param("name")
+	if name == "" {
+		panic("provide stream name")
+	}
+
+	redisStreamService.XTrim(name, 0, false)
+
+	c.JSON(200, gin.H{})
+}
 
 func (controller *DevPanelController) GetAlters(c *gin.Context) {
 	ormService, has := hitrix.DIC().OrmEngineForContext(c)

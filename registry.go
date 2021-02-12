@@ -8,8 +8,16 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/summer-solutions/orm"
+
 	"github.com/sarulabs/di"
 )
+
+type DevPanelUserEntity interface {
+	orm.Entity
+	GetUsername() string
+	GetPassword() string
+}
 
 type Registry struct {
 	app                 *AppDefinition
@@ -25,12 +33,12 @@ type Hitrix struct {
 	exit     chan int
 }
 
-func New(appName string) *Registry {
-	mode, hasMode := os.LookupEnv("hitrix_MODE")
+func New(appName string, secret string) *Registry {
+	mode, hasMode := os.LookupEnv("SPRING_MODE")
 	if !hasMode {
 		mode = ModeLocal
 	}
-	app := &AppDefinition{mode: mode, name: appName}
+	app := &AppDefinition{mode: mode, name: appName, secret: secret}
 	r := &Registry{app: app}
 	app.registry = r
 	return r
@@ -52,20 +60,16 @@ func (r *Registry) Build() *Hitrix {
 	return s
 }
 
-func (r *Registry) AttachDerPanel() *Hitrix {
-	r.initializeIoCHandlers()
-	r.initializeLog()
-	flags := DIC().App().Flags()
-	if flags.Bool("list-scripts") {
-		listScrips()
+func (r *Registry) RegisterDevPanel(devPanelUserEntity DevPanelUserEntity, router func(), poolStream *string) *Registry {
+	if devPanelUserEntity == nil {
+		panic("devPanelUserEntity cannot be nil")
 	}
-	scriptToRun := flags.String("run-script")
-	ctx, cancel := context.WithCancel(context.Background())
-	s := &Hitrix{registry: r, ctx: ctx, cancel: cancel, done: make(chan bool), exit: make(chan int)}
-	if scriptToRun != "" {
-		s.runDynamicScrips(ctx, scriptToRun)
+	if router == nil {
+		panic("router cannot be nil")
 	}
-	return s
+
+	r.app.devPanel = &DevPanel{UserEntity: devPanelUserEntity, Router: router, PoolStream: poolStream}
+	return r
 }
 
 func (r *Registry) RegisterDIService(service ...*ServiceDefinition) *Registry {

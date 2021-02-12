@@ -9,7 +9,6 @@ require (
 	github.com/fatih/color v1.10.0
 	github.com/gin-contrib/timeout v0.0.1
 	github.com/gin-gonic/gin v1.6.3
-	github.com/go-playground/validator/v10 v10.4.1
 	github.com/golang/protobuf v1.4.3 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/joho/godotenv v1.3.0
@@ -26,10 +25,10 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.1
+	github.com/stretchr/testify v1.6.1
 	github.com/summer-solutions/orm v1.75.3
 	github.com/tj/assert v0.0.3
 	github.com/ugorji/go v1.2.2 // indirect
-	github.com/xorcare/pointer v1.1.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
 	golang.org/x/text v0.3.4 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect

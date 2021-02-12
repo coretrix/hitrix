@@ -6,11 +6,19 @@ const ModeLocal = "local"
 const ModeTest = "test"
 const ModeProd = "prod"
 
+type DevPanel struct {
+	UserEntity DevPanelUserEntity
+	Router     func()
+	PoolStream *string
+}
+
 type AppDefinition struct {
 	mode     string
 	name     string
+	secret   string
 	flags    *Flags
 	registry *Registry
+	devPanel *DevPanel
 }
 
 func (app *AppDefinition) Name() string {
@@ -19,6 +27,14 @@ func (app *AppDefinition) Name() string {
 
 func (app *AppDefinition) Mode() string {
 	return app.mode
+}
+
+func (app *AppDefinition) Secret() string {
+	return app.secret
+}
+
+func (app *AppDefinition) DevPanel() *DevPanel {
+	return app.devPanel
 }
 
 func (app *AppDefinition) Flags() *Flags {

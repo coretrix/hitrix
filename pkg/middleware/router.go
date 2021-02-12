@@ -1,15 +1,21 @@
 package middleware
 
 import (
+	"github.com/coretrix/hitrix"
 	"github.com/coretrix/hitrix/pkg/controller"
 	"github.com/gin-gonic/gin"
 )
 
 func Router(ginEngine *gin.Engine) {
+	_, has := hitrix.DIC().JWT()
+	if !has {
+		panic("Please load JWT service")
+	}
+
 	var dev *controller.DevPanelController
 	{
 		devGroup := ginEngine.Group("/dev/")
-		//devGroup.Use(AuthorizeDevUser())
+		devGroup.Use(AuthorizeDevUser())
 		{
 			devGroup.GET("clear-cache/", dev.GetClearCacheAction)
 			//devGroup.GET("clear-redis-streams/", dev.GetClearRedisStreamsAction)
@@ -19,7 +25,7 @@ func Router(ginEngine *gin.Engine) {
 			devGroup.GET("redis-statistics/", dev.GetRedisStatistics)
 
 			devGroup.GET("login/", dev.PostLoginDevPanelAction)
-			devGroup.GET("generate-token/", dev.PostGenerateTokenAction)
+			devGroup.GET("generate-token/", AuthorizeWithDevRefreshToken(), dev.PostGenerateTokenAction)
 		}
 	}
 }

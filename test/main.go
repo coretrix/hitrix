@@ -34,7 +34,7 @@ func (script *testScript) Interval() time.Duration {
 }
 
 func main() {
-	r := hitrix.New("test_script")
+	r := hitrix.New("test_script", "secret")
 	r.RegisterDIService(&hitrix.ServiceDefinition{
 		Name:   "aa",
 		Global: true,
