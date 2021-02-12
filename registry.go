@@ -3,6 +3,7 @@ package hitrix
 import (
 	"context"
 	"flag"
+	"github.com/gin-gonic/gin"
 	"os"
 	"os/signal"
 	"syscall"
@@ -60,7 +61,7 @@ func (r *Registry) Build() *Hitrix {
 	return s
 }
 
-func (r *Registry) RegisterDevPanel(devPanelUserEntity DevPanelUserEntity, router func(), poolStream *string) *Registry {
+func (r *Registry) RegisterDevPanel(devPanelUserEntity DevPanelUserEntity, router func(ginEngine *gin.Engine), poolStream *string) *Registry {
 	if devPanelUserEntity == nil {
 		panic("devPanelUserEntity cannot be nil")
 	}
