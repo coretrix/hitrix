@@ -17,7 +17,7 @@ func Router(ginEngine *gin.Engine) {
 		devGroup := ginEngine.Group("/dev/")
 		devGroup.Use(AuthorizeDevUser())
 		{
-			ginEngine.GET("/dev/action-list/", devPanel.GetActionListAction) //todo for remove
+			//ginEngine.GET("/dev/action-list/", devPanel.GetActionListAction)
 
 			devGroup.GET("clear-cache/", devPanel.GetClearCacheAction)
 			devGroup.GET("clear-redis-streams/", devPanel.GetClearRedisStreamsAction)
