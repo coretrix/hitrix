@@ -59,8 +59,10 @@ func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
+	fmt.Println("HERE")
 	loginForm := accountModel.LoginDevForm{}
 	token, refreshToken, err := loginForm.Login(c)
+	fmt.Println("HERE 2")
 
 	errType, ok := err.(errors.FieldErrors)
 
@@ -68,11 +70,13 @@ func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
 		response.ErrorResponseFields(c, errType, nil)
 		return
 	}
+	fmt.Println("HERE 3")
 
 	if err != nil {
 		response.ErrorResponseGlobal(c, err, nil)
 		return
 	}
+	fmt.Println("HERE 4")
 
 	response.SuccessResponse(c, map[string]interface{}{
 		"Token":        token,
