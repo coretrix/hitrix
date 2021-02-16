@@ -31,7 +31,7 @@ func ServiceProviderConfigDirectory(configDirectory string) *ServiceDefinition {
 func newViperConfig(appName, mode, localConfigFolder string) (*Config, error) {
 	viper.SetConfigName(configName)
 
-	configFolder, hasConfigFolder := os.LookupEnv("hitrix_CONFIG_FOLDER")
+	configFolder, hasConfigFolder := os.LookupEnv("SPRING_CONFIG_FOLDER")
 	if !hasConfigFolder {
 		configFolder = localConfigFolder
 	}
