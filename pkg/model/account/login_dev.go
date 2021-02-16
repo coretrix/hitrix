@@ -35,14 +35,10 @@ func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
 	ok := ormService.CachedSearchOne(devPanelUserEntity, "UserEmailIndex", l.Username)
 
 	if !ok {
-		fmt.Println("HERE " + l.Username)
 		return "", "", fmt.Errorf("invalid username or password")
 	}
 
 	if !passwordService.VerifyPassword(l.Password, devPanelUserEntity.GetPassword()) {
-		fmt.Println("HERE 2 " + l.Password)
-		fmt.Println("HERE 3 " + devPanelUserEntity.GetPassword())
-
 		return "", "", fmt.Errorf("invalid username or password")
 	}
 
