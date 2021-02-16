@@ -24,17 +24,17 @@ type MenuItem struct {
 type DevPanelController struct {
 }
 
-func (controller *DevPanelController) GetActionListAction(c *gin.Context) {
-	actions := []*MenuItem{
-		{
-			Label: "Clear Cache",
-			URL:   "/dev/clear-cache/",
-			Icon:  "mdiCached",
-		},
-	}
-
-	c.JSON(200, actions)
-}
+//func (controller *DevPanelController) GetActionListAction(c *gin.Context) {
+//	actions := []*MenuItem{
+//		{
+//			Label: "Clear Cache",
+//			URL:   "/dev/clear-cache/",
+//			Icon:  "mdiCached",
+//		},
+//	}
+//
+//	c.JSON(200, actions)
+//}
 
 func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
 	if !hitrix.DIC().App().IsInLocalMode() {
