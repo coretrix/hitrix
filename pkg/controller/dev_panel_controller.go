@@ -35,7 +35,7 @@ type DevPanelController struct {
 //	c.JSON(200, actions)
 //}
 
-func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) { //todo generate sql
+func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
 	if !hitrix.DIC().App().IsInLocalMode() {
 		panic("this action is supported only on local mode")
 	}
@@ -50,6 +50,7 @@ func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) { //
 
 	if username == "" || pass == "" {
 		response.ErrorResponseGlobal(c, "username and password query parameters are required", nil)
+		return
 	}
 	//adminEntity := hitrix.DIC().App().DevPanel().UserEntity
 
@@ -58,7 +59,7 @@ func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) { //
 		response.ErrorResponseGlobal(c, err, nil)
 	}
 
-	response.SuccessResponse(c, fmt.Sprintf(`INSERT INTO %s (Username, Password) VALUES(%s, %s)`, "admin_users", username, passwordHash))
+	response.SuccessResponse(c, fmt.Sprintf(`INSERT INTO %s (Email, Password) VALUES(%s, %s)`, "admin_users", username, passwordHash))
 }
 
 func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
