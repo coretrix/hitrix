@@ -36,10 +36,6 @@ type DevPanelController struct {
 //}
 
 func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
-	if !hitrix.DIC().App().IsInLocalMode() {
-		panic("this action is supported only on local mode")
-	}
-
 	passwordService, has := hitrix.DIC().Password()
 	if !has {
 		panic("password is not registered")
