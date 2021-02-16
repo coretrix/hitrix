@@ -1,9 +1,8 @@
 package controller
 
 import (
+	"fmt"
 	"sort"
-
-	"github.com/coretrix/hitrix/example/entity"
 
 	"github.com/coretrix/hitrix"
 	errors "github.com/coretrix/hitrix/pkg/error"
@@ -36,13 +35,9 @@ type DevPanelController struct {
 //	c.JSON(200, actions)
 //}
 
-func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
+func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) { //todo generate sql
 	if !hitrix.DIC().App().IsInLocalMode() {
 		panic("this action is supported only on local mode")
-	}
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
-	if !has {
-		panic("orm is not registered")
 	}
 
 	passwordService, has := hitrix.DIC().Password()
@@ -50,18 +45,20 @@ func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
 		panic("password is not registered")
 	}
 
-	adminEntity := &entity.AdminUserEntity{}
+	username := c.Query("username")
+	pass := c.Query("password")
 
-	adminEntity.ID = 1
-	adminEntity.Email = "contact@coretrix.com"
-	password, err := passwordService.HashPassword("coretrix")
+	if username == "" || pass == "" {
+		response.ErrorResponseGlobal(c, "username and password query parameters are required", nil)
+	}
+	//adminEntity := hitrix.DIC().App().DevPanel().UserEntity
+
+	passwordHash, err := passwordService.HashPassword(pass)
 	if err != nil {
 		response.ErrorResponseGlobal(c, err, nil)
 	}
 
-	adminEntity.Password = password
-	ormService.Flush(adminEntity)
-	response.SuccessResponse(c, nil)
+	response.SuccessResponse(c, fmt.Sprintf(`INSERT INTO %s (Username, Password) VALUES(%s, %s)`, "admin_users", username, passwordHash))
 }
 
 func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
