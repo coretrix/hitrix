@@ -12,20 +12,34 @@ func Router(ginEngine *gin.Engine) {
 		panic("Please load JWT service")
 	}
 
-	var dev *controller.DevPanelController
+	var devPanel *controller.DevPanelController
 	{
 		devGroup := ginEngine.Group("/dev/")
 		devGroup.Use(AuthorizeDevUser())
 		{
-			devGroup.GET("clear-cache/", dev.GetClearCacheAction)
-			//devGroup.GET("clear-redis-streams/", dev.GetClearRedisStreamsAction)
-			//devGroup.DELETE("delete-redis-stream/:name/", dev.DeleteRedisStreamAction)
-			devGroup.GET("alters/", dev.GetAlters)
-			devGroup.GET("redis-streams/", dev.GetRedisStreams)
-			devGroup.GET("redis-statistics/", dev.GetRedisStatistics)
+			ginEngine.GET("/dev/action-list/", devPanel.GetActionListAction) //todo for remove
 
-			devGroup.POST("login/", dev.PostLoginDevPanelAction)
-			devGroup.POST("generate-token/", AuthorizeWithDevRefreshToken(), dev.PostGenerateTokenAction)
+			devGroup.GET("clear-cache/", devPanel.GetClearCacheAction)
+			devGroup.GET("clear-redis-streams/", devPanel.GetClearRedisStreamsAction)
+			devGroup.DELETE("delete-redis-stream/:name/", devPanel.DeleteRedisStreamAction)
+			devGroup.GET("alters/", devPanel.GetAlters)
+			devGroup.GET("redis-streams/", devPanel.GetRedisStreams)
+			devGroup.GET("redis-statistics/", devPanel.GetRedisStatistics)
+
+			ginEngine.GET("dev/create-admin/", devPanel.CreateAdminUserAction)
+			ginEngine.POST("dev/login/", devPanel.PostLoginDevPanelAction)
+			ginEngine.POST("dev/generate-token/", AuthorizeWithDevRefreshToken(), devPanel.PostGenerateTokenAction)
 		}
+	}
+
+	var errorLog *controller.ErrorLogController
+	{
+		errorLogGroup := ginEngine.Group("/error-log/")
+		errorLogGroup.Use(AuthorizeDevUser())
+
+		errorLogGroup.GET("errors/", errorLog.GetErrors)
+		errorLogGroup.GET("remove/:id/", errorLog.DeleteError)
+		errorLogGroup.GET("remove-all/", errorLog.DeleteAllErrors)
+		errorLogGroup.GET("panic/", errorLog.Panic)
 	}
 }

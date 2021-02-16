@@ -5,74 +5,212 @@
 
 
 
-# hitrix
+# Hitrix
 
-### Simple Framework designed to build scalable GraphQL services
+Hitrix is a web framework written in Go (Golang) and support Graphql and REST api.
+Hitrix is based on top of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](https://github.com/gin-gonic/gin) and it's high performance and easy to use
 
-### Main features:
+### Built-in features:
 
- * Build on top of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](https://github.com/gin-gonic/gin)
- * Easy to integrate with [hitrix ORM](https://github.com/summer-solutions/orm)
+ * It supports all features of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](https://github.com/gin-gonic/gin)
+ * Integrated with [ORM](https://github.com/summer-solutions/orm)
  * Follows [Dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) pattern
- 
-### Create hitrix instance
+ * Provides many DI services that makes your live easier
+ * Provides [Dev panel](https://github.com/coretrix/dev-frontend) where you can monitor and manage your application(monitoring, error log, db alters and so on)
 
-```go
-package main
-import "github.com/coretrix/hitrix"
+## Installation
 
-func main() {
-    registry := hitrix.New("app_name").Build()
-    //Starting from now you have access to global DI container (DIC)
-    container := DIC()
-}
-
+```
+go get -u github.com/coretrix/hitrix
 ``` 
  
  
-### Starting GraphQL Server
+## Quick start
+1. Run next command into your project's main folder and the graph structure will be created
+```
+go run github.com/99designs/gqlgen init
+```
 
+
+2. Create `cmd` folder into your project and file called `main.go`
+
+Put the next code into the file:
 ```go
 package main
-import "github.com/coretrix/hitrix"
 
-func main() {
+import (
+	"github.com/coretrix/hitrix"
+	"github.com/gin-gonic/gin"
 	
-    graphQLExecutableSchema := ... // setup graphql.ExecutableSchema 
-    ginHandler := // setup gin routes and middlewares
-    // run http server
-    hitrix.New("app_name").Build().RunServer(8080, graphQLExecutableSchema, ginHandler)
+	"your-project/graph"
+	"your-project/graph/generated"
+)
+
+func main() {
+	s, deferFunc := hitrix.New(
+		"app-name", "your secret",
+	).Build()
+    defer deferFunc()
+	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}),  func(ginEngine *gin.Engine) {
+		//here you can register all your middlewares
+	})
 }
 
-``` 
-
-#### Setting server port
-
-By default, hitrix server is using port defined in environment variable "**PORT**". If this variable is not
-set hitrix will use port number passed as fist argument.
-
-#### Application name
-
-When you setup server using **New** method yo must provide unique application name that can be
-checked in code like this:
-
-```go
-    hitrix.New("app_name").Build()
-    DIC().App().Name()
 ```
 
-#### Setting mode
+You can register different DI services and dev-panel before you build your server.
+For example your main.go file can looks like that:
 
-By default, hitrix is running in "**hitrix.ModeLocal**" mode. Mode is a string that is available in: 
 ```go
-    hitrix.New("app_name").Build()
-    // now you can access current hitrix mode
-    DIC().App().Mode()
+package main
+
+import (
+	"github.com/coretrix/hitrix"
+	"your-project/entity"
+	"your-project/graph"
+	"your-project/graph/generated"
+	"github.com/coretrix/hitrix/pkg/middleware"
+	"github.com/gin-gonic/gin"
+)
+
+func main() {
+	s, deferFunc := hitrix.New(
+		"app-name", "your secret",
+	).RegisterDIService(
+		hitrix.ServiceProviderErrorLogger(), //register redis error logger
+		hitrix.ServiceProviderConfigDirectory("../config"), //register config service. As param you should point to the folder of your config file
+		hitrix.ServiceDefinitionOrmRegistry(entity.Init), //register our ORM and pass function where we set some configurations 
+		hitrix.ServiceDefinitionOrmEngine(), //register our ORM engine for background processes
+		hitrix.ServiceDefinitionOrmEngineForContext(), //register our ORM engine per context used in foreground processes
+		hitrix.ServiceProviderJWT(), //register JWT DI service
+		hitrix.ServiceProviderPassword(), //register pasword DI service
+	).
+    RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil). //register our dev-panel and pass the entity where we save admin users, the router and the third param is used for the redis stream pool if its used
+    Build()
+    defer deferFunc()
+
+	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}),  func(ginEngine *gin.Engine) {
+		middleware.Cors(ginEngine)
+	})
+}
+
+```
+Now I will explain the main.go file line by line
+ 1. We create **New** instance of Hitrix and pass app name and a secret that is used from our security services 
+ 2. We register some DI services
+    2.1 Global DI service for error logger. It will be used for error handler as well in case of panic
+        If you register SlackApi error logger will send emails to slack channel as well
+    2.2 Global DI service that loads config file
+    2.3 Global DI service that initialize our ORM registry
+    2.4 Global DI ORM engine used in background processes
+    2.5 Request DI ORM engine used in foreground processes
+    2.6 Global DI JWT service used by dev panel
+    2.7 Global DI Password service used by dev-panel
+ 3. Register dev panel   
+    3.1 First param is the entity where we gonna keep admin users
+    3.2 The router used by dev panel
+    3.3 If you use redis stream pool you should pass it's name as third param
+ 4. We run the server on port `9999`, pass graphql resolver and as third param we pass all middlewares we need.   
+As you can see in our example we register only Cors middleware
+    
+If you register dev panel I will show you example AdminEntity
+```go
+package entity
+
+import (
+	"github.com/summer-solutions/orm"
+)
+
+type AdminUserEntity struct {
+	orm.ORM   `orm:"table=admin_users;redisCache"`
+	ID        uint64
+	Email     string `orm:"unique=Email_FakeDelete:1"`
+	Password  string
+
+	UserEmailIndex *orm.CachedQuery `queryOne:":Email = ?"`
+}
+
+func (e *AdminUserEntity) GetUsername() string {
+	return e.Email
+}
+
+func (e *AdminUserEntity) GetPassword() string {
+	return e.Password
+}
+
 ```
 
-You can define hitrix mode using special environment variable "**hitrix_MODE**".
+After that you should register it to the `entity.Init` function
+```go
+package entity
 
-hitrix provides by default two modes:
+import "github.com/summer-solutions/orm"
+
+func Init(registry *orm.Registry) {
+	registry.RegisterEntity(
+		&AdminUserEntity{},
+	)
+}
+
+```
+
+Please execute this alter into your database
+```sql
+
+create table admin_users
+(
+    ID       bigint unsigned auto_increment primary key,
+    Email    varchar(255) null,
+    Password varchar(255) null,
+    constraint Email_FakeDelete unique (Email)
+) charset = utf8mb4;
+
+
+```
+
+After that you can make GET request to http://localhost:9999/dev/create-admin/
+This will crete default admin user with username `contact@coretrix.com` with password `coretrix`
+### Defining DI services
+#### We have two types of DI services - Global and Request services
+Global services are singletons created once for the whole application
+Request services are singletons created once per request
+
+If you want to access the registered DI services you can do in in that way:
+```go
+hitrix.DIC().App() //access the app
+hitrix.DIC().Config() //access config
+hitrix.DIC().OrmEngine() //access global orm engine
+hitrix.DIC().OrmEngineForContext() //access reqeust orm engine
+hitrix.DIC().JWT() //access JWT
+hitrix.DIC().Password() //access JWT
+//...and so on
+```
+
+#### You are able to create and register your own services in next way:
+```go
+func ServiceDefinitionMyService() *ServiceDefinition {
+	return serviceDefinitionYourServiceName()
+}
+
+func serviceDefinitionMyService() *ServiceDefinition {
+	return &ServiceDefinition{
+		Name:   "my_service",
+		Global: true,
+		Build: func(ctn di.Container) (interface{}, error) {
+			return &yourService{}, nil
+		},
+	}
+}
+
+```
+
+And you have to register `ServiceDefinitionMyService()` in your `main.go` file
+
+### Setting mode
+
+You can define hitrix mode using special environment variable "**SPRING_MODE**".
+
+Hitrix provides by default two modes:
 
  * **hitrix.ModeLocal**
    * should be used on local development machine (developer laptop)
@@ -92,61 +230,12 @@ follows **hitrix.ModeProd** rules explained above.
 In code you can easly check current mode using one of these methods:    
 
 ```go
-    DIC().App().Mode()
-    DIC().App().IsInLocalMode()
-    DIC().App().IsInProdMode()
-    DIC().App().IsInMode("my_mode")
+hitrix.DIC().App().Mode()
+hitrix.DIC().App().IsInLocalMode()
+hitrix.DIC().App().IsInProdMode()
+hitrix.DIC().App().IsInMode("my_mode")
 ```
 
-#### Defining DI services
-
-hitrix builds global shared Dependency Injection container. You can register new services using this method:
-
-```go
-package main
-import "github.com/coretrix/hitrix"
-
-func main() {
-    hitrix.New("my_app").RegisterDIService(
-      // put service definitions here
-    )
-}
-
-``` 
-
-Example of DI service definition:
-
-```go
-package main
-import (
-    "github.com/coretrix/hitrix"
-)
-    
-func main() {
-    myService := &hitrix.ServiceDefinition{
-        Name:   "my_service", // unique service key
-        Global: true, // false if this service should be created as separate instance for each http request
-        Build: func() (interface{}, error) {
-            return &SomeService{}, nil // you can return any data you want
-        },
-        Close: func(obj interface{}) error { //optional
-        },
-        Flags: func(registry *hitrix.FlagsRegistry) { //optional
-            registry.Bool("my-service-flag", false, "my flag description")
-            registry.String("my-other-flag", "default value", "my flag description")
-        },
-    }
-    
-    // register it and run server
-    hitrix.New("my_app").RegisterDIService(
-      myService,
-    )
-
-    // you can access flags:
-    val := hitrix.DIC().App().Flags().Bool("my-service-flag")
-}
-
-```
 
 Now you can access this service in your code using:
 
@@ -180,37 +269,19 @@ It's a good practice to define one object to return all available services:
 ```go
 package my_package
 import (
-    "context"
     "github.com/coretrix/hitrix"
 )
 
-type dic struct {
-}
 
-var dicInstance = &dic{}
 
-type DICInterface interface {
-    MyService() *MyService
-    MyOtherServiceForContext(ctx context.Context) *MyOtherService
-}
-
-func DIC() DICInterface {
-    return dicInstance
-}
-
-func (d *dic) MyService() MyService {
+func MyService() MyService {
     return hitrix.GetServiceRequired("service_key").(*MyService)
 }
 
-func (d *dic) MyOtherServiceForContext(ctx context.Context) MyOtherService {
-    return hitrix.GetServiceForRequestRequired(ctx, "other_service_key").(*MyOtherService)
-}
 
 ```
 
-
-#### Running scripts
-
+### Running scripts
 
 First You need to define script definition that implements hitrix.Script interface:
 
@@ -277,7 +348,7 @@ package main
 import "github.com/coretrix/hitrix"
 
 func main() {
-	hitrix.New("app_name").Build().RunScript(&TestScript{})
+	hitrix.New("app_name", "your secret").Build().RunScript(&TestScript{})
 }
 ``` 
 
@@ -290,7 +361,7 @@ import "github.com/coretrix/hitrix"
 
 func main() {
 	
-    hitrix.New("app_name").RegisterDIService(
+    hitrix.New("app_name", "your secret").RegisterDIService(
         &hitrix.ServiceDefinition{
             Name:   "my-script",
             Global: true,

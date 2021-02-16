@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/coretrix/hitrix"
 
@@ -16,15 +17,17 @@ import (
 )
 
 const LoggedDevPanelUserEntity = "logged_dev_panel_user_entity"
+const expireTimeToken = 3600
+const expireTimeRefreshToken = 7200
 
 func GenerateDevTokenAndRefreshToken(ormService *orm.Engine, userID uint64) (string, string, error) {
 	appService := hitrix.DIC().App()
-	token, err := generateTokenValue(appService.Secret(), userID, 3600)
+	token, err := generateTokenValue(appService.Secret(), userID, time.Now().Unix()+expireTimeToken)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err := generateTokenValue(appService.Secret(), userID, 7200)
+	refreshToken, err := generateTokenValue(appService.Secret(), userID, time.Now().Unix()+expireTimeRefreshToken)
 	if err != nil {
 		return "", "", err
 	}
@@ -37,7 +40,7 @@ func GenerateDevTokenAndRefreshToken(ormService *orm.Engine, userID uint64) (str
 			md5.Sum([]byte(token)),
 		),
 		token,
-		7200,
+		expireTimeToken,
 	)
 	// #nosec
 	redisService.Set(
@@ -46,7 +49,7 @@ func GenerateDevTokenAndRefreshToken(ormService *orm.Engine, userID uint64) (str
 			md5.Sum([]byte(refreshToken)),
 		),
 		refreshToken,
-		7200,
+		expireTimeRefreshToken,
 	)
 
 	return token, refreshToken, nil
@@ -78,7 +81,7 @@ func generateTokenValue(secret string, id interface{}, expire int64) (string, er
 
 func IsValidDevRefreshToken(c *gin.Context, token string) error {
 	appService := hitrix.DIC().App()
-	if _, err := isValid(token, appService.Secret(), 7200); err != nil {
+	if _, err := isValid(token, appService.Secret(), expireTimeRefreshToken); err != nil {
 		return err
 	}
 
@@ -87,7 +90,7 @@ func IsValidDevRefreshToken(c *gin.Context, token string) error {
 
 func IsValidDevToken(c *gin.Context, token string) error {
 	appService := hitrix.DIC().App()
-	if _, err := isValid(token, appService.Secret(), 3600); err != nil {
+	if _, err := isValid(token, appService.Secret(), expireTimeToken); err != nil {
 		return err
 	}
 
@@ -95,7 +98,7 @@ func IsValidDevToken(c *gin.Context, token string) error {
 }
 
 func verifyDevUser(c *gin.Context, token string) error {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c)
+	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")

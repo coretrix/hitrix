@@ -3,6 +3,8 @@ package controller
 import (
 	"sort"
 
+	"github.com/coretrix/hitrix/example/entity"
+
 	"github.com/coretrix/hitrix"
 	errors "github.com/coretrix/hitrix/pkg/error"
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
@@ -22,11 +24,52 @@ type MenuItem struct {
 type DevPanelController struct {
 }
 
+func (controller *DevPanelController) GetActionListAction(c *gin.Context) {
+	actions := []*MenuItem{
+		{
+			Label: "Clear Cache",
+			URL:   "/dev/clear-cache/",
+			Icon:  "mdiCached",
+		},
+	}
+
+	c.JSON(200, actions)
+}
+
+func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
+	if !hitrix.DIC().App().IsInLocalMode() {
+		panic("this action is supported only on local mode")
+	}
+	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	if !has {
+		panic("orm is not registered")
+	}
+
+	passwordService, has := hitrix.DIC().Password()
+	if !has {
+		panic("password is not registered")
+	}
+
+	adminEntity := &entity.AdminUserEntity{}
+
+	adminEntity.ID = 1
+	adminEntity.Email = "contact@coretrix.com"
+	password, err := passwordService.HashPassword("coretrix")
+	if err != nil {
+		response.ErrorResponseGlobal(c, err, nil)
+	}
+
+	adminEntity.Password = password
+	ormService.Flush(adminEntity)
+	response.SuccessResponse(c, nil)
+}
+
 func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
 	loginForm := accountModel.LoginDevForm{}
 	token, refreshToken, err := loginForm.Login(c)
 
 	errType, ok := err.(errors.FieldErrors)
+
 	if ok && errType != nil {
 		response.ErrorResponseFields(c, errType, nil)
 		return
@@ -44,7 +87,7 @@ func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) PostGenerateTokenAction(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c)
+	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
 	if !has {
 		panic("orm is not registered")
 	}
@@ -64,7 +107,7 @@ func (controller *DevPanelController) PostGenerateTokenAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetClearCacheAction(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c)
+	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
@@ -78,7 +121,7 @@ func (controller *DevPanelController) GetClearCacheAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetClearRedisStreamsAction(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c)
+	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
@@ -96,7 +139,7 @@ func (controller *DevPanelController) GetClearRedisStreamsAction(c *gin.Context)
 }
 
 func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c)
+	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
@@ -120,7 +163,7 @@ func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetAlters(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c)
+	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
@@ -130,17 +173,18 @@ func (controller *DevPanelController) GetAlters(c *gin.Context) {
 
 	alters := ormService.GetAlters()
 
-	result := make([]string, 0)
+	result := make([]string, len(alters))
 	force := c.Query("force")
-	for _, alter := range alters {
+	if force != "" {
+		redisService := ormService.GetRedis()
+		redisService.FlushDB()
+	}
+
+	for i, alter := range alters {
 		if force != "" {
-			redisService := ormService.GetRedis()
-
-			redisService.FlushDB()
-
 			dbService.Exec(alter.SQL)
 		} else {
-			result = append(result, alter.SQL)
+			result[i] = alter.SQL
 		}
 	}
 
@@ -148,7 +192,7 @@ func (controller *DevPanelController) GetAlters(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetRedisStreams(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c)
+	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
@@ -162,7 +206,7 @@ func (controller *DevPanelController) GetRedisStreams(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetRedisStatistics(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c)
+	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")

@@ -20,7 +20,7 @@ func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
 		return "", "", err
 	}
 
-	ormService, has := hitrix.DIC().OrmEngineForContext(c)
+	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		return "", "", errors.New("orm is not registered")

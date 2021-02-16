@@ -62,6 +62,7 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler) *gi
 		ginEngine.Use(gin.Logger())
 	}
 
+	ginEngine.Use(recovery())
 	ginEngine.Use(contextToContextMiddleware())
 	ginEngine.Use(afterRequestMiddleware())
 

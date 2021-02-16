@@ -37,7 +37,8 @@ func TestRunScript(t *testing.T) {
 			return "hello", nil
 		},
 	}
-	s := r.RegisterDIService(testService).Build()
+	s, deferFunc := r.RegisterDIService(testService).Build()
+	defer deferFunc()
 
 	testScript := &testScript{}
 	s.RunScript(testScript)

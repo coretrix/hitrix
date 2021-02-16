@@ -2,4 +2,5 @@
 /.gcloudignore
 go.sum
 /bin/
+/example/docker/.env
 .idea/

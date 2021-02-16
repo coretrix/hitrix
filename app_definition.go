@@ -7,6 +7,7 @@ import (
 
 const ModeLocal = "local"
 const ModeTest = "test"
+const ModeDemo = "demo"
 const ModeProd = "prod"
 
 type DevPanel struct {
@@ -55,6 +56,11 @@ func (app *AppDefinition) IsInTestMode() bool {
 func (app *AppDefinition) IsInProdMode() bool {
 	return app.IsInMode(ModeProd)
 }
+
+func (app *AppDefinition) IsInDemoMode() bool {
+	return app.mode == ModeDemo
+}
+
 func (app *AppDefinition) IsInMode(mode string) bool {
 	return app.mode == mode
 }

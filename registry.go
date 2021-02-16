@@ -3,11 +3,12 @@ package hitrix
 import (
 	"context"
 	"flag"
-	"github.com/gin-gonic/gin"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/summer-solutions/orm"
 
@@ -45,9 +46,9 @@ func New(appName string, secret string) *Registry {
 	return r
 }
 
-func (r *Registry) Build() *Hitrix {
+func (r *Registry) Build() (*Hitrix, func()) {
 	r.initializeIoCHandlers()
-	r.initializeLog()
+
 	flags := DIC().App().Flags()
 	if flags.Bool("list-scripts") {
 		listScrips()
@@ -58,7 +59,15 @@ func (r *Registry) Build() *Hitrix {
 	if scriptToRun != "" {
 		s.runDynamicScrips(ctx, scriptToRun)
 	}
-	return s
+
+	return s, func() {
+		if r := recover(); r != nil {
+			errorLogger, has := DIC().ErrorLogger()
+			if has {
+				errorLogger.LogRecover(r)
+			}
+		}
+	}
 }
 
 func (r *Registry) RegisterDevPanel(devPanelUserEntity DevPanelUserEntity, router func(ginEngine *gin.Engine), poolStream *string) *Registry {
@@ -83,8 +92,6 @@ func (r *Registry) initializeIoCHandlers() {
 
 	defaultDefinitions := []*ServiceDefinition{
 		serviceApp(r.app),
-		serviceLogGlobal(),
-		serviceLogForRequest(),
 		serviceConfig(),
 	}
 

@@ -1,0 +1,30 @@
+version: '3'
+services:
+  mysql:
+    image: percona
+    volumes:
+      - orm_data_mysql:/var/lib/mysql
+    ports:
+      - ${LOCAL_IP}:${MYSQL_PORT}:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  redis:
+    image: redis
+    volumes:
+      - orm_data_redis:/data
+    ports:
+      - ${LOCAL_IP}:${REDIS_PORT}:6379
+  services:
+    build:
+      context: ""
+      dockerfile: services/Dockerfile
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - 9999:9999
+    volumes:
+      - ../..:/go/src/github.com/coretrix/hitrix
+volumes:
+  orm_data_mysql: {}
+  orm_data_redis: {}

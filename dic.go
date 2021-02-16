@@ -13,10 +13,11 @@ type DICInterface interface {
 	Config() *Config
 	OrmConfig() (orm.ValidatedRegistry, bool)
 	OrmEngine() (*orm.Engine, bool)
-	LogForContext(ctx context.Context) *RequestLog
 	OrmEngineForContext(ctx context.Context) (*orm.Engine, bool)
 	JWT() (*JWT, bool)
 	Password() (*Password, bool)
+	SlackAPI() (*SlackAPI, bool)
+	ErrorLogger() (ErrorLogger, bool)
 }
 
 type dic struct {
@@ -56,10 +57,6 @@ func (d *dic) OrmEngine() (*orm.Engine, bool) {
 	return nil, false
 }
 
-func (d *dic) LogForContext(ctx context.Context) *RequestLog {
-	return GetServiceForRequestRequired(ctx, "log_request").(*RequestLog)
-}
-
 func (d *dic) OrmEngineForContext(ctx context.Context) (*orm.Engine, bool) {
 	v, has := GetServiceForRequestOptional(ctx, "orm_engine_request")
 	if has {
@@ -80,6 +77,22 @@ func (d *dic) Password() (*Password, bool) {
 	v, has := GetServiceOptional("password")
 	if has {
 		return v.(*Password), true
+	}
+	return nil, false
+}
+
+func (d *dic) SlackAPI() (*SlackAPI, bool) {
+	v, has := GetServiceOptional("slack_api")
+	if has {
+		return v.(*SlackAPI), true
+	}
+	return nil, false
+}
+
+func (d *dic) ErrorLogger() (ErrorLogger, bool) {
+	v, has := GetServiceOptional("error_logger")
+	if has {
+		return v.(ErrorLogger), true
 	}
 	return nil, false
 }
