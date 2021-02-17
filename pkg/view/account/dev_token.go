@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -81,23 +82,26 @@ func generateTokenValue(secret string, id interface{}, expire int64) (string, er
 
 func IsValidDevRefreshToken(c *gin.Context, token string) error {
 	appService := hitrix.DIC().App()
-	if _, err := isValid(token, appService.Secret(), expireTimeRefreshToken); err != nil {
+
+	userID, err := isValid(token, appService.Secret(), expireTimeRefreshToken)
+	if err != nil {
 		return err
 	}
 
-	return verifyDevUser(c, token)
+	return verifyDevUser(c, userID, token)
 }
 
 func IsValidDevToken(c *gin.Context, token string) error {
 	appService := hitrix.DIC().App()
-	if _, err := isValid(token, appService.Secret(), expireTimeToken); err != nil {
+	userID, err := isValid(token, appService.Secret(), expireTimeToken)
+	if err != nil {
 		return err
 	}
 
-	return verifyDevUser(c, token)
+	return verifyDevUser(c, userID, token)
 }
 
-func verifyDevUser(c *gin.Context, token string) error {
+func verifyDevUser(c *gin.Context, userID uint64, token string) error {
 	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
 
 	if !has {
@@ -111,6 +115,15 @@ func verifyDevUser(c *gin.Context, token string) error {
 	if !has || strings.Compare(v, token) != 0 {
 		return fmt.Errorf("token doesnt match")
 	}
+
+	userEntity := hitrix.DIC().App().DevPanel().UserEntity
+	has = ormService.LoadByID(userID, userEntity)
+
+	if !has {
+		return errors.New("invalid user")
+	}
+
+	c.Set(LoggedDevPanelUserEntity, userEntity)
 
 	return nil
 }
