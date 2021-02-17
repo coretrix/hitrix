@@ -156,7 +156,7 @@ func (h *Hitrix) await() {
 		h.cancel()
 	case <-termChan:
 		log.Println("TERMINATING")
-		s.cancel()
+		h.cancel()
 		time.Sleep(time.Millisecond * 300)
 		log.Println("TERMINATED")
 	}
