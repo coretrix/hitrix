@@ -5,9 +5,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -26,14 +23,6 @@ type Registry struct {
 	app                 *AppDefinition
 	servicesDefinitions []*ServiceDefinition
 	scripts             []string
-}
-
-type Hitrix struct {
-	registry *Registry
-	ctx      context.Context
-	cancel   context.CancelFunc
-	done     chan bool
-	exit     chan int
 }
 
 func New(appName string, secret string) *Registry {
@@ -143,21 +132,4 @@ func (r *Registry) initializeIoCHandlers() {
 		flag.Parse()
 	}
 	r.app.flags = &Flags{flagsRegistry}
-}
-
-func (h *Hitrix) await() {
-	termChan := make(chan os.Signal, 1)
-	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
-	select {
-	case code := <-h.exit:
-		h.cancel()
-		os.Exit(code)
-	case <-h.done:
-		h.cancel()
-	case <-termChan:
-		log.Println("TERMINATING")
-		h.cancel()
-		time.Sleep(time.Millisecond * 300)
-		log.Println("TERMINATED")
-	}
 }

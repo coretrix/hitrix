@@ -59,13 +59,13 @@ func (h *Hitrix) RunScript(script Script) {
 	_, isInterval := script.(ScriptInterval)
 	go func() {
 		for {
-			valid := h.runScript(script)
+			hasError := h.runScript(script)
 			if !isInterval {
 				h.done <- true
 				break
 			}
 			//TODO
-			if valid {
+			if hasError {
 				time.Sleep(time.Minute)
 			} else {
 				time.Sleep(time.Second * 10)

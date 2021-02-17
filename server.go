@@ -6,10 +6,20 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 )
+
+type Hitrix struct {
+	registry *Registry
+	ctx      context.Context
+	cancel   context.CancelFunc
+	done     chan bool
+	exit     chan int
+}
 
 func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, ginInitHandler GinInitHandler) {
 	port := os.Getenv("PORT")
@@ -31,5 +41,22 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Println("server forced to shutdown")
+	}
+}
+
+func (h *Hitrix) await() {
+	termChan := make(chan os.Signal, 1)
+	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
+	select {
+	case code := <-h.exit:
+		h.cancel()
+		os.Exit(code)
+	case <-h.done:
+		h.cancel()
+	case <-termChan:
+		log.Println("TERMINATING")
+		h.cancel()
+		time.Sleep(time.Millisecond * 300)
+		log.Println("TERMINATED")
 	}
 }
