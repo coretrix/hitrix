@@ -21,7 +21,7 @@ type AppDefinition struct {
 	name     string
 	secret   string
 	flags    *Flags
-	registry *Registry
+	scripts  []string
 	devPanel *DevPanel
 }
 

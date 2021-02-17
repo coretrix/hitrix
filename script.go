@@ -76,7 +76,7 @@ func (h *Hitrix) RunScript(script Script) {
 }
 
 func listScrips() {
-	scripts := DIC().App().registry.scripts
+	scripts := DIC().App().scripts
 	if len(scripts) > 0 {
 		output := []string{
 			"NAME | OPTIONS | DESCRIPTION ",
@@ -118,7 +118,7 @@ func listScrips() {
 }
 
 func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
-	scripts := DIC().App().registry.scripts
+	scripts := DIC().App().scripts
 	if len(scripts) == 0 {
 		panic(fmt.Sprintf("unknown script %s", code))
 	}

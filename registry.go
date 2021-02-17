@@ -22,7 +22,6 @@ type DevPanelUserEntity interface {
 type Registry struct {
 	app                 *AppDefinition
 	servicesDefinitions []*ServiceDefinition
-	scripts             []string
 }
 
 func New(appName string, secret string) *Registry {
@@ -32,7 +31,6 @@ func New(appName string, secret string) *Registry {
 	}
 	app := &AppDefinition{mode: mode, name: appName, secret: secret}
 	r := &Registry{app: app}
-	app.registry = r
 	return r
 }
 
@@ -100,7 +98,7 @@ func (r *Registry) initializeIoCHandlers() {
 			scope = di.Request
 		}
 		if def.Script {
-			r.scripts = append(r.scripts, def.Name)
+			r.app.scripts = append(r.app.scripts, def.Name)
 		}
 
 		err := ioCBuilder.Add(di.Def{
