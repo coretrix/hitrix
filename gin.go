@@ -107,7 +107,10 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 			message = "panic"
 		}
 		errorMessage := message + "\n" + string(debug.Stack())
-		DIC().Log().Error(errorMessage)
+		errorLogger, has := DIC().ErrorLogger()
+		if has {
+			errorLogger.LogRecover(errorMessage)
+		}
 		return errors.New("internal server error")
 	})
 	return func(c *gin.Context) {

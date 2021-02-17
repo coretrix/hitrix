@@ -148,7 +148,11 @@ func (s *Hitrix) runScript(script Script) bool {
 				} else {
 					message = "panic"
 				}
-				DIC().Log().Error(message + "\n" + string(debug.Stack()))
+
+				errorLogger, has := DIC().ErrorLogger()
+				if has {
+					errorLogger.LogRecover(message + "\n" + string(debug.Stack()))
+				}
 				valid = false
 			}
 		}()

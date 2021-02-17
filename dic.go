@@ -3,13 +3,11 @@ package hitrix
 import (
 	"context"
 
-	apexLog "github.com/apex/log"
 	"github.com/summer-solutions/orm"
 )
 
 type DICInterface interface {
 	App() *AppDefinition
-	Log() apexLog.Interface
 	Config() *Config
 	OrmConfig() (orm.ValidatedRegistry, bool)
 	OrmEngine() (*orm.Engine, bool)
@@ -31,10 +29,6 @@ func DIC() DICInterface {
 
 func (d *dic) App() *AppDefinition {
 	return GetServiceRequired("app").(*AppDefinition)
-}
-
-func (d *dic) Log() apexLog.Interface {
-	return GetServiceRequired("log").(apexLog.Interface)
 }
 
 func (d *dic) Config() *Config {

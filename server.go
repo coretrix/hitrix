@@ -3,6 +3,7 @@ package hitrix
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -29,6 +30,6 @@ func (s *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		DIC().Log().WithError(err).Fatal("server forced to shutdown")
+		log.Println("server forced to shutdown")
 	}
 }

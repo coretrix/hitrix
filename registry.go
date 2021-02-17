@@ -3,6 +3,7 @@ package hitrix
 import (
 	"context"
 	"flag"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -152,9 +153,9 @@ func (s *Hitrix) await() {
 	case <-s.done:
 		s.cancel()
 	case <-termChan:
-		DIC().Log().Debug("TERMINATING")
+		log.Println("TERMINATING")
 		s.cancel()
 		time.Sleep(time.Millisecond * 300)
-		DIC().Log().Debug("TERMINATED")
+		log.Println("TERMINATED")
 	}
 }
