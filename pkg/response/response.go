@@ -13,16 +13,6 @@ type Error struct {
 	Result      *interface{}      `json:"Result,omitempty"`
 }
 
-func SuccessAPIResponse(c *gin.Context, data interface{}) {
-	if data != nil {
-		c.JSON(http.StatusOK, data)
-
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{})
-}
-
 func SuccessResponse(c *gin.Context, data interface{}) {
 	if data != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -54,11 +44,10 @@ func ErrorResponseGlobal(c *gin.Context, globalError interface{}, data interface
 
 	err1, ok1 := globalError.(error)
 	if ok1 {
-		c.JSON(http.StatusBadRequest, err1.Error())
-		return
+		result.GlobalError = err1.Error()
+	} else {
+		result.GlobalError = globalError.(string)
 	}
-
-	result.GlobalError = globalError.(string)
 
 	c.JSON(http.StatusBadRequest, result)
 }

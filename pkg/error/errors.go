@@ -2,6 +2,7 @@ package errors
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type FieldErrors map[string]string
@@ -28,6 +29,21 @@ func (e *PermissionError) Error() string {
 	}
 
 	return "permission denied"
+}
+
+func HandleErrors(formErrors interface{}, c *gin.Context) error {
+	fErrors, ok := formErrors.(validator.ValidationErrors)
+
+	if !ok {
+		return nil
+	}
+
+	var fe FieldErrors = make(map[string]string)
+	for _, errors := range fErrors {
+		fe[errors.Field()] = errors.Translate(nil)
+	}
+
+	return fe
 }
 
 func HandleCustomErrors(formErrors map[string]string, c *gin.Context) error {

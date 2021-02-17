@@ -1,9 +1,8 @@
 package account
 
 import (
-	"fmt"
-
 	"github.com/coretrix/hitrix"
+	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/view/account"
 	"github.com/gin-gonic/gin"
 	"github.com/juju/errors"
@@ -15,7 +14,7 @@ type LoginDevForm struct {
 }
 
 func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
-	err := c.ShouldBindJSON(l)
+	err := binding.ShouldBindJSON(c, l)
 	if err != nil {
 		return "", "", err
 	}
@@ -35,11 +34,11 @@ func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
 	ok := ormService.CachedSearchOne(devPanelUserEntity, "UserEmailIndex", l.Username)
 
 	if !ok {
-		return "", "", fmt.Errorf("invalid username or password")
+		return "", "", errors.New("invalid username or password")
 	}
 
 	if !passwordService.VerifyPassword(l.Password, devPanelUserEntity.GetPassword()) {
-		return "", "", fmt.Errorf("invalid username or password")
+		return "", "", errors.New("invalid username or password")
 	}
 
 	token, refreshToken, err := account.GenerateDevTokenAndRefreshToken(ormService, devPanelUserEntity.GetID())
