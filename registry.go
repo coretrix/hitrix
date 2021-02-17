@@ -66,6 +66,8 @@ func (r *Registry) Build() (*Hitrix, func()) {
 			errorLogger, has := DIC().ErrorLogger()
 			if has {
 				errorLogger.LogRecover(r)
+			} else {
+				log.Print(r.(string))
 			}
 		}
 	}
@@ -143,15 +145,15 @@ func (r *Registry) initializeIoCHandlers() {
 	r.app.flags = &Flags{flagsRegistry}
 }
 
-func (s *Hitrix) await() {
+func (h *Hitrix) await() {
 	termChan := make(chan os.Signal, 1)
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
 	select {
-	case code := <-s.exit:
-		s.cancel()
+	case code := <-h.exit:
+		h.cancel()
 		os.Exit(code)
-	case <-s.done:
-		s.cancel()
+	case <-h.done:
+		h.cancel()
 	case <-termChan:
 		log.Println("TERMINATING")
 		s.cancel()

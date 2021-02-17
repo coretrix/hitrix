@@ -11,7 +11,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
-func (s *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, ginInitHandler GinInitHandler) {
+func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, ginInitHandler GinInitHandler) {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = fmt.Sprintf("%d", defaultPort)
@@ -24,9 +24,9 @@ func (s *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			panic(err)
 		}
-		s.done <- true
+		h.done <- true
 	}()
-	s.await()
+	h.await()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {

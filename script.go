@@ -55,13 +55,13 @@ type ScriptOptional interface {
 	Active() bool
 }
 
-func (s *Hitrix) RunScript(script Script) {
+func (h *Hitrix) RunScript(script Script) {
 	_, isInterval := script.(ScriptInterval)
 	go func() {
 		for {
-			valid := s.runScript(script)
+			valid := h.runScript(script)
 			if !isInterval {
-				s.done <- true
+				h.done <- true
 				break
 			}
 			//TODO
@@ -72,7 +72,7 @@ func (s *Hitrix) RunScript(script Script) {
 			}
 		}
 	}()
-	s.await()
+	h.await()
 }
 
 func listScrips() {
@@ -117,7 +117,7 @@ func listScrips() {
 	}
 }
 
-func (s *Hitrix) runDynamicScrips(ctx context.Context, code string) {
+func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
 	scripts := DIC().App().registry.scripts
 	if len(scripts) == 0 {
 		panic(fmt.Sprintf("unknown script %s", code))
@@ -129,14 +129,14 @@ func (s *Hitrix) runDynamicScrips(ctx context.Context, code string) {
 				panic(fmt.Sprintf("unknown script %s", code))
 			}
 			defScript := def.(Script)
-			defScript.Run(ctx, &exit{s: s})
+			defScript.Run(ctx, &exit{s: h})
 			return
 		}
 	}
 	panic(fmt.Sprintf("unknown script %s", code))
 }
 
-func (s *Hitrix) runScript(script Script) bool {
+func (h *Hitrix) runScript(script Script) bool {
 	return func() bool {
 		valid := true
 		defer func() {
@@ -156,7 +156,7 @@ func (s *Hitrix) runScript(script Script) bool {
 				valid = false
 			}
 		}()
-		script.Run(s.ctx, &exit{s: s})
+		script.Run(h.ctx, &exit{s: h})
 		return valid
 	}()
 }

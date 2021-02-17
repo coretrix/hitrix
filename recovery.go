@@ -1,6 +1,8 @@
 package hitrix
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,6 +13,8 @@ func recovery() gin.HandlerFunc {
 				errorLogger, has := DIC().ErrorLogger()
 				if has {
 					errorLogger.LogRecover(r)
+				} else {
+					log.Println(r.(string))
 				}
 			}
 		}()
