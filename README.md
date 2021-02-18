@@ -15,7 +15,7 @@ Hitrix is based on top of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](htt
  * It supports all features of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](https://github.com/gin-gonic/gin)
  * Integrated with [ORM](https://github.com/summer-solutions/orm)
  * Follows [Dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) pattern
- * Provides many DI services that makes your live easier
+ * Provides many DI services that makes your live easier. You can read more about them [here](https://github.com/coretrix/hitrix#built-in-services)
  * Provides [Dev panel](https://github.com/coretrix/dev-frontend) where you can monitor and manage your application(monitoring, error log, db alters and so on)
 
 ## Installation
@@ -386,11 +386,35 @@ To run script:
 ./app -run-script my-script
 ```
 
-### Built-in service
-#### 1. SlackAPI
+
+### Built-in services
+
+#### App 
+This service contains information about the application like MODE and so on
+
+#### ORM Engine  
+Used to access ORM in background scripts. It is one instance for the whole script
+
+You can register it in that way:
+`hitrix.ServiceDefinitionOrmEngine()`
+
+#### ORM Engine Context
+Used to access ORM in foreground scripts like API. It is one instance per every request
+
+You can register it in that way:
+`hitrix.ServiceDefinitionOrmEngineForContext()`
+
+#### Error Logger
+Used to save unhandled errors in error log. It can be used to save custom errors as well.
+If you have setup Slack service you also gonna receive notifications in your slack
+
+You can register it in that way:
+`hitrix.ServiceProviderErrorLogger()`
+
+#### SlackAPI
 Gives you ability to send slack messages using slack bot. Also it's used to send messages if you use our ErrorLogger service.
 The config that needs to be set in hitrix.yaml is:
-   
+
 ```yaml
 slack:
     token: "your token"
@@ -398,3 +422,18 @@ slack:
     dev_panel_url: "test" #optional, used by ErrorLogger
 
 ```
+
+You can register it in that way:
+`hitrix.ServiceDefinitionSlackAPI()`
+
+#### JWT
+You can use that service to encode and decode JWT tokens
+
+You can register it in that way:
+`hitrix.ServiceDefinitionJWT()`
+
+#### Password
+This service it can be used to hash and verify hashed passwords. It's use the secret provided when you make new Hitrix instance
+
+You can register it in that way:
+`hitrix.ServiceDefinitionPassword()`
