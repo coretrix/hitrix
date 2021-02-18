@@ -1,7 +1,10 @@
 package hitrix
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -37,10 +40,17 @@ func newViperConfig(appName, mode, localConfigFolder string) (*Config, error) {
 	}
 
 	viper.SetConfigFile(configFolder + "/" + appName + "/config.yaml")
-
 	err := viper.ReadInConfig()
 	if err != nil {
 		return nil, err
+	}
+
+	configBytes, err := ioutil.ReadFile(configFolder + "/hitrix.yaml")
+	if err == nil {
+		err = viper.MergeConfig(bytes.NewBuffer(configBytes))
+		if err != nil {
+			return nil, fmt.Errorf("fatal error config file: %s", err)
+		}
 	}
 
 	viperConfig := &Config{

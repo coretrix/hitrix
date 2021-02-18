@@ -11,7 +11,7 @@ import (
 
 func main() {
 	s, deferFunc := hitrix.New(
-		"hitrix", "secret",
+		"my-app", "secret",
 	).RegisterDIService(
 		hitrix.ServiceProviderErrorLogger(),
 		hitrix.ServiceProviderConfigDirectory("config"),

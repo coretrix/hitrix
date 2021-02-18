@@ -1,0 +1,4 @@
+slack:
+  token: "your token"
+  error_channel: ""
+  dev_panel_url: ""
