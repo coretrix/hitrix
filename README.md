@@ -42,8 +42,8 @@ import (
 	"github.com/coretrix/hitrix"
 	"github.com/gin-gonic/gin"
 	
-	"your-project/graph"
-	"your-project/graph/generated"
+	"your-project/graph" //path you your graph
+	"your-project/graph/generated" //path you your graph generated folder
 )
 
 func main() {
@@ -98,22 +98,32 @@ func main() {
 Now I will explain the main.go file line by line
  1. We create **New** instance of Hitrix and pass app name and a secret that is used from our security services 
  2. We register some DI services
-    2.1 Global DI service for error logger. It will be used for error handler as well in case of panic
-        If you register SlackApi error logger will send emails to slack channel as well
-    2.2 Global DI service that loads config file
-    2.3 Global DI service that initialize our ORM registry
-    2.4 Global DI ORM engine used in background processes
-    2.5 Request DI ORM engine used in foreground processes
-    2.6 Global DI JWT service used by dev panel
-    2.7 Global DI Password service used by dev-panel
+    
+    2.1. Global DI service for error logger. It will be used for error handler as well in case of panic
+        If you register SlackApi error logger also it will send messages to slack channel
+    
+    2.2. Global DI service that loads config file
+    
+    2.3. Global DI service that initialize our ORM registry
+    
+    2.4. Global DI ORM engine used in background processes
+    
+    2.5. Request DI ORM engine used in foreground processes
+    
+    2.6. Global DI JWT service used by dev panel
+    
+    2.7. Global DI Password service used by dev-panel
  3. Register dev panel   
-    3.1 First param is the entity where we gonna keep admin users
-    3.2 The router used by dev panel
-    3.3 If you use redis stream pool you should pass it's name as third param
+    
+    3.1. First param is the entity where we gonna keep admin users
+    
+    3.2. The router used by dev panel
+    
+    3.3. If you use redis stream pool you should pass it's name as third param
  4. We run the server on port `9999`, pass graphql resolver and as third param we pass all middlewares we need.   
 As you can see in our example we register only Cors middleware
     
-If you register dev panel I will show you example AdminEntity
+If you want to register dev panel I will show you example AdminUserEntity
 ```go
 package entity
 
@@ -168,8 +178,9 @@ create table admin_users
 
 ```
 
-After that you can make GET request to http://localhost:9999/dev/create-admin/
-This will crete default admin user with username `contact@coretrix.com` with password `coretrix`
+After that you can make GET request to http://localhost:9999/dev/create-admin/?Username=contact@coretrix.com&Password=coretrix
+This will generate sql query that should be executed into your database to create new user for dev panel
+
 ### Defining DI services
 #### We have two types of DI services - Global and Request services
 Global services are singletons created once for the whole application
@@ -391,6 +402,18 @@ To run script:
 
 #### App 
 This service contains information about the application like MODE and so on
+
+#### Config
+This service provides you access to your config file. We support only YAML file
+When you register the service `hitrix.ServiceProviderConfigDirectory("../config")`
+you should provide the folder where are your config files
+The folder structure should looks like that
+```
+config
+- app-name
+ - config.yaml
+hitrix.yaml #optional config where you can define some settings related to other services like slack service
+```
 
 #### ORM Engine  
 Used to access ORM in background scripts. It is one instance for the whole script
