@@ -414,7 +414,7 @@ The folder structure should looks like that
 config
  - app-name
     - config.yaml
- - hitrix.yaml #optional config where you can define some settings related to other services like slack service
+ - hitrix.yaml #optional config where you can define some settings related to built-in services like slack service
 ```
 
 #### ORM Engine  
