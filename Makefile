@@ -2,6 +2,12 @@ SHELL := /bin/bash
 export GO111MODULE=on
 export GOPROXY=https://proxy.golang.org
 
+cover: ## Run tests with coverage and creates cover.out profile
+	@mkdir -p ./resources/cover
+	@rm -f ./resources/cover/tmp-cover.log;
+	@go get github.com/ory/go-acc
+	@${GOPATH}/bin/go-acc ./... --output=resources/cover/cover.out --covermode=atomic
+
 format: ## Format go code with goimports
 	@go get golang.org/x/tools/cmd/goimports
 	@${GOPATH}/bin/goimports -l -w .
