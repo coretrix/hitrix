@@ -44,6 +44,11 @@ func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
 		panic("password is not registered")
 	}
 
+	ormService, has := service.DI().OrmEngine()
+	if !has {
+		panic("password is not registered")
+	}
+
 	username := c.Query("username")
 	pass := c.Query("password")
 
@@ -51,14 +56,15 @@ func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
 		response.ErrorResponseGlobal(c, "username and password query parameters are required", nil)
 		return
 	}
-	//adminEntity := hitrix.DI().App().DevPanel().UserEntity
+	adminEntity := service.DI().App().DevPanel.UserEntity
 
 	passwordHash, err := passwordService.HashPassword(pass)
 	if err != nil {
 		response.ErrorResponseGlobal(c, err, nil)
 	}
 
-	response.SuccessResponse(c, fmt.Sprintf(`INSERT INTO %s (Email, Password) VALUES(%s, %s)`, "admin_users", username, passwordHash))
+	adminTableSchema := ormService.GetRegistry().GetTableSchemaForEntity(adminEntity)
+	response.SuccessResponse(c, fmt.Sprintf(`INSERT INTO %s (Email, Password) VALUES("%s", "%s")`, adminTableSchema.GetTableName(), username, passwordHash))
 }
 
 func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {

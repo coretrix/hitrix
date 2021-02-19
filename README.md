@@ -135,7 +135,7 @@ import (
 type AdminUserEntity struct {
 	orm.ORM   `orm:"table=admin_users;redisCache"`
 	ID        uint64
-	Email     string `orm:"unique=Email_FakeDelete:1"`
+	Email     string `orm:"unique=Email"`
 	Password  string
 
 	UserEmailIndex *orm.CachedQuery `queryOne:":Email = ?"`
@@ -173,7 +173,7 @@ create table admin_users
     ID       bigint unsigned auto_increment primary key,
     Email    varchar(255) null,
     Password varchar(255) null,
-    constraint Email_FakeDelete unique (Email)
+    constraint Email unique (Email)
 ) charset = utf8mb4;
 
 
@@ -200,11 +200,8 @@ service.DI().Password() //access JWT
 
 #### You are able to create and register your own services in next way:
 ```go
-func ServiceDefinitionMyService() *ServiceDefinition {
-	return serviceDefinitionYourServiceName()
-}
 
-func serviceDefinitionMyService() *ServiceDefinition {
+func ServiceDefinitionMyService() *ServiceDefinition {
 	return &ServiceDefinition{
 		Name:   "my_service",
 		Global: true,
@@ -222,7 +219,7 @@ And you have to register `ServiceDefinitionMyService()` in your `main.go` file
 
 You can define hitrix mode using special environment variable "**SPRING_MODE**".
 
-Hitrix provides by default two modes:
+Hitrix provides by default four modes:
 
  * **hitrix.ModeLocal**
    * should be used on local development machine (developer laptop)
@@ -230,10 +227,14 @@ Hitrix provides by default two modes:
    * log level is set to Debug level
    * log is formatted using human friendly console text formatter
    * Gin Framework is running in GinDebug mode
-  * **hitrix.ModeProd**
-    * errors and stack trace is printed only using Log
-    * log level is set to Warn level
-    * log is formatted using json formatter   
+ * **hitrix.ModeTest**
+   * should be used when you run your application tests
+ * **hitrix.ModeDemo**
+   * should be used on your demo server
+ * **hitrix.ModeProd**
+   * errors and stack trace is printed only using Log
+   * log level is set to Warn level
+   * log is formatted using json formatter   
     
 Mode is just a string. You can define any name you want. Remember that every mode that you create
 follows **hitrix.ModeProd** rules explained above.
@@ -258,14 +259,14 @@ import (
 
 func SomeResolver(ctx context.Context) {
 
-    hitrix.HasService("my_service") // return true
+    service.HasService("my_service") // return true
     
     // return error if Build function returned error
-    myService, has, err := hitrix.GetServiceSafe("my_service") 
+    myService, has, err := service.GetServiceSafe("my_service") 
     // will panic if Build function returns error
-    myService, has := hitrix.GetServiceOptional("my_service") 
+    myService, has := service.GetServiceOptional("my_service") 
     // will panic if service is not registered or Build function returned errors
-    myService := hitrix.GetServiceRequired("my_service") 
+    myService := service.GetServiceRequired("my_service") 
 
     // if you registered service with field "Global" set to false (request service)
 
@@ -287,7 +288,7 @@ import (
 
 
 func MyService() MyService {
-    return hitrix.GetServiceRequired("service_key").(*MyService)
+    return service.GetServiceRequired("service_key").(*MyService)
 }
 
 
@@ -411,9 +412,9 @@ you should provide the folder where are your config files
 The folder structure should looks like that
 ```
 config
-- app-name
- - config.yaml
-hitrix.yaml #optional config where you can define some settings related to other services like slack service
+ - app-name
+    - config.yaml
+ - hitrix.yaml #optional config where you can define some settings related to other services like slack service
 ```
 
 #### ORM Engine  
