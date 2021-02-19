@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"github.com/coretrix/hitrix"
 	"github.com/coretrix/hitrix/pkg/controller"
+	"github.com/coretrix/hitrix/service"
 	"github.com/gin-gonic/gin"
 )
 
 func Router(ginEngine *gin.Engine) {
-	_, has := hitrix.DIC().JWT()
+	_, has := service.DI().JWT()
 	if !has {
 		panic("Please load JWT service")
 	}

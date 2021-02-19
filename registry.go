@@ -6,51 +6,50 @@ import (
 	"log"
 	"os"
 
-	"github.com/gin-gonic/gin"
+	"github.com/coretrix/hitrix/service/registry"
 
-	"github.com/summer-solutions/orm"
+	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/sarulabs/di"
 )
 
-type DevPanelUserEntity interface {
-	orm.Entity
-	GetUsername() string
-	GetPassword() string
-}
-
 type Registry struct {
-	app                 *AppDefinition
-	servicesDefinitions []*ServiceDefinition
+	app                 *app.App
+	servicesDefinitions []*service.Definition
 }
 
 func New(appName string, secret string) *Registry {
 	mode, hasMode := os.LookupEnv("SPRING_MODE")
 	if !hasMode {
-		mode = ModeLocal
+		mode = app.ModeLocal
 	}
-	app := &AppDefinition{mode: mode, name: appName, secret: secret}
-	r := &Registry{app: app}
+
+	r := &Registry{
+		app: &app.App{Mode: mode, Name: appName, Secret: secret},
+	}
 	return r
 }
 
 func (r *Registry) Build() (*Hitrix, func()) {
 	r.initializeIoCHandlers()
 
-	flags := DIC().App().Flags()
+	flags := service.DI().App().Flags
 	if flags.Bool("list-scripts") {
 		listScrips()
 	}
 	scriptToRun := flags.String("run-script")
 	ctx, cancel := context.WithCancel(context.Background())
-	s := &Hitrix{registry: r, ctx: ctx, cancel: cancel, done: make(chan bool), exit: make(chan int)}
+	h := &Hitrix{ctx: ctx, cancel: cancel, done: make(chan bool), exit: make(chan int)}
 	if scriptToRun != "" {
-		s.runDynamicScrips(ctx, scriptToRun)
+		h.runDynamicScrips(ctx, scriptToRun)
 	}
 
-	return s, func() {
+	return h, func() {
 		if r := recover(); r != nil {
-			errorLogger, has := DIC().ErrorLogger()
+			errorLogger, has := service.DI().ErrorLogger()
 			if has {
 				errorLogger.LogRecover(r)
 			} else {
@@ -60,7 +59,7 @@ func (r *Registry) Build() (*Hitrix, func()) {
 	}
 }
 
-func (r *Registry) RegisterDevPanel(devPanelUserEntity DevPanelUserEntity, router func(ginEngine *gin.Engine), poolStream *string) *Registry {
+func (r *Registry) RegisterDevPanel(devPanelUserEntity app.DevPanelUserEntity, router func(ginEngine *gin.Engine), poolStream *string) *Registry {
 	if devPanelUserEntity == nil {
 		panic("devPanelUserEntity cannot be nil")
 	}
@@ -68,11 +67,11 @@ func (r *Registry) RegisterDevPanel(devPanelUserEntity DevPanelUserEntity, route
 		panic("router cannot be nil")
 	}
 
-	r.app.devPanel = &DevPanel{UserEntity: devPanelUserEntity, Router: router, PoolStream: poolStream}
+	r.app.DevPanel = &app.DevPanel{UserEntity: devPanelUserEntity, Router: router, PoolStream: poolStream}
 	return r
 }
 
-func (r *Registry) RegisterDIService(service ...*ServiceDefinition) *Registry {
+func (r *Registry) RegisterDIService(service ...*service.Definition) *Registry {
 	r.servicesDefinitions = append(r.servicesDefinitions, service...)
 	return r
 }
@@ -80,12 +79,12 @@ func (r *Registry) RegisterDIService(service ...*ServiceDefinition) *Registry {
 func (r *Registry) initializeIoCHandlers() {
 	ioCBuilder, _ := di.NewBuilder()
 
-	defaultDefinitions := []*ServiceDefinition{
-		serviceApp(r.app),
-		serviceConfig(),
+	defaultDefinitions := []*service.Definition{
+		registry.ServiceApp(r.app),
+		registry.ServiceConfig(),
 	}
 
-	flagsRegistry := &FlagsRegistry{flags: make(map[string]interface{})}
+	flagsRegistry := &app.FlagsRegistry{Flags: make(map[string]interface{})}
 	for _, def := range append(defaultDefinitions, r.servicesDefinitions...) {
 		if def == nil {
 			continue
@@ -98,7 +97,7 @@ func (r *Registry) initializeIoCHandlers() {
 			scope = di.Request
 		}
 		if def.Script {
-			r.app.scripts = append(r.app.scripts, def.Name)
+			r.app.Scripts = append(r.app.Scripts, def.Name)
 		}
 
 		err := ioCBuilder.Add(di.Def{
@@ -124,10 +123,9 @@ func (r *Registry) initializeIoCHandlers() {
 	if err != nil {
 		panic(err)
 	}
-	container = ioCBuilder.Build()
-	dicInstance = &dic{}
+	service.SetContainer(ioCBuilder.Build())
 	if !flag.Parsed() {
 		flag.Parse()
 	}
-	r.app.flags = &Flags{flagsRegistry}
+	r.app.Flags = &app.Flags{Registry: flagsRegistry}
 }

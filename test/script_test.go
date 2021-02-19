@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/coretrix/hitrix/service"
+
 	"github.com/coretrix/hitrix"
 
 	"github.com/sarulabs/di"
@@ -32,7 +34,7 @@ func (script *testScript2) Description() string {
 
 func TestRunScript(t *testing.T) {
 	r := hitrix.New("test_script", "secret").RegisterDIService()
-	testService := &hitrix.ServiceDefinition{
+	testService := &service.Definition{
 		Name:   "test_service",
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
@@ -45,6 +47,6 @@ func TestRunScript(t *testing.T) {
 	testScript2 := &testScript2{}
 	s.RunScript(testScript2)
 	assert.Equal(t, 1, testScript2.RunCounter)
-	assert.Equal(t, "test_script", hitrix.DIC().App().Name())
-	assert.Equal(t, "hello", hitrix.GetServiceRequired("test_service"))
+	assert.Equal(t, "test_script", service.DI().App().Name)
+	assert.Equal(t, "hello", service.GetServiceRequired("test_service"))
 }

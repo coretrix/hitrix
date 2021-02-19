@@ -66,6 +66,7 @@ package main
 
 import (
 	"github.com/coretrix/hitrix"
+	"github.com/coretrix/hitrix/service/registry"
 	"your-project/entity"
 	"your-project/graph"
 	"your-project/graph/generated"
@@ -77,13 +78,13 @@ func main() {
 	s, deferFunc := hitrix.New(
 		"app-name", "your secret",
 	).RegisterDIService(
-		hitrix.ServiceProviderErrorLogger(), //register redis error logger
-		hitrix.ServiceProviderConfigDirectory("../config"), //register config service. As param you should point to the folder of your config file
-		hitrix.ServiceDefinitionOrmRegistry(entity.Init), //register our ORM and pass function where we set some configurations 
-		hitrix.ServiceDefinitionOrmEngine(), //register our ORM engine for background processes
-		hitrix.ServiceDefinitionOrmEngineForContext(), //register our ORM engine per context used in foreground processes
-		hitrix.ServiceProviderJWT(), //register JWT DI service
-		hitrix.ServiceProviderPassword(), //register pasword DI service
+		registry.ServiceProviderErrorLogger(), //register redis error logger
+		registry.ServiceProviderConfigDirectory("../config"), //register config service. As param you should point to the folder of your config file
+		registry.ServiceDefinitionOrmRegistry(entity.Init), //register our ORM and pass function where we set some configurations 
+		registry.ServiceDefinitionOrmEngine(), //register our ORM engine for background processes
+		registry.ServiceDefinitionOrmEngineForContext(), //register our ORM engine per context used in foreground processes
+		registry.ServiceProviderJWT(), //register JWT DI service
+		registry.ServiceProviderPassword(), //register pasword DI service
 	).
     RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil). //register our dev-panel and pass the entity where we save admin users, the router and the third param is used for the redis stream pool if its used
     Build()
@@ -187,13 +188,13 @@ Global services are singletons created once for the whole application
 Request services are singletons created once per request
 
 If you want to access the registered DI services you can do in in that way:
-```go
-hitrix.DIC().App() //access the app
-hitrix.DIC().Config() //access config
-hitrix.DIC().OrmEngine() //access global orm engine
-hitrix.DIC().OrmEngineForContext() //access reqeust orm engine
-hitrix.DIC().JWT() //access JWT
-hitrix.DIC().Password() //access JWT
+```
+service.DI().App() //access the app
+service.DI().Config() //access config
+service.DI().OrmEngine() //access global orm engine
+service.DI().OrmEngineForContext() //access reqeust orm engine
+service.DI().JWT() //access JWT
+service.DI().Password() //access JWT
 //...and so on
 ```
 
@@ -241,10 +242,10 @@ follows **hitrix.ModeProd** rules explained above.
 In code you can easly check current mode using one of these methods:    
 
 ```go
-hitrix.DIC().App().Mode()
-hitrix.DIC().App().IsInLocalMode()
-hitrix.DIC().App().IsInProdMode()
-hitrix.DIC().App().IsInMode("my_mode")
+service.DI().App().Mode()
+service.DI().App().IsInLocalMode()
+service.DI().App().IsInProdMode()
+service.DI().App().IsInMode("my_mode")
 ```
 
 
@@ -373,7 +374,7 @@ import "github.com/coretrix/hitrix"
 func main() {
 	
     hitrix.New("app_name", "your secret").RegisterDIService(
-        &hitrix.ServiceDefinition{
+        &registry.ServiceDefinition{
             Name:   "my-script",
             Global: true,
             Script: true, // you need to set true here
@@ -405,7 +406,7 @@ This service contains information about the application like MODE and so on
 
 #### Config
 This service provides you access to your config file. We support only YAML file
-When you register the service `hitrix.ServiceProviderConfigDirectory("../config")`
+When you register the service `registry.ServiceProviderConfigDirectory("../config")`
 you should provide the folder where are your config files
 The folder structure should looks like that
 ```
@@ -419,20 +420,20 @@ hitrix.yaml #optional config where you can define some settings related to other
 Used to access ORM in background scripts. It is one instance for the whole script
 
 You can register it in that way:
-`hitrix.ServiceDefinitionOrmEngine()`
+`registry.ServiceDefinitionOrmEngine()`
 
 #### ORM Engine Context
 Used to access ORM in foreground scripts like API. It is one instance per every request
 
 You can register it in that way:
-`hitrix.ServiceDefinitionOrmEngineForContext()`
+`registry.ServiceDefinitionOrmEngineForContext()`
 
 #### Error Logger
 Used to save unhandled errors in error log. It can be used to save custom errors as well.
 If you have setup Slack service you also gonna receive notifications in your slack
 
 You can register it in that way:
-`hitrix.ServiceProviderErrorLogger()`
+`registry.ServiceProviderErrorLogger()`
 
 #### SlackAPI
 Gives you ability to send slack messages using slack bot. Also it's used to send messages if you use our ErrorLogger service.
@@ -447,16 +448,16 @@ slack:
 ```
 
 You can register it in that way:
-`hitrix.ServiceDefinitionSlackAPI()`
+`registry.ServiceDefinitionSlackAPI()`
 
 #### JWT
 You can use that service to encode and decode JWT tokens
 
 You can register it in that way:
-`hitrix.ServiceDefinitionJWT()`
+`registry.ServiceDefinitionJWT()`
 
 #### Password
 This service it can be used to hash and verify hashed passwords. It's use the secret provided when you make new Hitrix instance
 
 You can register it in that way:
-`hitrix.ServiceDefinitionPassword()`
+`registry.ServiceDefinitionPassword()`

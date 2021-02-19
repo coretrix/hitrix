@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/coretrix/hitrix"
+	jwt2 "github.com/coretrix/hitrix/service/component/jwt"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -25,7 +25,7 @@ func TestJWTCreation(t *testing.T) {
 		"sub": "User",
 	}
 
-	jwt := &hitrix.JWT{}
+	jwt := &jwt2.JWT{}
 	jwtToken, err := jwt.EncodeJWT("mynewsecret", headers, payload)
 
 	assert.NoError(t, err, "An error occured while creating JWT!")
@@ -44,7 +44,7 @@ func TestVerifyJWT(t *testing.T) {
 		"sub": "User",
 	}
 
-	jwt := &hitrix.JWT{}
+	jwt := &jwt2.JWT{}
 
 	jwtToken, _ := jwt.EncodeJWT("mynewsecret", headers, payload)
 
@@ -69,7 +69,7 @@ func TestVerifyJWTExpired(t *testing.T) {
 		"sub": "User",
 	}
 
-	jwt := &hitrix.JWT{}
+	jwt := &jwt2.JWT{}
 
 	jwtToken, _ := jwt.EncodeJWT("mynewsecret", headers, payload)
 

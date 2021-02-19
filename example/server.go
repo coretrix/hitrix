@@ -6,6 +6,7 @@ import (
 	"github.com/coretrix/hitrix/example/graph"
 	"github.com/coretrix/hitrix/example/graph/generated"
 	"github.com/coretrix/hitrix/pkg/middleware"
+	"github.com/coretrix/hitrix/service/registry"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,13 +14,13 @@ func main() {
 	s, deferFunc := hitrix.New(
 		"my-app", "secret",
 	).RegisterDIService(
-		hitrix.ServiceProviderErrorLogger(),
-		hitrix.ServiceProviderConfigDirectory("config"),
-		hitrix.ServiceDefinitionOrmRegistry(entity.Init),
-		hitrix.ServiceDefinitionOrmEngine(),
-		hitrix.ServiceDefinitionOrmEngineForContext(),
-		hitrix.ServiceProviderJWT(),
-		hitrix.ServiceProviderPassword(),
+		registry.ServiceProviderErrorLogger(),
+		registry.ServiceProviderConfigDirectory("config"),
+		registry.ServiceDefinitionOrmRegistry(entity.Init),
+		registry.ServiceDefinitionOrmEngine(),
+		registry.ServiceDefinitionOrmEngineForContext(),
+		registry.ServiceProviderJWT(),
+		registry.ServiceProviderPassword(),
 	).
 		RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil).Build()
 	defer deferFunc()

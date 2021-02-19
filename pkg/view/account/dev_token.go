@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coretrix/hitrix"
+	"github.com/coretrix/hitrix/service"
 
 	"github.com/gin-gonic/gin"
 	"github.com/summer-solutions/orm"
@@ -22,13 +22,13 @@ const expireTimeToken = 3600
 const expireTimeRefreshToken = 7200
 
 func GenerateDevTokenAndRefreshToken(ormService *orm.Engine, userID uint64) (string, string, error) {
-	appService := hitrix.DIC().App()
-	token, err := generateTokenValue(appService.Secret(), userID, time.Now().Unix()+expireTimeToken)
+	appService := service.DI().App()
+	token, err := generateTokenValue(appService.Secret, userID, time.Now().Unix()+expireTimeToken)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err := generateTokenValue(appService.Secret(), userID, time.Now().Unix()+expireTimeRefreshToken)
+	refreshToken, err := generateTokenValue(appService.Secret, userID, time.Now().Unix()+expireTimeRefreshToken)
 	if err != nil {
 		return "", "", err
 	}
@@ -57,12 +57,12 @@ func GenerateDevTokenAndRefreshToken(ormService *orm.Engine, userID uint64) (str
 }
 
 func generateTokenValue(secret string, id interface{}, expire int64) (string, error) {
-	jwtToken, has := hitrix.DIC().JWT()
+	jwtToken, has := service.DI().JWT()
 	if !has {
 		panic("Please load JWT service")
 	}
 
-	app := hitrix.DIC().App()
+	app := service.DI().App()
 
 	headers := map[string]string{
 		"algo": "HS256",
@@ -70,7 +70,7 @@ func generateTokenValue(secret string, id interface{}, expire int64) (string, er
 	}
 
 	payload := map[string]string{
-		"iss":  app.Secret(),
+		"iss":  app.Secret,
 		"exp":  fmt.Sprintf("%v", expire),
 		"user": fmt.Sprintf("%v", id),
 	}
@@ -81,9 +81,9 @@ func generateTokenValue(secret string, id interface{}, expire int64) (string, er
 }
 
 func IsValidDevRefreshToken(c *gin.Context, token string) error {
-	appService := hitrix.DIC().App()
+	appService := service.DI().App()
 
-	userID, err := isValid(token, appService.Secret(), expireTimeRefreshToken)
+	userID, err := isValid(token, appService.Secret, expireTimeRefreshToken)
 	if err != nil {
 		return err
 	}
@@ -92,8 +92,8 @@ func IsValidDevRefreshToken(c *gin.Context, token string) error {
 }
 
 func IsValidDevToken(c *gin.Context, token string) error {
-	appService := hitrix.DIC().App()
-	userID, err := isValid(token, appService.Secret(), expireTimeToken)
+	appService := service.DI().App()
+	userID, err := isValid(token, appService.Secret, expireTimeToken)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func IsValidDevToken(c *gin.Context, token string) error {
 }
 
 func verifyDevUser(c *gin.Context, userID uint64, token string) error {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
@@ -116,7 +116,7 @@ func verifyDevUser(c *gin.Context, userID uint64, token string) error {
 		return fmt.Errorf("token doesnt match")
 	}
 
-	userEntity := hitrix.DIC().App().DevPanel().UserEntity
+	userEntity := service.DI().App().DevPanel.UserEntity
 	has = ormService.LoadByID(userID, userEntity)
 
 	if !has {
@@ -129,7 +129,7 @@ func verifyDevUser(c *gin.Context, userID uint64, token string) error {
 }
 
 func isValid(token, tokenSecret string, tokenExpire int64) (uint64, error) {
-	jwtService, has := hitrix.DIC().JWT()
+	jwtService, has := service.DI().JWT()
 	if !has {
 		panic("Please load JWT service")
 	}

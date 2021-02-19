@@ -6,6 +6,8 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/coretrix/hitrix/service"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -17,21 +19,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type key int
-
-const (
-	ginKey key = iota
-)
-
 type GinInitHandler func(ginEngine *gin.Engine)
-
-func GinFromContext(ctx context.Context) *gin.Context {
-	return ctx.Value(ginKey).(*gin.Context)
-}
 
 func contextToContextMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ctx := context.WithValue(c.Request.Context(), ginKey, c)
+		ctx := context.WithValue(c.Request.Context(), service.GinKey, c)
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
@@ -41,7 +33,7 @@ func afterRequestMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 
-		err := getContainerFromRequest(c.Request.Context()).Delete()
+		err := service.GetContainerFromRequest(c.Request.Context()).Delete()
 		if err != nil {
 			panic(err)
 		}
@@ -49,7 +41,7 @@ func afterRequestMiddleware() gin.HandlerFunc {
 }
 
 func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler) *gin.Engine {
-	app := DIC().App()
+	app := service.DI().App()
 	if app.IsInProdMode() {
 		gin.SetMode(gin.ReleaseMode)
 	} else if app.IsInTestMode() {
@@ -70,8 +62,8 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler) *gi
 		ginInitHandler(ginEngine)
 	}
 
-	if app.devPanel != nil {
-		devRouter := app.devPanel.Router
+	if app.DevPanel != nil {
+		devRouter := app.DevPanel.Router
 		devRouter(ginEngine)
 	}
 
@@ -107,7 +99,7 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 			message = "panic"
 		}
 		errorMessage := message + "\n" + string(debug.Stack())
-		errorLogger, has := DIC().ErrorLogger()
+		errorLogger, has := service.DI().ErrorLogger()
 		if has {
 			errorLogger.LogRecover(errorMessage)
 		}

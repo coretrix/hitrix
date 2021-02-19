@@ -1,4 +1,4 @@
-package hitrix
+package jwt
 
 import (
 	"crypto/hmac"
@@ -10,19 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/sarulabs/di"
 )
-
-func ServiceProviderJWT() *ServiceDefinition {
-	return &ServiceDefinition{
-		Name:   "jwt",
-		Global: true,
-		Build: func(ctn di.Container) (interface{}, error) {
-			return &JWT{}, nil
-		},
-	}
-}
 
 type JWT struct {
 }

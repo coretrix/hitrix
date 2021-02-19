@@ -3,14 +3,14 @@ package middleware
 import (
 	"time"
 
-	"github.com/coretrix/hitrix"
+	"github.com/coretrix/hitrix/service"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func Cors(ginEngine *gin.Engine) {
-	configService := hitrix.DIC().Config()
+	configService := service.DI().Config()
 	origins := configService.GetStringSlice("cors")
 	if len(origins) == 0 {
 		panic("cors is missing")

@@ -4,6 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/coretrix/hitrix/service/registry"
+
+	"github.com/coretrix/hitrix/service"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix"
@@ -35,7 +38,7 @@ func (script *testScript) Interval() time.Duration {
 
 func main() {
 	r := hitrix.New("test_script", "secret")
-	r.RegisterDIService(&hitrix.ServiceDefinition{
+	r.RegisterDIService(&service.Definition{
 		Name:   "aa",
 		Global: true,
 		Script: true,
@@ -43,7 +46,7 @@ func main() {
 			return &testScript{"takie tam", false}, nil
 		},
 	})
-	r.RegisterDIService(&hitrix.ServiceDefinition{
+	r.RegisterDIService(&service.Definition{
 		Name:   "bb",
 		Global: true,
 		Script: true,
@@ -51,6 +54,6 @@ func main() {
 			return &testScript{"takie tam dwa", true}, nil
 		},
 	})
-	r.RegisterDIService(hitrix.ServiceProviderConfigDirectory("../config"))
+	r.RegisterDIService(registry.ServiceProviderConfigDirectory("../config"))
 	r.RegisterDIService().Build()
 }

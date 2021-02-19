@@ -1,21 +1,35 @@
-package hitrix
+package service
 
 import (
 	"context"
 	"fmt"
 
+	"github.com/gin-gonic/gin"
+
+	"github.com/coretrix/hitrix/service/component/app"
+
 	"github.com/sarulabs/di"
+)
+
+type key int
+
+const (
+	GinKey key = iota
 )
 
 var container di.Container
 
-type ServiceDefinition struct {
+type Definition struct {
 	Name   string
 	Global bool
 	Script bool
 	Build  func(ctn di.Container) (interface{}, error)
 	Close  func(obj interface{}) error
-	Flags  func(registry *FlagsRegistry)
+	Flags  func(registry *app.FlagsRegistry)
+}
+
+func SetContainer(c di.Container) {
+	container = c
 }
 
 func HasService(key string) bool {
@@ -36,15 +50,15 @@ func GetServiceRequired(key string) interface{} {
 }
 
 func GetServiceForRequestSafe(ctx context.Context, key string) (service interface{}, has bool, err error) {
-	return getServiceSafe(getContainerFromRequest(ctx), key)
+	return getServiceSafe(GetContainerFromRequest(ctx), key)
 }
 
 func GetServiceForRequestOptional(ctx context.Context, key string) (service interface{}, has bool) {
-	return getServiceOptional(getContainerFromRequest(ctx), key)
+	return getServiceOptional(GetContainerFromRequest(ctx), key)
 }
 
 func GetServiceForRequestRequired(ctx context.Context, key string) interface{} {
-	return getServiceRequired(getContainerFromRequest(ctx), key)
+	return getServiceRequired(GetContainerFromRequest(ctx), key)
 }
 
 func getServiceSafe(ctn di.Container, key string) (service interface{}, has bool, err error) {
@@ -77,8 +91,8 @@ func getServiceRequired(ctn di.Container, key string) interface{} {
 	return service
 }
 
-func getContainerFromRequest(ctx context.Context) (ctn di.Container) {
-	c := GinFromContext(ctx)
+func GetContainerFromRequest(ctx context.Context) (ctn di.Container) {
+	c := ginFromContext(ctx)
 	requestContainer, has := c.Get("RequestContainer")
 
 	if !has {
@@ -92,4 +106,8 @@ func getContainerFromRequest(ctx context.Context) (ctn di.Container) {
 		ctn = requestContainer.(di.Container)
 	}
 	return ctn
+}
+
+func ginFromContext(ctx context.Context) *gin.Context {
+	return ctx.Value(GinKey).(*gin.Context)
 }

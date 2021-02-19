@@ -14,11 +14,10 @@ import (
 )
 
 type Hitrix struct {
-	registry *Registry
-	ctx      context.Context
-	cancel   context.CancelFunc
-	done     chan bool
-	exit     chan int
+	ctx    context.Context
+	cancel context.CancelFunc
+	done   chan bool
+	exit   chan int
 }
 
 func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, ginInitHandler GinInitHandler) {

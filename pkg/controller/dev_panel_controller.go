@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/coretrix/hitrix"
+	"github.com/coretrix/hitrix/service/component/app"
+
+	"github.com/coretrix/hitrix/service"
+
 	errors "github.com/coretrix/hitrix/pkg/error"
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
 	"github.com/coretrix/hitrix/pkg/response"
@@ -36,7 +39,7 @@ type DevPanelController struct {
 //}
 
 func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
-	passwordService, has := hitrix.DIC().Password()
+	passwordService, has := service.DI().Password()
 	if !has {
 		panic("password is not registered")
 	}
@@ -48,7 +51,7 @@ func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
 		response.ErrorResponseGlobal(c, "username and password query parameters are required", nil)
 		return
 	}
-	//adminEntity := hitrix.DIC().App().DevPanel().UserEntity
+	//adminEntity := hitrix.DI().App().DevPanel().UserEntity
 
 	passwordHash, err := passwordService.HashPassword(pass)
 	if err != nil {
@@ -81,12 +84,12 @@ func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) PostGenerateTokenAction(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 	if !has {
 		panic("orm is not registered")
 	}
 
-	devPanelUserEntity := c.MustGet(account.LoggedDevPanelUserEntity).(hitrix.DevPanelUserEntity)
+	devPanelUserEntity := c.MustGet(account.LoggedDevPanelUserEntity).(app.DevPanelUserEntity)
 
 	token, refreshToken, err := account.GenerateDevTokenAndRefreshToken(ormService, devPanelUserEntity.GetID())
 	if err != nil {
@@ -101,7 +104,7 @@ func (controller *DevPanelController) PostGenerateTokenAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetClearCacheAction(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
@@ -115,13 +118,13 @@ func (controller *DevPanelController) GetClearCacheAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetClearRedisStreamsAction(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
 	}
 
-	devPanel := hitrix.DIC().App().DevPanel()
+	devPanel := service.DI().App().DevPanel
 	if devPanel == nil || devPanel.PoolStream == nil {
 		panic("stream pool is not defined")
 	}
@@ -133,13 +136,13 @@ func (controller *DevPanelController) GetClearRedisStreamsAction(c *gin.Context)
 }
 
 func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
 	}
 
-	devPanel := hitrix.DIC().App().DevPanel()
+	devPanel := service.DI().App().DevPanel
 	if devPanel == nil || devPanel.PoolStream == nil {
 		panic("stream pool is not defined")
 	}
@@ -157,7 +160,7 @@ func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetAlters(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
@@ -186,7 +189,7 @@ func (controller *DevPanelController) GetAlters(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetRedisStreams(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")
@@ -200,7 +203,7 @@ func (controller *DevPanelController) GetRedisStreams(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetRedisStatistics(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		panic("orm is not registered")

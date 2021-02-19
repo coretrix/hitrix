@@ -1,9 +1,9 @@
 package account
 
 import (
-	"github.com/coretrix/hitrix"
 	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/view/account"
+	"github.com/coretrix/hitrix/service"
 	"github.com/gin-gonic/gin"
 	"github.com/juju/errors"
 )
@@ -19,18 +19,18 @@ func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
 		return "", "", err
 	}
 
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 
 	if !has {
 		return "", "", errors.New("orm is not registered")
 	}
 
-	passwordService, has := hitrix.DIC().Password()
+	passwordService, has := service.DI().Password()
 	if !has {
 		return "", "", errors.New("Please load Password service")
 	}
 
-	devPanelUserEntity := hitrix.DIC().App().DevPanel().UserEntity
+	devPanelUserEntity := service.DI().App().DevPanel.UserEntity
 	ok := ormService.CachedSearchOne(devPanelUserEntity, "UserEmailIndex", l.Username)
 
 	if !ok {

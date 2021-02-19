@@ -6,8 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coretrix/hitrix"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+
 	"github.com/coretrix/hitrix/pkg/response"
+	"github.com/coretrix/hitrix/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +18,7 @@ type ErrorLogController struct {
 }
 
 func (controller *ErrorLogController) GetErrors(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 	if !has {
 		panic("orm is not registered")
 	}
@@ -31,7 +33,7 @@ func (controller *ErrorLogController) GetErrors(c *gin.Context) {
 		Time    string
 	}
 
-	data := ormService.GetRedis().HGetAll(hitrix.GroupError)
+	data := ormService.GetRedis().HGetAll(errorlogger.GroupError)
 
 	errorsList := map[string]*errorRow{}
 
@@ -48,7 +50,7 @@ func (controller *ErrorLogController) GetErrors(c *gin.Context) {
 		}
 
 		if len(splitKeys) == 1 {
-			errorMessage := &hitrix.ErrorMessage{}
+			errorMessage := &errorlogger.ErrorMessage{}
 			err := json.Unmarshal([]byte(value), errorMessage)
 			if err != nil {
 				panic(err)
@@ -73,7 +75,7 @@ func (controller *ErrorLogController) GetErrors(c *gin.Context) {
 }
 
 func (controller *ErrorLogController) DeleteError(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 	if !has {
 		panic("orm is not registered")
 	}
@@ -83,20 +85,20 @@ func (controller *ErrorLogController) DeleteError(c *gin.Context) {
 		response.ErrorResponseGlobal(c, "missing id", nil)
 		return
 	}
-	ormService.GetRedis().HDel(hitrix.GroupError, id)
-	ormService.GetRedis().HDel(hitrix.GroupError, id+":time")
-	ormService.GetRedis().HDel(hitrix.GroupError, id+":counter")
+	ormService.GetRedis().HDel(errorlogger.GroupError, id)
+	ormService.GetRedis().HDel(errorlogger.GroupError, id+":time")
+	ormService.GetRedis().HDel(errorlogger.GroupError, id+":counter")
 
 	response.SuccessResponse(c, nil)
 }
 
 func (controller *ErrorLogController) DeleteAllErrors(c *gin.Context) {
-	ormService, has := hitrix.DIC().OrmEngineForContext(c.Request.Context())
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
 	if !has {
 		panic("orm is not registered")
 	}
 
-	ormService.GetRedis().Del(hitrix.GroupError)
+	ormService.GetRedis().Del(errorlogger.GroupError)
 
 	response.SuccessResponse(c, nil)
 }

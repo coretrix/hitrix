@@ -3,14 +3,15 @@ package scripts
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix"
 	"github.com/fatih/color"
 )
 
-func ORMAlters() *hitrix.ServiceDefinition {
-	return &hitrix.ServiceDefinition{
+func ORMAlters() *service.Definition {
+	return &service.Definition{
 		Name:   "orm-alters",
 		Global: true,
 		Script: true,
@@ -24,7 +25,7 @@ type ORMAltersScript struct {
 }
 
 func (script *ORMAltersScript) Active() bool {
-	_, has := hitrix.DIC().OrmConfig()
+	_, has := service.DI().OrmConfig()
 	return has
 }
 
@@ -37,7 +38,7 @@ func (script *ORMAltersScript) Description() string {
 }
 
 func (script *ORMAltersScript) Run(_ context.Context, exit hitrix.Exit) {
-	ormEngine, _ := hitrix.DIC().OrmEngine()
+	ormEngine, _ := service.DI().OrmEngine()
 	alters := ormEngine.GetAlters()
 	for _, alter := range alters {
 		if alter.Safe {

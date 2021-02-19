@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/coretrix/hitrix/service"
+
 	"github.com/ryanuber/columnize"
 )
 
@@ -76,13 +78,13 @@ func (h *Hitrix) RunScript(script Script) {
 }
 
 func listScrips() {
-	scripts := DIC().App().scripts
+	scripts := service.DI().App().Scripts
 	if len(scripts) > 0 {
 		output := []string{
 			"NAME | OPTIONS | DESCRIPTION ",
 		}
 		for _, defCode := range scripts {
-			def := GetServiceRequired(defCode).(Script)
+			def := service.GetServiceRequired(defCode).(Script)
 			options := make([]string, 0)
 			interval, is := def.(ScriptInterval)
 			if is {
@@ -118,13 +120,13 @@ func listScrips() {
 }
 
 func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
-	scripts := DIC().App().scripts
+	scripts := service.DI().App().Scripts
 	if len(scripts) == 0 {
 		panic(fmt.Sprintf("unknown script %s", code))
 	}
 	for _, defCode := range scripts {
 		if defCode == code {
-			def, has := GetServiceOptional(defCode)
+			def, has := service.GetServiceOptional(defCode)
 			if !has {
 				panic(fmt.Sprintf("unknown script %s", code))
 			}
@@ -149,7 +151,7 @@ func (h *Hitrix) runScript(script Script) bool {
 					message = "panic"
 				}
 
-				errorLogger, has := DIC().ErrorLogger()
+				errorLogger, has := service.DI().ErrorLogger()
 				if has {
 					errorLogger.LogRecover(message + "\n" + string(debug.Stack()))
 				}

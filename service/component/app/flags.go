@@ -1,27 +1,27 @@
-package hitrix
+package app
 
 import (
 	"flag"
 )
 
 type FlagsRegistry struct {
-	flags map[string]interface{}
+	Flags map[string]interface{}
 }
 
 type Flags struct {
-	registry *FlagsRegistry
+	Registry *FlagsRegistry
 }
 
 func (r *FlagsRegistry) Bool(name string, value bool, usage string) {
-	r.flags[name] = flag.Bool(name, value, usage)
+	r.Flags[name] = flag.Bool(name, value, usage)
 }
 
 func (r *FlagsRegistry) String(name string, value string, usage string) {
-	r.flags[name] = flag.String(name, value, usage)
+	r.Flags[name] = flag.String(name, value, usage)
 }
 
 func (f *Flags) Bool(name string) bool {
-	v, has := f.registry.flags[name]
+	v, has := f.Registry.Flags[name]
 	if !has {
 		return false
 	}
@@ -29,7 +29,7 @@ func (f *Flags) Bool(name string) bool {
 }
 
 func (f *Flags) String(name string) string {
-	v, has := f.registry.flags[name]
+	v, has := f.Registry.Flags[name]
 	if !has {
 		return ""
 	}

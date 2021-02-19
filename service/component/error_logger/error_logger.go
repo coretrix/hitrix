@@ -1,12 +1,15 @@
-package hitrix
+package errorlogger
 
 import (
 	"bytes"
 	"io/ioutil"
 	"math"
 
+	slackapi "github.com/coretrix/hitrix/service/component/slack_api"
+
+	"github.com/coretrix/hitrix/service/component/app"
+
 	"github.com/bluele/slack"
-	"github.com/sarulabs/di"
 
 	//nolint
 	"crypto/md5"
@@ -50,29 +53,11 @@ type ErrorMessage struct {
 
 type RedisErrorLogger struct {
 	redisStorage *orm.RedisCache
-	slackService *SlackAPI
-	appService   *AppDefinition
+	slackService *slackapi.SlackAPI
+	appService   *app.App
 }
 
-func ServiceProviderErrorLogger() *ServiceDefinition {
-	return &ServiceDefinition{
-		Name:   "error_logger",
-		Global: true,
-		Build: func(ctn di.Container) (interface{}, error) {
-			return newRedisErrorLogger(), nil
-		},
-	}
-}
-
-func newRedisErrorLogger() ErrorLogger {
-	appService := DIC().App()
-	ormService, has := DIC().OrmEngine()
-	if !has {
-		panic("orm is not registered")
-	}
-
-	slackService, _ := DIC().SlackAPI()
-
+func NewRedisErrorLogger(appService *app.App, ormService *orm.Engine, slackService *slackapi.SlackAPI) ErrorLogger {
 	return &RedisErrorLogger{redisStorage: ormService.GetRedis(), slackService: slackService, appService: appService}
 }
 
@@ -112,7 +97,7 @@ func (e *RedisErrorLogger) log(err error, request *http.Request) {
 	value := &ErrorMessage{
 		File:    file,
 		Line:    line,
-		AppName: e.appService.Name(),
+		AppName: e.appService.Name,
 		Message: err.Error(),
 		Stack:   stack,
 		Request: request,
@@ -136,10 +121,10 @@ func (e *RedisErrorLogger) log(err error, request *http.Request) {
 			&slack.ChatPostMessageOpt{
 				Attachments: []*slack.Attachment{
 					{
-						AuthorName: e.appService.Name(),
+						AuthorName: e.appService.Name,
 						Title:      "Error link",
 						TitleLink:  e.slackService.GetDevPanelURL() + "#err-" + errorKey,
-						Text:       "Counter: " + fmt.Sprint(counter) + " ENV: " + e.appService.Mode(),
+						Text:       "Counter: " + fmt.Sprint(counter) + " ENV: " + e.appService.Mode,
 					},
 				},
 			})

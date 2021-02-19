@@ -1,4 +1,4 @@
-package hitrix
+package config
 
 import (
 	"bytes"
@@ -11,7 +11,6 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/sarulabs/di"
 	"github.com/spf13/viper"
 )
 
@@ -21,17 +20,7 @@ type Config struct {
 	*viper.Viper
 }
 
-func ServiceProviderConfigDirectory(configDirectory string) *ServiceDefinition {
-	return &ServiceDefinition{
-		Name:   "config_directory",
-		Global: true,
-		Build: func(ctn di.Container) (interface{}, error) {
-			return configDirectory, nil
-		},
-	}
-}
-
-func newViperConfig(appName, mode, localConfigFolder string) (*Config, error) {
+func NewViperConfig(appName, mode, localConfigFolder string) (*Config, error) {
 	viper.SetConfigName(configName)
 
 	configFolder, hasConfigFolder := os.LookupEnv("SPRING_CONFIG_FOLDER")
@@ -119,15 +108,4 @@ func (v *Config) GetFolderPath() string {
 	}
 
 	return path
-}
-
-func serviceConfig() *ServiceDefinition {
-	return &ServiceDefinition{
-		Name:   "config",
-		Global: true,
-		Build: func(ctn di.Container) (interface{}, error) {
-			configDirectory := ctn.Get("config_directory").(string)
-			return newViperConfig(DIC().App().Name(), DIC().App().Mode(), configDirectory)
-		},
-	}
 }

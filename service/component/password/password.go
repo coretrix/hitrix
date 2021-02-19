@@ -1,21 +1,9 @@
-package hitrix
+package password
 
 import (
 	"crypto/sha256"
 	"encoding/base64"
-
-	"github.com/sarulabs/di"
 )
-
-func ServiceProviderPassword() *ServiceDefinition {
-	return &ServiceDefinition{
-		Name:   "password",
-		Global: true,
-		Build: func(ctn di.Container) (interface{}, error) {
-			return &Password{}, nil
-		},
-	}
-}
 
 type Password struct {
 }

@@ -1,24 +1,25 @@
-package hitrix
+package registry
 
 import (
+	"github.com/coretrix/hitrix/service"
 	"github.com/sarulabs/di"
 	"github.com/summer-solutions/orm"
 )
 
-func ServiceDefinitionOrmEngine() *ServiceDefinition {
+func ServiceDefinitionOrmEngine() *service.Definition {
 	return serviceDefinitionOrmEngine(true)
 }
 
-func ServiceDefinitionOrmEngineForContext() *ServiceDefinition {
+func ServiceDefinitionOrmEngineForContext() *service.Definition {
 	return serviceDefinitionOrmEngine(false)
 }
 
-func serviceDefinitionOrmEngine(global bool) *ServiceDefinition {
+func serviceDefinitionOrmEngine(global bool) *service.Definition {
 	suffix := "request"
 	if global {
 		suffix = "global"
 	}
-	return &ServiceDefinition{
+	return &service.Definition{
 		Name:   "orm_engine_" + suffix,
 		Global: global,
 		Build: func(ctn di.Container) (interface{}, error) {
