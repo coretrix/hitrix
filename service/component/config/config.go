@@ -23,7 +23,7 @@ type Config struct {
 func NewViperConfig(appName, mode, localConfigFolder string) (*Config, error) {
 	viper.SetConfigName(configName)
 
-	configFolder, hasConfigFolder := os.LookupEnv("SPRING_CONFIG_FOLDER")
+	configFolder, hasConfigFolder := os.LookupEnv("APP_CONFIG_FOLDER")
 	if !hasConfigFolder {
 		configFolder = localConfigFolder
 	}
@@ -56,8 +56,8 @@ func NewViperConfig(appName, mode, localConfigFolder string) (*Config, error) {
 
 func (v *Config) loadEnvConfig(mode string) error {
 	mainConfigFolderPath := v.GetFolderPath()
-	if _, err := os.Stat(mainConfigFolderPath + "/../.env." + mode); !os.IsNotExist(err) {
-		err := godotenv.Load(mainConfigFolderPath + "/../.env." + mode)
+	if _, err := os.Stat(mainConfigFolderPath + ".env." + mode); !os.IsNotExist(err) {
+		err := godotenv.Load(mainConfigFolderPath + ".env." + mode)
 		if err != nil {
 			return err
 		}

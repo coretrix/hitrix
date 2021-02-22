@@ -215,39 +215,6 @@ func ServiceDefinitionMyService() *ServiceDefinition {
 
 And you have to register `ServiceDefinitionMyService()` in your `main.go` file
 
-### Setting mode
-
-You can define hitrix mode using special environment variable "**SPRING_MODE**".
-
-Hitrix provides by default four modes:
-
- * **hitrix.ModeLocal**
-   * should be used on local development machine (developer laptop)
-   * errors and stack trace is printed directly to system console
-   * log level is set to Debug level
-   * log is formatted using human friendly console text formatter
-   * Gin Framework is running in GinDebug mode
- * **hitrix.ModeTest**
-   * should be used when you run your application tests
- * **hitrix.ModeDemo**
-   * should be used on your demo server
- * **hitrix.ModeProd**
-   * errors and stack trace is printed only using Log
-   * log level is set to Warn level
-   * log is formatted using json formatter   
-    
-Mode is just a string. You can define any name you want. Remember that every mode that you create
-follows **hitrix.ModeProd** rules explained above.
-    
-    
-In code you can easly check current mode using one of these methods:    
-
-```go
-service.DI().App().Mode()
-service.DI().App().IsInLocalMode()
-service.DI().App().IsInProdMode()
-service.DI().App().IsInMode("my_mode")
-```
 
 
 Now you can access this service in your code using:
@@ -293,6 +260,62 @@ func MyService() MyService {
 
 
 ```
+
+### Setting mode
+
+#### APP_MODE environment variable
+You can define hitrix mode using special environment variable "**APP_MODE**".
+
+Hitrix provides by default four modes:
+
+ * **hitrix.ModeLocal - local**
+   * should be used on local development machine (developer laptop)
+   * errors and stack trace is printed directly to system console
+   * log level is set to Debug level
+   * log is formatted using human friendly console text formatter
+   * Gin Framework is running in GinDebug mode
+ * **hitrix.ModeTest - test**
+   * should be used when you run your application tests
+ * **hitrix.ModeDemo - demo**
+   * should be used on your demo server
+ * **hitrix.ModeProd - prod**
+   * errors and stack trace is printed only using Log
+   * log level is set to Warn level
+   * log is formatted using json formatter   
+    
+Mode is just a string. You can define any name you want. Remember that every mode that you create
+follows **hitrix.ModeProd** rules explained above.
+    
+    
+In code you can easly check current mode using one of these methods:    
+
+```go
+service.DI().App().Mode()
+service.DI().App().IsInLocalMode()
+service.DI().App().IsInProdMode()
+service.DI().App().IsInMode("my_mode")
+```
+
+#### APP_CONFIG_FOLDER environment variable
+There are another important environment variable called `APP_CONFIG_FOLDER`
+You can set path to your config folder for your demo, prod or any other environment
+
+#### Environment variables in config file
+Its good practice to keep your secrets like database credentials and so on out of the repository.
+Our advice is to keep them like environment variables and call them into config.yaml file
+For example your config can looks like this:
+```yaml
+orm:
+  default:
+    mysql: ENV[DEFAULT_MYSQL]
+    redis: ENV[DEFAULT_REDIS]
+    locker: default
+    local_cache: 1000
+```
+where `DEFAULT_MYSQL` and `DEFAULT_REDIS` are env variables and our framework will automatically replace `ENV[DEFAULT_MYSQL]` and `ENV[DEFAULT_REDIS]` with the right values
+
+Also we check if there is .env.XXX file in main config folder where XXX is the value of the APP_MODE.
+If there is for example .env.local we are reading those env variables and merge them with config.yaml how we presented above
 
 ### Running scripts
 
