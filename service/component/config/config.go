@@ -56,13 +56,12 @@ func NewViperConfig(appName, mode, localConfigFolder string) (*Config, error) {
 
 func (v *Config) loadEnvConfig(mode string) error {
 	mainConfigFolderPath := v.GetFolderPath()
-	fmt.Println(mainConfigFolderPath + ".env." + mode)
-	if _, err := os.Stat(mainConfigFolderPath + ".env." + mode); !os.IsNotExist(err) {
-		err := godotenv.Load(mainConfigFolderPath + ".env." + mode)
+
+	if _, err := os.Stat(mainConfigFolderPath + "/.env." + mode); !os.IsNotExist(err) {
+		err := godotenv.Load(mainConfigFolderPath + "/.env." + mode)
 		if err != nil {
 			return err
 		}
-		fmt.Println("HERE")
 	}
 
 	for _, key := range v.Viper.AllKeys() {
