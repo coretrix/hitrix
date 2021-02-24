@@ -53,7 +53,11 @@ func Validate(ctx context.Context, callback func() bool) bool {
 		return false
 	}
 
-	return callback()
+	if callback != nil {
+		return callback()
+	}
+
+	return true
 }
 
 func translateError(err error, trans ut.Translator) (errs []error) {
