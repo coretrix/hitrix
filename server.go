@@ -29,7 +29,7 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 		Addr:    ":" + port,
 		Handler: InitGin(server, ginInitHandler),
 	}
-	func() {
+	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			panic(err)
 		}
