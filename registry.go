@@ -22,7 +22,7 @@ type Registry struct {
 }
 
 func New(appName string, secret string) *Registry {
-	mode, hasMode := os.LookupEnv("SPRING_MODE")
+	mode, hasMode := os.LookupEnv("APP_MODE")
 	if !hasMode {
 		mode = app.ModeLocal
 	}
