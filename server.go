@@ -47,18 +47,16 @@ func (h *Hitrix) await() {
 	termChan := make(chan os.Signal, 1)
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
 
-	go func() {
-		select {
-		case code := <-h.exit:
-			h.cancel()
-			os.Exit(code)
-		case <-h.done:
-			h.cancel()
-		case <-termChan:
-			log.Println("TERMINATING")
-			h.cancel()
-			time.Sleep(time.Millisecond * 300)
-			log.Println("TERMINATED")
-		}
-	}()
+	select {
+	case code := <-h.exit:
+		h.cancel()
+		os.Exit(code)
+	case <-h.done:
+		h.cancel()
+	case <-termChan:
+		log.Println("TERMINATING")
+		h.cancel()
+		time.Sleep(time.Millisecond * 300)
+		log.Println("TERMINATED")
+	}
 }
