@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"math"
+	"net/http/httputil"
 
 	slackapi "github.com/coretrix/hitrix/service/component/slack_api"
 
@@ -46,7 +47,7 @@ type ErrorMessage struct {
 	File    string
 	Line    int
 	AppName string
-	Request *http.Request
+	Request []byte
 	Message string
 	Stack   []byte
 }
@@ -100,7 +101,15 @@ func (e *RedisErrorLogger) log(err error, request *http.Request) {
 		AppName: e.appService.Name,
 		Message: err.Error(),
 		Stack:   stack,
-		Request: request,
+	}
+
+	if request != nil {
+		binaryRequest, _ := httputil.DumpRequest(request, true)
+		if len(binaryRequest) > 1000 {
+			value.Request = binaryRequest[0:1000]
+		} else {
+			value.Request = binaryRequest
+		}
 	}
 
 	marshalValue, err := json.Marshal(value)

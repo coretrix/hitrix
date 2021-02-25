@@ -27,6 +27,7 @@ func (controller *ErrorLogController) GetErrors(c *gin.Context) {
 		File    string
 		Line    int
 		AppName string
+		Request string
 		Message string
 		Stack   string
 		Counter int
@@ -55,6 +56,7 @@ func (controller *ErrorLogController) GetErrors(c *gin.Context) {
 			if err != nil {
 				panic(err)
 			}
+			errorsList[splitKeys[0]].Request = string(errorMessage.Request)
 			errorsList[splitKeys[0]].Stack = string(errorMessage.Stack)
 			errorsList[splitKeys[0]].File = errorMessage.File
 			errorsList[splitKeys[0]].Message = errorMessage.Message
