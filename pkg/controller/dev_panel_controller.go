@@ -68,7 +68,6 @@ func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
-	fmt.Println("PostLoginDevPanelAction")
 	loginForm := accountModel.LoginDevForm{}
 	token, refreshToken, err := loginForm.Login(c)
 
