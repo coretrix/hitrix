@@ -179,7 +179,7 @@ create table admin_users
 
 ```
 
-After that you can make GET request to http://localhost:9999/dev/create-admin/?Username=contact@coretrix.com&Password=coretrix
+After that you can make GET request to http://localhost:9999/dev/create-admin/?username=contact@coretrix.com&password=coretrix
 This will generate sql query that should be executed into your database to create new user for dev panel
 
 ### Defining DI services
