@@ -3,6 +3,7 @@ package hitrix
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/go-playground/locales/en"
@@ -19,7 +20,7 @@ func ValidateDirective() func(ctx context.Context, obj interface{}, next graphql
 			return nil, err
 		}
 
-		if originalValue == nil {
+		if originalValue == nil || reflect.ValueOf(originalValue).IsNil() {
 			return originalValue, nil
 		}
 
