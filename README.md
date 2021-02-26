@@ -4,6 +4,7 @@
 [![MIT license](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 
 
+
 # Hitrix
 
 Hitrix is a web framework written in Go (Golang) and support Graphql and REST api.
