@@ -85,9 +85,7 @@ func main() {
 		registry.ServiceDefinitionOrmEngineForContext(), //register our ORM engine per context used in foreground processes
 		registry.ServiceProviderJWT(), //register JWT DI service
 		registry.ServiceProviderPassword(), //register pasword DI service
-	).
-    RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil). //register our dev-panel and pass the entity where we save admin users, the router and the third param is used for the redis stream pool if its used
-    Build()
+	).Build()
     defer deferFunc()
 
 	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}),  func(ginEngine *gin.Engine) {
@@ -114,17 +112,14 @@ Now I will explain the main.go file line by line
     2.6. Global DI JWT service used by dev panel
     
     2.7. Global DI Password service used by dev-panel
- 3. Register dev panel   
-    
-    3.1. First param is the entity where we gonna keep admin users
-    
-    3.2. The router used by dev panel
-    
-    3.3. If you use redis stream pool you should pass it's name as third param
  4. We run the server on port `9999`, pass graphql resolver and as third param we pass all middlewares we need.   
 As you can see in our example we register only Cors middleware
     
-If you want to register dev panel I will show you example AdminUserEntity
+
+### Register [Dev Panel](https://github.com/coretrix/dev-frontend)
+If you want to use our dev panel and to be able to manage alters, error log, redis monitoring, redis stream and so  on you should execute next steps:
+
+#### Create AdminUserEntity
 ```go
 package entity
 
@@ -181,6 +176,20 @@ create table admin_users
 
 After that you can make GET request to http://localhost:9999/dev/create-admin/?username=contact@coretrix.com&password=coretrix
 This will generate sql query that should be executed into your database to create new user for dev panel
+
+#### Register dev panel when you make new instance of hitrix framework in your `main.go` file
+```go
+s, deferFunc := hitrix.New(
+		"app-name", "your secret",
+	).RegisterDIService(
+		registry.ServiceProviderErrorLogger(), //register redis error logger
+		//...
+	).
+    RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil). //register our dev-panel and pass the entity where we save admin users, the router and the third param is used for the redis stream pool if its used
+    Build()
+```
+
+
 
 ### Defining DI services
 #### We have two types of DI services - Global and Request services
