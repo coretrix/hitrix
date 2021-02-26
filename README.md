@@ -58,8 +58,7 @@ func main() {
 
 ```
 
-You can register different DI services and dev-panel before you build your server.
-For example your main.go file can looks like that:
+You are able register DI services in your `main.go` file in that way:
 
 ```go
 package main
@@ -192,12 +191,13 @@ s, deferFunc := hitrix.New(
 
 
 ### Defining DI services
-#### We have two types of DI services - Global and Request services
+We have two types of DI services - Global and Request services
 Global services are singletons created once for the whole application
 Request services are singletons created once per request
 
+### Calling DI services
 If you want to access the registered DI services you can do in in that way:
-```
+```go
 service.DI().App() //access the app
 service.DI().Config() //access config
 service.DI().OrmEngine() //access global orm engine
@@ -207,7 +207,7 @@ service.DI().Password() //access JWT
 //...and so on
 ```
 
-#### You are able to create and register your own services in next way:
+#### Register new DI service
 ```go
 
 func ServiceDefinitionMyService() *ServiceDefinition {
@@ -223,7 +223,6 @@ func ServiceDefinitionMyService() *ServiceDefinition {
 ```
 
 And you have to register `ServiceDefinitionMyService()` in your `main.go` file
-
 
 
 Now you can access this service in your code using:
