@@ -153,7 +153,7 @@ func (h *Hitrix) runScript(script Script) bool {
 
 				errorLogger, has := service.DI().ErrorLogger()
 				if has {
-					errorLogger.LogRecover(message + "\n" + string(debug.Stack()))
+					errorLogger.LogError(message + "\n" + string(debug.Stack()))
 				}
 				valid = false
 			}

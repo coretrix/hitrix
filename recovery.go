@@ -14,7 +14,7 @@ func recovery() gin.HandlerFunc {
 			if r := recover(); r != nil {
 				errorLogger, has := service.DI().ErrorLogger()
 				if has {
-					errorLogger.LogRecover(r)
+					errorLogger.LogErrorWithRequest(c, r)
 				} else {
 					log.Println(r.(string))
 				}

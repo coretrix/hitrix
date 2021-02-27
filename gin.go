@@ -101,7 +101,8 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 		errorMessage := message + "\n" + string(debug.Stack())
 		errorLogger, has := service.DI().ErrorLogger()
 		if has {
-			errorLogger.LogRecover(errorMessage)
+			ginContext := ctx.Value(service.GinKey).(*gin.Context)
+			errorLogger.LogErrorWithRequest(ginContext, errors.New(errorMessage))
 		}
 		return errors.New("internal server error")
 	})

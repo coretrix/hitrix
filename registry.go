@@ -51,7 +51,7 @@ func (r *Registry) Build() (*Hitrix, func()) {
 		if r := recover(); r != nil {
 			errorLogger, has := service.DI().ErrorLogger()
 			if has {
-				errorLogger.LogRecover(r)
+				errorLogger.LogError(r)
 			} else {
 				log.Print(r.(string))
 			}

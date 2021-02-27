@@ -37,10 +37,9 @@ var (
 )
 
 type ErrorLogger interface {
-	LogErrorWithRequest(c *gin.Context, err error)
-	LogError(err error)
-	LogRecover(dataFromRecover interface{})
-	log(err error, request *http.Request)
+	LogErrorWithRequest(c *gin.Context, errData interface{})
+	LogError(dataFromRecover interface{})
+	log(errData interface{}, request *http.Request)
 }
 
 type ErrorMessage struct {
@@ -62,34 +61,26 @@ func NewRedisErrorLogger(appService *app.App, ormService *orm.Engine, slackServi
 	return &RedisErrorLogger{redisStorage: ormService.GetRedis(), slackService: slackService, appService: appService}
 }
 
-func (e *RedisErrorLogger) LogRecover(dataFromRecover interface{}) {
-	logger := log.New(os.Stderr, "\n\n\x1b[31m", log.LstdFlags)
-	stack := stack(3)
-	logger.Printf("[Recovery] panic recovered:\n%s\n%s%s", dataFromRecover, stack, "\033[0m")
+func (e *RedisErrorLogger) LogError(errData interface{}) {
+	e.log(errData, nil)
+}
 
+func (e *RedisErrorLogger) LogErrorWithRequest(c *gin.Context, errData interface{}) {
+	e.log(errData, c.Request)
+}
+
+func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
 	var msg string
-	err, ok := dataFromRecover.(error)
+	err, ok := errData.(error)
 	if ok {
 		msg = err.Error()
 	} else {
-		msg = dataFromRecover.(string)
+		msg = errData.(string)
 	}
 
-	e.log(fmt.Errorf(msg), nil)
-}
-
-func (e *RedisErrorLogger) LogErrorWithRequest(c *gin.Context, err error) {
-	e.log(err, c.Request)
-}
-
-func (e *RedisErrorLogger) LogError(err error) {
-	e.log(err, nil)
-}
-
-func (e *RedisErrorLogger) log(err error, request *http.Request) {
 	logger := log.New(os.Stderr, "\n\n\x1b[31m", log.LstdFlags)
 	stack := stack(0)
-	logger.Printf("[Error]:\n%s\n%s%s", err.Error(), stack, "\033[0m")
+	logger.Printf("[Error]:\n%s\n%s%s", msg, stack, "\033[0m")
 
 	_, file, line, _ := runtime.Caller(4)
 	//nolint
@@ -99,7 +90,7 @@ func (e *RedisErrorLogger) log(err error, request *http.Request) {
 		File:    file,
 		Line:    line,
 		AppName: e.appService.Name,
-		Message: err.Error(),
+		Message: msg,
 		Stack:   stack,
 	}
 
