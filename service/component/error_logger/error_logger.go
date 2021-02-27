@@ -96,8 +96,8 @@ func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
 
 	if request != nil {
 		binaryRequest, _ := httputil.DumpRequest(request, true)
-		if len(binaryRequest) > 1000 {
-			value.Request = binaryRequest[0:1000]
+		if len(binaryRequest) > 2000 {
+			value.Request = binaryRequest[0:2000]
 		} else {
 			value.Request = binaryRequest
 		}
