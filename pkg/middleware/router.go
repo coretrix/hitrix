@@ -15,7 +15,9 @@ func Router(ginEngine *gin.Engine) {
 	var devPanel *controller.DevPanelController
 	{
 		devGroup := ginEngine.Group("/dev/")
-		devGroup.Use(AuthorizeDevUser())
+		if !service.DI().App().IsInLocalMode() {
+			devGroup.Use(AuthorizeDevUser())
+		}
 		{
 			//ginEngine.GET("/dev/action-list/", devPanel.GetActionListAction)
 
