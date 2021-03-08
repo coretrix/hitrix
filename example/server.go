@@ -18,6 +18,7 @@ func main() {
 		registry.ServiceProviderConfigDirectory("config"),
 		registry.ServiceDefinitionOrmRegistry(entity.Init),
 		registry.ServiceDefinitionOrmEngine(),
+		registry.OSSGoogle(map[string]uint64{"test": 1}),
 		registry.ServiceDefinitionOrmEngineForContext(),
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),

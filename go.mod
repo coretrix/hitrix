@@ -3,6 +3,7 @@ module github.com/coretrix/hitrix
 go 1.15
 
 require (
+	cloud.google.com/go/storage v1.0.0
 	github.com/99designs/gqlgen v0.13.0
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/bluele/slack v0.0.0-20180528010058-b4b4d354a079
@@ -34,7 +35,9 @@ require (
 	github.com/tj/assert v0.0.3
 	github.com/ugorji/go v1.2.2 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0
+	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
 	golang.org/x/text v0.3.4 // indirect
+	google.golang.org/api v0.13.0
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
