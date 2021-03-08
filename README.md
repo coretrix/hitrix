@@ -534,3 +534,8 @@ func (r *mutationResolver) RegisterTransactions(ctx context.Context, applePurcha
 ```
 
 The function `hitrix.Validate(ctx, nil)` as second param accept callback where you can define your custom validation related to business logic
+
+### Pre deploy
+If you run your binary with argument `-pre-deploy` the program will check for alters and if there is no alters it will exit with code 0 but if there is an alters it will exit with code 1.
+
+You can use this feature during the deployment process check if you need to execute the alters before you deploy it

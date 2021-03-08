@@ -10,6 +10,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/coretrix/hitrix/service"
+	"github.com/fatih/color"
+
 	"github.com/99designs/gqlgen/graphql"
 )
 
@@ -29,6 +32,9 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 		Addr:    ":" + port,
 		Handler: InitGin(server, ginInitHandler),
 	}
+
+	h.preDeploy()
+
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			panic(err)
@@ -41,6 +47,43 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Println("server forced to shutdown")
 	}
+}
+
+func (h *Hitrix) preDeploy() {
+	app := service.DI().App()
+
+	if app.IsInTestMode() {
+		return
+	}
+
+	preDeployFlag := app.Flags.Bool("pre-deploy")
+
+	if !preDeployFlag {
+		return
+	}
+
+	ormService, has := service.DI().OrmEngine()
+	if !has {
+		return
+	}
+
+	alters := ormService.GetAlters()
+
+	hasAlters := false
+	for _, alter := range alters {
+		if alter.Safe {
+			color.Green("%s\n\n", alter.SQL)
+		} else {
+			color.Red("%s\n\n", alter.SQL)
+		}
+		hasAlters = true
+	}
+
+	if hasAlters {
+		os.Exit(1)
+	}
+
+	os.Exit(0)
 }
 
 func (h *Hitrix) await() {
