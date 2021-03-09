@@ -20,8 +20,15 @@ func ValidateDirective() func(ctx context.Context, obj interface{}, next graphql
 			return nil, err
 		}
 
-		if originalValue == nil || originalValue == "" || reflect.ValueOf(originalValue).IsNil() {
-			return originalValue, nil
+		switch v := originalValue.(type) {
+		case string:
+			if v == "" {
+				return v, nil
+			}
+		default:
+			if v == nil || reflect.ValueOf(v).IsNil() {
+				return v, nil
+			}
 		}
 
 		validate := validator.New()
