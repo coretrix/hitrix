@@ -14,10 +14,20 @@ func ServiceProviderErrorLogger() *service.Definition {
 		Name:   "error_logger",
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
+			slackAPIService, err := ctn.SafeGet("slack_api")
+
+			if err == nil {
+				return errorlogger.NewRedisErrorLogger(
+					ctn.Get("app").(*app.App),
+					ctn.Get("orm_engine_global").(*orm.Engine),
+					slackAPIService.(*slackapi.SlackAPI),
+				), nil
+			}
+
 			return errorlogger.NewRedisErrorLogger(
 				ctn.Get("app").(*app.App),
 				ctn.Get("orm_engine_global").(*orm.Engine),
-				ctn.Get("slack_api").(*slackapi.SlackAPI),
+				nil,
 			), nil
 		},
 	}
