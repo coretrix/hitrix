@@ -20,7 +20,7 @@ func ValidateDirective() func(ctx context.Context, obj interface{}, next graphql
 			return nil, err
 		}
 
-		if originalValue == nil || reflect.ValueOf(originalValue).IsNil() {
+		if originalValue == nil || originalValue == "" || reflect.ValueOf(originalValue).IsNil() {
 			return originalValue, nil
 		}
 
