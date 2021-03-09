@@ -494,7 +494,13 @@ This service it can be used to hash and verify hashed passwords. It's use the se
 You can register it in that way:
 `registry.ServiceDefinitionPassword()`
 
+#### OSS Google
+This service is used for storage files into google storage
 
+You can register it in that way:
+`registry.OSSGoogle(map[string]uint64{"my-bucket-name": 1})`
+
+You should pass parameter as a map that contains all buckets you need as a key and as a value you should pass id. This id should be unique
 ### Validator
 We support 2 types of validators. One of them is related to graphql and the other one is related to rest
 
