@@ -148,7 +148,7 @@ func (h *Hitrix) runScript(script Script) bool {
 				if is {
 					message = asErr.Error()
 				} else {
-					message = "panic"
+					message = fmt.Sprint(err)
 				}
 
 				errorLogger, has := service.DI().ErrorLogger()

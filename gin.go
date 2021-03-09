@@ -3,6 +3,7 @@ package hitrix
 import (
 	"context"
 	"errors"
+	"fmt"
 	"runtime/debug"
 	"time"
 
@@ -96,7 +97,7 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 		if is {
 			message = asErr.Error()
 		} else {
-			message = "panic"
+			message = fmt.Sprint(err)
 		}
 		errorMessage := message + "\n" + string(debug.Stack())
 		errorLogger, has := service.DI().ErrorLogger()
