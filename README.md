@@ -501,6 +501,23 @@ You can register it in that way:
 `registry.OSSGoogle(map[string]uint64{"my-bucket-name": 1})`
 
 You should pass parameter as a map that contains all buckets you need as a key and as a value you should pass id. This id should be unique
+
+In your config folder you should put the .oss.json config file that you have from google
+Your config file should looks like that:
+```json
+{
+  "type": "...",
+  "project_id": "...",
+  "private_key_id": "...",
+  "private_key": "...",
+  "client_email": "...",
+  "client_id": "...",
+  "auth_uri": "...",
+  "token_uri": "...",
+  "auth_provider_x509_cert_url": "...",
+  "client_x509_cert_url": "..."
+}
+```
 ### Validator
 We support 2 types of validators. One of them is related to graphql and the other one is related to rest
 
