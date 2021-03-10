@@ -54,12 +54,53 @@ func (t *JWT) EncodeJWT(secret string, headers, payload map[string]string) (stri
 }
 
 func (t *JWT) VerifyJWT(secret, jwt string, expire int64) error {
+	jwtTokenParts, err := t.extractJWTParts(jwt)
+	if err != nil {
+		return err
+	}
+
+	err = t.checkSignature(secret, jwtTokenParts)
+	if err != nil {
+		return err
+	}
+
+	payload, err := t.extractPayload(jwtTokenParts[1])
+	if err != nil {
+		return err
+	}
+
+	return t.checkTime(payload, expire)
+}
+
+func (t *JWT) VerifyJWTAndGetPayload(secret, jwt string, expire int64) (map[string]string, error) {
+	jwtTokenParts, err := t.extractJWTParts(jwt)
+	if err != nil {
+		return nil, err
+	}
+
+	err = t.checkSignature(secret, jwtTokenParts)
+	if err != nil {
+		return nil, err
+	}
+
+	payload, err := t.extractPayload(jwtTokenParts[1])
+	if err != nil {
+		return nil, err
+	}
+
+	return payload, t.checkTime(payload, expire)
+}
+
+func (t *JWT) extractJWTParts(jwt string) ([]string, error) {
 	jwtToken := strings.Split(jwt, ".")
 
 	if len(jwtToken) != 3 {
-		return fmt.Errorf("token not valid need to be from three parts")
+		return nil, fmt.Errorf("token not valid need to be from three parts")
 	}
+	return jwtToken, nil
+}
 
+func (t *JWT) checkSignature(secret string, jwtToken []string) error {
 	header := make(map[string]string)
 
 	h, err := base64.URLEncoding.DecodeString(jwtToken[0])
@@ -100,24 +141,26 @@ func (t *JWT) VerifyJWT(secret, jwt string, expire int64) error {
 	if !valid {
 		return fmt.Errorf("token not valid")
 	}
-
-	return t.checkTime(jwtToken[1], expire)
+	return nil
 }
 
-func (t *JWT) checkTime(exp string, expire int64) error {
+func (t *JWT) extractPayload(jwtPayloadPart string) (map[string]string, error) {
 	payload := make(map[string]string)
 
-	payl, err := base64.URLEncoding.DecodeString(exp)
-
+	payl, err := base64.URLEncoding.DecodeString(jwtPayloadPart)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = json.Unmarshal(payl, &payload)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	return payload, nil
+}
+
+func (t *JWT) checkTime(payload map[string]string, expire int64) error {
 	expireTime, ok := payload["exp"]
 
 	if !ok {
