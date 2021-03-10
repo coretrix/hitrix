@@ -22,6 +22,7 @@ const (
 	ConfigService           = "config"
 	ErrorLoggerService      = "error_logger"
 	JWTService              = "jwt"
+	DDOSService             = "ddos"
 	ORMConfigService        = "orm_config"
 	ORMEngineGlobalService  = "orm_engine_global"
 	ORMEngineRequestService = "orm_engine_request"

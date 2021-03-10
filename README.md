@@ -518,6 +518,15 @@ Your config file should looks like that:
   "client_x509_cert_url": "..."
 }
 ```
+
+#### DDOS Protection
+This service contains DDOS protection features
+
+You can register it in that way:
+`registry.ServiceProviderDDOS()`
+
+You can protect for example login endpoint from many attempts  by using method `ProtectManyAttempts`
+
 ### Validator
 We support 2 types of validators. One of them is related to graphql and the other one is related to rest
 
