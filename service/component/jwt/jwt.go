@@ -54,7 +54,6 @@ func (t *JWT) EncodeJWT(secret string, headers, payload map[string]string) (stri
 }
 
 func (t *JWT) VerifyJWT(secret, jwt string, expire int64) error {
-
 	jwtTokenParts, err := t.extractJWTParts(jwt)
 	if err != nil {
 		return err
@@ -102,7 +101,6 @@ func (t *JWT) extractJWTParts(jwt string) ([]string, error) {
 }
 
 func (t *JWT) checkSignature(secret string, jwtToken []string) error {
-
 	header := make(map[string]string)
 
 	h, err := base64.URLEncoding.DecodeString(jwtToken[0])
@@ -163,7 +161,6 @@ func (t *JWT) extractPayload(jwtPayloadPart string) (map[string]string, error) {
 }
 
 func (t *JWT) checkTime(payload map[string]string, expire int64) error {
-
 	expireTime, ok := payload["exp"]
 
 	if !ok {
