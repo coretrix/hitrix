@@ -8,7 +8,7 @@ import (
 
 func ServiceApp(app *app.App) *service.Definition {
 	return &service.Definition{
-		Name:   "app",
+		Name:   service.AppService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return app, nil

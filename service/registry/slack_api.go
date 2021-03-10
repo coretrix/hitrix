@@ -10,10 +10,10 @@ import (
 
 func ServiceDefinitionSlackAPI() *service.Definition {
 	return &service.Definition{
-		Name:   "slack_api",
+		Name:   service.SlackAPIService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			slackConfig := ctn.Get("config").(*config.Config).GetStringMap("slack")
+			slackConfig := ctn.Get(service.ConfigService).(*config.Config).GetStringMap("slack")
 			if slackConfig["token"] == "" {
 				return nil, errors.New("missing slack.token")
 			}

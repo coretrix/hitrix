@@ -11,22 +11,22 @@ import (
 
 func ServiceProviderErrorLogger() *service.Definition {
 	return &service.Definition{
-		Name:   "error_logger",
+		Name:   service.ErrorLoggerService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			slackAPIService, err := ctn.SafeGet("slack_api")
+			slackAPIService, err := ctn.SafeGet(service.SlackAPIService)
 
 			if err == nil {
 				return errorlogger.NewRedisErrorLogger(
-					ctn.Get("app").(*app.App),
-					ctn.Get("orm_engine_global").(*orm.Engine),
+					ctn.Get(service.AppService).(*app.App),
+					ctn.Get(service.ORMEngineGlobalService).(*orm.Engine),
 					slackAPIService.(*slackapi.SlackAPI),
 				), nil
 			}
 
 			return errorlogger.NewRedisErrorLogger(
-				ctn.Get("app").(*app.App),
-				ctn.Get("orm_engine_global").(*orm.Engine),
+				ctn.Get(service.AppService).(*app.App),
+				ctn.Get(service.ORMEngineGlobalService).(*orm.Engine),
 				nil,
 			), nil
 		},

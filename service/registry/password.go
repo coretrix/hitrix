@@ -8,7 +8,7 @@ import (
 
 func ServiceProviderPassword() *service.Definition {
 	return &service.Definition{
-		Name:   "password",
+		Name:   service.PasswordService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &password.Password{}, nil

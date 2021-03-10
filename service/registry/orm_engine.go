@@ -23,7 +23,7 @@ func serviceDefinitionOrmEngine(global bool) *service.Definition {
 		Name:   "orm_engine_" + suffix,
 		Global: global,
 		Build: func(ctn di.Container) (interface{}, error) {
-			ormConfigService, err := ctn.SafeGet("orm_config")
+			ormConfigService, err := ctn.SafeGet(service.ORMConfigService)
 			if err != nil {
 				return nil, err
 			}

@@ -17,6 +17,19 @@ import (
 	"github.com/summer-solutions/orm"
 )
 
+const (
+	AppService              = "app"
+	ConfigService           = "config"
+	ErrorLoggerService      = "error_logger"
+	JWTService              = "jwt"
+	ORMConfigService        = "orm_config"
+	ORMEngineGlobalService  = "orm_engine_global"
+	ORMEngineRequestService = "orm_engine_request"
+	OSSGoogleService        = "oss_google"
+	PasswordService         = "password"
+	SlackAPIService         = "slack_api"
+)
+
 type DIInterface interface {
 	App() *app.App
 	Config() *config.Config
@@ -40,15 +53,15 @@ func DI() DIInterface {
 }
 
 func (d *diContainer) App() *app.App {
-	return GetServiceRequired("app").(*app.App)
+	return GetServiceRequired(AppService).(*app.App)
 }
 
 func (d *diContainer) Config() *config.Config {
-	return GetServiceRequired("config").(*config.Config)
+	return GetServiceRequired(ConfigService).(*config.Config)
 }
 
 func (d *diContainer) OrmConfig() (orm.ValidatedRegistry, bool) {
-	v, has := GetServiceOptional("orm_config")
+	v, has := GetServiceOptional(ORMConfigService)
 	if has {
 		return v.(orm.ValidatedRegistry), true
 	}
@@ -56,7 +69,7 @@ func (d *diContainer) OrmConfig() (orm.ValidatedRegistry, bool) {
 }
 
 func (d *diContainer) OrmEngine() (*orm.Engine, bool) {
-	v, has := GetServiceOptional("orm_engine_global")
+	v, has := GetServiceOptional(ORMEngineGlobalService)
 	if has {
 		return v.(*orm.Engine), true
 	}
@@ -64,7 +77,7 @@ func (d *diContainer) OrmEngine() (*orm.Engine, bool) {
 }
 
 func (d *diContainer) OrmEngineForContext(ctx context.Context) (*orm.Engine, bool) {
-	v, has := GetServiceForRequestOptional(ctx, "orm_engine_request")
+	v, has := GetServiceForRequestOptional(ctx, ORMEngineRequestService)
 	if has {
 		return v.(*orm.Engine), true
 	}
@@ -72,7 +85,7 @@ func (d *diContainer) OrmEngineForContext(ctx context.Context) (*orm.Engine, boo
 }
 
 func (d *diContainer) JWT() (*jwt.JWT, bool) {
-	v, has := GetServiceOptional("jwt")
+	v, has := GetServiceOptional(JWTService)
 	if has {
 		return v.(*jwt.JWT), true
 	}
@@ -80,7 +93,7 @@ func (d *diContainer) JWT() (*jwt.JWT, bool) {
 }
 
 func (d *diContainer) Password() (*password.Password, bool) {
-	v, has := GetServiceOptional("password")
+	v, has := GetServiceOptional(PasswordService)
 	if has {
 		return v.(*password.Password), true
 	}
@@ -88,7 +101,7 @@ func (d *diContainer) Password() (*password.Password, bool) {
 }
 
 func (d *diContainer) SlackAPI() (*slackapi.SlackAPI, bool) {
-	v, has := GetServiceOptional("slack_api")
+	v, has := GetServiceOptional(SlackAPIService)
 	if has {
 		return v.(*slackapi.SlackAPI), true
 	}
@@ -96,7 +109,7 @@ func (d *diContainer) SlackAPI() (*slackapi.SlackAPI, bool) {
 }
 
 func (d *diContainer) ErrorLogger() (errorlogger.ErrorLogger, bool) {
-	v, has := GetServiceOptional("error_logger")
+	v, has := GetServiceOptional(ErrorLoggerService)
 	if has {
 		return v.(errorlogger.ErrorLogger), true
 	}
@@ -104,7 +117,7 @@ func (d *diContainer) ErrorLogger() (errorlogger.ErrorLogger, bool) {
 }
 
 func (d *diContainer) OSSGoogle() (oss.Client, bool) {
-	v, has := GetServiceOptional("oss_google")
+	v, has := GetServiceOptional(OSSGoogleService)
 	if has {
 		return v.(oss.Client), true
 	}

@@ -9,7 +9,7 @@ import (
 
 func FakeGoogleOSSService(fakeOSSService oss.Client) *service.Definition {
 	return &service.Definition{
-		Name:   "oss_google",
+		Name:   service.OSSGoogleService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &fakeOSSService, nil

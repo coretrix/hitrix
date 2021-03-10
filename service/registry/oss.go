@@ -16,11 +16,11 @@ import (
 
 func OSSGoogle(buckets map[string]uint64) *service.Definition {
 	return &service.Definition{
-		Name:   "oss_google",
+		Name:   service.OSSGoogleService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			configService := ctn.Get("config").(*config.Config)
-			appService := ctn.Get("app").(*app.App)
+			configService := ctn.Get(service.ConfigService).(*config.Config)
+			appService := ctn.Get(service.AppService).(*app.App)
 
 			if !helper.ExistsInDir(".oss.json", configService.GetFolderPath()) {
 				return nil, errors.New(configService.GetFolderPath() + "/.oss.json does not exists")
@@ -30,7 +30,7 @@ func OSSGoogle(buckets map[string]uint64) *service.Definition {
 				return nil, errors.New("please define buckets")
 			}
 
-			ormConfig := ctn.Get("orm_config").(orm.ValidatedRegistry)
+			ormConfig := ctn.Get(service.ORMConfigService).(orm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()
 			if _, ok := entities["entity.OSSBucketCounterEntity"]; !ok {
 				return nil, errors.New("ServiceDefinitionOrmRegistry should be defined before OSSGoogle")

@@ -18,7 +18,7 @@ func ServiceProviderConfigDirectory(configDirectory string) *service.Definition 
 
 func ServiceConfig() *service.Definition {
 	return &service.Definition{
-		Name:   "config",
+		Name:   service.ConfigService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configDirectory := ctn.Get("config_directory").(string)

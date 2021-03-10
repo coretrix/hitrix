@@ -12,13 +12,13 @@ type ORMRegistryInitFunc func(registry *orm.Registry)
 
 func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition {
 	return &service.Definition{
-		Name:   "orm_config",
+		Name:   service.ORMConfigService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			registry := orm.InitByYaml(service.DI().Config().Get("orm").(map[string]interface{}))
 			init(registry)
 
-			_, err := ctn.SafeGet("oss_google")
+			_, err := ctn.SafeGet(service.OSSGoogleService)
 			if err != nil {
 				registry.RegisterEntity(&entity.OSSBucketCounterEntity{})
 			}

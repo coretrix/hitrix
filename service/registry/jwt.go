@@ -8,7 +8,7 @@ import (
 
 func ServiceProviderJWT() *service.Definition {
 	return &service.Definition{
-		Name:   "jwt",
+		Name:   service.JWTService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &jwt.JWT{}, nil
