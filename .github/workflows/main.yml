@@ -42,7 +42,6 @@ jobs:
           make cover
 
       - name: Upload Coverage report to CodeCov
-        uses: codecov/codecov-action@v1.0.0
+        uses: codecov/codecov-action@v1.2.2
         with:
-          token: ${{secrets.CODECOV_TOKEN}}
           file: ./resources/cover/cover.out
