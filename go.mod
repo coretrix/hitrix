@@ -30,8 +30,8 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.1
-	github.com/stretchr/testify v1.6.1
-	github.com/summer-solutions/orm v1.75.3
+	github.com/stretchr/testify v1.7.0
+	github.com/summer-solutions/orm v1.79.2
 	github.com/tj/assert v0.0.3
 	github.com/ugorji/go v1.2.2 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0
