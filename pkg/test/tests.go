@@ -181,6 +181,7 @@ func truncateTables() error {
 	fmt.Println(dbService.GetDatabaseName())
 	fmt.Println(rows == nil)
 	if rows != nil {
+		fmt.Println("query")
 		var queries string
 
 		for rows.Next() {
@@ -188,6 +189,8 @@ func truncateTables() error {
 			fmt.Println(query)
 			queries += query
 		}
+		fmt.Println(queries)
+
 		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
 		defer def()
 	}
