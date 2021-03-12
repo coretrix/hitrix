@@ -3,6 +3,7 @@ package test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 
 	graphqlParser "github.com/coretrix/hitrix/pkg/test/graphql-parser"
 
@@ -177,12 +178,14 @@ func truncateTables() error {
 			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetDatabaseName() + "_test');",
 	)
 	defer deferF()
-
+	fmt.Println(dbService.GetDatabaseName())
+	fmt.Println(rows == nil)
 	if rows != nil {
 		var queries string
 
 		for rows.Next() {
 			rows.Scan(&query)
+			fmt.Println(query)
 			queries += query
 		}
 		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
