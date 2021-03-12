@@ -118,8 +118,10 @@ func CreateContext(t *testing.T, projectName string, resolvers graphql.Executabl
 			queries += alter.SQL
 		}
 
-		_, def := dbService.Query(queries)
-		defer def()
+		if queries != "" {
+			_, def := dbService.Query(queries)
+			defer def()
+		}
 	}
 
 	if len(mockServices) != 0 {
