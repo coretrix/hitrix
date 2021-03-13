@@ -571,3 +571,54 @@ The function `hitrix.Validate(ctx, nil)` as second param accept callback where y
 If you run your binary with argument `-pre-deploy` the program will check for alters and if there is no alters it will exit with code 0 but if there is an alters it will exit with code 1.
 
 You can use this feature during the deployment process check if you need to execute the alters before you deploy it
+
+### Tests
+Hitrix provide you test helper functions which can be used to make requests to your graphql api
+
+In your code you can create similar function that makes new instance of your app
+
+```go
+func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema) *test.Ctx {
+	defaultServices := []*service.Definition{
+		registry.ServiceProviderConfigDirectory("../example/config"),
+		registry.ServiceDefinitionOrmRegistry(entity.Init),
+		registry.ServiceDefinitionOrmEngine(),
+	}
+
+	return test.CreateContext(t,
+		projectName,
+		resolvers,
+		defaultServices,
+	)
+}
+
+```
+
+After that you can call queries or mutations
+
+```go
+func TestProcessApplePurchaseWithEmail(t *testing.T) {
+	type queryRegisterTransactions struct {
+		RegisterTransactionsResponse *model.RegisterTransactionsResponse `graphql:"RegisterTransactions(applePurchaseRequest: $applePurchaseRequest)"`
+	}
+
+	variables := map[string]interface{}{
+		"applePurchaseRequest": model.ApplePurchaseRequest{
+			ForceEmail:   false,
+		},
+	}
+
+	fakeMail := &mailMock.Sender{}
+	fakeMail.On("SendTemplate", "hymn@abv.bg").Return(nil)
+
+	got := &queryRegisterTransactions{}
+	projectName, resolver := tests.GetWebAPIResolver()
+	ctx := tests.CreateContextWebAPI(t, projectName, resolver, &tests.IoCMocks{MailService: fakeMail})
+
+	err := ctx.HandleMutation(got, variables)
+	assert.Nil(t, err)
+
+	//...
+	fakeMail.AssertExpectations(t)
+}
+```

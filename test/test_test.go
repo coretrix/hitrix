@@ -11,10 +11,10 @@ import (
 )
 
 func TestCreateContext(t *testing.T) {
-	createContextWebAPI(t, "my-app", nil)
+	createContextMyApp(t, "my-app", nil)
 }
 
-func createContextWebAPI(t *testing.T, projectName string, resolvers graphql.ExecutableSchema) *test.Ctx {
+func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema) *test.Ctx {
 	defaultServices := []*service.Definition{
 		registry.ServiceProviderConfigDirectory("../example/config"),
 		registry.ServiceDefinitionOrmRegistry(entity.Init),
