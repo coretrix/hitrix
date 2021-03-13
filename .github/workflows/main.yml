@@ -50,6 +50,11 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
+      - name: Create database
+          run: |
+            sudo apt-get install -y mysql-client
+            mysql -uroot -h127.0.0.1 --port=9004 -proot -e 'CREATE DATABASE IF NOT EXISTS hitrix;'
+
       - name: Run unit tests with coverage.
         run: |
           export GOPATH=$(go env GOPATH)
