@@ -26,6 +26,20 @@ jobs:
   test:
     name: Test & coverage
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        ports:
+          - 9002:6379
+        options: --entrypoint redis-server
+
+      mysql:
+        image: percona:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 9004:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=5s --health-retries=3
     steps:
 
       - name: Set up Go
