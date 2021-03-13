@@ -3,7 +3,6 @@ package test
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 
 	graphqlParser "github.com/coretrix/hitrix/pkg/test/graphql-parser"
 
@@ -152,7 +151,7 @@ func dropTables() error {
 	var query string
 	rows, deferF := dbService.Query(
 		"SELECT CONCAT('DROP TABLE ',table_schema,'.',table_name,';') AS query " +
-			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetDatabaseName() + "_test')",
+			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetDatabaseName() + "')",
 	)
 	defer deferF()
 
@@ -175,21 +174,16 @@ func truncateTables() error {
 	var query string
 	rows, deferF := dbService.Query(
 		"SELECT CONCAT('truncate table ',table_schema,'.',table_name,';') AS query " +
-			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetDatabaseName() + "_test');",
+			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetDatabaseName() + "');",
 	)
 	defer deferF()
-	fmt.Println(dbService.GetDatabaseName())
-	fmt.Println(rows == nil)
 	if rows != nil {
-		fmt.Println("query")
 		var queries string
 
 		for rows.Next() {
 			rows.Scan(&query)
-			fmt.Println(query)
 			queries += query
 		}
-		fmt.Println(queries)
 
 		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
 		defer def()
