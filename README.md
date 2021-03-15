@@ -13,7 +13,7 @@ Hitrix is based on top of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](htt
 ### Built-in features:
 
  * It supports all features of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](https://github.com/gin-gonic/gin)
- * Integrated with [ORM](https://github.com/summer-solutions/orm)
+ * Integrated with [ORM](https://github.com/latolukasz/orm)
  * Follows [Dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) pattern
  * Provides many DI services that makes your live easier. You can read more about them [here](https://github.com/coretrix/hitrix#built-in-services)
  * Provides [Dev panel](https://github.com/coretrix/dev-frontend) where you can monitor and manage your application(monitoring, error log, db alters and so on)
