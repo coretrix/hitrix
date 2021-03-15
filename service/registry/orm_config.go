@@ -5,7 +5,7 @@ import (
 	"github.com/coretrix/hitrix/service"
 	"github.com/sarulabs/di"
 
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 )
 
 type ORMRegistryInitFunc func(registry *orm.Registry)

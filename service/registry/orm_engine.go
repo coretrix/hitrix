@@ -2,8 +2,8 @@ package registry
 
 import (
 	"github.com/coretrix/hitrix/service"
+	"github.com/latolukasz/orm"
 	"github.com/sarulabs/di"
-	"github.com/summer-solutions/orm"
 )
 
 func ServiceDefinitionOrmEngine() *service.Definition {

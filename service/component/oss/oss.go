@@ -3,7 +3,7 @@ package oss
 import (
 	"time"
 
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 )
 
 type Client interface {

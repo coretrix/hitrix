@@ -17,7 +17,7 @@ import (
 	"google.golang.org/api/option"
 
 	"cloud.google.com/go/storage"
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 	"golang.org/x/net/context"
 )
 

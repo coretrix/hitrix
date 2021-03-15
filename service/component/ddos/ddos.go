@@ -3,7 +3,7 @@ package ddos
 import (
 	"strconv"
 
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 )
 
 type DDOS struct {

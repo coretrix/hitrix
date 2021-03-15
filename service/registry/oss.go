@@ -3,7 +3,7 @@ package registry
 import (
 	"errors"
 
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"

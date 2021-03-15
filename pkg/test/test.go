@@ -20,7 +20,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/gin-gonic/gin"
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 )
 
 var dbService *orm.DB

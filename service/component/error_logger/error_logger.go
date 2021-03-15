@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 )
 
 const GroupError = "error"

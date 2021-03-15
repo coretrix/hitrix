@@ -5,8 +5,8 @@ import (
 
 	"github.com/coretrix/hitrix/service/component/oss"
 
+	"github.com/latolukasz/orm"
 	"github.com/stretchr/testify/mock"
-	"github.com/summer-solutions/orm"
 )
 
 type FakeOSSClient struct {

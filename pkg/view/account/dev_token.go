@@ -14,7 +14,7 @@ import (
 	"github.com/coretrix/hitrix/service"
 
 	"github.com/gin-gonic/gin"
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 )
 
 const LoggedDevPanelUserEntity = "logged_dev_panel_user_entity"

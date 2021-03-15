@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/summer-solutions/orm"
+import "github.com/latolukasz/orm"
 
 func Init(registry *orm.Registry) {
 	registry.RegisterEntity(

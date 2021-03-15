@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 )
 
 type AdminUserEntity struct {

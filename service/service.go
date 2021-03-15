@@ -14,7 +14,7 @@ import (
 
 	"github.com/coretrix/hitrix/service/component/app"
 
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 )
 
 const (

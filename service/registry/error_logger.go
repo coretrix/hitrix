@@ -5,8 +5,8 @@ import (
 	"github.com/coretrix/hitrix/service/component/app"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	slackapi "github.com/coretrix/hitrix/service/component/slack_api"
+	"github.com/latolukasz/orm"
 	"github.com/sarulabs/di"
-	"github.com/summer-solutions/orm"
 )
 
 func ServiceProviderErrorLogger() *service.Definition {

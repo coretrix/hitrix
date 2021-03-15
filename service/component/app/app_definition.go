@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 )
 
 const ModeLocal = "local"

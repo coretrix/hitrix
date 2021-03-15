@@ -123,7 +123,7 @@ If you want to use our dev panel and to be able to manage alters, error log, red
 package entity
 
 import (
-	"github.com/summer-solutions/orm"
+	"github.com/latolukasz/orm"
 )
 
 type AdminUserEntity struct {
@@ -149,7 +149,7 @@ After that you should register it to the `entity.Init` function
 ```go
 package entity
 
-import "github.com/summer-solutions/orm"
+import "github.com/latolukasz/orm"
 
 func Init(registry *orm.Registry) {
 	registry.RegisterEntity(

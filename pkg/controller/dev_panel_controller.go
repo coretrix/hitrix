@@ -14,7 +14,7 @@ import (
 	"github.com/coretrix/hitrix/pkg/view/account"
 
 	"github.com/gin-gonic/gin"
-	"github.com/summer-solutions/orm/tools"
+	"github.com/latolukasz/orm/tools"
 )
 
 type MenuItem struct {
