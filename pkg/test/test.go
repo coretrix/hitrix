@@ -28,14 +28,14 @@ var ormService *orm.Engine
 var ginTestInstance *gin.Engine
 var testSpringInstance *hitrix.Hitrix
 
-type Ctx struct {
+type Environment struct {
 	t *testing.T
 	g *gin.Engine
 	c *gin.Context
 	w *httptest.ResponseRecorder
 }
 
-func (ctx *Ctx) HandleQuery(query interface{}, variables map[string]interface{}) *graphqlParser.Errors {
+func (ctx *Environment) HandleQuery(query interface{}, variables map[string]interface{}) *graphqlParser.Errors {
 	buff, err := graphqlParser.NewQueryParser().ParseQuery(query, variables)
 	if err != nil {
 		ctx.t.Fatal(err)
@@ -44,7 +44,7 @@ func (ctx *Ctx) HandleQuery(query interface{}, variables map[string]interface{})
 	return ctx.handle(buff, query)
 }
 
-func (ctx *Ctx) HandleMutation(mutation interface{}, variables map[string]interface{}) *graphqlParser.Errors {
+func (ctx *Environment) HandleMutation(mutation interface{}, variables map[string]interface{}) *graphqlParser.Errors {
 	buff, err := graphqlParser.NewQueryParser().ParseMutation(mutation, variables)
 	if err != nil {
 		ctx.t.Fatal(err)
@@ -53,7 +53,7 @@ func (ctx *Ctx) HandleMutation(mutation interface{}, variables map[string]interf
 	return ctx.handle(buff, mutation)
 }
 
-func (ctx *Ctx) handle(buff bytes.Buffer, v interface{}) *graphqlParser.Errors {
+func (ctx *Environment) handle(buff bytes.Buffer, v interface{}) *graphqlParser.Errors {
 	r, _ := http.NewRequestWithContext(ctx.c, http.MethodPost, "/query", &buff)
 	r.Header = http.Header{"Content-Type": []string{"application/json"}}
 	ctx.c.Request = r
@@ -80,7 +80,7 @@ func (ctx *Ctx) handle(buff bytes.Buffer, v interface{}) *graphqlParser.Errors {
 	return nil
 }
 
-func CreateContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, defaultServices []*service.Definition, mockServices ...*service.Definition) *Ctx {
+func CreateContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, ginInitHandler hitrix.GinInitHandler, defaultServices []*service.Definition, mockServices ...*service.Definition) *Environment {
 	var deferFunc func()
 
 	if testSpringInstance == nil {
@@ -127,7 +127,7 @@ func CreateContext(t *testing.T, projectName string, resolvers graphql.Executabl
 	if len(mockServices) != 0 {
 		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
 		defer deferFunc()
-		ginTestInstance = hitrix.InitGin(resolvers, nil)
+		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler)
 
 		// TODO: fix multiple connections to mysql
 		ormService, _ = service.DI().OrmEngine()
@@ -144,7 +144,7 @@ func CreateContext(t *testing.T, projectName string, resolvers graphql.Executabl
 
 	resp := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(resp)
-	return &Ctx{t: t, g: ginTestInstance, c: c, w: resp}
+	return &Environment{t: t, g: ginTestInstance, c: c, w: resp}
 }
 
 func dropTables() error {

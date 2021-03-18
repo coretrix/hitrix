@@ -14,7 +14,7 @@ func TestCreateContext(t *testing.T) {
 	createContextMyApp(t, "my-app", nil)
 }
 
-func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema) *test.Ctx {
+func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema) *test.Environment {
 	defaultServices := []*service.Definition{
 		registry.ServiceProviderConfigDirectory("../example/config"),
 		registry.ServiceDefinitionOrmRegistry(entity.Init),
@@ -24,6 +24,7 @@ func createContextMyApp(t *testing.T, projectName string, resolvers graphql.Exec
 	return test.CreateContext(t,
 		projectName,
 		resolvers,
+		nil,
 		defaultServices,
 	)
 }
