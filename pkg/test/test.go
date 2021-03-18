@@ -29,42 +29,42 @@ var ginTestInstance *gin.Engine
 var testSpringInstance *hitrix.Hitrix
 
 type Environment struct {
-	t *testing.T
-	g *gin.Engine
-	c *gin.Context
-	w *httptest.ResponseRecorder
+	t                *testing.T
+	GinEngine        *gin.Engine
+	Cxt              *gin.Context
+	ResponseRecorder *httptest.ResponseRecorder
 }
 
-func (ctx *Environment) HandleQuery(query interface{}, variables map[string]interface{}) *graphqlParser.Errors {
+func (env *Environment) HandleQuery(query interface{}, variables map[string]interface{}) *graphqlParser.Errors {
 	buff, err := graphqlParser.NewQueryParser().ParseQuery(query, variables)
 	if err != nil {
-		ctx.t.Fatal(err)
+		env.t.Fatal(err)
 	}
 
-	return ctx.handle(buff, query)
+	return env.handle(buff, query)
 }
 
-func (ctx *Environment) HandleMutation(mutation interface{}, variables map[string]interface{}) *graphqlParser.Errors {
+func (env *Environment) HandleMutation(mutation interface{}, variables map[string]interface{}) *graphqlParser.Errors {
 	buff, err := graphqlParser.NewQueryParser().ParseMutation(mutation, variables)
 	if err != nil {
-		ctx.t.Fatal(err)
+		env.t.Fatal(err)
 	}
 
-	return ctx.handle(buff, mutation)
+	return env.handle(buff, mutation)
 }
 
-func (ctx *Environment) handle(buff bytes.Buffer, v interface{}) *graphqlParser.Errors {
-	r, _ := http.NewRequestWithContext(ctx.c, http.MethodPost, "/query", &buff)
+func (env *Environment) handle(buff bytes.Buffer, v interface{}) *graphqlParser.Errors {
+	r, _ := http.NewRequestWithContext(env.Cxt, http.MethodPost, "/query", &buff)
 	r.Header = http.Header{"Content-Type": []string{"application/json"}}
-	ctx.c.Request = r
-	ctx.g.HandleContext(ctx.c)
+	env.Cxt.Request = r
+	env.GinEngine.HandleContext(env.Cxt)
 
 	var out struct {
 		Data   *json.RawMessage
 		Errors *graphqlParser.Errors
 	}
-	if err := json.NewDecoder(ctx.w.Body).Decode(&out); err != nil {
-		ctx.t.Fatal(err)
+	if err := json.NewDecoder(env.ResponseRecorder.Body).Decode(&out); err != nil {
+		env.t.Fatal(err)
 	}
 
 	if out.Errors != nil {
@@ -73,7 +73,7 @@ func (ctx *Environment) handle(buff bytes.Buffer, v interface{}) *graphqlParser.
 
 	if out.Data != nil {
 		if err := jsonutil.UnmarshalGraphQL(*out.Data, v); err != nil {
-			ctx.t.Fatal(err)
+			env.t.Fatal(err)
 		}
 	}
 
@@ -144,7 +144,7 @@ func CreateContext(t *testing.T, projectName string, resolvers graphql.Executabl
 
 	resp := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(resp)
-	return &Environment{t: t, g: ginTestInstance, c: c, w: resp}
+	return &Environment{t: t, GinEngine: ginTestInstance, Cxt: c, ResponseRecorder: resp}
 }
 
 func dropTables() error {
