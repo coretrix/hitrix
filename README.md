@@ -588,6 +588,7 @@ func createContextMyApp(t *testing.T, projectName string, resolvers graphql.Exec
 	return test.CreateContext(t,
 		projectName,
 		resolvers,
+		func(ginEngine *gin.Engine) { middleware.Router(ginEngine) },
 		defaultServices,
 	)
 }
