@@ -95,7 +95,7 @@ func CreateContext(t *testing.T, projectName string, resolvers graphql.Executabl
 
 		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
 		defer deferFunc()
-		ginTestInstance = hitrix.InitGin(resolvers, nil)
+		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler)
 
 		var has bool
 		ormService, has = service.DI().OrmEngine()
