@@ -97,6 +97,12 @@ func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket string, object *oss.Objec
 	return signedURL
 }
 
+func (ossStorage *GoogleOSS) UploadObjectFromContent(ormService *orm.Engine, bucket string, content []byte, extension string) oss.Object {
+	ossStorage.checkBucket(bucket)
+
+	return ossStorage.putObject(ormService, bucket, content, extension)
+}
+
 func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *orm.Engine, bucket, localFile string) oss.Object {
 	ossStorage.checkBucket(bucket)
 

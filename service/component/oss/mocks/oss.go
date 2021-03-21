@@ -29,6 +29,10 @@ func (t *FakeOSSClient) UploadObjectFromFile(_ *orm.Engine, bucket, localFile st
 	return t.Called(bucket, localFile).Get(0).(oss.Object)
 }
 
+func (t *FakeOSSClient) UploadObjectFromContent(_ *orm.Engine, bucket string, content []byte, extension string) oss.Object {
+	return t.Called(bucket, content, extension).Get(0).(oss.Object)
+}
+
 func (t *FakeOSSClient) UploadObjectFromBase64(_ *orm.Engine, bucket, content, extension string) oss.Object {
 	return t.Called(bucket, content, extension).Get(0).(oss.Object)
 }
