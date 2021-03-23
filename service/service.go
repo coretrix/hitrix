@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/socket"
+
 	"github.com/coretrix/hitrix/service/component/oss"
 
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
@@ -29,6 +31,7 @@ const (
 	OSSGoogleService        = "oss_google"
 	PasswordService         = "password"
 	SlackAPIService         = "slack_api"
+	SocketRegistryService   = "socket_registry"
 )
 
 type DIInterface interface {
@@ -42,6 +45,7 @@ type DIInterface interface {
 	SlackAPI() (*slackapi.SlackAPI, bool)
 	ErrorLogger() (errorlogger.ErrorLogger, bool)
 	OSSGoogle() (oss.Client, bool)
+	SocketRegistry() (*socket.Registry, bool)
 }
 
 type diContainer struct {
@@ -121,6 +125,14 @@ func (d *diContainer) OSSGoogle() (oss.Client, bool) {
 	v, has := GetServiceOptional(OSSGoogleService)
 	if has {
 		return v.(oss.Client), true
+	}
+	return nil, false
+}
+
+func (d *diContainer) SocketRegistry() (*socket.Registry, bool) {
+	v, has := GetServiceOptional(SocketRegistryService)
+	if has {
+		return v.(*socket.Registry), true
 	}
 	return nil, false
 }

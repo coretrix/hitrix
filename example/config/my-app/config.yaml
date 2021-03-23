@@ -1,8 +1,9 @@
 orm:
   default:
-    mysql: root:root@tcp(0.0.0.0:9004)/hitrix
-    redis: 0.0.0.0:9002:1
+    mysql: root:root@tcp(mysql:3306)/hitrix
+    redis: redis:6379:1
     locker: default
     local_cache: 1000
 cors:
   - http://localhost:9001 # This is the default port of https://github.com/coretrix/dev-frontend repository
+  - http://localhost:63342 # websocket test

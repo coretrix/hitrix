@@ -527,6 +527,61 @@ You can register it in that way:
 
 You can protect for example login endpoint from many attempts  by using method `ProtectManyAttempts`
 
+#### WebSocket
+This service add support of websockets. It manage the connections and provide you easy way to read and write messages
+
+You can register it in that way:
+`registry.ServiceSocketRegistry(registerHandler, unregisterHandler func(s *socket.Socket))`
+
+To be able to handle new connections you should create your own route and create a handler for it.
+Your handler should looks like that:
+```go
+type WebsocketController struct {
+}
+
+func (controller *WebsocketController) InitConnection(c *gin.Context) {
+	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		panic(err)
+	}
+
+	socketRegistryService, has := service.DI().SocketRegistry()
+	if !has {
+		panic("Socket Registry is not registered")
+	}
+
+	errorLoggerService, has := service.DI().ErrorLogger()
+	if !has {
+		panic("Socket Registry is not registered")
+	}
+
+	connection := &socket.Connection{Send: make(chan []byte, 256), Ws: ws}
+	socketHolder := &socket.Socket{
+		ErrorLogger: errorLoggerService,
+		Connection:  connection,
+		ID:          "unique connection hash based on userID, deviceID and timestamp",
+	}
+
+	socketRegistryService.Register <- socketHolder
+
+	go socketHolder.WritePump()
+	go socketHolder.ReadPump(socketRegistryService, func(dto *socket.DTOMessage) {
+		s, _ := socketRegistryService.Sockets.Load(socketHolder.ID)
+		s.(*socket.Socket).Emit(dto)
+	})
+}
+
+```
+This handler initialize the new comming connections and have 2 go routines - one for writing messages and the second one for reading messages
+If you want to send message you should use ```socketRegistryService.Emit```
+
+If you want to read comming messages you should do it in the function we are passing as second parameter of ```ReadPump``` method
+
+If you want to select certain connection you can do it by the ID and this method ```s, err := socketRegistryService.Sockets.Load(ID)```
+
+Also websocket service provide you two hooks for registering new connections and for unregistering already existing connections.
+You can define those handlers when you register the service
+
 ### Validator
 We support 2 types of validators. One of them is related to graphql and the other one is related to rest
 
