@@ -19,6 +19,12 @@ func (e *UnauthorizedError) Error() string {
 	return "unauthorized"
 }
 
+type NotFoundError string
+
+func (e NotFoundError) Error() string {
+	return string(e)
+}
+
 type PermissionError struct {
 	Message string
 }
