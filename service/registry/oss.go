@@ -36,7 +36,9 @@ func OSSGoogle(buckets map[string]uint64) *service.Definition {
 				return nil, errors.New("ServiceDefinitionOrmRegistry should be defined before OSSGoogle")
 			}
 
-			return storage.NewGoogleOSS(configService.GetFolderPath()+"/.oss.json", appService.Mode, buckets), nil
+			ossConfig := configService.GetStringMap("oss")
+
+			return storage.NewGoogleOSS(configService.GetFolderPath()+"/.oss.json", appService.Mode, buckets, ossConfig), nil
 		},
 	}
 }

@@ -26,9 +26,10 @@ type GoogleOSS struct {
 	ctx         context.Context
 	environment string
 	buckets     map[string]uint64
+	ossConfig   map[string]interface{}
 }
 
-func NewGoogleOSS(credentialsFile string, environment string, buckets map[string]uint64) *GoogleOSS {
+func NewGoogleOSS(credentialsFile string, environment string, buckets map[string]uint64, ossConfig map[string]interface{}) *GoogleOSS {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(credentialsFile))
 
@@ -36,11 +37,16 @@ func NewGoogleOSS(credentialsFile string, environment string, buckets map[string
 		panic(err)
 	}
 
+	if _, ok := ossConfig["domain"]; !ok {
+		panic("oss domain is not set in config")
+	}
+
 	return &GoogleOSS{
 		client:      client,
 		ctx:         ctx,
 		environment: environment,
 		buckets:     buckets,
+		ossConfig:   ossConfig,
 	}
 }
 
@@ -59,7 +65,7 @@ func (ossStorage *GoogleOSS) GetObjectURL(bucket string, object *oss.Object) str
 		panic(err)
 	}
 
-	return fmt.Sprintf("https://static-%s.hymn.tv/%s/%s", ossStorage.environment, bucketByEnv, ossBucketObjectAttributes.Name)
+	return fmt.Sprintf("https://static-%s.%s/%s/%s", ossStorage.environment, ossStorage.ossConfig["domain"], bucketByEnv, ossBucketObjectAttributes.Name)
 }
 
 func (ossStorage *GoogleOSS) GetObjectCachedURL(bucket string, object *oss.Object) string {
@@ -71,7 +77,7 @@ func (ossStorage *GoogleOSS) GetObjectCachedURL(bucket string, object *oss.Objec
 		bucketByEnv += "-" + ossStorage.environment
 	}
 
-	return fmt.Sprintf("https://static-%s.hymn.tv/%s/%s", ossStorage.environment, bucketByEnv, object.CachedURL)
+	return fmt.Sprintf("https://static-%s.%s/%s/%s", ossStorage.environment, ossStorage.ossConfig["domain"], bucketByEnv, object.CachedURL)
 }
 
 func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket string, object *oss.Object, expires time.Time) string {

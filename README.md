@@ -519,6 +519,21 @@ Your config file should looks like that:
 }
 ```
 
+The last thing you need to set in domain that gonna be used for the static files.
+You can setup the domain in hitrix.yaml config file like this:
+```yaml
+oss: 
+  domain: myapp.com
+```
+
+and the url to access your static files will looks like
+`https://static-%s.myapp.com/%s/%s`
+where first %s is app mode
+
+second %s is bucket name concatenated with app mode 
+
+and last %s is the id of the file
+
 #### DDOS Protection
 This service contains DDOS protection features
 
