@@ -1,9 +1,14 @@
 package entity
 
-import "github.com/latolukasz/orm"
+import (
+	"github.com/latolukasz/orm"
+)
 
 func Init(registry *orm.Registry) {
 	registry.RegisterEntity(
-		&AdminUserEntity{},
+		&AdminUserEntity{}, &APILogEntity{},
 	)
+
+	registry.RegisterEnumStruct("entity.APILogTypeAll", APILogTypeAll)
+	registry.RegisterEnumStruct("entity.APILogStatusAll", APILogStatusAll)
 }

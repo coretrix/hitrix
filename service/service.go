@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	apilogger "github.com/coretrix/hitrix/service/component/api_logger"
+
 	"github.com/coretrix/hitrix/service/component/socket"
 
 	"github.com/coretrix/hitrix/service/component/oss"
@@ -32,6 +34,7 @@ const (
 	PasswordService         = "password"
 	SlackAPIService         = "slack_api"
 	SocketRegistryService   = "socket_registry"
+	APILoggerService        = "api_logger"
 )
 
 type DIInterface interface {
@@ -46,6 +49,7 @@ type DIInterface interface {
 	ErrorLogger() (errorlogger.ErrorLogger, bool)
 	OSSGoogle() (oss.Client, bool)
 	SocketRegistry() (*socket.Registry, bool)
+	APILoggerService() (apilogger.APILogger, bool)
 }
 
 type diContainer struct {
@@ -133,6 +137,14 @@ func (d *diContainer) SocketRegistry() (*socket.Registry, bool) {
 	v, has := GetServiceOptional(SocketRegistryService)
 	if has {
 		return v.(*socket.Registry), true
+	}
+	return nil, false
+}
+
+func (d *diContainer) APILoggerService() (apilogger.APILogger, bool) {
+	v, has := GetServiceOptional(APILoggerService)
+	if has {
+		return v.(apilogger.APILogger), true
 	}
 	return nil, false
 }

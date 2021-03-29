@@ -3,4 +3,6 @@
 go.sum
 /bin/
 /example/docker/.env
+/example/config/.env.local
+/example/config/.env.test
 .idea/

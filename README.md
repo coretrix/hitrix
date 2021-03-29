@@ -542,6 +542,26 @@ You can register it in that way:
 
 You can protect for example login endpoint from many attempts  by using method `ProtectManyAttempts`
 
+#### API logger service
+This service us used to track every api request and response.
+You can register it in that way:
+`registry.APILogger(&entity.APILogEntity{}),`
+
+The methods that this service provide are:
+```go
+type APILogger interface {
+	LogStart(logType string, request interface{})
+	LogError(message string, response interface{})
+	LogSuccess(response interface{})
+}
+```
+You should call `LogStart` before you send request to the api
+
+You should call `LogError` in case api return you error
+
+You should call `LogSuccess` in case api return you success
+
+
 #### WebSocket
 This service add support of websockets. It manage the connections and provide you easy way to read and write messages
 
