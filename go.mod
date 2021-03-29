@@ -21,7 +21,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/juju/testing v0.0.0-20201216035041-2be42bba85f3 // indirect
-	github.com/latolukasz/orm v1.0.0
+	github.com/latolukasz/orm v1.1.6
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
@@ -39,7 +39,6 @@ require (
 	github.com/vektah/gqlparser/v2 v2.1.0
 	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
 	golang.org/x/text v0.3.4 // indirect
-	golang.org/x/tools v0.1.0 // indirect
 	google.golang.org/api v0.13.0
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
