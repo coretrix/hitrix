@@ -78,7 +78,7 @@ func (h *Hitrix) RunScript(script Script) {
 
 			//TODO
 			if hasError {
-				//Sleep?
+				log.Print("Error in last run.")
 			}
 
 			time.Sleep(interval.Interval())
