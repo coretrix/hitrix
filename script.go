@@ -70,14 +70,14 @@ func (h *Hitrix) RunScript(script Script) {
 	interval, isInterval := script.(ScriptInterval)
 	go func() {
 		for {
-			hasError := h.runScript(script)
+			valid := h.runScript(script)
 			if !isInterval {
 				h.done <- true
 				break
 			}
 
 			//TODO
-			if hasError {
+			if !valid {
 				log.Print("Error in last run.")
 			}
 
