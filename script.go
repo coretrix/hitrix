@@ -3,6 +3,7 @@ package hitrix
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"runtime/debug"
 	"strings"
@@ -58,7 +59,15 @@ type ScriptOptional interface {
 }
 
 func (h *Hitrix) RunScript(script Script) {
-	_, isInterval := script.(ScriptInterval)
+	options, isOptional := script.(ScriptOptional)
+
+	if isOptional {
+		if !options.Active() {
+			log.Print("Script not active. Exiting.")
+			return
+		}
+	}
+	interval, isInterval := script.(ScriptInterval)
 	go func() {
 		for {
 			hasError := h.runScript(script)
@@ -66,12 +75,13 @@ func (h *Hitrix) RunScript(script Script) {
 				h.done <- true
 				break
 			}
+
 			//TODO
 			if hasError {
-				time.Sleep(time.Minute)
-			} else {
-				time.Sleep(time.Second * 10)
+				//Sleep?
 			}
+
+			time.Sleep(interval.Interval())
 		}
 	}()
 	h.await()
