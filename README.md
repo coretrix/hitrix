@@ -618,7 +618,8 @@ Also websocket service provide you two hooks for registering new connections and
 You can define those handlers when you register the service
 
 #### Clock service
-This service is used for time. It is better to use it everywhere instead of `time.Now()` because it can be mocked and you can set whatever time you want in your tests
+This service is used for `time` operations. It is better to use it everywhere instead of `time.Now()` because it can be mocked and you can set whatever time you want in your tests
+
 You can register it in that way:
 `registry.ServiceClock(),`
 
