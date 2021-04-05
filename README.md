@@ -617,6 +617,14 @@ If you want to select certain connection you can do it by the ID and this method
 Also websocket service provide you two hooks for registering new connections and for unregistering already existing connections.
 You can define those handlers when you register the service
 
+#### Clock service
+This service is used for time. It is better to use it everywhere instead of `time.Now()` because it can be mocked and you can set whatever time you want in your tests
+You can register it in that way:
+`registry.ServiceClock(),`
+
+The methods that this service provide are:
+```Now() and NowPointer()```
+
 ### Validator
 We support 2 types of validators. One of them is related to graphql and the other one is related to rest
 
