@@ -13,7 +13,7 @@ import (
 )
 
 func TestCreateContext(t *testing.T) {
-	createContextMyApp(t, "my-app", nil)
+	createContextMyApp(t, "my-app", nil, []*service.Definition{registry.APILogger(&entity.APILogEntity{})})
 
 	apiLoggerService, _ := service.DI().APILoggerService()
 	apiLoggerService.LogStart(entity.APILogTypeApple, nil)
@@ -31,19 +31,18 @@ func TestCreateContext(t *testing.T) {
 	assert.Equal(t, apiLogEntities[1].Status, entity.APILogStatusFailed)
 }
 
-func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema) *test.Environment {
+func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, additionalServices []*service.Definition) *test.Environment {
 	defaultServices := []*service.Definition{
 		registry.ServiceProviderConfigDirectory("../example/config"),
 		registry.ServiceDefinitionOrmRegistry(entity.Init),
 		registry.ServiceDefinitionOrmEngine(),
 		registry.ServiceDefinitionOrmEngineForContext(),
-		registry.APILogger(&entity.APILogEntity{}),
 	}
 
 	return test.CreateContext(t,
 		projectName,
 		resolvers,
 		nil,
-		defaultServices,
+		append(defaultServices, additionalServices...),
 	)
 }

@@ -11,7 +11,8 @@ import (
 
 func ServiceProviderAuthentication(entity authentication.EmailPasswordProviderEntity) *service.Definition {
 	return &service.Definition{
-		Name: service.AuthenticationService,
+		Name:   service.AuthenticationService,
+		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			subContainer, err := ctn.SubContainer()
 			if err != nil {

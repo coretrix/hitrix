@@ -4,6 +4,8 @@ orm:
     redis: ENV[DEFAULT_REDIS]
     locker: default
     local_cache: 1000
+authentication:
+  secret: "a-deep-dark-secret"
 cors:
   - http://localhost:9001 # This is the default port of https://github.com/coretrix/dev-frontend repository
   - http://localhost:63342 # websocket test

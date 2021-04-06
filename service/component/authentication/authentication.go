@@ -10,6 +10,7 @@ import (
 )
 
 type EmailPasswordProviderEntity interface {
+	orm.Entity
 	GetEmailCachedIndexName() string
 	GetPassword() string
 }
