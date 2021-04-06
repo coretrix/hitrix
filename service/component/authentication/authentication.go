@@ -80,7 +80,14 @@ func (t *Authentication) RefreshToken(refreshToken string) (newAccessToken strin
 	}
 
 	newAccessToken, err = t.generateTokenPair(id, t.accessTokenTTL)
+	if err != nil {
+		return "", "", err
+	}
+
 	newRefreshToken, err = t.generateTokenPair(id, t.refreshTokenTTL)
+	if err != nil {
+		return "", "", err
+	}
 
 	return newAccessToken, newRefreshToken, err
 }
