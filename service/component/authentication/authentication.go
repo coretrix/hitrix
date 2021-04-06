@@ -37,8 +37,16 @@ func (t *Authentication) Authenticate(email string, password string) (accessToke
 	}
 
 	accessToken, err = t.generateTokenPair(userEntity.GetID(), t.accessTokenTTL)
+	if err != nil {
+		return "", "", err
+	}
+
 	refreshToken, err = t.generateTokenPair(userEntity.GetID(), t.refreshTokenTTL)
-	return accessToken, refreshToken, err
+	if err != nil {
+		return "", "", err
+	}
+
+	return accessToken, refreshToken, nil
 }
 
 func (t *Authentication) VerifyAccessToken(accessToken string, entity orm.Entity) error {
