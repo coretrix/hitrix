@@ -1,9 +1,10 @@
 package main
 
 import (
+	"testing"
+
 	"github.com/coretrix/hitrix/service/registry"
 	"github.com/stretchr/testify/assert"
-	"testing"
 
 	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/service"

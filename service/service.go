@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/coretrix/hitrix/service/component/authentication"
 
 	"github.com/coretrix/hitrix/service/component/clock"

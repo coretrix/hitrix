@@ -2,11 +2,12 @@ package authentication
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"github.com/coretrix/hitrix/service/component/jwt"
 	"github.com/coretrix/hitrix/service/component/password"
 	"github.com/latolukasz/orm"
-	"strconv"
-	"time"
 )
 
 type EmailPasswordProviderEntity interface {
