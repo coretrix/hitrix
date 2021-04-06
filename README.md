@@ -16,7 +16,7 @@ Hitrix is based on top of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](htt
  * Integrated with [ORM](https://github.com/latolukasz/orm)
  * Follows [Dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) pattern
  * Provides many DI services that makes your live easier. You can read more about them [here](https://github.com/coretrix/hitrix#built-in-services)
- * Provides [Dev panel](https://github.com/coretrix/dev-frontend) where you can monitor and manage your application(monitoring, error log, db alters and so on)
+ * Provides [Dev panel](https://github.com/coretrix/dev-frontend) where you can monitor and manage your application(monitoring, error log, db alters redis status and so on)
 
 ## Installation
 
@@ -616,6 +616,15 @@ If you want to select certain connection you can do it by the ID and this method
 
 Also websocket service provide you two hooks for registering new connections and for unregistering already existing connections.
 You can define those handlers when you register the service
+
+#### Clock service
+This service is used for `time` operations. It is better to use it everywhere instead of `time.Now()` because it can be mocked and you can set whatever time you want in your tests
+
+You can register it in that way:
+`registry.ServiceClock(),`
+
+The methods that this service provide are:
+```Now() and NowPointer()```
 
 ### Validator
 We support 2 types of validators. One of them is related to graphql and the other one is related to rest

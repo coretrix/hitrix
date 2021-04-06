@@ -5,9 +5,9 @@ import (
 )
 
 type AdminUserEntity struct {
-	orm.ORM  `orm:"table=admin_users;redisCache"`
+	orm.ORM  `orm:"table=admin_users;redisCache;redisSearch=search"`
 	ID       uint64
-	Email    string `orm:"unique=Email"`
+	Email    string `orm:"unique=Email;searchable"`
 	Password string
 
 	UserEmailIndex *orm.CachedQuery `queryOne:":Email = ?"`

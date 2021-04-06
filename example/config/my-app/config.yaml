@@ -4,6 +4,8 @@ orm:
     redis: ENV[DEFAULT_REDIS]
     locker: default
     local_cache: 1000
+  search:
+    redis: ENV[DEFAULT_REDIS_SEARCH]
 authentication:
   secret: "a-deep-dark-secret"
 cors:

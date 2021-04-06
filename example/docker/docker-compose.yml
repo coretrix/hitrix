@@ -9,7 +9,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
   redis:
-    image: redis
+    image: redislabs/redisearch
     volumes:
       - orm_data_redis:/data
     ports:
