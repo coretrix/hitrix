@@ -221,3 +221,78 @@ func (controller *DevPanelController) GetRedisStatistics(c *gin.Context) {
 	})
 	response.SuccessResponse(c, stats)
 }
+
+func (controller *DevPanelController) GetRedisSearchStatistics(c *gin.Context) {
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
+
+	if !has {
+		panic("orm is not registered")
+	}
+
+	response.SuccessResponse(c, tools.GetRedisSearchStatistics(ormService))
+}
+
+func (controller *DevPanelController) GetRedisSearchAlters(c *gin.Context) {
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
+
+	if !has {
+		panic("orm is not registered")
+	}
+
+	altersSearch := ormService.GetRedisSearchIndexAlters()
+	result := make([]string, len(altersSearch))
+
+	force := c.Query("force")
+	for i, alter := range altersSearch {
+		if force != "" {
+			alter.Execute()
+		} else {
+			result[i] = alter.Query
+		}
+	}
+
+	response.SuccessResponse(c, result)
+}
+
+func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
+
+	if !has {
+		panic("orm is not registered")
+	}
+
+	ormService.GetRedisSearch().ListIndices()
+	response.SuccessResponse(c, ormService.GetRedisSearch().ListIndices())
+}
+
+func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context) {
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
+
+	if !has {
+		panic("orm is not registered")
+	}
+
+	indexName := c.Param("index")
+	if indexName == "" {
+		response.ErrorResponseGlobal(c, "index is required", nil)
+		return
+	}
+	ormService.GetRedisSearch().ForceReindex(indexName)
+	response.SuccessResponse(c, nil)
+}
+
+func (controller *DevPanelController) PostRedisSearchIndexInfo(c *gin.Context) {
+	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
+
+	if !has {
+		panic("orm is not registered")
+	}
+
+	indexName := c.Param("index")
+	if indexName == "" {
+		response.ErrorResponseGlobal(c, "index is required", nil)
+		return
+	}
+
+	response.SuccessResponse(c, ormService.GetRedisSearch().Info(indexName))
+}
