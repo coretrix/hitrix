@@ -12,7 +12,7 @@ func FakeGoogleOSSService(fakeOSSService oss.Client) *service.Definition {
 		Name:   service.OSSGoogleService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return &fakeOSSService, nil
+			return fakeOSSService, nil
 		},
 	}
 }
