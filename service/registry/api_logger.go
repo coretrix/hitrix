@@ -8,10 +8,6 @@ import (
 )
 
 func APILogger(entity apilogger.LogEntity) *service.Definition {
-	//if reflect.ValueOf(entity).Kind() == reflect.Ptr {
-	//	panic("passed entity should not be reference")
-	//}
-
 	return &service.Definition{
 		Name:   service.APILoggerService,
 		Global: true,
@@ -21,7 +17,8 @@ func APILogger(entity apilogger.LogEntity) *service.Definition {
 				return nil, err
 			}
 
-			ormService := subContainer.Get("orm_engine_request").(*orm.Engine)
+			ormService := subContainer.Get(service.ORMEngineRequestService).(*orm.Engine)
+
 			return apilogger.NewAPILog(ormService, entity), nil
 		},
 	}

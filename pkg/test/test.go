@@ -30,6 +30,7 @@ var testSpringInstance *hitrix.Hitrix
 
 type Environment struct {
 	t                *testing.T
+	Hitrix           *hitrix.Hitrix
 	GinEngine        *gin.Engine
 	Cxt              *gin.Context
 	ResponseRecorder *httptest.ResponseRecorder
@@ -144,7 +145,7 @@ func CreateContext(t *testing.T, projectName string, resolvers graphql.Executabl
 
 	resp := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(resp)
-	return &Environment{t: t, GinEngine: ginTestInstance, Cxt: c, ResponseRecorder: resp}
+	return &Environment{t: t, Hitrix: testSpringInstance, GinEngine: ginTestInstance, Cxt: c, ResponseRecorder: resp}
 }
 
 func dropTables() error {
