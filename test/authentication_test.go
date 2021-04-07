@@ -11,11 +11,11 @@ import (
 )
 
 func TestGenerateToken(t *testing.T) {
-	createContextMyApp(t, "my-app", nil, []*service.Definition{
+	createContextMyApp(t, "my-app", nil,
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
 		registry.ServiceProviderAuthentication(),
-	})
+	)
 	ormService, _ := service.DI().OrmEngine()
 	passwordService, _ := service.DI().Password()
 	hashedPassword, _ := passwordService.HashPassword("123")

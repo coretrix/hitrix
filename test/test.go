@@ -10,7 +10,7 @@ import (
 	"github.com/coretrix/hitrix/service/registry"
 )
 
-func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, additionalServices []*service.Definition) *test.Environment {
+func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, mockServices ...*service.Definition) *test.Environment {
 	defaultServices := []*service.Definition{
 		registry.ServiceProviderConfigDirectory("../example/config"),
 		registry.ServiceDefinitionOrmRegistry(entity.Init),
@@ -22,6 +22,7 @@ func createContextMyApp(t *testing.T, projectName string, resolvers graphql.Exec
 		projectName,
 		resolvers,
 		nil,
-		append(defaultServices, additionalServices...),
+		defaultServices,
+		mockServices...,
 	)
 }
