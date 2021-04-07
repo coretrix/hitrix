@@ -24,6 +24,24 @@ type Authentication struct {
 	secret          string
 }
 
+func NewAuthenticationService(
+	secret string,
+	accessTokenTTL int,
+	refreshTokenTTL int,
+	ormService *orm.Engine,
+	passwordService *password.Password,
+	jwtService *jwt.JWT,
+) *Authentication {
+	return &Authentication{
+		secret:          secret,
+		accessTokenTTL:  accessTokenTTL,
+		refreshTokenTTL: refreshTokenTTL,
+		passwordService: passwordService,
+		jwtService:      jwtService,
+		ormService:      ormService,
+	}
+}
+
 func (t *Authentication) Authenticate(email string, password string, entity EmailPasswordProviderEntity) (accessToken string, refreshToken string, err error) {
 	found := t.ormService.CachedSearchOne(entity, entity.GetEmailCachedIndexName(), email)
 	if !found {
@@ -105,22 +123,4 @@ func (t *Authentication) generateTokenPair(id uint64, ttl int) (string, error) {
 	}
 
 	return t.jwtService.EncodeJWT(t.secret, headers, payload)
-}
-
-func NewAuthenticationService(
-	secret string,
-	accessTokenTTL int,
-	refreshTokenTTL int,
-	ormService *orm.Engine,
-	passwordService *password.Password,
-	jwtService *jwt.JWT,
-) *Authentication {
-	return &Authentication{
-		secret:          secret,
-		accessTokenTTL:  accessTokenTTL,
-		refreshTokenTTL: refreshTokenTTL,
-		passwordService: passwordService,
-		jwtService:      jwtService,
-		ormService:      ormService,
-	}
 }
