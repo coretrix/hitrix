@@ -28,10 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     services:
       redis:
-        image: redis
+        image: redislabs/redisearch
         ports:
           - 9002:6379
-        options: --entrypoint redis-server
 
       mysql:
         image: percona:8.0

@@ -15,7 +15,11 @@ import (
 func TestCreateContext(t *testing.T) {
 	createContextMyApp(t, "my-app", nil, []*service.Definition{registry.APILogger(&entity.APILogEntity{})})
 
-	apiLoggerService, _ := service.DI().APILoggerService()
+	apiLoggerService, has := service.DI().APILoggerService()
+	if !has {
+		panic("no api logger service registered")
+	}
+
 	apiLoggerService.LogStart(entity.APILogTypeApple, nil)
 	apiLoggerService.LogSuccess(nil)
 
