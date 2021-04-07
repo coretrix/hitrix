@@ -14,7 +14,7 @@ func TestGenerateToken(t *testing.T) {
 	createContextMyApp(t, "my-app", nil, []*service.Definition{
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
-		registry.ServiceProviderAuthentication(&entity.AdminUserEntity{}),
+		registry.ServiceProviderAuthentication(),
 	})
 	ormService, _ := service.DI().OrmEngine()
 	passwordService, _ := service.DI().Password()
@@ -26,31 +26,32 @@ func TestGenerateToken(t *testing.T) {
 	}
 	ormService.Flush(adminEntity)
 
+	fetchedAdminEntity := &entity.AdminUserEntity{}
 	authenticationService, _ := service.DI().AuthenticationService()
-	accessToken, refreshToken, err := authenticationService.Authenticate("test@test.com", "1234")
+	accessToken, refreshToken, err := authenticationService.Authenticate("test@test.com", "1234", fetchedAdminEntity)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid_password")
 	assert.Empty(t, accessToken)
 	assert.Empty(t, refreshToken)
 
-	accessToken, refreshToken, err = authenticationService.Authenticate("test1@test.com", "123")
+	accessToken, refreshToken, err = authenticationService.Authenticate("test1@test.com", "123", fetchedAdminEntity)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "user_not_found")
 	assert.Empty(t, accessToken)
 	assert.Empty(t, refreshToken)
 
-	accessToken, refreshToken, err = authenticationService.Authenticate("test@test.com", "123")
+	accessToken, refreshToken, err = authenticationService.Authenticate("test@test.com", "123", fetchedAdminEntity)
 	assert.Nil(t, err)
 	assert.NotEmpty(t, accessToken)
 	assert.NotEmpty(t, refreshToken)
 
-	fetchedAdminEntity := &entity.AdminUserEntity{}
-	err = authenticationService.VerifyAccessToken("something-invalid", fetchedAdminEntity)
+	fetchedAdminEntityWithAccessToken := &entity.AdminUserEntity{}
+	err = authenticationService.VerifyAccessToken("something-invalid", fetchedAdminEntityWithAccessToken)
 	assert.NotNil(t, err)
 
-	err = authenticationService.VerifyAccessToken(accessToken, fetchedAdminEntity)
+	err = authenticationService.VerifyAccessToken(accessToken, fetchedAdminEntityWithAccessToken)
 	assert.Nil(t, err)
-	assert.Equal(t, fetchedAdminEntity.ID, uint64(1))
+	assert.Equal(t, fetchedAdminEntityWithAccessToken.ID, uint64(1))
 
 	newAccessToken, newRefreshToken, err := authenticationService.RefreshToken("some-invalid-refresh-token")
 	assert.NotNil(t, err)

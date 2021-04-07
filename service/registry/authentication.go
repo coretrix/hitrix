@@ -9,7 +9,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderAuthentication(entity authentication.EmailPasswordProviderEntity) *service.Definition {
+func ServiceProviderAuthentication() *service.Definition {
 	return &service.Definition{
 		Name:   service.AuthenticationService,
 		Global: true,
@@ -43,7 +43,6 @@ func ServiceProviderAuthentication(entity authentication.EmailPasswordProviderEn
 			passwordService := subContainer.Get(service.PasswordService).(*password.Password)
 			jwtService := subContainer.Get(service.JWTService).(*jwt.JWT)
 			return authentication.NewAuthenticationService(
-				entity,
 				secret,
 				accessTokenTTL,
 				refreshTokenTTL,

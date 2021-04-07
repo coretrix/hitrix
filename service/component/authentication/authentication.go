@@ -16,7 +16,6 @@ type EmailPasswordProviderEntity interface {
 	GetPassword() string
 }
 type Authentication struct {
-	entity          EmailPasswordProviderEntity
 	accessTokenTTL  int
 	refreshTokenTTL int
 	passwordService *password.Password
@@ -25,23 +24,22 @@ type Authentication struct {
 	secret          string
 }
 
-func (t *Authentication) Authenticate(email string, password string) (accessToken string, refreshToken string, err error) {
-	userEntity := t.entity.(orm.Entity)
-	found := t.ormService.CachedSearchOne(userEntity, t.entity.GetEmailCachedIndexName(), email)
+func (t *Authentication) Authenticate(email string, password string, entity EmailPasswordProviderEntity) (accessToken string, refreshToken string, err error) {
+	found := t.ormService.CachedSearchOne(entity, entity.GetEmailCachedIndexName(), email)
 	if !found {
 		return "", "", errors.New("user_not_found")
 	}
 
-	if !t.passwordService.VerifyPassword(password, t.entity.GetPassword()) {
+	if !t.passwordService.VerifyPassword(password, entity.GetPassword()) {
 		return "", "", errors.New("invalid_password")
 	}
 
-	accessToken, err = t.generateTokenPair(userEntity.GetID(), t.accessTokenTTL)
+	accessToken, err = t.generateTokenPair(entity.GetID(), t.accessTokenTTL)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err = t.generateTokenPair(userEntity.GetID(), t.refreshTokenTTL)
+	refreshToken, err = t.generateTokenPair(entity.GetID(), t.refreshTokenTTL)
 	if err != nil {
 		return "", "", err
 	}
@@ -110,7 +108,6 @@ func (t *Authentication) generateTokenPair(id uint64, ttl int) (string, error) {
 }
 
 func NewAuthenticationService(
-	entity EmailPasswordProviderEntity,
 	secret string,
 	accessTokenTTL int,
 	refreshTokenTTL int,
@@ -119,7 +116,6 @@ func NewAuthenticationService(
 	jwtService *jwt.JWT,
 ) *Authentication {
 	return &Authentication{
-		entity:          entity,
 		secret:          secret,
 		accessTokenTTL:  accessTokenTTL,
 		refreshTokenTTL: refreshTokenTTL,
