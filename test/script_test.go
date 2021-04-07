@@ -8,7 +8,6 @@ import (
 
 	"github.com/coretrix/hitrix"
 
-	"github.com/sarulabs/di"
 	"github.com/tj/assert"
 )
 
@@ -33,20 +32,10 @@ func (script *testScript2) Description() string {
 }
 
 func TestRunScript(t *testing.T) {
-	r := hitrix.New("test_script", "secret").RegisterDIService()
-	testService := &service.Definition{
-		Name:   "test_service",
-		Global: true,
-		Build: func(ctn di.Container) (interface{}, error) {
-			return "hello", nil
-		},
-	}
-	s, deferFunc := r.RegisterDIService(testService).Build()
-	defer deferFunc()
+	env := createContextMyApp(t, "my-app", nil)
 
 	testScript2 := &testScript2{}
-	s.RunScript(testScript2)
+	env.Hitrix.RunScript(testScript2)
 	assert.Equal(t, 1, testScript2.RunCounter)
-	assert.Equal(t, "test_script", service.DI().App().Name)
-	assert.Equal(t, "hello", service.GetServiceRequired("test_service"))
+	assert.Equal(t, "my-app", service.DI().App().Name)
 }
