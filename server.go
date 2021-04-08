@@ -3,13 +3,14 @@ package hitrix
 import (
 	"context"
 	"fmt"
-	"github.com/latolukasz/orm"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/latolukasz/orm"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/fatih/color"
@@ -58,7 +59,7 @@ func (h *Hitrix) RunRedisSearchIndexer() *Hitrix {
 
 	go func() {
 		indexer := orm.NewRedisSearchIndexer(ormService)
-		indexer.Run(context.Background())
+		indexer.Run(h.ctx)
 	}()
 
 	return h
