@@ -225,3 +225,105 @@ mainLoop:
 	}
 	return found
 }
+
+func SubtractUInt64Slice(a []uint64, b []uint64) []uint64 { // a-b
+	var res = make([]uint64, 0)
+	var bMap = make(map[uint64]bool)
+
+	for i := range b {
+		bMap[b[i]] = true
+	}
+
+	for i := range a {
+		exist := bMap[a[i]]
+		if !exist {
+			res = append(res, a[i])
+		}
+	}
+	return res
+}
+
+func SubtractInt64Slice(a []int64, b []int64) []int64 { // a-b
+	var res = make([]int64, 0)
+	var bMap = make(map[int64]bool)
+
+	for i := range b {
+		bMap[b[i]] = true
+	}
+
+	for i := range a {
+		exist := bMap[a[i]]
+		if !exist {
+			res = append(res, a[i])
+		}
+	}
+	return res
+}
+
+func SubtractInt32Slice(a []int32, b []int32) []int32 { // a-b
+	var res = make([]int32, 0)
+	var bMap = make(map[int32]bool)
+
+	for i := range b {
+		bMap[b[i]] = true
+	}
+
+	for i := range a {
+		exist := bMap[a[i]]
+		if !exist {
+			res = append(res, a[i])
+		}
+	}
+	return res
+}
+
+func SubtractUInt32Slice(a []uint32, b []uint32) []uint32 { // a-b
+	var res = make([]uint32, 0)
+	var bMap = make(map[uint32]bool)
+
+	for i := range b {
+		bMap[b[i]] = true
+	}
+
+	for i := range a {
+		exist := bMap[a[i]]
+		if !exist {
+			res = append(res, a[i])
+		}
+	}
+	return res
+}
+
+func SubtractIntSlice(a []int, b []int) []int { // a-b
+	var res = make([]int, 0)
+	var bMap = make(map[int]bool)
+
+	for i := range b {
+		bMap[b[i]] = true
+	}
+
+	for i := range a {
+		exist := bMap[a[i]]
+		if !exist {
+			res = append(res, a[i])
+		}
+	}
+	return res
+}
+
+func SubtractUIntSlice(a []uint, b []uint) []uint { // a-b
+	var res = make([]uint, 0)
+	var bMap = make(map[uint]bool)
+
+	for i := range b {
+		bMap[b[i]] = true
+	}
+
+	for i := range a {
+		exist := bMap[a[i]]
+		if !exist {
+			res = append(res, a[i])
+		}
+	}
+	return res
+}
