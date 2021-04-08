@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/authentication"
+
 	"github.com/coretrix/hitrix/service/component/clock"
 
 	apilogger "github.com/coretrix/hitrix/service/component/api_logger"
@@ -37,6 +39,7 @@ const (
 	SlackAPIService         = "slack_api"
 	SocketRegistryService   = "socket_registry"
 	APILoggerService        = "api_logger"
+	AuthenticationService   = "authentication"
 	ClockService            = "clock"
 )
 
@@ -53,6 +56,7 @@ type DIInterface interface {
 	OSSGoogle() (oss.Client, bool)
 	SocketRegistry() (*socket.Registry, bool)
 	APILoggerService() (apilogger.APILogger, bool)
+	AuthenticationService() (*authentication.Authentication, bool)
 }
 
 type diContainer struct {
@@ -156,6 +160,14 @@ func (d *diContainer) ClockService() (clock.Clock, bool) {
 	v, has := GetServiceOptional(ClockService)
 	if has {
 		return v.(clock.Clock), true
+	}
+	return nil, false
+}
+
+func (d *diContainer) AuthenticationService() (*authentication.Authentication, bool) {
+	v, has := GetServiceOptional(AuthenticationService)
+	if has {
+		return v.(*authentication.Authentication), true
 	}
 	return nil, false
 }

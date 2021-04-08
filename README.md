@@ -626,6 +626,49 @@ You can register it in that way:
 The methods that this service provide are:
 ```Now() and NowPointer()```
 
+### Authentication Service
+This service is used to making the life easy by doing the whole authentication life cycle using JWT token. the methods that this service provides are as follows:
+```go
+func Authenticate(email string, password string, entity EmailPasswordProviderEntity) (accessToken string, refreshToken string, err error) {}
+func VerifyAccessToken(accessToken string, entity orm.Entity) error {}
+func RefreshToken(refreshToken string) (newAccessToken string, newRefreshToken string, err error) {}
+```
+1. The `Authenticate` function will take an email, a plain password, and generates accessToken and refreshToken. 
+   You will also need to pass your entity as third argument and it will give you the specific user entity related to provided access token
+   The entity should implement the `EmailPasswordProviderEntity` interface : 
+    ```go
+       type EmailPasswordProviderEntity interface {
+        orm.Entity
+        GetEmailCachedIndexName() string
+        GetPassword() string
+       }
+    ```
+    The example of such entity is as follows:
+    ```go
+    type AdminUserEntity struct {
+        orm.ORM  `orm:"table=admin_users;redisCache;redisSearch=search"`
+        ID       uint64
+        Email    string `orm:"unique=Email;searchable"`
+        Password string
+    
+        UserEmailIndex *orm.CachedQuery `queryOne:":Email = ?"`
+    }
+    func (e *AdminUserEntity) GetPassword() string {
+        return e.Password
+    }
+    func (e *AdminUserEntity) GetEmailCachedIndexName() string {
+        return "UserEmailIndex"
+    }
+    ```
+2. The `VerifyAccessToken` will get the AccessToken, process the validation and expiration, and fill the entity param with the authenticated user entity in case of successful authentication.
+3. The `RefreshToken` method will generate a new token pair for given user
+4. You need to have a `authentication` key in your config file for this service to work. `secret` key under `authentication` is mandatory but other options are optional:
+```yaml
+authentication:
+  secret: "a-deep-dark-secret" #mandatory, secret to be used for JWT
+  accessTokenTTL: 86400 # optional, in seconds, default to 1day
+  refreshTokenTTL: 31536000 #optional, in seconds, default to 1year
+```
 ### Validator
 We support 2 types of validators. One of them is related to graphql and the other one is related to rest
 

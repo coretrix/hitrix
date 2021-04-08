@@ -20,3 +20,7 @@ func (e *AdminUserEntity) GetUsername() string {
 func (e *AdminUserEntity) GetPassword() string {
 	return e.Password
 }
+
+func (e *AdminUserEntity) GetEmailCachedIndexName() string {
+	return "UserEmailIndex"
+}
