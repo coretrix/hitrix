@@ -2,7 +2,6 @@ package test
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 
 	graphqlParser "github.com/coretrix/hitrix/pkg/test/graphql-parser"
@@ -124,15 +123,6 @@ func CreateContext(t *testing.T, projectName string, resolvers graphql.Executabl
 			_, def := dbService.Query(queries)
 			defer def()
 		}
-
-		altersSearch := ormService.GetRedisSearchIndexAlters()
-		for _, alter := range altersSearch {
-			alter.Execute()
-		}
-
-		indexer := orm.NewRedisSearchIndexer(ormService)
-		indexer.DisableLoop()
-		indexer.Run(context.Background())
 	}
 
 	if len(mockServices) != 0 {
@@ -152,6 +142,11 @@ func CreateContext(t *testing.T, projectName string, resolvers graphql.Executabl
 
 	ormService.GetLocalCache().Clear()
 	ormService.GetRedis().FlushDB()
+
+	altersSearch := ormService.GetRedisSearchIndexAlters()
+	for _, alter := range altersSearch {
+		alter.Execute()
+	}
 
 	resp := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(resp)

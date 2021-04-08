@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"testing"
 
 	"github.com/latolukasz/orm"
@@ -15,15 +14,6 @@ func TestRedisSearch(t *testing.T) {
 	createContextMyApp(t, "my-app", nil, nil)
 
 	ormService, _ := service.DI().OrmEngine()
-
-	altersSearch := ormService.GetRedisSearchIndexAlters()
-	for _, alter := range altersSearch {
-		alter.Execute()
-	}
-
-	indexer := orm.NewRedisSearchIndexer(ormService)
-	indexer.DisableLoop()
-	indexer.Run(context.Background())
 
 	query := &orm.RedisSearchQuery{}
 	query.FilterString("Email", "test@coretrix.com")
