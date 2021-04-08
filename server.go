@@ -3,6 +3,7 @@ package hitrix
 import (
 	"context"
 	"fmt"
+	"github.com/latolukasz/orm"
 	"log"
 	"net/http"
 	"os"
@@ -47,6 +48,20 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Println("server forced to shutdown")
 	}
+}
+
+func (h *Hitrix) RunRedisSearchIndexer() *Hitrix {
+	ormService, has := service.DI().OrmEngine()
+	if !has {
+		panic("Orm is not registered")
+	}
+
+	go func() {
+		indexer := orm.NewRedisSearchIndexer(ormService)
+		indexer.Run(context.Background())
+	}()
+
+	return h
 }
 
 func (h *Hitrix) preDeploy() {
