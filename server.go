@@ -3,13 +3,14 @@ package hitrix
 import (
 	"context"
 	"fmt"
-	"github.com/latolukasz/orm"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/latolukasz/orm"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/fatih/color"
