@@ -4,3 +4,4 @@ slack:
   dev_panel_url: ""
 oss:
   domain: hymn.tv
+orm_debug: true

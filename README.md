@@ -320,6 +320,7 @@ orm:
     locker: default
     local_cache: 1000
 ```
+If you want to enable the debug for orm you can add this tag `orm_debug: true` on the main level of your config
 where `DEFAULT_MYSQL` and `DEFAULT_REDIS` are env variables and our framework will automatically replace `ENV[DEFAULT_MYSQL]` and `ENV[DEFAULT_REDIS]` with the right values
 
 Also we check if there is .env.XXX file in main config folder where XXX is the value of the APP_MODE.

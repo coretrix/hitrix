@@ -2,6 +2,7 @@ package registry
 
 import (
 	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/latolukasz/orm"
 	"github.com/sarulabs/di"
 )
@@ -31,6 +32,12 @@ func serviceDefinitionOrmEngine(global bool) *service.Definition {
 			if !global {
 				ormEngine.EnableRequestCache(true)
 			}
+
+			ormDebug := ctn.Get(service.ConfigService).(*config.Config).GetBool("orm_debug")
+			if ormDebug {
+				ormEngine.EnableQueryDebug()
+			}
+
 			return ormEngine, nil
 		},
 	}
