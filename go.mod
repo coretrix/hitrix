@@ -40,6 +40,7 @@ require (
 	github.com/xorcare/pointer v1.1.0
 	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
 	golang.org/x/text v0.3.4 // indirect
+	golang.org/x/tools v0.1.0 // indirect
 	google.golang.org/api v0.13.0
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect

@@ -716,6 +716,31 @@ If you run your binary with argument `-pre-deploy` the program will check for al
 
 You can use this feature during the deployment process check if you need to execute the alters before you deploy it
 
+### Pagination
+You can use:
+```go
+package helper
+
+type URLQueryPager struct {
+	// example = ?current_page=1&page_size=25
+	CurrentPage int `binding:"min=1" form:"current_page"`
+	PageSize    int `binding:"min=1" form:"page_size"`
+}
+```
+in your code that needs pagination like:
+
+```go
+package mypackage
+
+import "github.com/coretrix/hitrix/pkg/helper"
+
+type SomeURLQuery struct {
+	helper.URLQueryPager
+	OtherField1 string `form:"other_field_1"`
+	OtherField2 int `form:"other_field_2"`
+}
+```
+
 ### Tests
 Hitrix provide you test helper functions which can be used to make requests to your graphql api
 
