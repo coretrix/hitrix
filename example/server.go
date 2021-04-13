@@ -21,13 +21,15 @@ func main() {
 		registry.ServiceDefinitionOrmRegistry(entity.Init),
 		registry.ServiceDefinitionOrmEngine(),
 		registry.OSSGoogle(map[string]uint64{"test": 1}),
-		registry.ServiceDefinitionOrmEngineForContext(),
+		registry.ServiceDefinitionOrmEngineForContext(false),
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
 		registry.ServiceSocketRegistry(model.RegisterSocketHandler, model.UnRegisterSocketHandler),
 	).
 		RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil).Build()
 	defer deferFunc()
+
+	s.RunRedisSearchIndexer()
 
 	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}), func(ginEngine *gin.Engine) {
 		exampleMiddleware.Router(ginEngine)

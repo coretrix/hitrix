@@ -15,7 +15,7 @@ func createContextMyApp(t *testing.T, projectName string, resolvers graphql.Exec
 		registry.ServiceProviderConfigDirectory("../example/config"),
 		registry.ServiceDefinitionOrmRegistry(entity.Init),
 		registry.ServiceDefinitionOrmEngine(),
-		registry.ServiceDefinitionOrmEngineForContext(),
+		registry.ServiceDefinitionOrmEngineForContext(false),
 	}
 
 	return test.CreateContext(t,

@@ -8,14 +8,14 @@ import (
 )
 
 func ServiceDefinitionOrmEngine() *service.Definition {
-	return serviceDefinitionOrmEngine(true)
+	return serviceDefinitionOrmEngine(true, false)
 }
 
-func ServiceDefinitionOrmEngineForContext() *service.Definition {
-	return serviceDefinitionOrmEngine(false)
+func ServiceDefinitionOrmEngineForContext(enableGraphQLDataLoader bool) *service.Definition {
+	return serviceDefinitionOrmEngine(false, enableGraphQLDataLoader)
 }
 
-func serviceDefinitionOrmEngine(global bool) *service.Definition {
+func serviceDefinitionOrmEngine(global bool, enableGraphQLDataLoader bool) *service.Definition {
 	suffix := "request"
 	if global {
 		suffix = "global"
@@ -30,7 +30,7 @@ func serviceDefinitionOrmEngine(global bool) *service.Definition {
 			}
 			ormEngine := ormConfigService.(orm.ValidatedRegistry).CreateEngine()
 			if !global {
-				ormEngine.EnableRequestCache(true)
+				ormEngine.EnableRequestCache(enableGraphQLDataLoader)
 			}
 
 			ormDebug := ctn.Get(service.ConfigService).(*config.Config).GetBool("orm_debug")
