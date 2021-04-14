@@ -21,8 +21,8 @@ const (
 
 type DTOMessage struct {
 	Type     string
-	SocketID string    `json:"-"`
-	Timer    *DTOTimer `json:"-"`
+	SocketID string
+	Timer    *DTOTimer
 	Data     interface{}
 }
 
