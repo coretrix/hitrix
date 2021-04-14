@@ -20,8 +20,16 @@ const (
 )
 
 type DTOMessage struct {
-	Type string
-	Data interface{}
+	Type     string
+	SocketID string    `json:"-"`
+	Timer    *DTOTimer `json:"-"`
+	Data     interface{}
+}
+
+type DTOTimer struct {
+	SentFromClientAt    *time.Time
+	SentToClientAt      *time.Time
+	AcceptedByBackendAt *time.Time
 }
 
 type Registry struct {
