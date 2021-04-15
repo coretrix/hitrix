@@ -43,8 +43,8 @@ func NewGoogleOSS(credentialsFile string, environment string, buckets map[string
 	}
 
 	urlPrefix := "static-"
-	if configUrlPrefix, ok := ossConfig["url_prefix"]; ok {
-		urlPrefix = configUrlPrefix.(string)
+	if configURLPrefix, ok := ossConfig["url_prefix"]; ok {
+		urlPrefix = configURLPrefix.(string)
 	}
 
 	return &GoogleOSS{
