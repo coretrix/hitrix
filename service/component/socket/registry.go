@@ -19,19 +19,6 @@ const (
 	maxMessageSize = 512
 )
 
-type DTOMessage struct {
-	Type     string
-	SocketID string
-	Timer    *DTOTimer
-	Data     interface{}
-}
-
-type DTOTimer struct {
-	SentFromClientAt    *time.Time
-	SentToClientAt      *time.Time
-	AcceptedByBackendAt *time.Time
-}
-
 type Registry struct {
 	Register   chan *Socket
 	Unregister chan *Socket

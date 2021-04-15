@@ -25,7 +25,7 @@ func (c *Connection) write(mt int, payload []byte) error {
 	return c.Ws.WriteMessage(mt, payload)
 }
 
-func (s *Socket) ReadPump(registry *Registry, readMessageHandler func(dto *DTOMessage)) {
+func (s *Socket) ReadPump(registry *Registry, readMessageHandler func(rawData []byte)) {
 	defer func() {
 		registry.Unregister <- s
 		s.Connection.Ws.Close()
@@ -44,14 +44,7 @@ func (s *Socket) ReadPump(registry *Registry, readMessageHandler func(dto *DTOMe
 			break
 		}
 
-		dto := &DTOMessage{}
-		err = json.Unmarshal(rawData, dto)
-		if err != nil {
-			s.ErrorLogger.LogError(err)
-			break
-		}
-
-		readMessageHandler(dto)
+		readMessageHandler(rawData)
 	}
 }
 
@@ -84,7 +77,7 @@ func (s *Socket) WritePump() {
 	}
 }
 
-func (s *Socket) Emit(dto *DTOMessage) {
+func (s *Socket) Emit(dto interface{}) {
 	data, err := json.Marshal(dto)
 	if err != nil {
 		s.ErrorLogger.LogError(err)

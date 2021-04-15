@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/coretrix/hitrix/service"
@@ -17,6 +18,12 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
+}
+
+type DTOMessage struct {
+	Type     string
+	SocketID string
+	Data     interface{}
 }
 
 //if u want to test with websocket-demo.html u should add it to CORS policy
@@ -49,7 +56,13 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 	socketRegistryService.Register <- socketHolder
 
 	go socketHolder.WritePump()
-	go socketHolder.ReadPump(socketRegistryService, func(dto *socket.DTOMessage) {
+	go socketHolder.ReadPump(socketRegistryService, func(rawData []byte) {
+		dto := &DTOMessage{}
+		err = json.Unmarshal(rawData, dto)
+		if err != nil {
+			errorLoggerService.LogError(err)
+			return
+		}
 		//return back the received message
 		s, _ := socketRegistryService.Sockets.Load(socketHolder.ID)
 		s.(*socket.Socket).Emit(dto)

@@ -602,9 +602,17 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 	socketRegistryService.Register <- socketHolder
 
 	go socketHolder.WritePump()
-	go socketHolder.ReadPump(socketRegistryService, func(dto *socket.DTOMessage) {
+	go socketHolder.ReadPump(socketRegistryService, func(rawData []byte) {
 		s, _ := socketRegistryService.Sockets.Load(socketHolder.ID)
-		s.(*socket.Socket).Emit(dto)
+		
+        dto := &DTOMessage{}
+        err = json.Unmarshal(rawData, dto)
+        if err != nil {
+            errorLoggerService.LogError(err)
+            retrun
+        }
+        //handle business logic here
+        s.(*socket.Socket).Emit(dto)
 	})
 }
 
@@ -628,7 +636,7 @@ You can register it in that way:
 The methods that this service provide are:
 ```Now() and NowPointer()```
 
-### Authentication Service
+#### Authentication Service
 This service is used to making the life easy by doing the whole authentication life cycle using JWT token. the methods that this service provides are as follows:
 ```go
 func Authenticate(email string, password string, entity EmailPasswordProviderEntity) (accessToken string, refreshToken string, err error) {}
