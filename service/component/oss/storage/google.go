@@ -27,6 +27,7 @@ type GoogleOSS struct {
 	environment string
 	buckets     map[string]uint64
 	ossConfig   map[string]interface{}
+	urlPrefix   string
 }
 
 func NewGoogleOSS(credentialsFile string, environment string, buckets map[string]uint64, ossConfig map[string]interface{}) *GoogleOSS {
@@ -41,12 +42,18 @@ func NewGoogleOSS(credentialsFile string, environment string, buckets map[string
 		panic("oss domain is not set in config")
 	}
 
+	urlPrefix := "static-"
+	if configUrlPrefix, ok := ossConfig["url_prefix"]; ok {
+		urlPrefix = configUrlPrefix.(string)
+	}
+
 	return &GoogleOSS{
 		client:      client,
 		ctx:         ctx,
 		environment: environment,
 		buckets:     buckets,
 		ossConfig:   ossConfig,
+		urlPrefix:   urlPrefix,
 	}
 }
 
@@ -65,7 +72,7 @@ func (ossStorage *GoogleOSS) GetObjectURL(bucket string, object *oss.Object) str
 		panic(err)
 	}
 
-	return fmt.Sprintf("https://static-%s.%s/%s/%s", ossStorage.environment, ossStorage.ossConfig["domain"], bucketByEnv, ossBucketObjectAttributes.Name)
+	return fmt.Sprintf("https://%s%s.%s/%s/%s", ossStorage.urlPrefix, ossStorage.environment, ossStorage.ossConfig["domain"], bucketByEnv, ossBucketObjectAttributes.Name)
 }
 
 func (ossStorage *GoogleOSS) GetObjectCachedURL(bucket string, object *oss.Object) string {
@@ -77,7 +84,7 @@ func (ossStorage *GoogleOSS) GetObjectCachedURL(bucket string, object *oss.Objec
 		bucketByEnv += "-" + ossStorage.environment
 	}
 
-	return fmt.Sprintf("https://static-%s.%s/%s/%s", ossStorage.environment, ossStorage.ossConfig["domain"], bucketByEnv, object.CachedURL)
+	return fmt.Sprintf("https://%s%s.%s/%s/%s", ossStorage.urlPrefix, ossStorage.environment, ossStorage.ossConfig["domain"], bucketByEnv, object.CachedURL)
 }
 
 func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket string, object *oss.Object, expires time.Time) string {
