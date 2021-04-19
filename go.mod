@@ -6,7 +6,6 @@ require (
 	cloud.google.com/go/storage v1.0.0
 	github.com/99designs/gqlgen v0.13.0
 	github.com/agnivade/levenshtein v1.1.0 // indirect
-	github.com/aws/aws-sdk-go v1.38.3 // indirect
 	github.com/bluele/slack v0.0.0-20180528010058-b4b4d354a079
 	github.com/fatih/color v1.10.0
 	github.com/gin-contrib/cors v1.3.1
@@ -27,7 +26,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/juju/testing v0.0.0-20201216035041-2be42bba85f3 // indirect
-	github.com/latolukasz/orm v1.1.16
+	github.com/latolukasz/orm v1.2.4
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
