@@ -9,12 +9,12 @@ import (
 	"strconv"
 	"time"
 
+	"google.golang.org/api/option"
+
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/oss"
 
 	"github.com/coretrix/hitrix/service/component/app"
-
-	"google.golang.org/api/option"
 
 	"cloud.google.com/go/storage"
 	"github.com/latolukasz/orm"
