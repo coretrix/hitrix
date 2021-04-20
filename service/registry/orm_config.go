@@ -15,7 +15,9 @@ func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition 
 		Name:   service.ORMConfigService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			registry := orm.InitByYaml(service.DI().Config().Get("orm").(map[string]interface{}))
+			registry := orm.NewRegistry()
+
+			registry.InitByYaml(service.DI().Config().Get("orm").(map[string]interface{}))
 			init(registry)
 
 			_, err := ctn.SafeGet(service.OSSGoogleService)

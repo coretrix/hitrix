@@ -141,7 +141,7 @@ func CreateContext(t *testing.T, projectName string, resolvers graphql.Executabl
 	}
 
 	ormService.GetLocalCache().Clear()
-	ormService.GetRedis().FlushDB()
+	ormService.GetRedis().FlushAll()
 
 	altersSearch := ormService.GetRedisSearchIndexAlters()
 	for _, alter := range altersSearch {
