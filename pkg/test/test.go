@@ -81,7 +81,75 @@ func (env *Environment) handle(buff bytes.Buffer, v interface{}) *graphqlParser.
 	return nil
 }
 
-func CreateContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, ginInitHandler hitrix.GinInitHandler, defaultServices []*service.Definition, mockServices ...*service.Definition) *Environment {
+func CreateContext(t *testing.T, projectName string, defaultServices []*service.Definition, mockServices ...*service.Definition) *Environment {
+	var deferFunc func()
+
+	if testSpringInstance == nil {
+		err := os.Setenv("TZ", "UTC")
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = os.Setenv("APP_MODE", app.ModeTest)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
+		defer deferFunc()
+
+		var has bool
+		ormService, has = service.DI().OrmEngine()
+		if !has {
+			panic("ORM is not loaded")
+		}
+
+		dbService = ormService.GetMysql()
+
+		err = dropTables()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		alters := ormService.GetAlters()
+
+		var queries string
+
+		for _, alter := range alters {
+			queries += alter.SQL
+		}
+
+		if queries != "" {
+			_, def := dbService.Query(queries)
+			defer def()
+		}
+	}
+
+	if len(mockServices) != 0 {
+		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
+		defer deferFunc()
+
+		// TODO: fix multiple connections to mysql
+		ormService, _ = service.DI().OrmEngine()
+		dbService = ormService.GetMysql()
+	}
+
+	err := truncateTables()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ormService.GetLocalCache().Clear()
+	ormService.GetRedis().FlushAll()
+
+	altersSearch := ormService.GetRedisSearchIndexAlters()
+	for _, alter := range altersSearch {
+		alter.Execute()
+	}
+
+	return &Environment{t: t, Hitrix: testSpringInstance, GinEngine: ginTestInstance}
+}
+
+func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, ginInitHandler hitrix.GinInitHandler, defaultServices []*service.Definition, mockServices ...*service.Definition) *Environment {
 	var deferFunc func()
 
 	if testSpringInstance == nil {
