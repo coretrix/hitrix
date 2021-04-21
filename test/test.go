@@ -18,7 +18,7 @@ func createContextMyApp(t *testing.T, projectName string, resolvers graphql.Exec
 		registry.ServiceDefinitionOrmEngineForContext(false),
 	}
 
-	return test.CreateContext(t,
+	return test.CreateAPIContext(t,
 		projectName,
 		resolvers,
 		nil,
