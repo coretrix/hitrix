@@ -21,6 +21,7 @@ import (
 )
 
 type GinInitHandler func(ginEngine *gin.Engine)
+type GQLServerInitHandler func(server *handler.Server)
 
 func contextToContextMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -41,7 +42,7 @@ func afterRequestMiddleware() gin.HandlerFunc {
 	}
 }
 
-func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler) *gin.Engine {
+func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gqlServerInitHandler GQLServerInitHandler) *gin.Engine {
 	app := service.DI().App()
 	if app.IsInProdMode() {
 		gin.SetMode(gin.ReleaseMode)
@@ -69,14 +70,14 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler) *gi
 	}
 
 	if server != nil {
-		ginEngine.POST("/query", timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server))))
+		ginEngine.POST("/query", timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server, gqlServerInitHandler))))
 		ginEngine.GET("/", playgroundHandler())
 	}
 
 	return ginEngine
 }
 
-func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
+func graphqlHandler(server graphql.ExecutableSchema, gqlServerInitHandler GQLServerInitHandler) gin.HandlerFunc {
 	h := handler.New(server)
 
 	h.AddTransport(transport.Websocket{
@@ -107,6 +108,9 @@ func graphqlHandler(server graphql.ExecutableSchema) gin.HandlerFunc {
 		}
 		return errors.New("internal server error")
 	})
+	if gqlServerInitHandler != nil {
+		gqlServerInitHandler(h)
+	}
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
 	}
