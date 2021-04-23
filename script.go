@@ -77,7 +77,7 @@ func (h *Hitrix) RunScript(script Script) {
 	go func() {
 		for {
 			valid := h.runScript(script)
-			if !isInfinity {
+			if isInfinity {
 				select {}
 			}
 
