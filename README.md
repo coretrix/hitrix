@@ -361,6 +361,12 @@ Methods above are required. Optionally you can also implement these interfaces:
 
 ```go
 
+// hitrix.ScriptInfinity interface
+func (script *TestScript) Infinity() bool {
+    // run script and use blocking operation in cases you run all your code in goroutines
+    return true
+}
+
 // hitrix.ScriptInterval interface
 func (script *TestScript) Interval() time.Duration {                                                    
     // run script every minute

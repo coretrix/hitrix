@@ -42,6 +42,10 @@ func (e *exit) Error() {
 	e.Custom(1)
 }
 
+type ScriptInfinity interface {
+	Infinity() bool
+}
+
 type ScriptInterval interface {
 	Interval() time.Duration
 }
@@ -68,9 +72,15 @@ func (h *Hitrix) RunScript(script Script) {
 		}
 	}
 	interval, isInterval := script.(ScriptInterval)
+	_, isInfinity := script.(ScriptInfinity)
+
 	go func() {
 		for {
 			valid := h.runScript(script)
+			if !isInfinity {
+				select {}
+			}
+
 			if !isInterval {
 				h.done <- true
 				break
