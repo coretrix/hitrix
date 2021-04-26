@@ -9,8 +9,10 @@ type AdminUserEntity struct {
 	ID       uint64
 	Email    string `orm:"unique=Email;searchable"`
 	Password string
+}
 
-	UserEmailIndex *orm.CachedQuery `queryOne:":Email = ?"`
+func (e *AdminUserEntity) GetUniqueFieldName() string {
+	return "Email"
 }
 
 func (e *AdminUserEntity) GetUsername() string {
@@ -19,8 +21,4 @@ func (e *AdminUserEntity) GetUsername() string {
 
 func (e *AdminUserEntity) GetPassword() string {
 	return e.Password
-}
-
-func (e *AdminUserEntity) GetEmailCachedIndexName() string {
-	return "UserEmailIndex"
 }
