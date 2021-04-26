@@ -164,7 +164,7 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 
 		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
 		defer deferFunc()
-		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler)
+		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler, nil)
 
 		var has bool
 		ormService, has = service.DI().OrmEngine()
@@ -196,7 +196,7 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 	if len(mockServices) != 0 {
 		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
 		defer deferFunc()
-		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler)
+		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler, nil)
 
 		// TODO: fix multiple connections to mysql
 		ormService, _ = service.DI().OrmEngine()

@@ -34,5 +34,5 @@ func main() {
 	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}), func(ginEngine *gin.Engine) {
 		exampleMiddleware.Router(ginEngine)
 		middleware.Cors(ginEngine)
-	})
+	}, nil)
 }
