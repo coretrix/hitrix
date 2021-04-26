@@ -31,12 +31,18 @@ func ServiceProviderAuthentication() *service.Definition {
 			accessTokenTTL := 24 * 60 * 60
 			refreshTokenTTL := 365 * 24 * 60 * 60
 
+			authRedis := "default"
+
 			if configMap["accessTokenTTL"] != nil {
 				accessTokenTTL = configMap["accessTokenTTL"].(int)
 			}
 
 			if configMap["refreshTokenTTL"] != nil {
 				refreshTokenTTL = configMap["refreshTokenTTL"].(int)
+			}
+
+			if configMap["authRedis"] != nil {
+				authRedis = configMap["authRedis"].(string)
 			}
 
 			ormService := subContainer.Get(service.ORMEngineRequestService).(*orm.Engine)
@@ -47,6 +53,7 @@ func ServiceProviderAuthentication() *service.Definition {
 				accessTokenTTL,
 				refreshTokenTTL,
 				ormService,
+				ormService.GetRedis(authRedis),
 				passwordService,
 				jwtService,
 			), nil
