@@ -92,7 +92,7 @@ func getServiceRequired(ctn di.Container, key string) interface{} {
 }
 
 func GetContainerFromRequest(ctx context.Context) (ctn di.Container) {
-	c := ginFromContext(ctx)
+	c := GinFromContext(ctx)
 	requestContainer, has := c.Get("RequestContainer")
 
 	if !has {
@@ -108,6 +108,6 @@ func GetContainerFromRequest(ctx context.Context) (ctn di.Container) {
 	return ctn
 }
 
-func ginFromContext(ctx context.Context) *gin.Context {
+func GinFromContext(ctx context.Context) *gin.Context {
 	return ctx.Value(GinKey).(*gin.Context)
 }
