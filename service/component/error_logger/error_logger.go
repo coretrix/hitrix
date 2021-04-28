@@ -84,7 +84,7 @@ func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
 
 	_, file, line, _ := runtime.Caller(4)
 	//nolint
-	errorKeyBinary := md5.Sum([]byte(file + ":" + fmt.Sprint(line)))
+	errorKeyBinary := md5.Sum([]byte(e.appService.Name + ":" + file + ":" + fmt.Sprint(line)))
 	errorKey := hex.EncodeToString(errorKeyBinary[:])
 	value := &ErrorMessage{
 		File:    file,
