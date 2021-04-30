@@ -6,11 +6,11 @@ import (
 	"math"
 	"net/http/httputil"
 
+	"github.com/slack-go/slack"
+
 	slackapi "github.com/coretrix/hitrix/service/component/slack_api"
 
 	"github.com/coretrix/hitrix/service/component/app"
-
-	"github.com/bluele/slack"
 
 	//nolint
 	"crypto/md5"
@@ -118,16 +118,15 @@ func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
 		e.slackService.SendToChannel(
 			e.slackService.GetErrorChannel(),
 			value.Message,
-			&slack.ChatPostMessageOpt{
-				Attachments: []*slack.Attachment{
-					{
-						AuthorName: e.appService.Name,
-						Title:      "Error link",
-						TitleLink:  e.slackService.GetDevPanelURL() + "#err-" + errorKey,
-						Text:       "Counter: " + fmt.Sprint(counter) + " ENV: " + e.appService.Mode,
-					},
+			slack.MsgOptionAttachments(
+				slack.Attachment{
+					AuthorName: e.appService.Name,
+					Title:      "Error link",
+					TitleLink:  e.slackService.GetDevPanelURL() + "#err-" + errorKey,
+					Text:       "Counter: " + fmt.Sprint(counter) + " ENV: " + e.appService.Mode,
 				},
-			})
+			),
+		)
 	}
 }
 

@@ -1,11 +1,11 @@
 package slackapi
 
 import (
-	"github.com/bluele/slack"
+	"github.com/slack-go/slack"
 )
 
 type SlackAPI struct {
-	client       *slack.Slack
+	client       *slack.Client
 	errorChannel string
 	devPanelURL  string
 }
@@ -24,8 +24,9 @@ func (s *SlackAPI) GetErrorChannel() string {
 	return s.errorChannel
 }
 
-func (s *SlackAPI) SendToChannel(channelName, message string, opt *slack.ChatPostMessageOpt) {
-	err := s.client.ChatPostMessage(channelName, message, opt)
+func (s *SlackAPI) SendToChannel(channelName, message string, opt ...slack.MsgOption) {
+	opt = append(opt, slack.MsgOptionText(message, true))
+	_, _, err := s.client.PostMessage(channelName, opt...)
 	if err != nil {
 		panic(err)
 	}

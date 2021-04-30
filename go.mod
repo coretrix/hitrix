@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/storage v1.13.0
 	github.com/99designs/gqlgen v0.13.0
 	github.com/agnivade/levenshtein v1.1.0 // indirect
-	github.com/bluele/slack v0.0.0-20180528010058-b4b4d354a079
+	github.com/slack-go/slack v0.9.0
 	github.com/fatih/color v1.10.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/timeout v0.0.1
