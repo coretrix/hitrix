@@ -3,13 +3,20 @@ package authentication
 import (
 	"errors"
 	"fmt"
+
+	"github.com/coretrix/hitrix/service/component/clock"
+
+	"github.com/coretrix/hitrix/service/component/generator"
+
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/coretrix/hitrix/service/component/sms"
 
-	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/dongri/phonenumber"
+
+	"github.com/go-redis/redis/v8"
 
 	"github.com/coretrix/hitrix/service/component/jwt"
 	"github.com/coretrix/hitrix/service/component/password"
@@ -24,39 +31,120 @@ const (
 	maxUserAccessKeysAllowed = 10
 )
 
+type OTPProviderEntity interface {
+	orm.Entity
+	GetPhoneFieldName() string
+}
+
 type AuthProviderEntity interface {
 	orm.Entity
 	GetUniqueFieldName() string
 	GetPassword() string
 }
 type Authentication struct {
-	accessTokenTTL  int
-	refreshTokenTTL int
-	passwordService *password.Password
-	jwtService      *jwt.JWT
-	ormService      *orm.Engine
-	cacheService    *orm.RedisCache
-	secret          string
+	accessTokenTTL   int
+	refreshTokenTTL  int
+	otpTTL           int
+	passwordService  *password.Password
+	jwtService       *jwt.JWT
+	ormService       *orm.Engine
+	smsService       sms.ISender
+	generatorService generator.Generator
+	clockService     clock.Clock
+	cacheService     *orm.RedisCache
+	secret           string
 }
 
 func NewAuthenticationService(
 	secret string,
 	accessTokenTTL int,
 	refreshTokenTTL int,
+	otpTTL int,
 	ormService *orm.Engine,
+	smsService sms.ISender,
+	generatorService generator.Generator,
+	clockService clock.Clock,
 	cacheService *orm.RedisCache,
 	passwordService *password.Password,
 	jwtService *jwt.JWT,
 ) *Authentication {
 	return &Authentication{
-		secret:          secret,
-		accessTokenTTL:  accessTokenTTL,
-		refreshTokenTTL: refreshTokenTTL,
-		passwordService: passwordService,
-		jwtService:      jwtService,
-		ormService:      ormService,
-		cacheService:    cacheService,
+		secret:           secret,
+		accessTokenTTL:   accessTokenTTL,
+		refreshTokenTTL:  refreshTokenTTL,
+		otpTTL:           otpTTL,
+		passwordService:  passwordService,
+		jwtService:       jwtService,
+		ormService:       ormService,
+		smsService:       smsService,
+		clockService:     clockService,
+		generatorService: generatorService,
+		cacheService:     cacheService,
 	}
+}
+
+type GenerateOTP struct {
+	Mobile         string
+	ExpirationTime time.Time
+	Token          string
+}
+
+func (t *Authentication) GenerateAndSendOTP(mobile string, country string) (*GenerateOTP, error) {
+	// validate mobile number
+	if len(country) != 2 {
+		return nil, errors.New("us alpha2 code for country")
+	}
+	phone := phonenumber.Parse(mobile, country)
+	if phone == "" {
+		return nil, errors.New("phone number not valid")
+	}
+
+	code := t.generatorService.GenerateRandomRangeNumber(10000, 99999)
+
+	err := t.smsService.SendOTPSMS(&sms.OTP{
+		OTP:      fmt.Sprint(code),
+		Number:   phone,
+		CC:       country,
+		Provider: decideProviders(country),
+		// TODO : replace with the desired message or get as a argument
+		Template: "your verification code id : %s",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	expirationTime := t.clockService.Now().Add(time.Duration(t.otpTTL) * time.Second)
+	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(expirationTime, phone, fmt.Sprint(code)))
+
+	return &GenerateOTP{
+		Mobile:         phone,
+		ExpirationTime: expirationTime,
+		Token:          token,
+	}, nil
+}
+
+func (t *Authentication) VerifyOTP(code string, input *GenerateOTP) error {
+	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(input.ExpirationTime, input.Mobile, code))
+	if token != input.Token {
+		return errors.New("wrong code provided")
+	}
+
+	if input.ExpirationTime.Before(t.clockService.Now()) {
+		return errors.New("code expired")
+	}
+
+	return nil
+}
+
+func (t *Authentication) AuthenticateOTP(phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
+	q := &orm.RedisSearchQuery{}
+	q.FilterString(entity.GetPhoneFieldName(), phone)
+	found := t.ormService.RedisSearchOne(entity, q)
+	if !found {
+		return "", "", errors.New("invalid credentials")
+	}
+
+	return t.generateUserTokens(entity.GetID())
 }
 
 func (t *Authentication) Authenticate(uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
@@ -71,25 +159,28 @@ func (t *Authentication) Authenticate(uniqueValue string, password string, entit
 		return "", "", errors.New("invalid user/pass")
 	}
 
-	accessKey := t.generateAndStoreAccessKey(entity.GetID(), t.refreshTokenTTL)
+	return t.generateUserTokens(entity.GetID())
+}
 
-	accessToken, err = t.GenerateTokenPair(entity.GetID(), accessKey, t.accessTokenTTL)
+func (t *Authentication) generateUserTokens(ID uint64) (accessToken string, refreshToken string, err error) {
+	accessKey := t.generateAndStoreAccessKey(ID, t.refreshTokenTTL)
+
+	accessToken, err = t.GenerateTokenPair(ID, accessKey, t.accessTokenTTL)
 	if err != nil {
 		return "", "", err
 	}
 
-	refreshToken, err = t.GenerateTokenPair(entity.GetID(), accessKey, t.refreshTokenTTL)
+	refreshToken, err = t.GenerateTokenPair(ID, accessKey, t.refreshTokenTTL)
 	if err != nil {
 		return "", "", err
 	}
 
-	t.addUserAccessKeyList(entity.GetID(), accessKey, "", t.refreshTokenTTL)
-
+	t.addUserAccessKeyList(ID, accessKey, "", t.refreshTokenTTL)
 	return accessToken, refreshToken, nil
 }
 
 func (t *Authentication) VerifyAccessToken(accessToken string, entity orm.Entity) (map[string]string, error) {
-	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, accessToken, time.Now().Unix())
+	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, accessToken, t.clockService.Now().Unix())
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +206,7 @@ func (t *Authentication) VerifyAccessToken(accessToken string, entity orm.Entity
 }
 
 func (t *Authentication) RefreshToken(refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
-	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, refreshToken, time.Now().Unix())
+	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, refreshToken, t.clockService.Now().Unix())
 	if err != nil {
 		return "", "", err
 	}
@@ -194,7 +285,7 @@ func (t *Authentication) GenerateTokenPair(id uint64, accessKey string, ttl int)
 		"type": "JWT",
 	}
 
-	now := time.Now().Unix()
+	now := t.clockService.Now().Unix()
 
 	payload := map[string]string{
 		"jti": accessKey,
@@ -207,7 +298,7 @@ func (t *Authentication) GenerateTokenPair(id uint64, accessKey string, ttl int)
 }
 
 func (t *Authentication) generateAndStoreAccessKey(id uint64, ttl int) string {
-	key := generateAccessKey(id)
+	key := generateAccessKey(id, t.generatorService.GenerateUUID())
 	t.cacheService.Set(key, "", ttl)
 	return key
 }
@@ -250,8 +341,8 @@ func (t *Authentication) addUserAccessKeyList(id uint64, accessKey, oldAccessKey
 	}
 }
 
-func generateAccessKey(id uint64) string {
-	return fmt.Sprintf("%s%s%d%s%s", accessKeyPrefix, separator, id, separator, helper.GenerateUUID())
+func generateAccessKey(id uint64, uuid string) string {
+	return fmt.Sprintf("%s%s%d%s%s", accessKeyPrefix, separator, id, separator, uuid)
 }
 
 func getUserIDFromAccessKey(accessKey string) uint64 {
@@ -265,4 +356,19 @@ func getUserIDFromAccessKey(accessKey string) uint64 {
 
 func generateUserTokenListKey(id uint64) string {
 	return fmt.Sprintf("%s%s%d", userAccessListPrefix, separator, id)
+}
+
+func decideProviders(country string) *sms.Provider {
+	providers := &sms.Provider{
+		Primary:   sms.Twilio,
+		Secondary: sms.Sinch,
+	}
+
+	if country == "IR" {
+		providers = &sms.Provider{
+			Primary:   sms.Kavenegar,
+			Secondary: sms.Twilio,
+		}
+	}
+	return providers
 }

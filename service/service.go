@@ -3,6 +3,10 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/generator"
+
+	"github.com/coretrix/hitrix/service/component/sms"
+
 	"github.com/coretrix/hitrix/service/component/authentication"
 
 	"github.com/coretrix/hitrix/service/component/clock"
@@ -41,6 +45,8 @@ const (
 	APILoggerService        = "api_logger"
 	AuthenticationService   = "authentication"
 	ClockService            = "clock"
+	SMSService              = "sms"
+	GeneratorService        = "generator_service"
 )
 
 type DIInterface interface {
@@ -57,6 +63,8 @@ type DIInterface interface {
 	SocketRegistry() (*socket.Registry, bool)
 	APILoggerService() (apilogger.APILogger, bool)
 	AuthenticationService() (*authentication.Authentication, bool)
+	SMSService() (sms.ISender, bool)
+	GeneratorService() (generator.Generator, bool)
 }
 
 type diContainer struct {
@@ -104,6 +112,22 @@ func (d *diContainer) JWT() (*jwt.JWT, bool) {
 	v, has := GetServiceOptional(JWTService)
 	if has {
 		return v.(*jwt.JWT), true
+	}
+	return nil, false
+}
+
+func (d *diContainer) SMSService() (sms.ISender, bool) {
+	v, has := GetServiceOptional(SMSService)
+	if has {
+		return v.(sms.ISender), true
+	}
+	return nil, false
+}
+
+func (d *diContainer) GeneratorService() (generator.Generator, bool) {
+	v, has := GetServiceOptional(GeneratorService)
+	if has {
+		return v.(generator.Generator), true
 	}
 	return nil, false
 }
