@@ -3,7 +3,6 @@ package registry
 import (
 	"errors"
 
-	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -12,7 +11,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderSMS() *service.Definition {
+func ServiceProviderSMS(entity sms.LogEntity) *service.Definition {
 	return &service.Definition{
 		Name:   service.SMSService,
 		Global: true,
@@ -113,12 +112,9 @@ func ServiceProviderSMS() *service.Definition {
 			}
 
 			ormService := subContainer.Get(service.ORMEngineRequestService).(*orm.Engine)
-			registry := ormService.GetRegistry().GetSourceRegistry()
-
-			registry.RegisterEntity(&entity.SmsTrackerEntity{})
-			registry.RegisterEnumStruct("entity.SMSTrackerTypeAll", entity.SMSTrackerTypeAll)
 
 			return &sms.Sender{
+				Logger:     entity,
 				Clock:      clockService,
 				OrmService: ormService,
 				GatewayFactory: map[string]sms.Gateway{

@@ -92,7 +92,7 @@ type GenerateOTP struct {
 func (t *Authentication) GenerateAndSendOTP(mobile string, country string) (*GenerateOTP, error) {
 	// validate mobile number
 	if len(country) != 2 {
-		return nil, errors.New("us alpha2 code for country")
+		return nil, errors.New("use alpha2 code for country")
 	}
 	phone := phonenumber.Parse(mobile, country)
 	if phone == "" {

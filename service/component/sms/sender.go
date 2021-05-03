@@ -3,7 +3,8 @@ package sms
 import (
 	"fmt"
 
-	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/coretrix/hitrix/example/entity"
+
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/latolukasz/orm"
 )
@@ -18,6 +19,7 @@ type Sender struct {
 	OrmService     *orm.Engine
 	Clock          clock.Clock
 	GatewayFactory map[string]Gateway
+	Logger         LogEntity
 }
 
 func (s *Sender) SendOTPSMS(otp *OTP) error {
@@ -31,18 +33,18 @@ func (s *Sender) SendOTPSMS(otp *OTP) error {
 
 	otp.OTP = fmt.Sprintf(otp.Template, otp.OTP)
 
-	smsTrackerEntity := &entity.SmsTrackerEntity{
-		To:                 otp.Number,
-		Text:               otp.OTP,
-		FromPrimaryGateway: primaryProvider,
-		SentAt:             s.Clock.Now(),
-	}
+	smsTrackerEntity := s.Logger
+	smsTrackerEntity.SetTo(otp.Number)
+	smsTrackerEntity.SetType(entity.SMSTrackerTypeSMS)
+	smsTrackerEntity.SetText(otp.OTP)
+	smsTrackerEntity.SetFromPrimaryGateway(primaryProvider)
+	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
 	trySecondaryProvider := false
 	status, err := primaryGateway.SendOTPSMS(otp)
 	if err != nil {
 		trySecondaryProvider = true
-		smsTrackerEntity.PrimaryGatewayError = err.Error()
+		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
 	}
 
 	if trySecondaryProvider {
@@ -51,16 +53,17 @@ func (s *Sender) SendOTPSMS(otp *OTP) error {
 			return fmt.Errorf("secondary provider not supported")
 		}
 
-		smsTrackerEntity.FromSecondaryGateway = secondaryProvider
+		smsTrackerEntity.SetFromSecondaryGateway(secondaryProvider)
 
 		status, err = secondaryGateway.SendOTPSMS(otp)
 		if err != nil {
-			smsTrackerEntity.SecondaryGatewayError = err.Error()
+			smsTrackerEntity.SetSecondaryGatewayError(err.Error())
 		}
 	}
 
-	smsTrackerEntity.Status = status
-	s.OrmService.Flush(smsTrackerEntity)
+	smsTrackerEntity.SetStatus(status)
+	logger := NewSmsLog(s.OrmService, smsTrackerEntity)
+	logger.Do()
 	return nil
 }
 
@@ -75,18 +78,18 @@ func (s *Sender) SendOTPCallout(otp *OTP) error {
 
 	otp.OTP = fmt.Sprintf(otp.Template, otp.OTP)
 
-	smsTrackerEntity := &entity.SmsTrackerEntity{
-		To:                 otp.Number,
-		Text:               otp.OTP,
-		FromPrimaryGateway: primaryProvider,
-		SentAt:             s.Clock.Now(),
-	}
+	smsTrackerEntity := s.Logger
+	smsTrackerEntity.SetTo(otp.Number)
+	smsTrackerEntity.SetType(entity.SMSTrackerTypeCallout)
+	smsTrackerEntity.SetText(otp.OTP)
+	smsTrackerEntity.SetFromPrimaryGateway(primaryProvider)
+	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
 	trySecondaryProvider := false
 	status, err := primaryGateway.SendOTPCallout(otp)
 	if err != nil {
 		trySecondaryProvider = true
-		smsTrackerEntity.PrimaryGatewayError = err.Error()
+		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
 	}
 
 	if trySecondaryProvider {
@@ -95,16 +98,17 @@ func (s *Sender) SendOTPCallout(otp *OTP) error {
 			return fmt.Errorf("secondary provider not supported")
 		}
 
-		smsTrackerEntity.FromSecondaryGateway = secondaryProvider
+		smsTrackerEntity.SetFromSecondaryGateway(secondaryProvider)
 
 		status, err = secondaryGateway.SendOTPCallout(otp)
 		if err != nil {
-			smsTrackerEntity.SecondaryGatewayError = err.Error()
+			smsTrackerEntity.SetSecondaryGatewayError(err.Error())
 		}
 	}
 
-	smsTrackerEntity.Status = status
-	s.OrmService.Flush(smsTrackerEntity)
+	smsTrackerEntity.SetStatus(status)
+	logger := NewSmsLog(s.OrmService, smsTrackerEntity)
+	logger.Do()
 	return nil
 }
 
@@ -117,18 +121,18 @@ func (s *Sender) SendMessage(message *Message) error {
 		return fmt.Errorf("primary provider not supported")
 	}
 
-	smsTrackerEntity := &entity.SmsTrackerEntity{
-		To:                 message.Number,
-		Text:               message.Text,
-		FromPrimaryGateway: primaryProvider,
-		SentAt:             s.Clock.Now(),
-	}
+	smsTrackerEntity := s.Logger
+	smsTrackerEntity.SetTo(message.Number)
+	smsTrackerEntity.SetType(entity.SMSTrackerTypeCallout)
+	smsTrackerEntity.SetText(message.Text)
+	smsTrackerEntity.SetFromPrimaryGateway(primaryProvider)
+	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
 	trySecondaryProvider := false
 	status, err := primaryGateway.SendSMSMessage(message)
 	if err != nil {
 		trySecondaryProvider = true
-		smsTrackerEntity.PrimaryGatewayError = err.Error()
+		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
 	}
 
 	if trySecondaryProvider {
@@ -137,15 +141,16 @@ func (s *Sender) SendMessage(message *Message) error {
 			return fmt.Errorf("secondary provider not supported")
 		}
 
-		smsTrackerEntity.FromSecondaryGateway = secondaryProvider
+		smsTrackerEntity.SetFromSecondaryGateway(secondaryProvider)
 
 		status, err = secondaryGateway.SendSMSMessage(message)
 		if err != nil {
-			smsTrackerEntity.SecondaryGatewayError = err.Error()
+			smsTrackerEntity.SetSecondaryGatewayError(err.Error())
 		}
 	}
 
-	smsTrackerEntity.Status = status
-	s.OrmService.Flush(smsTrackerEntity)
+	smsTrackerEntity.SetStatus(status)
+	logger := NewSmsLog(s.OrmService, smsTrackerEntity)
+	logger.Do()
 	return nil
 }
