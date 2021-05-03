@@ -644,47 +644,189 @@ The methods that this service provide are:
 
 #### Authentication Service
 This service is used to making the life easy by doing the whole authentication life cycle using JWT token. the methods that this service provides are as follows:
+
+##### dependencies : 
+`JWTService`
+
+`PasswordService`
+
+`ClockService`
+
+`GeneratorService`
+
+`SMSService` # optional , when you need to support for otp
+
 ```go
-func Authenticate(email string, password string, entity EmailPasswordProviderEntity) (accessToken string, refreshToken string, err error) {}
+func Authenticate(uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {}
 func VerifyAccessToken(accessToken string, entity orm.Entity) error {}
 func RefreshToken(refreshToken string) (newAccessToken string, newRefreshToken string, err error) {}
+func LogoutCurrentSession(accessKey string){}
+func LogoutAllSessions(id uint64)
+func GenerateAndSendOTP(mobile string, country string){}
+func VerifyOTP(code string, input *GenerateOTP) error{}
+func AuthenticateOTP(phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error){}
 ```
-1. The `Authenticate` function will take an email, a plain password, and generates accessToken and refreshToken. 
-   You will also need to pass your entity as third argument and it will give you the specific user entity related to provided access token
-   The entity should implement the `EmailPasswordProviderEntity` interface : 
+1. The `Authenticate` function will take an uniqueValue such as Email or Mobile, a plain password, and generates accessToken and refreshToken. 
+   You will also need to pass your entity as third argument, and it will give you the specific user entity related to provided access token
+   The entity should implement the `AuthProviderEntity` interface : 
     ```go
-       type EmailPasswordProviderEntity interface {
+       type AuthProviderEntity interface {
         orm.Entity
-        GetEmailCachedIndexName() string
+        GetUniqueFieldName() string
         GetPassword() string
        }
     ```
     The example of such entity is as follows:
     ```go
-    type AdminUserEntity struct {
-        orm.ORM  `orm:"table=admin_users;redisCache;redisSearch=search"`
-        ID       uint64
-        Email    string `orm:"unique=Email;searchable"`
-        Password string
+    type UserEntity struct {
+	    orm.ORM  `orm:"table=users;redisCache;redisSearch=search_pool"`
+	    ID       uint64 `orm:"searchable;sortable"`
+	    Email    string `orm:"required;unique=Email;searchable"`
+	    Password string `orm:"required"`
+    }
+   
+    func (user *UserEntity) GetUniqueFieldName() string {
+	    return "Email"
+    }
     
-        UserEmailIndex *orm.CachedQuery `queryOne:":Email = ?"`
-    }
-    func (e *AdminUserEntity) GetPassword() string {
-        return e.Password
-    }
-    func (e *AdminUserEntity) GetEmailCachedIndexName() string {
-        return "UserEmailIndex"
+    func (user *UserEntity) GetPassword() string {
+    return user.Password
     }
     ```
 2. The `VerifyAccessToken` will get the AccessToken, process the validation and expiration, and fill the entity param with the authenticated user entity in case of successful authentication.
 3. The `RefreshToken` method will generate a new token pair for given user
-4. You need to have a `authentication` key in your config file for this service to work. `secret` key under `authentication` is mandatory but other options are optional:
+4. The `LogoutCurrentSession` you can logout the user current session , you need to pass it the `accessKey`  that is the jwt identifier `jti` the exists in both access and refresh token.
+5. The `LogoutAllSessions` you can logout the user from all sessions , you need to pass it the `id` (user id).
+6. The `GenerateAndSendOTP` only in otp flow, it will generate code and send it to the specified number `Mobile` and also returns `GenerateOTP` inside it we have `Token` that it is the hashed otp credentials that needs to be sent by client when verifying.
+    ```go
+    type GenerateOTP struct {
+    	Mobile         string
+    	ExpirationTime time.Time
+    	Token          string
+    }
+    ```
+7. The `VerifyOTP` only in otp flow , will compare the `code`(otp code) with the `input`(otp credentials)  provided by client.
+8. The `AuthenticateOTP` only in otp flow , will get the `phone` and `entity` that should implement `OTPProviderEntity` and query to find the user and will login the user.careful just call this after you verified the otp code using the previous method `VerifyOTP`
+   the response is asa same as the `Authenticate`.
+   ```go
+   type OTPProviderEntity interface {
+	    orm.Entity
+	    GetPhoneFieldName() string
+    }
+   ```
+9. You need to have a `authentication` key in your config file for this service to work. `secret` key under `authentication` is mandatory but other options are optional:
+10. The service can also support `OTP` if you want your service to support otp you should have `support_otp` key set to true under `authentication`
+11. The service also needs redis to store its sessions so you need to identify the redis storage name in config , the key is `auth_redis` under `authentication`
 ```yaml
 authentication:
   secret: "a-deep-dark-secret" #mandatory, secret to be used for JWT
-  accessTokenTTL: 86400 # optional, in seconds, default to 1day
-  refreshTokenTTL: 31536000 #optional, in seconds, default to 1year
+  access_token_ttl: 86400 # optional, in seconds, default to 1day
+  refresh_token_ttl: 31536000 #optional, in seconds, default to 1year
+  auth_redis: default #optional , default is the default redis
+  support_otp: true # if you want to support otp flow in your app
+  otp_ttl: 120 #optional ,set it when you want to use otp, It is the ttl of otp code , default is 60 seconds
 ```
+
+#### SMS Service
+This service is capable of sending simple message and otp message and also calling by different sms providers .
+for now we support 3 sms providers : `twilio` `sinch` `kavenegar`
+
+##### dependencies : 
+`ClockService`
+
+and also when registering the service you need to pass it the `LogEntity` that is responsible to log every action made by sms service : 
+```go
+type LogEntity interface {
+    orm.Entity
+    SetStatus(string)
+    SetTo(string)
+    SetText(string)
+    SetFromPrimaryGateway(string)
+    SetFromSecondaryGateway(string)
+    SetPrimaryGatewayError(string)
+    SetSecondaryGatewayError(string)
+    SetType(string)
+    SetSentAt(time time.Time)
+}
+```
+for example : 
+```go
+const (
+	SMSTrackerTypeSMS     = "sms"
+	SMSTrackerTypeCallout = "callout"
+)
+
+type smsTrackerTypeAll struct {
+	orm.EnumModel
+	SMSTrackerTypeSMS     string
+	SMSTrackerTypeCallout string
+}
+
+var SMSTrackerTypeAll = &smsTrackerTypeAll{
+	SMSTrackerTypeSMS:     SMSTrackerTypeSMS,
+	SMSTrackerTypeCallout: SMSTrackerTypeCallout,
+}
+
+type SmsTrackerEntity struct {
+	orm.ORM               `orm:"table=sms_tracker"`
+	ID                    uint64
+	Status                string
+	To                    string `orm:"varchar=15"`
+	Text                  string
+	FromPrimaryGateway    string
+	FromSecondaryGateway  string
+	PrimaryGatewayError   string
+	SecondaryGatewayError string
+	Type                  string    `orm:"enum=entity.SMSTrackerTypeAll;required"`
+	SentAt                time.Time `orm:"time"`
+}
+```
+we have 2 providers active at the same time `primary` `secondary` and when send via primary fails we try to send with the secondary provider.
+```go
+func SendOTPSMS(*OTP) error{}
+func SendOTPCallout(*OTP) error{}
+func SendMessage(*Message) error{}
+```
+1. The `SendOTPSMS` send otp sms by providing the otp data
+```go
+type OTP struct {
+	OTP      string
+	Number   string
+	CC       string
+	Provider *Provider
+	Template string
+}
+```
+2. The `SendOTPCallout` used to call and tell the otp code
+3. The `SendMessage` used to send simple message
+```go
+type Message struct {
+	Text     string
+	Number   string
+	Provider *Provider
+}
+```
+##### configs
+```yaml
+sms:
+  twilio:
+    sid: ENV[SMS_TWILIO_SID]
+    token: ENV[SMS_TWILIO_TOKEN]
+    from_number: ENV[SMS_TWILIO_FROM_NUMBER]
+    authy_url: ENV[SMS_TWILIO_AUTHY_URL]
+    authy_api_key: ENV[SMS_TWILIO_AUTHY_API_KEY]
+  kavenegar:
+    api_key: ENV[SMS_KAVENEGAR_API_KEY]
+    sender: ENV[SMS_KAVENEGAR_SENDER]
+  sinch:
+    app_id: ENV[SMS_SINCH_APP_ID]
+    app_secret: ENV[SMS_SINCH_APP_SECRET]
+    msg_url: ENV[SMS_SINCH_MSG_URL]
+    from_number: ENV[SMS_SINCH_FROM_NUMBER]
+    call_url: ENV[SMS_SINCH_CALL_URL]
+    caller_number: ENV[SMS_SINCH_CALLER_NUMBER]
+```
+    
 ### Validator
 We support 2 types of validators. One of them is related to graphql and the other one is related to rest
 
