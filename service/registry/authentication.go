@@ -1,6 +1,8 @@
 package registry
 
 import (
+	"strconv"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/authentication"
 	"github.com/coretrix/hitrix/service/component/clock"
@@ -10,6 +12,12 @@ import (
 	"github.com/coretrix/hitrix/service/component/sms"
 	"github.com/latolukasz/orm"
 	"github.com/sarulabs/di"
+)
+
+const (
+	DefaultOTPTTLInSeconds          = 60
+	DefaultAccessTokenTTLInSeconds  = 24 * 60 * 60
+	DefaultRefreshTokenTTLInSeconds = 365 * 24 * 60 * 60
 )
 
 func ServiceProviderAuthentication() *service.Definition {
@@ -23,35 +31,44 @@ func ServiceProviderAuthentication() *service.Definition {
 			}
 			configService := ctn.Get(service.ConfigService).(*config.Config)
 			if configService == nil {
-				panic("`authentication` key does not exists in configuration")
+				panic("`config is nil")
 			}
 
-			authConfig := configService.GetStringMap("authentication")
+			authConfig := configService.GetStringMapString("authentication")
 			if authConfig["secret"] == "" {
 				panic("`authentication` key does not exists in configuration")
 			}
 
-			secret := authConfig["secret"].(string)
-			accessTokenTTL := 24 * 60 * 60
-			refreshTokenTTL := 365 * 24 * 60 * 60
-			otpTTL := 60
+			secret := authConfig["secret"]
+			accessTokenTTL := DefaultAccessTokenTTLInSeconds
+			refreshTokenTTL := DefaultRefreshTokenTTLInSeconds
+			otpTTL := DefaultOTPTTLInSeconds
 
 			authRedis := "default"
 
-			if authConfig["access_token_ttl"] != nil {
-				accessTokenTTL = authConfig["access_token_ttl"].(int)
+			if authConfig["access_token_ttl"] != "" {
+				accessTokenTTLInt, err := strconv.Atoi(authConfig["access_token_ttl"])
+				if err == nil && accessTokenTTLInt > 0 {
+					accessTokenTTL = accessTokenTTLInt
+				}
 			}
 
-			if authConfig["refresh_token_ttl"] != nil {
-				refreshTokenTTL = authConfig["refresh_token_ttl"].(int)
+			if authConfig["refresh_token_ttl"] != "" {
+				refreshTokenTTLInt, err := strconv.Atoi(authConfig["refresh_token_ttl"])
+				if err == nil && refreshTokenTTLInt > 0 {
+					refreshTokenTTL = refreshTokenTTLInt
+				}
 			}
 
-			if authConfig["otp_ttl"] != nil {
-				otpTTL = authConfig["otp_ttl"].(int)
+			if authConfig["otp_ttl"] != "" {
+				otpTTLInt, err := strconv.Atoi(authConfig["otp_ttl"])
+				if err == nil && otpTTLInt > 0 {
+					otpTTL = otpTTLInt
+				}
 			}
 
-			if authConfig["auth_redis"] != nil {
-				authRedis = authConfig["auth_redis"].(string)
+			if authConfig["auth_redis"] != "" {
+				authRedis = authConfig["auth_redis"]
 			}
 
 			ormService := subContainer.Get(service.ORMEngineRequestService).(*orm.Engine)
@@ -60,9 +77,10 @@ func ServiceProviderAuthentication() *service.Definition {
 			clockService := ctn.Get(service.ClockService).(clock.Clock)
 
 			var smsService sms.ISender
-			if authConfig["support_otp"] != nil {
-				supportOTP := authConfig["support_otp"].(bool)
-				if supportOTP {
+			if authConfig["support_otp"] != "" {
+				supportOTP := authConfig["support_otp"]
+				supportOTPBool, _ := strconv.ParseBool(supportOTP)
+				if supportOTPBool {
 					var has bool
 					smsService, has = ctn.Get(service.SMSService).(sms.ISender)
 					if !has {
