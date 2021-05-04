@@ -53,11 +53,13 @@ func TestGenerateOTP(t *testing.T) {
 		now := time.Unix(1, 0)
 		fakeClock.On("Now").Return(now)
 
+		otpTTL := time.Duration(registry.DefaultOTPTTLInSeconds) * time.Second
+
 		var min int64 = 10000
 		var max int64 = 99999
 		fakeGenerator := &generatorMock.FakeGenerator{}
 		fakeGenerator.On("GenerateRandomRangeNumber", min, max).Return(12345)
-		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(1*time.Minute), "989375722346", "12345")).Return("defjiwqwd")
+		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL), "989375722346", "12345")).Return("defjiwqwd")
 
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
@@ -87,8 +89,10 @@ func TestVerifyOTP(t *testing.T) {
 		now := time.Unix(1, 0)
 		fakeClock.On("Now").Return(now)
 
+		otpTTL := time.Duration(registry.DefaultOTPTTLInSeconds) * time.Second
+
 		fakeGenerator := &generatorMock.FakeGenerator{}
-		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(1*time.Minute), "989375722346", "12345")).Return("defjiwqwd")
+		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL), "989375722346", "12345")).Return("defjiwqwd")
 
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
@@ -102,7 +106,7 @@ func TestVerifyOTP(t *testing.T) {
 
 		err := authenticationService.VerifyOTP("12345", &authentication.GenerateOTP{
 			Mobile:         "989375722346",
-			ExpirationTime: fakeClock.Now().Add(1 * time.Minute),
+			ExpirationTime: fakeClock.Now().Add(otpTTL),
 			Token:          "defjiwqwd",
 		})
 		assert.Nil(t, err)
