@@ -3,14 +3,20 @@ package main
 import (
 	"fmt"
 	"testing"
+	"time"
 
-	"github.com/coretrix/hitrix/pkg/helper"
-
-	"github.com/coretrix/hitrix/service/registry"
-	"github.com/stretchr/testify/assert"
+	"github.com/coretrix/hitrix/service/component/authentication"
 
 	"github.com/coretrix/hitrix/example/entity"
+	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
+	clockMock "github.com/coretrix/hitrix/service/component/clock/mocks"
+	generatorMock "github.com/coretrix/hitrix/service/component/generator/mocks"
+	"github.com/coretrix/hitrix/service/component/sms"
+	smsMock "github.com/coretrix/hitrix/service/component/sms/mocks"
+	"github.com/coretrix/hitrix/service/registry"
+	"github.com/coretrix/hitrix/service/registry/mocks"
+	"github.com/stretchr/testify/assert"
 )
 
 func createUser(input map[string]interface{}) *entity.AdminUserEntity {
@@ -28,12 +34,98 @@ func createUser(input map[string]interface{}) *entity.AdminUserEntity {
 	return adminEntity
 }
 
+func TestGenerateOTP(t *testing.T) {
+	t.Run("generate token", func(t *testing.T) {
+		fakeSMS := &smsMock.FakeSMSSender{}
+		expectOTP := &sms.OTP{
+			OTP:    "12345",
+			Number: "989375722346",
+			CC:     "IR",
+			Provider: &sms.Provider{
+				Primary:   sms.Kavenegar,
+				Secondary: sms.Twilio,
+			},
+			Template: "your verification code id : %s",
+		}
+		fakeSMS.On("SendOTPSMS", expectOTP).Return(nil)
+
+		fakeClock := &clockMock.FakeSysClock{}
+		now := time.Unix(1, 0)
+		fakeClock.On("Now").Return(now)
+
+		var min int64 = 10000
+		var max int64 = 99999
+		fakeGenerator := &generatorMock.FakeGenerator{}
+		fakeGenerator.On("GenerateRandomRangeNumber", min, max).Return(12345)
+		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(1*time.Minute), "989375722346", "12345")).Return("defjiwqwd")
+
+		createContextMyApp(t, "my-app", nil,
+			registry.ServiceProviderJWT(),
+			registry.ServiceProviderPassword(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
+			mocks.FakeClockService(fakeClock),
+
+			registry.ServiceProviderAuthentication(),
+		)
+
+		authenticationService, _ := service.DI().AuthenticationService()
+		otpResp, err := authenticationService.GenerateAndSendOTP("+989375722346", "IR")
+		assert.Nil(t, err)
+		assert.Equal(t, otpResp.Token, "defjiwqwd")
+		assert.Equal(t, otpResp.Mobile, "989375722346")
+		fakeGenerator.AssertExpectations(t)
+		fakeSMS.AssertExpectations(t)
+	})
+}
+
+func TestVerifyOTP(t *testing.T) {
+	t.Run("verify otp", func(t *testing.T) {
+		fakeSMS := &smsMock.FakeSMSSender{}
+
+		fakeClock := &clockMock.FakeSysClock{}
+		now := time.Unix(1, 0)
+		fakeClock.On("Now").Return(now)
+
+		fakeGenerator := &generatorMock.FakeGenerator{}
+		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(1*time.Minute), "989375722346", "12345")).Return("defjiwqwd")
+
+		createContextMyApp(t, "my-app", nil,
+			registry.ServiceProviderJWT(),
+			registry.ServiceProviderPassword(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
+			mocks.FakeClockService(fakeClock),
+			registry.ServiceProviderAuthentication(),
+		)
+		authenticationService, _ := service.DI().AuthenticationService()
+
+		err := authenticationService.VerifyOTP("12345", &authentication.GenerateOTP{
+			Mobile:         "989375722346",
+			ExpirationTime: fakeClock.Now().Add(1 * time.Minute),
+			Token:          "defjiwqwd",
+		})
+		assert.Nil(t, err)
+
+		fakeGenerator.AssertExpectations(t)
+		fakeSMS.AssertExpectations(t)
+	})
+}
+
 func TestAuthenticate(t *testing.T) {
 	t.Run("simple successful", func(t *testing.T) {
+		fakeSMS := &smsMock.FakeSMSSender{}
+		fakeGenerator := &generatorMock.FakeGenerator{}
+
+		fakeGenerator.On("GenerateUUID").Return("randomid")
+
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
 			registry.ServiceProviderAuthentication(),
+			registry.ServiceClock(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
 		)
 
 		passwordService, _ := service.DI().Password()
@@ -51,10 +143,15 @@ func TestAuthenticate(t *testing.T) {
 	})
 
 	t.Run("wrong email", func(t *testing.T) {
+		fakeSMS := &smsMock.FakeSMSSender{}
+		fakeGenerator := &generatorMock.FakeGenerator{}
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
 			registry.ServiceProviderAuthentication(),
+			registry.ServiceClock(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
 		)
 
 		passwordService, _ := service.DI().Password()
@@ -73,11 +170,16 @@ func TestAuthenticate(t *testing.T) {
 }
 
 func TestVerifyAccessToken(t *testing.T) {
+	fakeSMS := &smsMock.FakeSMSSender{}
+	fakeGenerator := &generatorMock.FakeGenerator{}
 	t.Run("simple success", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
 			registry.ServiceProviderAuthentication(),
+			registry.ServiceClock(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
 		)
 
 		passwordService, _ := service.DI().Password()
@@ -106,6 +208,9 @@ func TestVerifyAccessToken(t *testing.T) {
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
 			registry.ServiceProviderAuthentication(),
+			registry.ServiceClock(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
 		)
 
 		passwordService, _ := service.DI().Password()
@@ -130,11 +235,17 @@ func TestVerifyAccessToken(t *testing.T) {
 }
 
 func TestRefreshToken(t *testing.T) {
+	fakeSMS := &smsMock.FakeSMSSender{}
+	fakeGenerator := &generatorMock.FakeGenerator{}
+	fakeGenerator.On("GenerateUUID").Return("randomid")
 	t.Run("success refresh", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
 			registry.ServiceProviderAuthentication(),
+			registry.ServiceClock(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
 		)
 
 		passwordService, _ := service.DI().Password()
@@ -161,6 +272,9 @@ func TestRefreshToken(t *testing.T) {
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
 			registry.ServiceProviderAuthentication(),
+			registry.ServiceClock(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
 		)
 
 		passwordService, _ := service.DI().Password()
@@ -184,11 +298,16 @@ func TestRefreshToken(t *testing.T) {
 }
 
 func TestLogoutCurrentSession(t *testing.T) {
+	fakeSMS := &smsMock.FakeSMSSender{}
+	fakeGenerator := &generatorMock.FakeGenerator{}
 	t.Run("simple logout", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
 			registry.ServiceProviderAuthentication(),
+			registry.ServiceClock(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
 		)
 
 		passwordService, _ := service.DI().Password()
@@ -216,11 +335,16 @@ func TestLogoutCurrentSession(t *testing.T) {
 }
 
 func TestLogoutAllSessions(t *testing.T) {
+	fakeSMS := &smsMock.FakeSMSSender{}
+	fakeGenerator := &generatorMock.FakeGenerator{}
 	t.Run("logout from one session", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
 			registry.ServiceProviderAuthentication(),
+			registry.ServiceClock(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
 		)
 
 		passwordService, _ := service.DI().Password()
@@ -254,6 +378,9 @@ func TestLogoutAllSessions(t *testing.T) {
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
 			registry.ServiceProviderAuthentication(),
+			registry.ServiceClock(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
 		)
 
 		passwordService, _ := service.DI().Password()
@@ -292,10 +419,15 @@ func TestLogoutAllSessions(t *testing.T) {
 }
 
 func TestGenerateTokenPair(t *testing.T) {
+	fakeSMS := &smsMock.FakeSMSSender{}
+	fakeGenerator := &generatorMock.FakeGenerator{}
 	createContextMyApp(t, "my-app", nil,
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
 		registry.ServiceProviderAuthentication(),
+		registry.ServiceClock(),
+		mocks.FakeSMSService(fakeSMS),
+		mocks.FakeGeneratorService(fakeGenerator),
 	)
 
 	passwordService, _ := service.DI().Password()
