@@ -15,22 +15,20 @@ const (
 )
 
 type apiLogType struct {
-	orm.EnumModel
 	Apple string
 }
 
-var APILogTypeAll = &apiLogType{
+var APILogTypeAll = apiLogType{
 	Apple: APILogTypeApple,
 }
 
 type apiLogStatus struct {
-	orm.EnumModel
 	New       string
 	Completed string
 	Failed    string
 }
 
-var APILogStatusAll = &apiLogStatus{
+var APILogStatusAll = apiLogStatus{
 	New:       APILogStatusNew,
 	Completed: APILogStatusCompleted,
 	Failed:    APILogStatusFailed,

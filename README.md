@@ -757,12 +757,11 @@ const (
 )
 
 type smsTrackerTypeAll struct {
-	orm.EnumModel
 	SMSTrackerTypeSMS     string
 	SMSTrackerTypeCallout string
 }
 
-var SMSTrackerTypeAll = &smsTrackerTypeAll{
+var SMSTrackerTypeAll = smsTrackerTypeAll{
 	SMSTrackerTypeSMS:     SMSTrackerTypeSMS,
 	SMSTrackerTypeCallout: SMSTrackerTypeCallout,
 }

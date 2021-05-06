@@ -29,7 +29,7 @@ func main() {
 		RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil).Build()
 	defer deferFunc()
 
-	s.RunRedisSearchIndexer()
+	s.RunAsyncOrmConsumer("default-consumer")
 
 	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}), func(ginEngine *gin.Engine) {
 		exampleMiddleware.Router(ginEngine)
