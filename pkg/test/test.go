@@ -36,27 +36,32 @@ type Environment struct {
 	ResponseRecorder *httptest.ResponseRecorder
 }
 
-func (env *Environment) HandleQuery(query interface{}, variables map[string]interface{}) *graphqlParser.Errors {
+func (env *Environment) HandleQuery(query interface{}, variables map[string]interface{}, headers map[string]string) *graphqlParser.Errors {
 	buff, err := graphqlParser.NewQueryParser().ParseQuery(query, variables)
 	if err != nil {
 		env.t.Fatal(err)
 	}
 
-	return env.handle(buff, query)
+	return env.handle(buff, query, headers)
 }
 
-func (env *Environment) HandleMutation(mutation interface{}, variables map[string]interface{}) *graphqlParser.Errors {
+func (env *Environment) HandleMutation(mutation interface{}, variables map[string]interface{}, headers map[string]string) *graphqlParser.Errors {
 	buff, err := graphqlParser.NewQueryParser().ParseMutation(mutation, variables)
 	if err != nil {
 		env.t.Fatal(err)
 	}
 
-	return env.handle(buff, mutation)
+	return env.handle(buff, mutation, headers)
 }
 
-func (env *Environment) handle(buff bytes.Buffer, v interface{}) *graphqlParser.Errors {
+func (env *Environment) handle(buff bytes.Buffer, v interface{}, headers map[string]string) *graphqlParser.Errors {
 	r, _ := http.NewRequestWithContext(env.Cxt, http.MethodPost, "/query", &buff)
 	r.Header = http.Header{"Content-Type": []string{"application/json"}}
+
+	for k, v := range headers {
+		r.Header.Add(k, v)
+	}
+
 	env.Cxt.Request = r
 	env.GinEngine.HandleContext(env.Cxt)
 
