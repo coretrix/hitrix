@@ -3,13 +3,14 @@ package storage
 import (
 	"encoding/base64"
 	"fmt"
-	"golang.org/x/oauth2/google"
-	"golang.org/x/oauth2/jwt"
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2/jwt"
 
 	"google.golang.org/api/option"
 
