@@ -9,6 +9,9 @@ import (
 	"strconv"
 	"time"
 
+	"golang.org/x/oauth2/google"
+	"golang.org/x/oauth2/jwt"
+
 	"google.golang.org/api/option"
 
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -28,6 +31,7 @@ type GoogleOSS struct {
 	buckets     map[string]uint64
 	ossConfig   map[string]interface{}
 	urlPrefix   string
+	jwtConfig   *jwt.Config
 }
 
 func NewGoogleOSS(credentialsFile string, environment string, buckets map[string]uint64, ossConfig map[string]interface{}) *GoogleOSS {
@@ -47,6 +51,12 @@ func NewGoogleOSS(credentialsFile string, environment string, buckets map[string
 		urlPrefix = configURLPrefix.(string)
 	}
 
+	jwtCredentialsJSONString, err := ioutil.ReadFile(credentialsFile)
+	if err != nil {
+		panic("could not read and parse " + credentialsFile)
+	}
+	jwtConfig, _ := google.JWTConfigFromJSON(jwtCredentialsJSONString)
+
 	return &GoogleOSS{
 		client:      client,
 		ctx:         ctx,
@@ -54,6 +64,7 @@ func NewGoogleOSS(credentialsFile string, environment string, buckets map[string
 		buckets:     buckets,
 		ossConfig:   ossConfig,
 		urlPrefix:   urlPrefix,
+		jwtConfig:   jwtConfig,
 	}
 }
 
@@ -97,8 +108,8 @@ func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket string, object *oss.Objec
 	}
 
 	signedURL, err := storage.SignedURL(bucketByEnv, object.StorageKey, &storage.SignedURLOptions{
-		GoogleAccessID: "", //todo anton
-		PrivateKey:     nil,
+		GoogleAccessID: ossStorage.jwtConfig.Email,
+		PrivateKey:     ossStorage.jwtConfig.PrivateKey,
 		Method:         http.MethodGet,
 		Expires:        expires,
 	})
