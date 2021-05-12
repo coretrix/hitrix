@@ -112,6 +112,7 @@ func graphqlHandler(server graphql.ExecutableSchema, gqlServerInitHandler GQLSer
 		gqlServerInitHandler(h)
 	}
 	return func(c *gin.Context) {
+		c.Writer.Header().Add("X-Robots-Tag", "noindex")
 		h.ServeHTTP(c.Writer, c.Request)
 	}
 }
