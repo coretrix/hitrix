@@ -18,10 +18,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
-const (
-	asyncORMConsumerDigestCount = 1000
-)
-
 type Hitrix struct {
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -55,15 +51,15 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 	}
 }
 
-func (h *Hitrix) RunAsyncOrmConsumer(name string) *Hitrix {
+func (h *Hitrix) RunAsyncOrmConsumer() *Hitrix {
 	ormService, has := service.DI().OrmEngine()
 	if !has {
 		panic("Orm is not registered")
 	}
 
 	go func() {
-		asyncConsumer := orm.NewAsyncConsumer(ormService, name)
-		asyncConsumer.Digest(h.ctx, asyncORMConsumerDigestCount)
+		asyncConsumer := orm.NewBackgroundConsumer(ormService)
+		asyncConsumer.Digest(h.ctx)
 	}()
 
 	return h
