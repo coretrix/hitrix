@@ -43,7 +43,7 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 		}
 		h.done <- true
 	}()
-	h.await()
+	h.Await()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
@@ -102,7 +102,7 @@ func (h *Hitrix) preDeploy() {
 	os.Exit(0)
 }
 
-func (h *Hitrix) await() {
+func (h *Hitrix) Await() {
 	termChan := make(chan os.Signal, 1)
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
 

@@ -94,7 +94,7 @@ func (h *Hitrix) RunScript(script Script) {
 			time.Sleep(interval.Interval())
 		}
 	}()
-	h.await()
+	h.Await()
 }
 
 func listScrips() {
