@@ -51,11 +51,11 @@ func NewGoogleOSS(credentialsFile string, environment string, buckets map[string
 		urlPrefix = configURLPrefix.(string)
 	}
 
-	jwtCredentialsJsonString, err := ioutil.ReadFile(credentialsFile)
+	jwtCredentialsJSONString, err := ioutil.ReadFile(credentialsFile)
 	if err != nil {
 		panic("could not read and parse " + credentialsFile)
 	}
-	jwtConfig, _ := google.JWTConfigFromJSON(jwtCredentialsJsonString)
+	jwtConfig, _ := google.JWTConfigFromJSON(jwtCredentialsJSONString)
 
 	return &GoogleOSS{
 		client:      client,
