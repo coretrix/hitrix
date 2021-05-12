@@ -26,7 +26,7 @@ require (
 	github.com/kevinburke/go.uuid v1.2.0 // indirect
 	github.com/kevinburke/rest v0.0.0-20210425173428-1fcb8c8e9022 // indirect
 	github.com/kevinburke/twilio-go v0.0.0-20210327194925-1623146bcf73
-	github.com/latolukasz/orm v1.3.0
+	github.com/latolukasz/orm v1.3.4
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
@@ -48,7 +48,6 @@ require (
 	github.com/vektah/gqlparser/v2 v2.1.0
 	github.com/xorcare/pointer v1.1.0
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
-	golang.org/x/tools v0.1.0 // indirect
 	google.golang.org/api v0.38.0
 	google.golang.org/grpc v1.37.0 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
