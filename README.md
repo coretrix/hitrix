@@ -502,6 +502,30 @@ This service it can be used to hash and verify hashed passwords. It's use the se
 You can register it in that way:
 `registry.ServiceDefinitionPassword()`
 
+#### Amazon S3
+
+This service is used for storing files into amazon s3
+
+You can register amazon s3 service this way:
+
+```go
+registry.ServiceDefinitionAmazonS3(map[string]uint64{"my-bucket": 1}) // 1 is the bucket ID for database counter
+```
+
+Also, you should put your credentials and other configs in `config/hitrix.yml`
+
+```yml
+amazon_s3:
+  endpoint: "https://somestorage.com" # set to "" if you're using https://s3.amazonaws.com
+  access_key_id: ENV[S3_ACCESS_KEY_ID]
+  secret_access_key: ENV[S3_SECRET_ACCESS_KEY_ID]
+  disable_ssl: false
+  region: us-east-1
+  url_prefix: prefix
+  domain: domain.com
+```
+
+
 #### OSS Google
 This service is used for storage files into google storage
 
