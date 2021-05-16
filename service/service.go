@@ -2,7 +2,8 @@ package service
 
 import (
 	"context"
-	"github.com/coretrix/hitrix/service/component/amazon/storage"
+
+	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 
 	"github.com/coretrix/hitrix/service/component/generator"
 

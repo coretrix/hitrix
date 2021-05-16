@@ -2,7 +2,7 @@ package registry
 
 import (
 	"github.com/coretrix/hitrix/service"
-	"github.com/coretrix/hitrix/service/component/amazon/storage"
+	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/sarulabs/di"

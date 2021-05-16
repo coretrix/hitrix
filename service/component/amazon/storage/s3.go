@@ -5,6 +5,12 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"path/filepath"
+	"strconv"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -13,11 +19,6 @@ import (
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/latolukasz/orm"
-	"io/ioutil"
-	"log"
-	"path/filepath"
-	"strconv"
-	"time"
 )
 
 type AmazonS3 struct {
@@ -30,11 +31,10 @@ type AmazonS3 struct {
 	domain      string
 }
 
-func NewAmazonS3(endpoint string, accessKeyId string,
-	secretAccessKey string, allowedBuckets map[string]uint64, region string, disableSSL bool, urlPrefix string, domain string,
-	environment string, config map[string]interface{}) *AmazonS3 {
+func NewAmazonS3(endpoint string, accessKeyID string, secretAccessKey string, allowedBuckets map[string]uint64,
+	region string, disableSSL bool, urlPrefix string, domain string, environment string, config map[string]interface{}) *AmazonS3 {
 	s3Config := &aws.Config{
-		Credentials:      credentials.NewStaticCredentials(accessKeyId, secretAccessKey, ""),
+		Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
 		Endpoint:         aws.String(endpoint),
 		S3ForcePathStyle: aws.Bool(true),
 		Region:           aws.String(region),
@@ -104,7 +104,6 @@ func (amazonS3 *AmazonS3) createBucket(bucketName string) {
 }
 
 func (amazonS3 *AmazonS3) checkBucket(bucketName string) {
-
 	_, ok := amazonS3.buckets[bucketName]
 
 	if !ok {
@@ -201,7 +200,6 @@ func (amazonS3 *AmazonS3) GetObjectCachedURL(bucket string, object *Object) stri
 }
 
 func (amazonS3 *AmazonS3) GetObjectSignedURL(bucket string, object *Object, expiresIn time.Duration) string {
-
 	amazonS3.checkBucket(bucket)
 
 	bucketByEnv := bucket
