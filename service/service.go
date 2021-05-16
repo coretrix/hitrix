@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
+
 	"github.com/coretrix/hitrix/service/component/generator"
 
 	"github.com/coretrix/hitrix/service/component/sms"
@@ -41,6 +43,7 @@ const (
 	OSSGoogleService        = "oss_google"
 	PasswordService         = "password"
 	SlackAPIService         = "slack_api"
+	AmazonS3Service         = "amazon_s3"
 	SocketRegistryService   = "socket_registry"
 	APILoggerService        = "api_logger"
 	AuthenticationService   = "authentication"
@@ -60,6 +63,7 @@ type DIInterface interface {
 	SlackAPI() (*slackapi.SlackAPI, bool)
 	ErrorLogger() (errorlogger.ErrorLogger, bool)
 	OSSGoogle() (oss.Client, bool)
+	AmazonS3() (*s3.AmazonS3, bool)
 	SocketRegistry() (*socket.Registry, bool)
 	APILoggerService() (apilogger.APILogger, bool)
 	AuthenticationService() (*authentication.Authentication, bool)
@@ -68,6 +72,14 @@ type DIInterface interface {
 }
 
 type diContainer struct {
+}
+
+func (d *diContainer) AmazonS3() (*s3.AmazonS3, bool) {
+	v, has := GetServiceOptional(AmazonS3Service)
+	if has {
+		return v.(*s3.AmazonS3), true
+	}
+	return nil, false
 }
 
 var dicInstance = &diContainer{}

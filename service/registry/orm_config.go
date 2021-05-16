@@ -25,6 +25,11 @@ func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition 
 				registry.RegisterEntity(&entity.OSSBucketCounterEntity{})
 			}
 
+			_, err = ctn.SafeGet(service.AmazonS3Service)
+			if err != nil {
+				registry.RegisterEntity(&entity.S3BucketCounterEntity{})
+			}
+
 			ormConfig, err := registry.Validate()
 			return ormConfig, err
 		},

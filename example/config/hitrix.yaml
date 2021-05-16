@@ -4,4 +4,13 @@ slack:
   dev_panel_url: ""
 oss:
   domain: hymn.tv
+
+amazon_s3:
+  endpoint: "https://somestorage.com"
+  access_key_id: ""
+  secret_access_key: ""
+  disable_ssl: false
+  region: us-east-1
+  url_prefix: prefix
+  domain: domain.com
 orm_debug: true
