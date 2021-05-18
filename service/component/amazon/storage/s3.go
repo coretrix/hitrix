@@ -66,11 +66,11 @@ func (amazonS3 *AmazonS3) getCounter(ormService *orm.Engine, bucket string) uint
 	amazonS3BucketCounterEntity := &entity.S3BucketCounterEntity{}
 
 	locker := ormService.GetRedis().GetLocker()
-	lock, obtained := locker.Obtain(amazonS3.ctx, "locker_amazon_s3_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
+	lock, hasLock := locker.Obtain(amazonS3.ctx, "locker_amazon_s3_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
 	defer lock.Release()
 
-	if obtained {
-		panic("lock lost")
+	if !hasLock {
+		panic("Failed to obtain lock for locker_google_oss_counters_bucket_" + bucket)
 	}
 
 	has = ormService.LoadByID(bucketID, amazonS3BucketCounterEntity)

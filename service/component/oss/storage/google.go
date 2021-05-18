@@ -205,11 +205,11 @@ func (ossStorage *GoogleOSS) getStorageCounter(ormService *orm.Engine, bucket st
 	googleOSSBucketCounterEntity := &entity.OSSBucketCounterEntity{}
 
 	locker := ormService.GetRedis().GetLocker()
-	lock, obtained := locker.Obtain(ossStorage.ctx, "locker_google_oss_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
+	lock, hasLock := locker.Obtain(ossStorage.ctx, "locker_google_oss_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
 	defer lock.Release()
 
-	if obtained {
-		panic("lock lost")
+	if !hasLock {
+		panic("Failed to obtain lock for locker_google_oss_counters_bucket_" + bucket)
 	}
 
 	has = ormService.LoadByID(bucketID, googleOSSBucketCounterEntity)
