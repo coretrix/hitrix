@@ -34,6 +34,9 @@ func New(appName string, secret string) *Registry {
 }
 
 func (r *Registry) Build() (*Hitrix, func()) {
+	ctx, cancel := context.WithCancel(context.Background())
+	r.app.Ctx = ctx
+
 	r.initializeIoCHandlers()
 
 	flags := service.DI().App().Flags
@@ -41,7 +44,6 @@ func (r *Registry) Build() (*Hitrix, func()) {
 		listScrips()
 	}
 	scriptToRun := flags.String("run-script")
-	ctx, cancel := context.WithCancel(context.Background())
 	h := &Hitrix{ctx: ctx, cancel: cancel, done: make(chan bool), exit: make(chan int)}
 	if scriptToRun != "" {
 		h.runDynamicScrips(ctx, scriptToRun)

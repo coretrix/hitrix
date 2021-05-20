@@ -1,6 +1,8 @@
 package app
 
 import (
+	"context"
+
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/orm"
 )
@@ -29,6 +31,7 @@ type App struct {
 	Flags    *Flags
 	Scripts  []string
 	DevPanel *DevPanel
+	Ctx      context.Context
 }
 
 func (app *App) IsInLocalMode() bool {
