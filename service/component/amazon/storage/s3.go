@@ -6,18 +6,15 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"path/filepath"
 	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/latolukasz/orm"
 )
 
@@ -70,7 +67,7 @@ func (amazonS3 *AmazonS3) getCounter(ormService *orm.Engine, bucket string) uint
 	defer lock.Release()
 
 	if !hasLock {
-		panic("Failed to obtain lock for locker_google_oss_counters_bucket_" + bucket)
+		panic("Failed to obtain lock for locker_amazon_s3_counters_bucket_" + bucket)
 	}
 
 	has = ormService.LoadByID(bucketID, amazonS3BucketCounterEntity)
@@ -90,27 +87,26 @@ func (amazonS3 *AmazonS3) getCounter(ormService *orm.Engine, bucket string) uint
 	return amazonS3BucketCounterEntity.Counter
 }
 
-func (amazonS3 *AmazonS3) createBucket(bucketName string) {
-	params := &s3.CreateBucketInput{
-		Bucket: aws.String(bucketName),
-	}
-	_, err := amazonS3.client.CreateBucket(params)
-	if err != nil {
-		aerr, ok := err.(awserr.Error)
-		if !(ok && (aerr.Code() == s3.ErrCodeBucketAlreadyOwnedByYou || aerr.Code() == s3.ErrCodeBucketAlreadyExists)) {
-			log.Panic(err)
-		}
-	}
-}
-
 func (amazonS3 *AmazonS3) checkBucket(bucketName string) {
 	_, ok := amazonS3.buckets[bucketName]
 
 	if !ok {
 		panic("bucket [" + bucketName + "] not found")
 	}
+}
 
-	amazonS3.createBucket(bucketName)
+func (amazonS3 *AmazonS3) getBucketName(bucketName string) string {
+	if val, ok := amazonS3.s3Config["buckets"]; ok {
+		buckets := val.(map[string]interface{})
+		if bucketConfig, ok := buckets[bucketName]; ok {
+			bucketEnvs := bucketConfig.(map[string]interface{})
+			if bucket, ok := bucketEnvs[amazonS3.environment]; ok {
+				return bucket.(string)
+			}
+		}
+	}
+
+	return ""
 }
 
 func (amazonS3 *AmazonS3) putObject(ormService *orm.Engine, bucket string, objectContent []byte, extension string) Object {
@@ -118,16 +114,11 @@ func (amazonS3 *AmazonS3) putObject(ormService *orm.Engine, bucket string, objec
 
 	objectKey := amazonS3.getObjectKey(storageCounter, extension)
 
-	bucketByEnv := bucket
-
-	if amazonS3.environment != app.ModeProd {
-		bucketByEnv += "-" + amazonS3.environment
-		amazonS3.createBucket(bucketByEnv)
-	}
+	bucket = amazonS3.getBucketName(bucket)
 
 	_, err := amazonS3.client.PutObject(&s3.PutObjectInput{
 		Body:   bytes.NewReader(objectContent),
-		Bucket: aws.String(bucketByEnv),
+		Bucket: aws.String(bucket),
 		Key:    aws.String(objectKey),
 	})
 
@@ -189,11 +180,7 @@ func (amazonS3 *AmazonS3) ReadFile(localFile string) ([]byte, string) {
 func (amazonS3 *AmazonS3) GetObjectCachedURL(bucket string, object *Object) string {
 	amazonS3.checkBucket(bucket)
 
-	bucketByEnv := bucket
-
-	if amazonS3.environment != app.ModeProd {
-		bucketByEnv += "-" + amazonS3.environment
-	}
+	bucketByEnv := amazonS3.getBucketName(bucket)
 
 	return fmt.Sprintf("https://%s%s.%s/%s/%s", amazonS3.urlPrefix, amazonS3.environment, amazonS3.domain,
 		bucketByEnv, object.StorageKey)
@@ -202,11 +189,7 @@ func (amazonS3 *AmazonS3) GetObjectCachedURL(bucket string, object *Object) stri
 func (amazonS3 *AmazonS3) GetObjectSignedURL(bucket string, object *Object, expiresIn time.Duration) string {
 	amazonS3.checkBucket(bucket)
 
-	bucketByEnv := bucket
-
-	if amazonS3.environment != app.ModeProd {
-		bucketByEnv += "-" + amazonS3.environment
-	}
+	bucketByEnv := amazonS3.getBucketName(bucket)
 
 	req, _ := amazonS3.client.GetObjectRequest(&s3.GetObjectInput{
 		Bucket: aws.String(bucketByEnv),
@@ -227,4 +210,14 @@ type Object struct {
 	StorageKey string
 	CachedURL  string
 	Data       interface{}
+}
+
+type Client interface {
+	GetObjectURL(bucket string, object *Object) string
+	GetObjectCachedURL(bucket string, object *Object) string
+	GetObjectSignedURL(bucket string, object *Object, expires time.Duration) string
+	UploadObjectFromFile(ormService *orm.Engine, bucket, localFile string) Object
+	UploadObjectFromBase64(ormService *orm.Engine, bucket, content, extension string) Object
+	UploadImageFromFile(ormService *orm.Engine, bucket, localFile string) Object
+	UploadImageFromBase64(ormService *orm.Engine, bucket, image, extension string) Object
 }
