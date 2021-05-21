@@ -13,4 +13,8 @@ amazon_s3:
   region: us-east-1
   url_prefix: prefix
   domain: domain.com
+  buckets:
+    product:
+      prod: bucket-name
+      local: bucket-name-local
 orm_debug: true

@@ -509,7 +509,7 @@ This service is used for storing files into amazon s3
 You can register amazon s3 service this way:
 
 ```go
-registry.ServiceDefinitionAmazonS3(map[string]uint64{"my-bucket": 1}) // 1 is the bucket ID for database counter
+registry.ServiceDefinitionAmazonS3(map[string]uint64{"products": 1}) // 1 is the bucket ID for database counter
 ```
 
 Also, you should put your credentials and other configs in `config/hitrix.yml`
@@ -523,6 +523,10 @@ amazon_s3:
   region: us-east-1
   url_prefix: prefix
   domain: domain.com
+  buckets: # Register your buckets here for each app mode
+    products:
+      prod: bucket-name
+      local: bucket-name-local
 ```
 
 

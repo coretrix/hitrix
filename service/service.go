@@ -63,7 +63,7 @@ type DIInterface interface {
 	SlackAPI() (*slackapi.SlackAPI, bool)
 	ErrorLogger() (errorlogger.ErrorLogger, bool)
 	OSSGoogle() (oss.Client, bool)
-	AmazonS3() (*s3.AmazonS3, bool)
+	AmazonS3() (s3.Client, bool)
 	SocketRegistry() (*socket.Registry, bool)
 	APILoggerService() (apilogger.APILogger, bool)
 	AuthenticationService() (*authentication.Authentication, bool)
@@ -74,10 +74,10 @@ type DIInterface interface {
 type diContainer struct {
 }
 
-func (d *diContainer) AmazonS3() (*s3.AmazonS3, bool) {
+func (d *diContainer) AmazonS3() (s3.Client, bool) {
 	v, has := GetServiceOptional(AmazonS3Service)
 	if has {
-		return v.(*s3.AmazonS3), true
+		return v.(s3.Client), true
 	}
 	return nil, false
 }

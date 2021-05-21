@@ -3,13 +3,22 @@ package test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"mime/multipart"
 
-	graphqlParser "github.com/coretrix/hitrix/pkg/test/graphql-parser"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/h2non/filetype"
 
 	"net/http"
 	"net/http/httptest"
+	"net/textproto"
 	"os"
 	"testing"
+
+	graphqlParser "github.com/coretrix/hitrix/pkg/test/graphql-parser"
 
 	"github.com/coretrix/hitrix/pkg/test/graphql-parser/jsonutil"
 
@@ -43,6 +52,11 @@ func (env *Environment) HandleQuery(query interface{}, variables map[string]inte
 	}
 
 	return env.handle(buff, query, headers)
+}
+
+func (env *Environment) HandleMutationMultiPart(query string, variables map[string]interface{},
+	files map[string]string, variablesMap map[string]interface{}, headers map[string]string, model interface{}) (*graphqlParser.Errors, json.RawMessage) {
+	return env.handleMultiPart(query, variables, files, variablesMap, headers, model)
 }
 
 func (env *Environment) HandleMutation(mutation interface{}, variables map[string]interface{}, headers map[string]string) *graphqlParser.Errors {
@@ -84,6 +98,84 @@ func (env *Environment) handle(buff bytes.Buffer, v interface{}, headers map[str
 	}
 
 	return nil
+}
+func (env *Environment) handleMultiPart(query string, variables interface{},
+	files map[string]string, variablesMap map[string]interface{}, headers map[string]string, model interface{}) (*graphqlParser.Errors, json.RawMessage) {
+	var b bytes.Buffer
+	w := multipart.NewWriter(&b)
+
+	for name, path := range files {
+		buf, _ := ioutil.ReadFile(path)
+		kind, _ := filetype.Match(buf)
+
+		h := make(textproto.MIMEHeader)
+		h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`, name, path))
+		h.Set("Content-Type", kind.MIME.Value)
+		re, err := w.CreatePart(h)
+
+		if err != nil {
+			env.t.Fatal(err)
+		}
+
+		file, err := os.Open(path)
+
+		defer func() {
+			_ = file.Close()
+		}()
+		if err != nil {
+			env.t.Fatal(err)
+		}
+
+		_, err = io.Copy(re, file)
+		if err != nil {
+			env.t.Fatal(err)
+		}
+	}
+
+	jsonMap, err := json.Marshal(variablesMap)
+	if err != nil {
+		env.t.Fatal(err)
+	}
+
+	err = w.WriteField("map", string(jsonMap))
+	if err != nil {
+		env.t.Fatal(err)
+	}
+
+	queryJSON, _ := json.Marshal(map[string]interface{}{"query": query, "variables": variables})
+	err = w.WriteField("operations", string(queryJSON))
+	if err != nil {
+		env.t.Fatal(err)
+	}
+
+	err = w.Close()
+	if err != nil {
+		env.t.Fatal(err)
+	}
+
+	r, _ := http.NewRequestWithContext(env.Cxt, http.MethodPost, "/query", &b)
+	r.Header = http.Header{"Content-Type": []string{w.FormDataContentType()}}
+
+	for k, v := range headers {
+		r.Header.Add(k, v)
+	}
+
+	env.Cxt.Request = r
+	env.GinEngine.HandleContext(env.Cxt)
+
+	var out struct {
+		Data   *json.RawMessage
+		Errors *graphqlParser.Errors
+	}
+	if err := json.NewDecoder(env.ResponseRecorder.Body).Decode(&out); err != nil {
+		env.t.Fatal(err)
+	}
+
+	if out.Errors != nil {
+		return out.Errors, nil
+	}
+
+	return nil, *out.Data
 }
 
 func CreateContext(t *testing.T, projectName string, defaultServices []*service.Definition, mockServices ...*service.Definition) *Environment {
@@ -156,7 +248,9 @@ func CreateContext(t *testing.T, projectName string, defaultServices []*service.
 
 func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, ginInitHandler hitrix.GinInitHandler, defaultServices []*service.Definition, mockServices ...*service.Definition) *Environment {
 	var deferFunc func()
-
+	gqlServerInitHandler := func(server *handler.Server) {
+		server.AddTransport(transport.MultipartForm{})
+	}
 	if testSpringInstance == nil {
 		err := os.Setenv("TZ", "UTC")
 		if err != nil {
@@ -169,7 +263,7 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 
 		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
 		defer deferFunc()
-		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler, nil)
+		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)
 
 		var has bool
 		ormService, has = service.DI().OrmEngine()
@@ -201,7 +295,7 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 	if len(mockServices) != 0 {
 		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
 		defer deferFunc()
-		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler, nil)
+		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)
 
 		// TODO: fix multiple connections to mysql
 		ormService, _ = service.DI().OrmEngine()

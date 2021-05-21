@@ -17,6 +17,7 @@ require (
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/go-redis/redis/v8 v8.8.2
 	github.com/gorilla/websocket v1.4.2
+	github.com/h2non/filetype v1.1.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/icza/gox v0.0.0-20201215141822-6edfac6c05b5
 	github.com/joho/godotenv v1.3.0
@@ -31,6 +32,7 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
+	github.com/ory/go-acc v0.2.6 // indirect
 	github.com/pariz/gountries v0.0.0-20200430155801-1c6a393df9c7
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible
@@ -50,6 +52,7 @@ require (
 	github.com/xorcare/pointer v1.1.0
 	golang.org/x/net v0.0.0-20210405180319-a5a99cb37ef4
 	golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3
+	golang.org/x/tools v0.1.1 // indirect
 	google.golang.org/api v0.38.0
 	google.golang.org/grpc v1.37.0 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
