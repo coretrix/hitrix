@@ -17,7 +17,7 @@ require (
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/go-redis/redis/v8 v8.8.2
 	github.com/gorilla/websocket v1.4.2
-	github.com/h2non/filetype v1.1.1 // indirect
+	github.com/h2non/filetype v1.1.1
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/icza/gox v0.0.0-20201215141822-6edfac6c05b5
 	github.com/joho/godotenv v1.3.0
@@ -28,11 +28,10 @@ require (
 	github.com/kevinburke/go.uuid v1.2.0 // indirect
 	github.com/kevinburke/rest v0.0.0-20210425173428-1fcb8c8e9022 // indirect
 	github.com/kevinburke/twilio-go v0.0.0-20210327194925-1623146bcf73
-	github.com/latolukasz/orm v1.3.10
+	github.com/latolukasz/orm v1.3.12
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
-	github.com/ory/go-acc v0.2.6 // indirect
 	github.com/pariz/gountries v0.0.0-20200430155801-1c6a393df9c7
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/ryanuber/columnize v2.1.2+incompatible
