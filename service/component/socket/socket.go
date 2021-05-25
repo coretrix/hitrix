@@ -1,11 +1,11 @@
 package socket
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
-
 	"github.com/gorilla/websocket"
 )
 
@@ -15,6 +15,7 @@ type Connection struct {
 }
 
 type Socket struct {
+	Ctx         context.Context
 	ErrorLogger errorlogger.ErrorLogger
 	Connection  *Connection
 	ID          string
