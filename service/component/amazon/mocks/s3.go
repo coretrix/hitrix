@@ -17,6 +17,10 @@ func (t *FakeS3Client) GetObjectURL(bucket string, object *s3.Object) string {
 	return t.Called(bucket, object).String(0)
 }
 
+func (t *FakeS3Client) DeleteObject(bucket string, objects ...*s3.Object) bool {
+	return t.Called(bucket, objects).Bool(0)
+}
+
 func (t *FakeS3Client) GetObjectCachedURL(bucket string, object *s3.Object) string {
 	return t.Called(bucket, object).String(0)
 }

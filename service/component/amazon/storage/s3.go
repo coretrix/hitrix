@@ -109,6 +109,26 @@ func (amazonS3 *AmazonS3) getBucketName(bucketName string) string {
 	return ""
 }
 
+func (amazonS3 *AmazonS3) DeleteObject(bucket string, objects ...*Object) bool {
+	objectIds := make([]*s3.ObjectIdentifier, len(objects))
+
+	for i, file := range objects {
+		objectIds[i] = &s3.ObjectIdentifier{
+			Key: aws.String(file.StorageKey),
+		}
+	}
+
+	input := s3.DeleteObjectsInput{
+		Bucket: aws.String(amazonS3.getBucketName(bucket)),
+		Delete: &s3.Delete{Objects: objectIds},
+	}
+	deletedObjects, err := amazonS3.client.DeleteObjects(&input)
+	if err != nil {
+		panic("s3BucketObjectsDelete:" + err.Error())
+	}
+	return len(deletedObjects.Deleted) == len(objects)
+}
+
 func (amazonS3 *AmazonS3) putObject(ormService *orm.Engine, bucket string, objectContent []byte, extension string) Object {
 	storageCounter := amazonS3.getCounter(ormService, bucket)
 
@@ -213,11 +233,11 @@ type Object struct {
 }
 
 type Client interface {
-	GetObjectURL(bucket string, object *Object) string
 	GetObjectCachedURL(bucket string, object *Object) string
 	GetObjectSignedURL(bucket string, object *Object, expires time.Duration) string
 	UploadObjectFromFile(ormService *orm.Engine, bucket, localFile string) Object
 	UploadObjectFromBase64(ormService *orm.Engine, bucket, content, extension string) Object
 	UploadImageFromFile(ormService *orm.Engine, bucket, localFile string) Object
 	UploadImageFromBase64(ormService *orm.Engine, bucket, image, extension string) Object
+	DeleteObject(bucket string, objects ...*Object) bool
 }
