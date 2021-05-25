@@ -110,7 +110,6 @@ func (amazonS3 *AmazonS3) getBucketName(bucketName string) string {
 }
 
 func (amazonS3 *AmazonS3) DeleteObject(bucket string, objects ...*Object) bool {
-
 	objectIds := make([]*s3.ObjectIdentifier, len(objects))
 
 	for i, file := range objects {
