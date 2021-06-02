@@ -162,6 +162,14 @@ func (t *Authentication) Authenticate(uniqueValue string, password string, entit
 	return t.generateUserTokens(entity.GetID())
 }
 
+func (t *Authentication) AuthenticateById(id uint64, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
+	exists := t.ormService.LoadByID(id, entity)
+	if !exists {
+		return "", "", errors.New("id_does_not_exists")
+	}
+	return t.generateUserTokens(entity.GetID())
+}
+
 func (t *Authentication) generateUserTokens(ID uint64) (accessToken string, refreshToken string, err error) {
 	accessKey := t.generateAndStoreAccessKey(ID, t.refreshTokenTTL)
 
