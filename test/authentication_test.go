@@ -146,6 +146,36 @@ func TestAuthenticate(t *testing.T) {
 		assert.Nil(t, err)
 	})
 
+	t.Run("simple successful by id", func(t *testing.T) {
+		fakeSMS := &smsMock.FakeSMSSender{}
+		fakeGenerator := &generatorMock.FakeGenerator{}
+
+		fakeGenerator.On("GenerateUUID").Return("randomid")
+
+		createContextMyApp(t, "my-app", nil,
+			registry.ServiceProviderJWT(),
+			registry.ServiceProviderPassword(),
+			registry.ServiceProviderAuthentication(),
+			registry.ServiceClock(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeGeneratorService(fakeGenerator),
+		)
+
+		passwordService, _ := service.DI().Password()
+		hashedPassword, _ := passwordService.HashPassword("1234")
+
+		userEntity := createUser(map[string]interface{}{
+			"Email":    "test@test.com",
+			"Password": hashedPassword,
+		})
+
+		authenticationService, _ := service.DI().AuthenticationService()
+		fetchedAdminEntity := &entity.AdminUserEntity{}
+		_, _, err := authenticationService.AuthenticateByID(userEntity.GetID(), fetchedAdminEntity)
+		assert.Nil(t, err)
+		assert.Equal(t, fetchedAdminEntity.GetID(), userEntity.GetID())
+	})
+
 	t.Run("wrong email", func(t *testing.T) {
 		fakeSMS := &smsMock.FakeSMSSender{}
 		fakeGenerator := &generatorMock.FakeGenerator{}
