@@ -171,7 +171,7 @@ func TestAuthenticate(t *testing.T) {
 
 		authenticationService, _ := service.DI().AuthenticationService()
 		fetchedAdminEntity := &entity.AdminUserEntity{}
-		_, _, err := authenticationService.AuthenticateById(userEntity.GetID(), fetchedAdminEntity)
+		_, _, err := authenticationService.AuthenticateByID(userEntity.GetID(), fetchedAdminEntity)
 		assert.Nil(t, err)
 		assert.Equal(t, fetchedAdminEntity.GetID(), userEntity.GetID())
 	})
