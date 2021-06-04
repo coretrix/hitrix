@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/coretrix/hitrix/service/component/mail"
 
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 
@@ -207,4 +208,8 @@ func (d *diContainer) AuthenticationService() (*authentication.Authentication, b
 		return v.(*authentication.Authentication), true
 	}
 	return nil, false
+}
+
+func (d *diContainer) MailMandrillService() mail.Sender {
+	return GetServiceRequired(MailMandrill).(mail.Sender)
 }
