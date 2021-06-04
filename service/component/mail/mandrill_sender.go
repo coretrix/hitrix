@@ -30,20 +30,20 @@ func NewMandrill(apiKey, defaultFromEmail, fromName string) *Mandrill {
 	return &Mandrill{client: mandrillAPI, defaultFromEmail: defaultFromEmail, fromName: fromName}
 }
 
-func (s *Mandrill) SendTemplate(ormService *orm.Engine, message *TemplateMessage) error {
-	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.templateName, message.templateData, nil, false)
+func (s *Mandrill) SendTemplate(ormService *orm.Engine, message *Message) error {
+	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.TemplateName, message.TemplateData, nil, false)
 }
 
-func (s *Mandrill) SendTemplateAsync(ormService *orm.Engine, message *TemplateMessage) error {
-	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.templateName, message.templateData, nil, true)
+func (s *Mandrill) SendTemplateAsync(ormService *orm.Engine, message *Message) error {
+	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.TemplateName, message.TemplateData, nil, true)
 }
 
-func (s *Mandrill) SendTemplateWithAttachments(ormService *orm.Engine, message *TemplateAttachmentMessage) error {
-	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.templateName, message.templateData, message.Attachments, false)
+func (s *Mandrill) SendTemplateWithAttachments(ormService *orm.Engine, message *MessageAttachment) error {
+	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.TemplateName, message.TemplateData, message.Attachments, false)
 }
 
-func (s *Mandrill) SendTemplateWithAttachmentsAsync(ormService *orm.Engine, message *TemplateAttachmentMessage) error {
-	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.templateName, message.templateData, message.Attachments, true)
+func (s *Mandrill) SendTemplateWithAttachmentsAsync(ormService *orm.Engine, message *MessageAttachment) error {
+	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.TemplateName, message.TemplateData, message.Attachments, true)
 }
 
 func (s *Mandrill) sendTemplate(ormService *orm.Engine, from string, to string, subject string, templateName string, templateData interface{}, attachments []gochimp.Attachment, async bool) error {

@@ -6,21 +6,21 @@ import (
 )
 
 type Sender interface {
-	SendTemplate(ormService *orm.Engine, message *TemplateMessage) error
-	SendTemplateAsync(ormService *orm.Engine, message *TemplateMessage) error
-	SendTemplateWithAttachments(ormService *orm.Engine, message *TemplateAttachmentMessage) error
-	SendTemplateWithAttachmentsAsync(ormService *orm.Engine, message *TemplateAttachmentMessage) error
+	SendTemplate(ormService *orm.Engine, message *Message) error
+	SendTemplateAsync(ormService *orm.Engine, message *Message) error
+	SendTemplateWithAttachments(ormService *orm.Engine, message *MessageAttachment) error
+	SendTemplateWithAttachmentsAsync(ormService *orm.Engine, message *MessageAttachment) error
 }
 
-type TemplateMessage struct {
+type Message struct {
 	From         string
 	To           string
 	Subject      string
-	templateName string
-	templateData interface{}
+	TemplateName string
+	TemplateData interface{}
 }
 
-type TemplateAttachmentMessage struct {
-	TemplateMessage
+type MessageAttachment struct {
+	Message
 	Attachments []gochimp.Attachment
 }
