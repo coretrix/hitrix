@@ -71,6 +71,7 @@ type DIInterface interface {
 	AuthenticationService() (*authentication.Authentication, bool)
 	SMSService() (sms.ISender, bool)
 	GeneratorService() (generator.Generator, bool)
+	MailMandrillService() mail.Sender
 }
 
 type diContainer struct {
