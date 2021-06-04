@@ -50,6 +50,7 @@ const (
 	ClockService            = "clock"
 	SMSService              = "sms"
 	GeneratorService        = "generator_service"
+	MailMandrill            = "mail_mandrill"
 )
 
 type DIInterface interface {

@@ -670,6 +670,33 @@ You can register it in that way:
 The methods that this service provide are:
 ```Now() and NowPointer()```
 
+#### Mail Mandrill service
+
+This service is used for sending transactional emails using Mandrill
+
+You can register the service this way:
+
+```go
+registry.MailMandrill()
+```
+
+Also, you should put your credentials and other configs in your config file
+
+```yml
+mandrill:
+  api_key: ...
+  default_from_email: test@coretrix.tv
+  from_namme: coretrix.com
+```
+
+Some of the functions this service provide are:
+```go
+	SendTemplate(ormService *orm.Engine, message *TemplateMessage) error
+	SendTemplateAsync(ormService *orm.Engine, message *TemplateMessage) error
+	SendTemplateWithAttachments(ormService *orm.Engine, message *TemplateAttachmentMessage) error
+	SendTemplateWithAttachmentsAsync(ormService *orm.Engine, message *TemplateAttachmentMessage) error
+```
+
 #### Authentication Service
 This service is used to making the life easy by doing the whole authentication life cycle using JWT token. the methods that this service provides are as follows:
 

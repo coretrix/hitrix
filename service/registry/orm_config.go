@@ -21,13 +21,19 @@ func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition 
 			init(registry)
 
 			_, err := ctn.SafeGet(service.OSSGoogleService)
-			if err != nil {
+			if err == nil {
 				registry.RegisterEntity(&entity.OSSBucketCounterEntity{})
 			}
 
 			_, err = ctn.SafeGet(service.AmazonS3Service)
-			if err != nil {
+			if err == nil {
 				registry.RegisterEntity(&entity.S3BucketCounterEntity{})
+			}
+
+			_, err = ctn.SafeGet(service.MailMandrill)
+			if err == nil {
+				registry.RegisterEntity(&entity.MailTrackerEntity{})
+				registry.RegisterEnumStruct("entity.MailTrackerStatusAll", entity.MailTrackerStatusAll)
 			}
 
 			ormConfig, err := registry.Validate()
