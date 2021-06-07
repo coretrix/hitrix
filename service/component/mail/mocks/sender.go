@@ -11,17 +11,17 @@ type Sender struct {
 }
 
 func (m *Sender) SendTemplate(_ *orm.Engine, message *mail.Message) error {
-	return m.Called(message).Error(0)
+	return m.Called(message.To).Error(0)
 }
 
 func (m *Sender) SendTemplateAsync(_ *orm.Engine, message *mail.Message) error {
-	return m.Called(message).Error(0)
+	return m.Called(message.To).Error(0)
 }
 
 func (m *Sender) SendTemplateWithAttachments(_ *orm.Engine, message *mail.MessageAttachment) error {
-	return m.Called(message).Error(0)
+	return m.Called(message.To).Error(0)
 }
 
 func (m *Sender) SendTemplateWithAttachmentsAsync(_ *orm.Engine, message *mail.MessageAttachment) error {
-	return m.Called(message).Error(0)
+	return m.Called(message.To).Error(0)
 }
