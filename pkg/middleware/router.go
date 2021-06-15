@@ -25,7 +25,7 @@ func Router(ginEngine *gin.Engine) {
 			devGroup.GET("clear-redis-streams/", devPanel.GetClearRedisStreamsAction)
 			devGroup.DELETE("delete-redis-stream/:name/", devPanel.DeleteRedisStreamAction)
 			devGroup.GET("alters/", devPanel.GetAlters)
-			devGroup.GET("redis-search/alters", devPanel.GetRedisSearchAlters)
+			devGroup.GET("redis-search/alters/", devPanel.GetRedisSearchAlters)
 			devGroup.GET("redis-search/statistics/", devPanel.GetRedisSearchStatistics)
 			devGroup.GET("redis-search/indexes/", devPanel.GetRedisSearchIndexes)
 			devGroup.GET("redis-search/index/info/:index/", devPanel.PostRedisSearchIndexInfo)
