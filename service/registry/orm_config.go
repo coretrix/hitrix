@@ -3,14 +3,13 @@ package registry
 import (
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
-	"github.com/sarulabs/di"
-
 	"github.com/latolukasz/orm"
+	"github.com/sarulabs/di"
 )
 
 type ORMRegistryInitFunc func(registry *orm.Registry)
 
-func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition {
+func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc, customRedisSearchIndexes ...*orm.RedisSearchIndex) *service.Definition {
 	return &service.Definition{
 		Name:   service.ORMConfigService,
 		Global: true,
@@ -34,6 +33,10 @@ func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition 
 			if err == nil {
 				registry.RegisterEntity(&entity.MailTrackerEntity{})
 				registry.RegisterEnumStruct("entity.MailTrackerStatusAll", entity.MailTrackerStatusAll)
+			}
+
+			for _, customRedisSearchIndex := range customRedisSearchIndexes {
+				registry.RegisterRedisSearchIndex(customRedisSearchIndex)
 			}
 
 			ormConfig, err := registry.Validate()
