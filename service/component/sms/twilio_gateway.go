@@ -45,8 +45,8 @@ func (g *TwilioGateway) SendOTPSMS(otp *OTP) (string, error) {
 
 	_, _, code, err := helper.Call(
 		context.Background(),
-		baseURL.String(),
 		"POST",
+		baseURL.String(),
 		headers,
 		time.Duration(timeoutInSeconds)*time.Second,
 		nil,
