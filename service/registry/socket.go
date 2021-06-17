@@ -6,12 +6,12 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceSocketRegistry(registerHandler, unregisterHandler func(s *socket.Socket)) *service.Definition {
+func ServiceSocketRegistry(eventHandlersMap socket.NamespaceEventHandlerMap) *service.Definition {
 	return &service.Definition{
 		Name:   service.SocketRegistryService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return socket.BuildAndRunSocketRegistry(registerHandler, unregisterHandler), nil
+			return socket.BuildAndRunSocketRegistry(eventHandlersMap), nil
 		},
 	}
 }

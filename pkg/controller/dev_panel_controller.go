@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/coretrix/hitrix/service/component/app"
-
-	"github.com/coretrix/hitrix/service"
-
-	errors "github.com/coretrix/hitrix/pkg/error"
+	"github.com/coretrix/hitrix/pkg/errors"
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/pkg/view/account"
+	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
 
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/orm/tools"

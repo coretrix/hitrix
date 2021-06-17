@@ -6,6 +6,10 @@ import (
 	"github.com/coretrix/hitrix/service/component/socket"
 )
 
+const (
+	DefaultWebsocketNamespace = "default"
+)
+
 func RegisterSocketHandler(_ *socket.Socket) {
 	log.Println("Register Socket")
 }
