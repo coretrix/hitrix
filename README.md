@@ -631,6 +631,7 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 		ErrorLogger: errorLoggerService,
 		Connection:  connection,
 		ID:          "unique connection hash based on userID, deviceID and timestamp",
+		Namespace:   model.DefaultNamespace,
 	}
 
 	socketRegistryService.Register <- socketHolder
@@ -658,8 +659,8 @@ If you want to read comming messages you should do it in the function we are pas
 
 If you want to select certain connection you can do it by the ID and this method ```s, err := socketRegistryService.Sockets.Load(ID)```
 
-Also websocket service provide you two hooks for registering new connections and for unregistering already existing connections.
-You can define those handlers when you register the service
+Also websocket service provide you hooks for registering new connections and for unregistering already existing connections.
+You can define those handlers when you register the service based on namespace of socket.
 
 #### Clock service
 This service is used for `time` operations. It is better to use it everywhere instead of `time.Now()` because it can be mocked and you can set whatever time you want in your tests
