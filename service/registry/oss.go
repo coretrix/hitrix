@@ -5,16 +5,20 @@ import (
 
 	"github.com/latolukasz/orm"
 
+	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/oss/storage"
-
 	"github.com/sarulabs/di"
 )
 
 func OSSGoogle(buckets map[string]uint64) *service.Definition {
+	ORMRegistryContainer = append(ORMRegistryContainer, func(registry *orm.Registry) {
+		registry.RegisterEntity(&entity.OSSBucketCounterEntity{})
+	})
+
 	return &service.Definition{
 		Name:   service.OSSGoogleService,
 		Global: true,
@@ -28,12 +32,6 @@ func OSSGoogle(buckets map[string]uint64) *service.Definition {
 
 			if len(buckets) == 0 {
 				return nil, errors.New("please define buckets")
-			}
-
-			ormConfig := ctn.Get(service.ORMConfigService).(orm.ValidatedRegistry)
-			entities := ormConfig.GetEntities()
-			if _, ok := entities["entity.OSSBucketCounterEntity"]; !ok {
-				return nil, errors.New("ServiceDefinitionOrmRegistry should be defined before OSSGoogle")
 			}
 
 			ossConfig := configService.GetStringMap("oss")

@@ -1,12 +1,13 @@
 package registry
 
 import (
-	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
 	"github.com/sarulabs/di"
 
 	"github.com/latolukasz/orm"
 )
+
+var ORMRegistryContainer []func(registry *orm.Registry)
 
 type ORMRegistryInitFunc func(registry *orm.Registry)
 
@@ -19,21 +20,8 @@ func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition 
 
 			registry.InitByYaml(service.DI().Config().Get("orm").(map[string]interface{}))
 			init(registry)
-
-			_, err := ctn.SafeGet(service.OSSGoogleService)
-			if err == nil {
-				registry.RegisterEntity(&entity.OSSBucketCounterEntity{})
-			}
-
-			_, err = ctn.SafeGet(service.AmazonS3Service)
-			if err == nil {
-				registry.RegisterEntity(&entity.S3BucketCounterEntity{})
-			}
-
-			_, err = ctn.SafeGet(service.MailMandrill)
-			if err == nil {
-				registry.RegisterEntity(&entity.MailTrackerEntity{})
-				registry.RegisterEnumStruct("entity.MailTrackerStatusAll", entity.MailTrackerStatusAll)
+			for _, callback := range ORMRegistryContainer {
+				callback(registry)
 			}
 
 			ormConfig, err := registry.Validate()

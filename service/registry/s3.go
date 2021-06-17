@@ -1,14 +1,20 @@
 package registry
 
 import (
+	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/config"
+	"github.com/latolukasz/orm"
 	"github.com/sarulabs/di"
 )
 
 func ServiceDefinitionAmazonS3(buckets map[string]uint64) *service.Definition {
+	ORMRegistryContainer = append(ORMRegistryContainer, func(registry *orm.Registry) {
+		registry.RegisterEntity(&entity.S3BucketCounterEntity{})
+	})
+
 	return &service.Definition{
 		Name:   service.AmazonS3Service,
 		Global: true,

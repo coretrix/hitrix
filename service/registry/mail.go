@@ -3,7 +3,9 @@ package registry
 import (
 	"fmt"
 
+	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/mail"
+	"github.com/latolukasz/orm"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -12,6 +14,11 @@ import (
 )
 
 func MailMandrill() *service.Definition {
+	ORMRegistryContainer = append(ORMRegistryContainer, func(registry *orm.Registry) {
+		registry.RegisterEntity(&entity.MailTrackerEntity{})
+		registry.RegisterEnumStruct("entity.MailTrackerStatusAll", entity.MailTrackerStatusAll)
+	})
+
 	return &service.Definition{
 		Name:   service.MailMandrill,
 		Global: true,
