@@ -22,10 +22,8 @@ check: format-check ## Linting and static analysis
 		exit 1; \
 	fi
 
-	@if test ! -e ./bin/staticcheck; then \
-		go install honnef.co/go/tools/cmd/staticcheck@latest; \
-	fi
-	@./bin/staticcheck ./...
+	@go install honnef.co/go/tools/cmd/staticcheck@latest;
+	@${GOPATH}/bin/staticcheck ./...;
 
 init:
 	cd ./example && go run github.com/99designs/gqlgen init
