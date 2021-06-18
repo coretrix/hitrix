@@ -529,6 +529,25 @@ amazon_s3:
       local: bucket-name-local
 ```
 
+#### Stripe
+
+Stripe payment integration 
+
+You can register Stripe service this way:
+
+```go
+hitrixRegistry.ServiceDefinitionStripe(),
+```
+
+Config sample:
+
+```yml
+stripe:
+  key: "api_key"
+  webhook_secrets: # map of your webhook secrets
+    checkout: "key"
+```
+
 
 #### OSS Google
 This service is used for storage files into google storage

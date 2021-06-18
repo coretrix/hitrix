@@ -5,6 +5,11 @@ slack:
 oss:
   domain: hymn.tv
 
+stripe:
+  key: "api_key"
+  webhook_secrets:
+    checkout: "key"
+
 amazon_s3:
   endpoint: "https://somestorage.com"
   access_key_id: ""
