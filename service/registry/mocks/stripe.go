@@ -5,7 +5,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeStripeS3Service(fake interface{}) *service.Definition {
+func FakeStripeService(fake interface{}) *service.Definition {
 	return &service.Definition{
 		Name:   service.StripeService,
 		Global: true,
