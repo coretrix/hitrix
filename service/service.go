@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/stripe"
+
 	"github.com/coretrix/hitrix/service/component/mail"
 
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
@@ -46,6 +48,7 @@ const (
 	PasswordService         = "password"
 	SlackAPIService         = "slack_api"
 	AmazonS3Service         = "amazon_s3"
+	StripeService           = "stripe"
 	SocketRegistryService   = "socket_registry"
 	APILoggerService        = "api_logger"
 	AuthenticationService   = "authentication"
@@ -73,6 +76,7 @@ type DIInterface interface {
 	SMSService() (sms.ISender, bool)
 	GeneratorService() (generator.Generator, bool)
 	MailMandrillService() mail.Sender
+	Stripe() (stripe.IStripe, bool)
 }
 
 type diContainer struct {
@@ -82,6 +86,14 @@ func (d *diContainer) AmazonS3() (s3.Client, bool) {
 	v, has := GetServiceOptional(AmazonS3Service)
 	if has {
 		return v.(s3.Client), true
+	}
+	return nil, false
+}
+
+func (d *diContainer) Stripe() (stripe.IStripe, bool) {
+	v, has := GetServiceOptional(StripeService)
+	if has {
+		return v.(stripe.IStripe), true
 	}
 	return nil, false
 }
