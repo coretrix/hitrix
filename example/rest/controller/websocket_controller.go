@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	model "github.com/coretrix/hitrix/example/model/socket"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/socket"
 
@@ -51,6 +52,7 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 		ErrorLogger: errorLoggerService,
 		Connection:  connection,
 		ID:          "unique connection hash based on userID, deviceID and timestamp",
+		Namespace:   model.DefaultWebsocketNamespace,
 	}
 
 	socketRegistryService.Register <- socketHolder

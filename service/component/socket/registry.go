@@ -1,6 +1,7 @@
 package socket
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -25,28 +26,45 @@ type Registry struct {
 	Sockets    *sync.Map
 }
 
-func BuildAndRunSocketRegistry(registerHandler, unregisterHandler func(s *Socket)) *Registry {
+func BuildAndRunSocketRegistry(eventHandlersMap NamespaceEventHandlerMap) *Registry {
 	registry := &Registry{
 		Register:   make(chan *Socket),
 		Unregister: make(chan *Socket),
 		Sockets:    &sync.Map{},
 	}
 
-	go registry.run(registerHandler, unregisterHandler)
+	go registry.run(eventHandlersMap)
 
 	return registry
 }
 
-func (registry *Registry) run(registerHandler, unregisterHandler func(s *Socket)) {
+func (registry *Registry) run(eventHandlersMap NamespaceEventHandlerMap) {
 	for {
 		select {
 		case s := <-registry.Register: //new connection
 			registry.Sockets.Store(s.ID, s)
-			registerHandler(s)
+
+			eventHandlers, ok := eventHandlersMap[s.Namespace]
+			if !ok {
+				panic(fmt.Errorf("register handler for namespace %v not found", s.Namespace))
+			}
+
+			eventHandlers.RegisterHandler(s)
 		case s := <-registry.Unregister:
 			registry.Sockets.Delete(s.ID)
-			unregisterHandler(s)
-			break
+
+			eventHandlers, ok := eventHandlersMap[s.Namespace]
+			if !ok {
+				panic(fmt.Errorf("unregister handler for namespace %v not found", s.Namespace))
+			}
+
+			eventHandlers.UnregisterHandler(s)
 		}
 	}
+}
+
+type NamespaceEventHandlerMap map[string]*EventHandlers
+
+type EventHandlers struct {
+	RegisterHandler, UnregisterHandler func(s *Socket)
 }

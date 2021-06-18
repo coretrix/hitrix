@@ -1,7 +1,7 @@
 package binding
 
 import (
-	errors "github.com/coretrix/hitrix/pkg/error"
+	"github.com/coretrix/hitrix/pkg/errors"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 )

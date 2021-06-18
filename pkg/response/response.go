@@ -3,7 +3,7 @@ package response
 import (
 	"net/http"
 
-	errors "github.com/coretrix/hitrix/pkg/error"
+	"github.com/coretrix/hitrix/pkg/errors"
 	"github.com/gin-gonic/gin"
 )
 

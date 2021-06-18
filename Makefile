@@ -17,15 +17,13 @@ format-check: ## Check if the code is formatted
 	@for i in $$(${GOPATH}/bin/goimports -l .); do echo "[ERROR] Code is not formated run 'make format'" && exit 1; done
 
 check: format-check ## Linting and static analysis
-	@if grep -r --include='*.go'  -E "[^\/\/ ]+(fmt.Print|spew.Dump)"  *; then \
+	@if grep -r --include='*.go' -E "fmt.Print|spew.Dump" *; then \
 		echo "code contains fmt.Print* or spew.Dump function"; \
 		exit 1; \
 	fi
 
-	@if test ! -e ./bin/golangci-lint; then \
-		curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh; \
-	fi
-	@./bin/golangci-lint run --timeout 180s -E gosec -E stylecheck -E golint -E goimports -E whitespace
+	@go install honnef.co/go/tools/cmd/staticcheck@latest;
+	@${GOPATH}/bin/staticcheck ./...;
 
 init:
 	cd ./example && go run github.com/99designs/gqlgen init

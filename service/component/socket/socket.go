@@ -19,6 +19,7 @@ type Socket struct {
 	ErrorLogger errorlogger.ErrorLogger
 	Connection  *Connection
 	ID          string
+	Namespace   string
 }
 
 func (c *Connection) write(mt int, payload []byte) error {

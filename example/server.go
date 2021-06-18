@@ -8,9 +8,14 @@ import (
 	model "github.com/coretrix/hitrix/example/model/socket"
 	exampleMiddleware "github.com/coretrix/hitrix/example/rest/middleware"
 	"github.com/coretrix/hitrix/pkg/middleware"
+	"github.com/coretrix/hitrix/service/component/socket"
 	"github.com/coretrix/hitrix/service/registry"
 	"github.com/gin-gonic/gin"
 )
+
+var eventHandlersMap = socket.NamespaceEventHandlerMap{
+	model.DefaultWebsocketNamespace: &socket.EventHandlers{RegisterHandler: model.RegisterSocketHandler, UnregisterHandler: model.UnRegisterSocketHandler},
+}
 
 func main() {
 	s, deferFunc := hitrix.New(
@@ -24,7 +29,7 @@ func main() {
 		registry.ServiceDefinitionOrmEngineForContext(false),
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
-		registry.ServiceSocketRegistry(model.RegisterSocketHandler, model.UnRegisterSocketHandler),
+		registry.ServiceSocketRegistry(eventHandlersMap),
 	).
 		RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil).Build()
 	defer deferFunc()
