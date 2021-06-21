@@ -16,6 +16,7 @@ require (
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.2.0
 	github.com/go-redis/redis/v8 v8.8.2
+	github.com/gookit/config v1.1.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/h2non/filetype v1.1.1
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
@@ -42,9 +43,9 @@ require (
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.7.1
+	github.com/spf13/viper v1.7.1 // indirect
 	github.com/stretchr/testify v1.7.0
-	github.com/stripe/stripe-go/v72 v72.50.0 // indirect
+	github.com/stripe/stripe-go/v72 v72.50.0
 	github.com/tj/assert v0.0.3
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.2.1 // indirect

@@ -11,8 +11,8 @@ import (
 
 func Cors(ginEngine *gin.Engine) {
 	configService := service.DI().Config()
-	origins := configService.GetStringSlice("cors")
-	if len(origins) == 0 {
+	origins, ok := configService.Strings("cors")
+	if !ok {
 		panic("cors is missing")
 	}
 

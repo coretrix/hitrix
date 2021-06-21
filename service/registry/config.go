@@ -22,7 +22,7 @@ func ServiceConfig() *service.Definition {
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configDirectory := ctn.Get("config_directory").(string)
-			return config.NewViperConfig(service.DI().App().Name, service.DI().App().Mode, configDirectory)
+			return config.NewConfig(service.DI().App().Name, service.DI().App().Mode, configDirectory)
 		},
 	}
 }

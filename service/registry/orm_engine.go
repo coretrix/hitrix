@@ -28,13 +28,16 @@ func serviceDefinitionOrmEngine(global bool, enableGraphQLDataLoader bool) *serv
 			if err != nil {
 				return nil, err
 			}
+
 			ormEngine := ormConfigService.(orm.ValidatedRegistry).CreateEngine()
 			if !global {
 				ormEngine.EnableRequestCache(enableGraphQLDataLoader)
 			}
 
-			ormDebug := ctn.Get(service.ConfigService).(*config.Config).GetBool("orm_debug")
-			if ormDebug {
+			configService := ctn.Get(service.ConfigService).(config.IConfig)
+
+			ormDebug, ok := configService.Bool("orm_debug")
+			if ok && ormDebug {
 				ormEngine.EnableQueryDebug()
 			}
 

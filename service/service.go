@@ -60,7 +60,7 @@ const (
 
 type DIInterface interface {
 	App() *app.App
-	Config() *config.Config
+	Config() config.IConfig
 	OrmConfig() (orm.ValidatedRegistry, bool)
 	OrmEngine() (*orm.Engine, bool)
 	OrmEngineForContext(ctx context.Context) (*orm.Engine, bool)
@@ -108,8 +108,8 @@ func (d *diContainer) App() *app.App {
 	return GetServiceRequired(AppService).(*app.App)
 }
 
-func (d *diContainer) Config() *config.Config {
-	return GetServiceRequired(ConfigService).(*config.Config)
+func (d *diContainer) Config() config.IConfig {
+	return GetServiceRequired(ConfigService).(config.IConfig)
 }
 
 func (d *diContainer) OrmConfig() (orm.ValidatedRegistry, bool) {

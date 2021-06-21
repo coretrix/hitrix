@@ -23,20 +23,20 @@ func MailMandrill() *service.Definition {
 		Name:   service.MailMandrill,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			configService := ctn.Get("config").(*config.Config)
+			configService := ctn.Get("config").(config.IConfig)
 
-			apiKey := configService.GetString("mandrill.api_key")
-			if apiKey == "" {
+			apiKey, ok := configService.String("mandrill.api_key")
+			if !ok {
 				panic(fmt.Errorf("mailchimp.api_key is missing"))
 			}
 
-			fromEmail := configService.GetString("mandrill.default_from_email")
-			if apiKey == "" {
+			fromEmail, ok := configService.String("mandrill.default_from_email")
+			if !ok {
 				panic(fmt.Errorf("mailchimp.api_key is missing"))
 			}
 
-			fromName := configService.GetString("mandrill.from_name")
-			if apiKey == "" {
+			fromName, ok := configService.String("mandrill.from_name")
+			if !ok {
 				panic(fmt.Errorf("mandrill.from_name is missing"))
 			}
 

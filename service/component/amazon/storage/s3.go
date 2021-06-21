@@ -19,17 +19,17 @@ import (
 )
 
 type AmazonS3 struct {
-	client      *s3.S3
-	ctx         context.Context
-	environment string
-	buckets     map[string]uint64
-	s3Config    map[string]interface{}
-	urlPrefix   string
-	domain      string
+	client                   *s3.S3
+	ctx                      context.Context
+	environment              string
+	bucketsMapping           map[string]uint64
+	bucketsConfigDefinitions map[string]map[string]string
+	urlPrefix                string
+	domain                   string
 }
 
-func NewAmazonS3(endpoint string, accessKeyID string, secretAccessKey string, allowedBuckets map[string]uint64,
-	region string, disableSSL bool, urlPrefix string, domain string, environment string, config map[string]interface{}) *AmazonS3 {
+func NewAmazonS3(endpoint string, accessKeyID string, secretAccessKey string, allowedBuckets map[string]uint64, bucketsConfigDefinitions map[string]map[string]string,
+	region string, disableSSL bool, urlPrefix string, domain string, environment string) *AmazonS3 {
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
 		Endpoint:         aws.String(endpoint),
@@ -41,20 +41,20 @@ func NewAmazonS3(endpoint string, accessKeyID string, secretAccessKey string, al
 	s3Client := s3.New(newSession)
 
 	return &AmazonS3{
-		client:      s3Client,
-		ctx:         context.Background(),
-		buckets:     allowedBuckets,
-		environment: environment,
-		s3Config:    config,
-		urlPrefix:   urlPrefix,
-		domain:      domain,
+		client:                   s3Client,
+		ctx:                      context.Background(),
+		bucketsMapping:           allowedBuckets,
+		bucketsConfigDefinitions: bucketsConfigDefinitions,
+		environment:              environment,
+		urlPrefix:                urlPrefix,
+		domain:                   domain,
 	}
 }
 
 func (amazonS3 *AmazonS3) getCounter(ormService *orm.Engine, bucket string) uint64 {
 	amazonS3.checkBucket(bucket)
 
-	bucketID, has := amazonS3.buckets[bucket]
+	bucketID, has := amazonS3.bucketsMapping[bucket]
 
 	if !has {
 		panic("s3 bucket [" + bucket + "] id not found")
@@ -88,7 +88,7 @@ func (amazonS3 *AmazonS3) getCounter(ormService *orm.Engine, bucket string) uint
 }
 
 func (amazonS3 *AmazonS3) checkBucket(bucketName string) {
-	_, ok := amazonS3.buckets[bucketName]
+	_, ok := amazonS3.bucketsMapping[bucketName]
 
 	if !ok {
 		panic("bucket [" + bucketName + "] not found")
@@ -96,13 +96,9 @@ func (amazonS3 *AmazonS3) checkBucket(bucketName string) {
 }
 
 func (amazonS3 *AmazonS3) getBucketName(bucketName string) string {
-	if val, ok := amazonS3.s3Config["buckets"]; ok {
-		buckets := val.(map[string]interface{})
-		if bucketConfig, ok := buckets[bucketName]; ok {
-			bucketEnvs := bucketConfig.(map[string]interface{})
-			if bucket, ok := bucketEnvs[amazonS3.environment]; ok {
-				return bucket.(string)
-			}
+	if bucketConfig, ok := amazonS3.bucketsConfigDefinitions[bucketName]; ok {
+		if bucket, ok := bucketConfig[amazonS3.environment]; ok {
+			return bucket
 		}
 	}
 

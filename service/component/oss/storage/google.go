@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/coretrix/hitrix/service/component/config"
+
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 
@@ -29,12 +31,12 @@ type GoogleOSS struct {
 	ctx         context.Context
 	environment string
 	buckets     map[string]uint64
-	ossConfig   map[string]interface{}
+	domain      string
 	urlPrefix   string
 	jwtConfig   *jwt.Config
 }
 
-func NewGoogleOSS(credentialsFile string, environment string, buckets map[string]uint64, ossConfig map[string]interface{}) *GoogleOSS {
+func NewGoogleOSS(credentialsFile string, environment string, buckets map[string]uint64, configService config.IConfig) *GoogleOSS {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx, option.WithCredentialsFile(credentialsFile))
 
@@ -42,13 +44,14 @@ func NewGoogleOSS(credentialsFile string, environment string, buckets map[string
 		panic(err)
 	}
 
-	if _, ok := ossConfig["domain"]; !ok {
+	domain, ok := configService.String("oss.domain")
+	if !ok {
 		panic("oss domain is not set in config")
 	}
 
 	urlPrefix := "static-"
-	if configURLPrefix, ok := ossConfig["url_prefix"]; ok {
-		urlPrefix = configURLPrefix.(string)
+	if configURLPrefix, ok := configService.String("oss.url_prefix"); ok {
+		urlPrefix = configURLPrefix
 	}
 
 	jwtCredentialsJSONString, err := ioutil.ReadFile(credentialsFile)
@@ -62,7 +65,7 @@ func NewGoogleOSS(credentialsFile string, environment string, buckets map[string
 		ctx:         ctx,
 		environment: environment,
 		buckets:     buckets,
-		ossConfig:   ossConfig,
+		domain:      domain,
 		urlPrefix:   urlPrefix,
 		jwtConfig:   jwtConfig,
 	}
@@ -83,7 +86,7 @@ func (ossStorage *GoogleOSS) GetObjectURL(bucket string, object *oss.Object) str
 		panic(err)
 	}
 
-	return fmt.Sprintf("https://%s%s.%s/%s/%s", ossStorage.urlPrefix, ossStorage.environment, ossStorage.ossConfig["domain"], bucketByEnv, ossBucketObjectAttributes.Name)
+	return fmt.Sprintf("https://%s%s.%s/%s/%s", ossStorage.urlPrefix, ossStorage.environment, ossStorage.domain, bucketByEnv, ossBucketObjectAttributes.Name)
 }
 
 func (ossStorage *GoogleOSS) GetObjectCachedURL(bucket string, object *oss.Object) string {
@@ -95,7 +98,7 @@ func (ossStorage *GoogleOSS) GetObjectCachedURL(bucket string, object *oss.Objec
 		bucketByEnv += "-" + ossStorage.environment
 	}
 
-	return fmt.Sprintf("https://%s%s.%s/%s/%s", ossStorage.urlPrefix, ossStorage.environment, ossStorage.ossConfig["domain"], bucketByEnv, object.CachedURL)
+	return fmt.Sprintf("https://%s%s.%s/%s/%s", ossStorage.urlPrefix, ossStorage.environment, ossStorage.domain, bucketByEnv, object.CachedURL)
 }
 
 func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket string, object *oss.Object, expires time.Time) string {

@@ -1,7 +1,11 @@
 package registry
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/sarulabs/di"
 
 	"github.com/latolukasz/orm"
@@ -16,9 +20,21 @@ func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition 
 		Name:   service.ORMConfigService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
+			configService := ctn.Get(service.ConfigService).(config.IConfig)
+
 			registry := orm.NewRegistry()
 
-			registry.InitByYaml(service.DI().Config().Get("orm").(map[string]interface{}))
+			configuration, ok := configService.Get("orm")
+			if !ok {
+				return nil, errors.New("no orm config")
+			}
+
+			yamlConfig := map[string]interface{}{}
+			for k, v := range configuration.(map[interface{}]interface{}) {
+				yamlConfig[fmt.Sprint(k)] = v
+			}
+
+			registry.InitByYaml(yamlConfig)
 			init(registry)
 			for _, callback := range ORMRegistryContainer {
 				callback(registry)

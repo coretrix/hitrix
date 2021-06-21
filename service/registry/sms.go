@@ -17,6 +17,7 @@ func ServiceProviderSMS(entity sms.LogEntity) *service.Definition {
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			clockService := ctn.Get(service.ClockService).(clock.Clock)
+			configService := ctn.Get("config").(config.IConfig)
 
 			subContainer, err := ctn.SubContainer()
 			if err != nil {
@@ -24,91 +25,88 @@ func ServiceProviderSMS(entity sms.LogEntity) *service.Definition {
 			}
 
 			// register twilio
-			smsConfigTwilio := ctn.Get("config").(*config.Config).GetStringMap("sms.twilio")
-			sid, ok := smsConfigTwilio["sid"]
+			sid, ok := configService.String("sms.twilio.sid")
 			if !ok {
 				return nil, errors.New("missing sms.twilio.sid")
 			}
 
-			token, ok := smsConfigTwilio["token"]
+			token, ok := configService.String("sms.twilio.token")
 			if !ok {
 				return nil, errors.New("missing sms.twilio.token")
 			}
 
-			fromNumberTwilio, ok := smsConfigTwilio["from_number"]
+			fromNumberTwilio, ok := configService.String("sms.twilio.from_number")
 			if !ok {
 				return nil, errors.New("missing sms.twilio.from_number")
 			}
 
-			authyURL, ok := smsConfigTwilio["authy_url"]
+			authyURL, ok := configService.String("sms.twilio.authy_url")
 			if !ok {
 				return nil, errors.New("missing sms.twilio.authy_url")
 			}
 
-			authyAPIKey, ok := smsConfigTwilio["authy_api_key"]
+			authyAPIKey, ok := configService.String("sms.twilio.authy_api_key")
 			if !ok {
 				return nil, errors.New("missing sms.twilio.authy_api_key")
 			}
 
 			twilioGateway := &sms.TwilioGateway{
-				SID:         sid.(string),
-				Token:       token.(string),
-				FromNumber:  fromNumberTwilio.(string),
-				AuthyURL:    authyURL.(string),
-				AuthyAPIKey: authyAPIKey.(string),
+				SID:         sid,
+				Token:       token,
+				FromNumber:  fromNumberTwilio,
+				AuthyURL:    authyURL,
+				AuthyAPIKey: authyAPIKey,
 			}
 
 			//register sinch
-			smsConfigSinch := ctn.Get("config").(*config.Config).GetStringMap("sms.sinch")
-			appID, ok := smsConfigSinch["app_id"]
+			appID, ok := configService.String("sms.sinch.app_id")
 			if !ok {
 				return nil, errors.New("missing sms.sinch.app_id")
 			}
-			appSecret, ok := smsConfigSinch["app_secret"]
+			appSecret, ok := configService.String("sms.sinch.app_secret")
 			if !ok {
 				return nil, errors.New("missing sms.sinch.app_secret")
 			}
-			msgURL, ok := smsConfigSinch["msg_url"]
+			msgURL, ok := configService.String("sms.sinch.msg_url")
 			if !ok {
 				return nil, errors.New("missing sms.sinch.msg_url")
 			}
-			fromNumberSinch, ok := smsConfigSinch["from_number"]
+			fromNumberSinch, ok := configService.String("sms.sinch.from_number")
 			if !ok {
 				return nil, errors.New("missing sms.sinch.from_number")
 			}
-			callURL, ok := smsConfigSinch["call_url"]
+			callURL, ok := configService.String("sms.sinch.call_url")
 			if !ok {
 				return nil, errors.New("missing sms.sinch.call_url")
 			}
-			callerNumber, ok := smsConfigSinch["caller_number"]
+			callerNumber, ok := configService.String("sms.sinch.caller_number")
 			if !ok {
 				return nil, errors.New("missing sms.sinch.caller_number")
 			}
 
 			sinchGateway := &sms.SinchGateway{
 				Clock:        clockService,
-				AppID:        appID.(string),
-				AppSecret:    appSecret.(string),
-				MsgURL:       msgURL.(string),
-				FromNumber:   fromNumberSinch.(string),
-				CallURL:      callURL.(string),
-				CallerNumber: callerNumber.(string),
+				AppID:        appID,
+				AppSecret:    appSecret,
+				MsgURL:       msgURL,
+				FromNumber:   fromNumberSinch,
+				CallURL:      callURL,
+				CallerNumber: callerNumber,
 			}
 
 			// register kavenegar
-			smsConfigKavenegar := ctn.Get("config").(*config.Config).GetStringMap("sms.kavenegar")
-			apiKey, ok := smsConfigKavenegar["api_key"]
+			apiKey, ok := configService.String("sms.kavenegar.api_key")
 			if !ok {
 				return nil, errors.New("missing sms.kavenegar.api_key")
 			}
-			sender, ok := smsConfigKavenegar["sender"]
+			sender, ok := configService.String("sms.kavenegar.sender")
 			if !ok {
 				return nil, errors.New("missing sms.kavenegar.sender")
 			}
 
 			kavenegarGateway := &sms.KavenegarGateway{
-				APIKey: apiKey.(string),
-				Sender: sender.(string),
+				APIKey: apiKey,
+				Sender: sender,
 			}
 
 			ormService := subContainer.Get(service.ORMEngineRequestService).(*orm.Engine)

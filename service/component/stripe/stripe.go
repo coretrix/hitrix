@@ -12,16 +12,14 @@ type Stripe struct {
 	ctx            context.Context
 	environment    string
 	webhookSecrets map[string]string
-	stripeConfig   map[string]interface{}
 }
 
-func NewStripe(token string, webhookSecrets map[string]string, environment string, config map[string]interface{}) *Stripe {
+func NewStripe(token string, webhookSecrets map[string]string, environment string) *Stripe {
 	stripe.Key = token
 
 	return &Stripe{
 		ctx:            context.Background(),
 		environment:    environment,
-		stripeConfig:   config,
 		webhookSecrets: webhookSecrets,
 	}
 }

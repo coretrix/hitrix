@@ -23,7 +23,7 @@ func OSSGoogle(buckets map[string]uint64) *service.Definition {
 		Name:   service.OSSGoogleService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			configService := ctn.Get(service.ConfigService).(*config.Config)
+			configService := ctn.Get(service.ConfigService).(config.IConfig)
 			appService := ctn.Get(service.AppService).(*app.App)
 
 			if !helper.ExistsInDir(".oss.json", configService.GetFolderPath()) {
@@ -34,9 +34,7 @@ func OSSGoogle(buckets map[string]uint64) *service.Definition {
 				return nil, errors.New("please define buckets")
 			}
 
-			ossConfig := configService.GetStringMap("oss")
-
-			return storage.NewGoogleOSS(configService.GetFolderPath()+"/.oss.json", appService.Mode, buckets, ossConfig), nil
+			return storage.NewGoogleOSS(configService.GetFolderPath()+"/.oss.json", appService.Mode, buckets, configService), nil
 		},
 	}
 }
