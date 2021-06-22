@@ -85,10 +85,11 @@ func ServiceProviderAuthentication() *service.Definition {
 			}
 
 			var mailService *mail.Sender
-			mailServiceHitrix, has := ctn.Get(service.MailMandrill).(mail.Sender)
+			mailServiceHitrix, err := ctn.SafeGet(service.MailMandrill)
 
-			if has {
-				mailService = &mailServiceHitrix
+			if err == nil && mailServiceHitrix != nil {
+				convertedMail := mailServiceHitrix.(mail.Sender)
+				mailService = &convertedMail
 			}
 
 			generatorService, has := service.DI().GeneratorService()

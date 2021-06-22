@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	mocks2 "github.com/coretrix/hitrix/service/component/mail/mocks"
 	"strconv"
 	"testing"
 	"time"
+
+	mocks2 "github.com/coretrix/hitrix/service/component/mail/mocks"
 
 	"github.com/coretrix/hitrix/service/component/authentication"
 

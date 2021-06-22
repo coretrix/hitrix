@@ -3,8 +3,9 @@ package authentication
 import (
 	"errors"
 	"fmt"
-	"github.com/coretrix/hitrix/service/component/mail"
 	mail2 "net/mail"
+
+	"github.com/coretrix/hitrix/service/component/mail"
 
 	"github.com/coretrix/hitrix/service/component/clock"
 
@@ -52,7 +53,7 @@ type Authentication struct {
 	jwtService       *jwt.JWT
 	ormService       *orm.Engine
 	smsService       sms.ISender
-	mailService       *mail.Sender
+	mailService      *mail.Sender
 	generatorService generator.Generator
 	clockService     clock.Clock
 	cacheService     *orm.RedisCache
@@ -85,7 +86,7 @@ func NewAuthenticationService(
 		clockService:     clockService,
 		generatorService: generatorService,
 		cacheService:     cacheService,
-		mailService: mailService,
+		mailService:      mailService,
 	}
 }
 
@@ -96,7 +97,7 @@ type GenerateOTP struct {
 }
 
 type GenerateOTPEmail struct {
-	Email         string
+	Email          string
 	ExpirationTime time.Time
 	Token          string
 }
@@ -161,7 +162,7 @@ func (t *Authentication) GenerateAndSendOTPEmail(email string, template string, 
 	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(expirationTime, email, fmt.Sprint(code)))
 
 	return &GenerateOTPEmail{
-		Email:         email,
+		Email:          email,
 		ExpirationTime: expirationTime,
 		Token:          token,
 	}, nil
