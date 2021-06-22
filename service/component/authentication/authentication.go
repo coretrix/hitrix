@@ -3,6 +3,8 @@ package authentication
 import (
 	"errors"
 	"fmt"
+	"github.com/coretrix/hitrix/service/component/mail"
+	mail2 "net/mail"
 
 	"github.com/coretrix/hitrix/service/component/clock"
 
@@ -34,6 +36,7 @@ const (
 type OTPProviderEntity interface {
 	orm.Entity
 	GetPhoneFieldName() string
+	GetEmailFieldName() string
 }
 
 type AuthProviderEntity interface {
@@ -49,6 +52,7 @@ type Authentication struct {
 	jwtService       *jwt.JWT
 	ormService       *orm.Engine
 	smsService       sms.ISender
+	mailService       *mail.Sender
 	generatorService generator.Generator
 	clockService     clock.Clock
 	cacheService     *orm.RedisCache
@@ -67,6 +71,7 @@ func NewAuthenticationService(
 	cacheService *orm.RedisCache,
 	passwordService *password.Password,
 	jwtService *jwt.JWT,
+	mailService *mail.Sender,
 ) *Authentication {
 	return &Authentication{
 		secret:           secret,
@@ -80,11 +85,18 @@ func NewAuthenticationService(
 		clockService:     clockService,
 		generatorService: generatorService,
 		cacheService:     cacheService,
+		mailService: mailService,
 	}
 }
 
 type GenerateOTP struct {
 	Mobile         string
+	ExpirationTime time.Time
+	Token          string
+}
+
+type GenerateOTPEmail struct {
+	Email         string
 	ExpirationTime time.Time
 	Token          string
 }
@@ -123,8 +135,53 @@ func (t *Authentication) GenerateAndSendOTP(mobile string, country string) (*Gen
 	}, nil
 }
 
+func (t *Authentication) GenerateAndSendOTPEmail(email string, template string, from string, title string) (*GenerateOTPEmail, error) {
+	_, err := mail2.ParseAddress(email)
+
+	if err != nil {
+		return nil, errors.New("mail address not valid")
+	}
+
+	code := t.generatorService.GenerateRandomRangeNumber(10000, 99999)
+	mailService := *t.mailService
+
+	err = mailService.SendTemplateAsync(t.ormService, &mail.Message{
+		From:         from,
+		To:           email,
+		Subject:      title,
+		TemplateName: template,
+		TemplateData: map[string]string{"code": strconv.FormatInt(code, 10)},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	expirationTime := t.clockService.Now().Add(time.Duration(t.otpTTL) * time.Second)
+	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(expirationTime, email, fmt.Sprint(code)))
+
+	return &GenerateOTPEmail{
+		Email:         email,
+		ExpirationTime: expirationTime,
+		Token:          token,
+	}, nil
+}
+
 func (t *Authentication) VerifyOTP(code string, input *GenerateOTP) error {
 	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(input.ExpirationTime, input.Mobile, code))
+	if token != input.Token {
+		return errors.New("wrong code provided")
+	}
+
+	if input.ExpirationTime.Before(t.clockService.Now()) {
+		return errors.New("code expired")
+	}
+
+	return nil
+}
+
+func (t *Authentication) VerifyOTPEmail(code string, input *GenerateOTPEmail) error {
+	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(input.ExpirationTime, input.Email, code))
 	if token != input.Token {
 		return errors.New("wrong code provided")
 	}
@@ -139,6 +196,17 @@ func (t *Authentication) VerifyOTP(code string, input *GenerateOTP) error {
 func (t *Authentication) AuthenticateOTP(phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
 	q := &orm.RedisSearchQuery{}
 	q.FilterString(entity.GetPhoneFieldName(), phone)
+	found := t.ormService.RedisSearchOne(entity, q)
+	if !found {
+		return "", "", errors.New("invalid credentials")
+	}
+
+	return t.generateUserTokens(entity.GetID())
+}
+
+func (t *Authentication) AuthenticateOTPEmail(email string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
+	q := &orm.RedisSearchQuery{}
+	q.FilterString(entity.GetEmailFieldName(), email)
 	found := t.ormService.RedisSearchOne(entity, q)
 	if !found {
 		return "", "", errors.New("invalid credentials")

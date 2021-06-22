@@ -1,6 +1,8 @@
 package registry
 
 import (
+	"github.com/coretrix/hitrix/service/component/mail"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/authentication"
 	"github.com/coretrix/hitrix/service/component/clock"
@@ -82,6 +84,13 @@ func ServiceProviderAuthentication() *service.Definition {
 				}
 			}
 
+			var mailService *mail.Sender
+			mailServiceHitrix, has := ctn.Get(service.MailMandrill).(mail.Sender)
+
+			if has {
+				mailService = &mailServiceHitrix
+			}
+
 			generatorService, has := service.DI().GeneratorService()
 			if !has {
 				panic("generator service not loaded")
@@ -99,6 +108,7 @@ func ServiceProviderAuthentication() *service.Definition {
 				ormService.GetRedis(authRedis),
 				passwordService,
 				jwtService,
+				mailService,
 			), nil
 		},
 	}

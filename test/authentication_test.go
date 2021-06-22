@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	mocks2 "github.com/coretrix/hitrix/service/component/mail/mocks"
+	"strconv"
 	"testing"
 	"time"
 
@@ -67,7 +69,6 @@ func TestGenerateOTP(t *testing.T) {
 			mocks.FakeSMSService(fakeSMS),
 			mocks.FakeGeneratorService(fakeGenerator),
 			mocks.FakeClockService(fakeClock),
-
 			registry.ServiceProviderAuthentication(),
 		)
 
@@ -78,6 +79,48 @@ func TestGenerateOTP(t *testing.T) {
 		assert.Equal(t, otpResp.Mobile, "989375722346")
 		fakeGenerator.AssertExpectations(t)
 		fakeSMS.AssertExpectations(t)
+	})
+}
+
+func TestGenerateOTPEmail(t *testing.T) {
+	t.Run("generate token email otp", func(t *testing.T) {
+		fakeSMS := &smsMock.FakeSMSSender{}
+		fakeMail := &mocks2.Sender{}
+		from := "test@hitrix.com"
+		to := "iman.daneshi@coretrix.com"
+		title := "sometitle"
+		template := "login_otp"
+		loginCode := 12345
+		fakeClock := &clockMock.FakeSysClock{}
+		now := time.Unix(1, 0)
+		fakeClock.On("Now").Return(now)
+
+		otpTTL := time.Duration(registry.DefaultOTPTTLInSeconds) * time.Second
+
+		var min int64 = 10000
+		var max int64 = 99999
+		fakeGenerator := &generatorMock.FakeGenerator{}
+		fakeGenerator.On("GenerateRandomRangeNumber", min, max).Return(loginCode)
+		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL), to, strconv.Itoa(loginCode))).Return("defjiwqwd")
+
+		createContextMyApp(t, "my-app", nil,
+			registry.ServiceProviderJWT(),
+			registry.ServiceProviderPassword(),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeMailService(fakeMail),
+			mocks.FakeGeneratorService(fakeGenerator),
+			mocks.FakeClockService(fakeClock),
+			registry.ServiceProviderAuthentication(),
+		)
+		fakeMail.On("SendTemplateAsync", to).Return(nil)
+		authenticationService, _ := service.DI().AuthenticationService()
+		otpResp, err := authenticationService.GenerateAndSendOTPEmail(to, template, from, title)
+		assert.Nil(t, err)
+		assert.Equal(t, otpResp.Token, "defjiwqwd")
+		assert.Equal(t, otpResp.Email, to)
+		fakeGenerator.AssertExpectations(t)
+		fakeSMS.AssertExpectations(t)
+		fakeMail.AssertExpectations(t)
 	})
 }
 
@@ -113,6 +156,38 @@ func TestVerifyOTP(t *testing.T) {
 
 		fakeGenerator.AssertExpectations(t)
 		fakeSMS.AssertExpectations(t)
+	})
+}
+func TestVerifyOTPEmail(t *testing.T) {
+	t.Run("verify otp email", func(t *testing.T) {
+		fakeEmail := &mocks2.Sender{}
+		fakeClock := &clockMock.FakeSysClock{}
+		now := time.Unix(1, 0)
+		fakeClock.On("Now").Return(now)
+		fakeSMS := &smsMock.FakeSMSSender{}
+		otpTTL := time.Duration(registry.DefaultOTPTTLInSeconds) * time.Second
+
+		fakeGenerator := &generatorMock.FakeGenerator{}
+		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL), "iman.daneshi@coretrix.com", "12345")).Return("defjiwqwd")
+		createContextMyApp(t, "my-app", nil,
+			registry.ServiceProviderJWT(),
+			registry.ServiceProviderPassword(),
+			mocks.FakeGeneratorService(fakeGenerator),
+			mocks.FakeClockService(fakeClock),
+			mocks.FakeSMSService(fakeSMS),
+			mocks.FakeMailService(fakeEmail),
+			registry.ServiceProviderAuthentication(),
+		)
+		authenticationService, _ := service.DI().AuthenticationService()
+
+		err := authenticationService.VerifyOTPEmail("12345", &authentication.GenerateOTPEmail{
+			Email:          "iman.daneshi@coretrix.com",
+			ExpirationTime: fakeClock.Now().Add(otpTTL),
+			Token:          "defjiwqwd",
+		})
+		assert.Nil(t, err)
+
+		fakeGenerator.AssertExpectations(t)
 	})
 }
 
