@@ -31,7 +31,7 @@ func main() {
 		registry.ServiceProviderPassword(),
 		registry.ServiceSocketRegistry(eventHandlersMap),
 	).
-		RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil).Build()
+		RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil, nil).Build()
 	defer deferFunc()
 
 	s.RunAsyncOrmConsumer()

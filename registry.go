@@ -61,7 +61,7 @@ func (r *Registry) Build() (*Hitrix, func()) {
 	}
 }
 
-func (r *Registry) RegisterDevPanel(devPanelUserEntity app.DevPanelUserEntity, router func(ginEngine *gin.Engine), poolStream *string) *Registry {
+func (r *Registry) RegisterDevPanel(devPanelUserEntity app.DevPanelUserEntity, router func(ginEngine *gin.Engine), poolStream, poolSearch *string) *Registry {
 	if devPanelUserEntity == nil {
 		panic("devPanelUserEntity cannot be nil")
 	}
@@ -69,7 +69,7 @@ func (r *Registry) RegisterDevPanel(devPanelUserEntity app.DevPanelUserEntity, r
 		panic("router cannot be nil")
 	}
 
-	r.app.DevPanel = &app.DevPanel{UserEntity: devPanelUserEntity, Router: router, PoolStream: poolStream}
+	r.app.DevPanel = &app.DevPanel{UserEntity: devPanelUserEntity, Router: router, PoolStream: poolStream, PoolSearch: poolSearch}
 	return r
 }
 

@@ -259,8 +259,13 @@ func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
 		panic("orm is not registered")
 	}
 
-	ormService.GetRedisSearch().ListIndices()
-	response.SuccessResponse(c, ormService.GetRedisSearch().ListIndices())
+	devPanel := service.DI().App().DevPanel
+	if devPanel == nil || devPanel.PoolSearch == nil {
+		panic("stream pool is not defined")
+	}
+
+	ormService.GetRedisSearch(*devPanel.PoolSearch).ListIndices()
+	response.SuccessResponse(c, ormService.GetRedisSearch(*devPanel.PoolSearch).ListIndices())
 }
 
 func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context) {
@@ -275,7 +280,13 @@ func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context
 		response.ErrorResponseGlobal(c, "index is required", nil)
 		return
 	}
-	ormService.GetRedisSearch().ForceReindex(indexName)
+
+	devPanel := service.DI().App().DevPanel
+	if devPanel == nil || devPanel.PoolSearch == nil {
+		panic("stream pool is not defined")
+	}
+
+	ormService.GetRedisSearch(*devPanel.PoolSearch).ForceReindex(indexName)
 	response.SuccessResponse(c, nil)
 }
 
@@ -292,5 +303,10 @@ func (controller *DevPanelController) PostRedisSearchIndexInfo(c *gin.Context) {
 		return
 	}
 
-	response.SuccessResponse(c, ormService.GetRedisSearch().Info(indexName))
+	devPanel := service.DI().App().DevPanel
+	if devPanel == nil || devPanel.PoolSearch == nil {
+		panic("stream pool is not defined")
+	}
+
+	response.SuccessResponse(c, ormService.GetRedisSearch(*devPanel.PoolSearch).Info(indexName))
 }

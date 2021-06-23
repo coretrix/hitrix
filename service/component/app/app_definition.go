@@ -22,6 +22,7 @@ type DevPanel struct {
 	UserEntity DevPanelUserEntity
 	Router     func(ginEngine *gin.Engine)
 	PoolStream *string
+	PoolSearch *string
 }
 
 type App struct {
