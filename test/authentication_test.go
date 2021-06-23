@@ -62,7 +62,7 @@ func TestGenerateOTP(t *testing.T) {
 		var max int64 = 99999
 		fakeGenerator := &generatorMock.FakeGenerator{}
 		fakeGenerator.On("GenerateRandomRangeNumber", min, max).Return(12345)
-		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL), "989375722346", "12345")).Return("defjiwqwd")
+		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), "989375722346", "12345")).Return("defjiwqwd")
 
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
@@ -102,7 +102,7 @@ func TestGenerateOTPEmail(t *testing.T) {
 		var max int64 = 99999
 		fakeGenerator := &generatorMock.FakeGenerator{}
 		fakeGenerator.On("GenerateRandomRangeNumber", min, max).Return(loginCode)
-		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL), to, strconv.Itoa(loginCode))).Return("defjiwqwd")
+		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), to, strconv.Itoa(loginCode))).Return("defjiwqwd")
 
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
@@ -136,7 +136,7 @@ func TestVerifyOTP(t *testing.T) {
 		otpTTL := time.Duration(registry.DefaultOTPTTLInSeconds) * time.Second
 
 		fakeGenerator := &generatorMock.FakeGenerator{}
-		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL), "989375722346", "12345")).Return("defjiwqwd")
+		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), "989375722346", "12345")).Return("defjiwqwd")
 
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
@@ -150,7 +150,7 @@ func TestVerifyOTP(t *testing.T) {
 
 		err := authenticationService.VerifyOTP("12345", &authentication.GenerateOTP{
 			Mobile:         "989375722346",
-			ExpirationTime: fakeClock.Now().Add(otpTTL),
+			ExpirationTime: strconv.FormatInt(fakeClock.Now().Add(otpTTL).Unix(), 10),
 			Token:          "defjiwqwd",
 		})
 		assert.Nil(t, err)
@@ -169,7 +169,7 @@ func TestVerifyOTPEmail(t *testing.T) {
 		otpTTL := time.Duration(registry.DefaultOTPTTLInSeconds) * time.Second
 
 		fakeGenerator := &generatorMock.FakeGenerator{}
-		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL), "iman.daneshi@coretrix.com", "12345")).Return("defjiwqwd")
+		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), "iman.daneshi@coretrix.com", "12345")).Return("defjiwqwd")
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
@@ -183,7 +183,7 @@ func TestVerifyOTPEmail(t *testing.T) {
 
 		err := authenticationService.VerifyOTPEmail("12345", &authentication.GenerateOTPEmail{
 			Email:          "iman.daneshi@coretrix.com",
-			ExpirationTime: fakeClock.Now().Add(otpTTL),
+			ExpirationTime: strconv.FormatInt(fakeClock.Now().Add(otpTTL).Unix(), 10),
 			Token:          "defjiwqwd",
 		})
 		assert.Nil(t, err)

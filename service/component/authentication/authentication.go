@@ -92,13 +92,13 @@ func NewAuthenticationService(
 
 type GenerateOTP struct {
 	Mobile         string
-	ExpirationTime time.Time
+	ExpirationTime string
 	Token          string
 }
 
 type GenerateOTPEmail struct {
 	Email          string
-	ExpirationTime time.Time
+	ExpirationTime string
 	Token          string
 }
 
@@ -126,12 +126,12 @@ func (t *Authentication) GenerateAndSendOTP(mobile string, country string) (*Gen
 		return nil, err
 	}
 
-	expirationTime := t.clockService.Now().Add(time.Duration(t.otpTTL) * time.Second)
-	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(expirationTime, phone, fmt.Sprint(code)))
+	expirationTime := t.clockService.Now().Add(time.Duration(t.otpTTL) * time.Second).Unix()
+	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(strconv.FormatInt(expirationTime, 10), phone, fmt.Sprint(code)))
 
 	return &GenerateOTP{
 		Mobile:         phone,
-		ExpirationTime: expirationTime,
+		ExpirationTime: strconv.FormatInt(expirationTime, 10),
 		Token:          token,
 	}, nil
 }
@@ -144,6 +144,9 @@ func (t *Authentication) GenerateAndSendOTPEmail(email string, template string, 
 	}
 
 	code := t.generatorService.GenerateRandomRangeNumber(10000, 99999)
+	if t.mailService == nil {
+		panic("mail service is not registered")
+	}
 	mailService := *t.mailService
 
 	err = mailService.SendTemplateAsync(t.ormService, &mail.Message{
@@ -151,19 +154,19 @@ func (t *Authentication) GenerateAndSendOTPEmail(email string, template string, 
 		To:           email,
 		Subject:      title,
 		TemplateName: template,
-		TemplateData: map[string]string{"code": strconv.FormatInt(code, 10)},
+		TemplateData: map[string]interface{}{"code": strconv.FormatInt(code, 10)},
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	expirationTime := t.clockService.Now().Add(time.Duration(t.otpTTL) * time.Second)
-	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(expirationTime, email, fmt.Sprint(code)))
+	expirationTime := t.clockService.Now().Add(time.Duration(t.otpTTL) * time.Second).Unix()
+	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(strconv.FormatInt(expirationTime, 10), email, fmt.Sprint(code)))
 
 	return &GenerateOTPEmail{
 		Email:          email,
-		ExpirationTime: expirationTime,
+		ExpirationTime: strconv.FormatInt(expirationTime, 10),
 		Token:          token,
 	}, nil
 }
@@ -174,7 +177,13 @@ func (t *Authentication) VerifyOTP(code string, input *GenerateOTP) error {
 		return errors.New("wrong code provided")
 	}
 
-	if input.ExpirationTime.Before(t.clockService.Now()) {
+	timeInt, err := strconv.ParseInt(input.ExpirationTime, 10, 64)
+	if err != nil {
+		panic("wrong time format")
+	}
+	expirationTime := time.Unix(timeInt, 0)
+
+	if expirationTime.Before(t.clockService.Now()) {
 		return errors.New("code expired")
 	}
 
@@ -187,7 +196,13 @@ func (t *Authentication) VerifyOTPEmail(code string, input *GenerateOTPEmail) er
 		return errors.New("wrong code provided")
 	}
 
-	if input.ExpirationTime.Before(t.clockService.Now()) {
+	timeInt, err := strconv.ParseInt(input.ExpirationTime, 10, 64)
+	if err != nil {
+		panic("wrong time format")
+	}
+	expirationTime := time.Unix(timeInt, 0)
+
+	if expirationTime.Before(t.clockService.Now()) {
 		return errors.New("code expired")
 	}
 

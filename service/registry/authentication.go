@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	DefaultOTPTTLInSeconds          = 60
+	DefaultOTPTTLInSeconds          = 300
 	DefaultAccessTokenTTLInSeconds  = 24 * 60 * 60
 	DefaultRefreshTokenTTLInSeconds = 365 * 24 * 60 * 60
 )
