@@ -32,7 +32,7 @@ func MailMandrill() *service.Definition {
 
 			fromEmail, ok := configService.String("mandrill.default_from_email")
 			if !ok {
-				panic(fmt.Errorf("mailchimp.api_key is missing"))
+				panic(fmt.Errorf("mailchimp.default_from_email is missing"))
 			}
 
 			fromName, ok := configService.String("mandrill.from_name")
