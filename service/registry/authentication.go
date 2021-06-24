@@ -1,15 +1,15 @@
 package registry
 
 import (
-	"github.com/coretrix/hitrix/service/component/mail"
-
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/authentication"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/jwt"
+	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/password"
 	"github.com/coretrix/hitrix/service/component/sms"
+	"github.com/coretrix/hitrix/service/component/social"
 	"github.com/latolukasz/orm"
 	"github.com/sarulabs/di"
 )
@@ -74,13 +74,11 @@ func ServiceProviderAuthentication() *service.Definition {
 			supportOTPConfig, ok := configService.Bool("authentication.support_otp")
 
 			var smsService sms.ISender
-			if ok {
-				if supportOTPConfig {
-					var has bool
-					smsService, has = ctn.Get(service.SMSService).(sms.ISender)
-					if !has {
-						panic("sms service not loaded")
-					}
+			if ok && supportOTPConfig {
+				var has bool
+				smsService, has = ctn.Get(service.SMSService).(sms.ISender)
+				if !has {
+					panic("sms service not loaded")
 				}
 			}
 
@@ -90,6 +88,17 @@ func ServiceProviderAuthentication() *service.Definition {
 			if err == nil && mailServiceHitrix != nil {
 				convertedMail := mailServiceHitrix.(mail.Sender)
 				mailService = &convertedMail
+			}
+
+			supportSocialLoginGoogle, ok := configService.Bool("authentication.support_social_login_google")
+			var socialServiceMapping = make(map[string]social.IUserData)
+
+			if ok && supportSocialLoginGoogle {
+				var has bool
+				socialServiceMapping[authentication.SocialLoginGoogle], has = ctn.Get(service.GoogleService).(social.IUserData)
+				if !has {
+					panic("sms service not loaded")
+				}
 			}
 
 			generatorService, has := service.DI().GeneratorService()
@@ -110,6 +119,7 @@ func ServiceProviderAuthentication() *service.Definition {
 				passwordService,
 				jwtService,
 				mailService,
+				socialServiceMapping,
 			), nil
 		},
 	}

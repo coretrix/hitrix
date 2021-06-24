@@ -3,7 +3,6 @@ package mocks
 import (
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/mail"
-
 	"github.com/sarulabs/di"
 )
 

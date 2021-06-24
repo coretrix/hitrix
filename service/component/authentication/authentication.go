@@ -6,6 +6,7 @@ import (
 	mail2 "net/mail"
 
 	"github.com/coretrix/hitrix/service/component/mail"
+	"github.com/coretrix/hitrix/service/component/social"
 
 	"github.com/coretrix/hitrix/service/component/clock"
 
@@ -32,6 +33,8 @@ const (
 	accessKeyPrefix          = "ACCESS"
 	userAccessListPrefix     = "USER_KEYS"
 	maxUserAccessKeysAllowed = 10
+
+	SocialLoginGoogle = "google"
 )
 
 type OTPProviderEntity interface {
@@ -46,18 +49,19 @@ type AuthProviderEntity interface {
 	GetPassword() string
 }
 type Authentication struct {
-	accessTokenTTL   int
-	refreshTokenTTL  int
-	otpTTL           int
-	passwordService  *password.Password
-	jwtService       *jwt.JWT
-	ormService       *orm.Engine
-	smsService       sms.ISender
-	mailService      *mail.Sender
-	generatorService generator.Generator
-	clockService     clock.Clock
-	cacheService     *orm.RedisCache
-	secret           string
+	accessTokenTTL       int
+	refreshTokenTTL      int
+	otpTTL               int
+	passwordService      *password.Password
+	jwtService           *jwt.JWT
+	ormService           *orm.Engine
+	smsService           sms.ISender
+	mailService          *mail.Sender
+	socialServiceMapping map[string]social.IUserData
+	generatorService     generator.Generator
+	clockService         clock.Clock
+	cacheService         *orm.RedisCache
+	secret               string
 }
 
 func NewAuthenticationService(
@@ -73,20 +77,22 @@ func NewAuthenticationService(
 	passwordService *password.Password,
 	jwtService *jwt.JWT,
 	mailService *mail.Sender,
+	socialServiceMapping map[string]social.IUserData,
 ) *Authentication {
 	return &Authentication{
-		secret:           secret,
-		accessTokenTTL:   accessTokenTTL,
-		refreshTokenTTL:  refreshTokenTTL,
-		otpTTL:           otpTTL,
-		passwordService:  passwordService,
-		jwtService:       jwtService,
-		ormService:       ormService,
-		smsService:       smsService,
-		clockService:     clockService,
-		generatorService: generatorService,
-		cacheService:     cacheService,
-		mailService:      mailService,
+		secret:               secret,
+		accessTokenTTL:       accessTokenTTL,
+		refreshTokenTTL:      refreshTokenTTL,
+		otpTTL:               otpTTL,
+		passwordService:      passwordService,
+		jwtService:           jwtService,
+		ormService:           ormService,
+		smsService:           smsService,
+		clockService:         clockService,
+		generatorService:     generatorService,
+		cacheService:         cacheService,
+		mailService:          mailService,
+		socialServiceMapping: socialServiceMapping,
 	}
 }
 
@@ -118,7 +124,7 @@ func (t *Authentication) GenerateAndSendOTP(mobile string, country string) (*Gen
 		OTP:      fmt.Sprint(code),
 		Number:   phone,
 		CC:       country,
-		Provider: decideProviders(country),
+		Provider: factorySMSProviders(country),
 		// TODO : replace with the desired message or get as a argument
 		Template: "your verification code id : %s",
 	})
@@ -207,6 +213,14 @@ func (t *Authentication) VerifyOTPEmail(code string, input *GenerateOTPEmail) er
 	}
 
 	return nil
+}
+
+func (t *Authentication) VerifySocialLogin(source, token string) (*social.UserData, error) {
+	socialProvider, ok := t.socialServiceMapping[source]
+	if !ok {
+		return nil, errors.New("not supported social provider: " + source)
+	}
+	return socialProvider.GetUserData(token)
 }
 
 func (t *Authentication) AuthenticateOTP(phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
@@ -450,7 +464,7 @@ func generateUserTokenListKey(id uint64) string {
 	return fmt.Sprintf("%s%s%d", userAccessListPrefix, separator, id)
 }
 
-func decideProviders(country string) *sms.Provider {
+func factorySMSProviders(country string) *sms.Provider {
 	providers := &sms.Provider{
 		Primary:   sms.Twilio,
 		Secondary: sms.Sinch,

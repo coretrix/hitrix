@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/coretrix/hitrix/service/component/stripe"
-
 	"github.com/coretrix/hitrix/service/component/mail"
+	"github.com/coretrix/hitrix/service/component/social"
+	"github.com/coretrix/hitrix/service/component/stripe"
 
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 
@@ -56,6 +56,7 @@ const (
 	SMSService              = "sms"
 	GeneratorService        = "generator_service"
 	MailMandrill            = "mail_mandrill"
+	GoogleService           = "google"
 )
 
 type DIInterface interface {
@@ -77,6 +78,7 @@ type DIInterface interface {
 	GeneratorService() (generator.Generator, bool)
 	MailMandrillService() mail.Sender
 	Stripe() (stripe.IStripe, bool)
+	GoogleService() *social.Google
 }
 
 type diContainer struct {
@@ -226,4 +228,8 @@ func (d *diContainer) AuthenticationService() (*authentication.Authentication, b
 
 func (d *diContainer) MailMandrillService() mail.Sender {
 	return GetServiceRequired(MailMandrill).(mail.Sender)
+}
+
+func (d *diContainer) GoogleService() *social.Google {
+	return GetServiceRequired(GoogleService).(*social.Google)
 }
