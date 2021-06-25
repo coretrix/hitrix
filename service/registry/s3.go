@@ -64,12 +64,22 @@ func ServiceDefinitionAmazonS3(bucketsMapping map[string]uint64) *service.Defini
 				return nil, errors.New("missing buckets")
 			}
 
+			bucketsConfigDefinitionsMap := map[string]map[string]string{}
+			for k, v := range bucketsConfigDefinitions.(map[interface{}]interface{}) {
+				bucketsConfigDefinitionsInnerMap := map[string]string{}
+				for k1, v1 := range v.(map[interface{}]interface{}) {
+					bucketsConfigDefinitionsInnerMap[k1.(string)] = v1.(string)
+				}
+
+				bucketsConfigDefinitionsMap[k.(string)] = bucketsConfigDefinitionsInnerMap
+			}
+
 			return s3.NewAmazonS3(
 				endpoint,
 				accessKeyID,
 				secretAccessKey,
 				bucketsMapping,
-				bucketsConfigDefinitions.(map[string]map[string]string),
+				bucketsConfigDefinitionsMap,
 				region,
 				disableSSL,
 				urlPrefix,
