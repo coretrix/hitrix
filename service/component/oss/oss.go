@@ -14,6 +14,7 @@ type Client interface {
 	UploadObjectFromBase64(ormService *orm.Engine, bucket, content, extension string) Object
 	UploadImageFromFile(ormService *orm.Engine, bucket, localFile string) Object
 	UploadImageFromBase64(ormService *orm.Engine, bucket, image, extension string) Object
+	GetObjectBase64Content(bucket string, object *Object) (string, error)
 }
 
 type Object struct {
