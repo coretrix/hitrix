@@ -236,6 +236,19 @@ func (ossStorage *GoogleOSS) getObjectKey(storageCounter uint64, fileExtension s
 	return strconv.FormatUint(storageCounter, 10) + fileExtension
 }
 
+func (ossStorage *GoogleOSS) GetObjectBase64Content(bucket string, object *oss.Object) (string, error) {
+	reader, err := ossStorage.client.Bucket(bucket).Object(object.StorageKey).NewReader(context.Background())
+	if err != nil {
+		return "", err
+	}
+	content, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(content), nil
+}
+
 func (ossStorage *GoogleOSS) ReadFile(localFile string) ([]byte, string) {
 	fileContent, err := ioutil.ReadFile(localFile)
 
