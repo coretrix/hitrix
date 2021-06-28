@@ -72,9 +72,10 @@ func TestGenerateOTP(t *testing.T) {
 			mocks.FakeClockService(fakeClock),
 			registry.ServiceProviderAuthentication(),
 		)
+		ormService, _ := service.DI().OrmEngine()
 
 		authenticationService, _ := service.DI().AuthenticationService()
-		otpResp, err := authenticationService.GenerateAndSendOTP("+989375722346", "IR")
+		otpResp, err := authenticationService.GenerateAndSendOTP(ormService, "+989375722346", "IR")
 		assert.Nil(t, err)
 		assert.Equal(t, otpResp.Token, "defjiwqwd")
 		assert.Equal(t, otpResp.Mobile, "989375722346")

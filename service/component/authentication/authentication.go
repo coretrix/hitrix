@@ -102,7 +102,7 @@ type GenerateOTPEmail struct {
 	Token          string
 }
 
-func (t *Authentication) GenerateAndSendOTP(mobile string, country string) (*GenerateOTP, error) {
+func (t *Authentication) GenerateAndSendOTP(ormService *orm.Engine, mobile string, country string) (*GenerateOTP, error) {
 	// validate mobile number
 	if len(country) != 2 {
 		return nil, errors.New("use alpha2 code for country")
@@ -114,7 +114,7 @@ func (t *Authentication) GenerateAndSendOTP(mobile string, country string) (*Gen
 
 	code := t.generatorService.GenerateRandomRangeNumber(10000, 99999)
 
-	err := t.smsService.SendOTPSMS(&sms.OTP{
+	err := t.smsService.SendOTPSMS(ormService, &sms.OTP{
 		OTP:      fmt.Sprint(code),
 		Number:   phone,
 		CC:       country,

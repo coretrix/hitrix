@@ -19,22 +19,21 @@ type LogEntity interface {
 }
 
 type APILogger interface {
-	LogStart(logType string, request interface{})
-	LogError(message string, response interface{})
-	LogSuccess(response interface{})
+	LogStart(ormService *orm.Engine, logType string, request interface{})
+	LogError(ormService *orm.Engine, message string, response interface{})
+	LogSuccess(ormService *orm.Engine, response interface{})
 }
 
 type DBLog struct {
-	ormService *orm.Engine
 	logEntity  LogEntity
 	currentLog LogEntity
 }
 
-func NewAPILog(ormService *orm.Engine, entity LogEntity) APILogger {
-	return &DBLog{ormService: ormService, logEntity: entity}
+func NewAPILog(entity LogEntity) APILogger {
+	return &DBLog{logEntity: entity}
 }
 
-func (l *DBLog) LogStart(logType string, request interface{}) {
+func (l *DBLog) LogStart(ormService *orm.Engine, logType string, request interface{}) {
 	var logEntity LogEntity
 
 	if l.logEntity.GetID() == 0 {
@@ -48,12 +47,12 @@ func (l *DBLog) LogStart(logType string, request interface{}) {
 	logEntity.SetStatus("new")
 	logEntity.SetCreatedAt(time.Now())
 
-	l.ormService.Flush(logEntity)
+	ormService.Flush(logEntity)
 
 	l.currentLog = logEntity
 }
 
-func (l *DBLog) LogError(message string, response interface{}) {
+func (l *DBLog) LogError(ormService *orm.Engine, message string, response interface{}) {
 	if l.currentLog == nil {
 		panic("log is not created")
 	}
@@ -63,10 +62,10 @@ func (l *DBLog) LogError(message string, response interface{}) {
 	currentLog.SetResponse(response)
 	currentLog.SetStatus("failed")
 
-	l.ormService.Flush(currentLog)
+	ormService.Flush(currentLog)
 }
 
-func (l *DBLog) LogSuccess(response interface{}) {
+func (l *DBLog) LogSuccess(ormService *orm.Engine, response interface{}) {
 	if l.currentLog == nil {
 		panic("log is not created")
 	}
@@ -76,5 +75,5 @@ func (l *DBLog) LogSuccess(response interface{}) {
 	currentLog.SetStatus("completed")
 	currentLog.SetResponse(response)
 
-	l.ormService.Flush(currentLog)
+	ormService.Flush(currentLog)
 }

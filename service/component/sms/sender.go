@@ -10,19 +10,18 @@ import (
 )
 
 type ISender interface {
-	SendOTPSMS(*OTP) error
-	SendOTPCallout(*OTP) error
-	SendMessage(*Message) error
+	SendOTPSMS(ormService *orm.Engine, otp *OTP) error
+	SendOTPCallout(ormService *orm.Engine, otp *OTP) error
+	SendMessage(ormService *orm.Engine, message *Message) error
 }
 
 type Sender struct {
-	OrmService     *orm.Engine
 	Clock          clock.Clock
 	GatewayFactory map[string]Gateway
 	Logger         LogEntity
 }
 
-func (s *Sender) SendOTPSMS(otp *OTP) error {
+func (s *Sender) SendOTPSMS(ormService *orm.Engine, otp *OTP) error {
 	primaryProvider := otp.Provider.Primary
 	secondaryProvider := otp.Provider.Secondary
 
@@ -62,12 +61,12 @@ func (s *Sender) SendOTPSMS(otp *OTP) error {
 	}
 
 	smsTrackerEntity.SetStatus(status)
-	logger := NewSmsLog(s.OrmService, smsTrackerEntity)
+	logger := NewSmsLog(ormService, smsTrackerEntity)
 	logger.Do()
 	return nil
 }
 
-func (s *Sender) SendOTPCallout(otp *OTP) error {
+func (s *Sender) SendOTPCallout(ormService *orm.Engine, otp *OTP) error {
 	primaryProvider := otp.Provider.Primary
 	secondaryProvider := otp.Provider.Secondary
 
@@ -107,12 +106,12 @@ func (s *Sender) SendOTPCallout(otp *OTP) error {
 	}
 
 	smsTrackerEntity.SetStatus(status)
-	logger := NewSmsLog(s.OrmService, smsTrackerEntity)
+	logger := NewSmsLog(ormService, smsTrackerEntity)
 	logger.Do()
 	return nil
 }
 
-func (s *Sender) SendMessage(message *Message) error {
+func (s *Sender) SendMessage(ormService *orm.Engine, message *Message) error {
 	primaryProvider := message.Provider.Primary
 	secondaryProvider := message.Provider.Secondary
 
@@ -150,7 +149,7 @@ func (s *Sender) SendMessage(message *Message) error {
 	}
 
 	smsTrackerEntity.SetStatus(status)
-	logger := NewSmsLog(s.OrmService, smsTrackerEntity)
+	logger := NewSmsLog(ormService, smsTrackerEntity)
 	logger.Do()
 	return nil
 }

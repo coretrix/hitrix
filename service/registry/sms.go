@@ -7,7 +7,6 @@ import (
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/sms"
-	"github.com/latolukasz/orm"
 	"github.com/sarulabs/di"
 )
 
@@ -18,11 +17,6 @@ func ServiceProviderSMS(entity sms.LogEntity) *service.Definition {
 		Build: func(ctn di.Container) (interface{}, error) {
 			clockService := ctn.Get(service.ClockService).(clock.Clock)
 			configService := ctn.Get("config").(config.IConfig)
-
-			subContainer, err := ctn.SubContainer()
-			if err != nil {
-				return nil, err
-			}
 
 			// register twilio
 			sid, ok := configService.String("sms.twilio.sid")
@@ -109,12 +103,9 @@ func ServiceProviderSMS(entity sms.LogEntity) *service.Definition {
 				Sender: sender,
 			}
 
-			ormService := subContainer.Get(service.ORMEngineRequestService).(*orm.Engine)
-
 			return &sms.Sender{
-				Logger:     entity,
-				Clock:      clockService,
-				OrmService: ormService,
+				Logger: entity,
+				Clock:  clockService,
 				GatewayFactory: map[string]sms.Gateway{
 					sms.Twilio:    twilioGateway,
 					sms.Sinch:     sinchGateway,

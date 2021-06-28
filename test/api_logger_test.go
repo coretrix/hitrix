@@ -17,13 +17,12 @@ func TestApiLogger(t *testing.T) {
 		panic("no api logger service registered")
 	}
 
-	apiLoggerService.LogStart(entity.APILogTypeApple, nil)
-	apiLoggerService.LogSuccess(nil)
-
-	apiLoggerService.LogStart(entity.APILogTypeApple, nil)
-	apiLoggerService.LogError("Error appear", nil)
-
 	ormService, _ := service.DI().OrmEngine()
+	apiLoggerService.LogStart(ormService, entity.APILogTypeApple, nil)
+	apiLoggerService.LogSuccess(ormService, nil)
+
+	apiLoggerService.LogStart(ormService, entity.APILogTypeApple, nil)
+	apiLoggerService.LogError(ormService, "Error appear", nil)
 
 	var apiLogEntities []*entity.APILogEntity
 	ormService.LoadByIDs([]uint64{1, 2}, &apiLogEntities)
