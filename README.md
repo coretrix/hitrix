@@ -732,14 +732,14 @@ This service is used to making the life easy by doing the whole authentication l
 `SMSService` # optional , when you need to support for otp
 
 ```go
-func Authenticate(uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {}
-func VerifyAccessToken(accessToken string, entity orm.Entity) error {}
-func RefreshToken(refreshToken string) (newAccessToken string, newRefreshToken string, err error) {}
-func LogoutCurrentSession(accessKey string){}
-func LogoutAllSessions(id uint64)
-func GenerateAndSendOTP(mobile string, country string){}
-func VerifyOTP(code string, input *GenerateOTP) error{}
-func AuthenticateOTP(phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error){}
+func Authenticate(ormService *orm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {}
+func VerifyAccessToken(ormService *orm.Engine, accessToken string, entity orm.Entity) error {}
+func RefreshToken(ormService *orm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {}
+func LogoutCurrentSession(ormService *orm.Engine, accessKey string){}
+func LogoutAllSessions(ormService *orm.Engine, id uint64)
+func GenerateAndSendOTP(ormService *orm.Engine, mobile string, country string){}
+func VerifyOTP(ormService *orm.Engine, code string, input *GenerateOTP) error{}
+func AuthenticateOTP(ormService *orm.Engine, phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error){}
 ```
 1. The `Authenticate` function will take an uniqueValue such as Email or Mobile, a plain password, and generates accessToken and refreshToken. 
    You will also need to pass your entity as third argument, and it will give you the specific user entity related to provided access token

@@ -10,7 +10,6 @@ import (
 	"github.com/coretrix/hitrix/service/component/password"
 	"github.com/coretrix/hitrix/service/component/sms"
 	"github.com/coretrix/hitrix/service/component/social"
-	"github.com/latolukasz/orm"
 	"github.com/sarulabs/di"
 )
 
@@ -25,11 +24,6 @@ func ServiceProviderAuthentication() *service.Definition {
 		Name:   service.AuthenticationService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			subContainer, err := ctn.SubContainer()
-			if err != nil {
-				return nil, err
-			}
-
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 			if configService == nil {
 				panic("`config is nil")
@@ -43,8 +37,6 @@ func ServiceProviderAuthentication() *service.Definition {
 			accessTokenTTL := DefaultAccessTokenTTLInSeconds
 			refreshTokenTTL := DefaultRefreshTokenTTLInSeconds
 			otpTTL := DefaultOTPTTLInSeconds
-
-			authRedis := "default"
 
 			accessTokenTTLConfig, ok := configService.Int("authentication.access_token_ttl")
 			if ok && accessTokenTTLConfig > 0 {
@@ -61,12 +53,6 @@ func ServiceProviderAuthentication() *service.Definition {
 				otpTTL = otpTTLConfig
 			}
 
-			authRedisConfig, ok := configService.String("authentication.auth_redis")
-			if ok {
-				authRedis = authRedisConfig
-			}
-
-			ormService := subContainer.Get(service.ORMEngineRequestService).(*orm.Engine)
 			passwordService := ctn.Get(service.PasswordService).(*password.Password)
 			jwtService := ctn.Get(service.JWTService).(*jwt.JWT)
 			clockService := ctn.Get(service.ClockService).(clock.Clock)
@@ -111,11 +97,9 @@ func ServiceProviderAuthentication() *service.Definition {
 				accessTokenTTL,
 				refreshTokenTTL,
 				otpTTL,
-				ormService,
 				smsService,
 				generatorService,
 				clockService,
-				ormService.GetRedis(authRedis),
 				passwordService,
 				jwtService,
 				mailService,

@@ -54,13 +54,11 @@ type Authentication struct {
 	otpTTL               int
 	passwordService      *password.Password
 	jwtService           *jwt.JWT
-	ormService           *orm.Engine
 	smsService           sms.ISender
 	mailService          *mail.Sender
 	socialServiceMapping map[string]social.IUserData
 	generatorService     generator.Generator
 	clockService         clock.Clock
-	cacheService         *orm.RedisCache
 	secret               string
 }
 
@@ -69,11 +67,9 @@ func NewAuthenticationService(
 	accessTokenTTL int,
 	refreshTokenTTL int,
 	otpTTL int,
-	ormService *orm.Engine,
 	smsService sms.ISender,
 	generatorService generator.Generator,
 	clockService clock.Clock,
-	cacheService *orm.RedisCache,
 	passwordService *password.Password,
 	jwtService *jwt.JWT,
 	mailService *mail.Sender,
@@ -86,11 +82,9 @@ func NewAuthenticationService(
 		otpTTL:               otpTTL,
 		passwordService:      passwordService,
 		jwtService:           jwtService,
-		ormService:           ormService,
 		smsService:           smsService,
 		clockService:         clockService,
 		generatorService:     generatorService,
-		cacheService:         cacheService,
 		mailService:          mailService,
 		socialServiceMapping: socialServiceMapping,
 	}
@@ -142,7 +136,7 @@ func (t *Authentication) GenerateAndSendOTP(mobile string, country string) (*Gen
 	}, nil
 }
 
-func (t *Authentication) GenerateAndSendOTPEmail(email string, template string, from string, title string) (*GenerateOTPEmail, error) {
+func (t *Authentication) GenerateAndSendOTPEmail(ormService *orm.Engine, email string, template string, from string, title string) (*GenerateOTPEmail, error) {
 	_, err := mail2.ParseAddress(email)
 
 	if err != nil {
@@ -155,7 +149,7 @@ func (t *Authentication) GenerateAndSendOTPEmail(email string, template string, 
 	}
 	mailService := *t.mailService
 
-	err = mailService.SendTemplateAsync(t.ormService, &mail.Message{
+	err = mailService.SendTemplateAsync(ormService, &mail.Message{
 		From:         from,
 		To:           email,
 		Subject:      title,
@@ -223,32 +217,32 @@ func (t *Authentication) VerifySocialLogin(source, token string) (*social.UserDa
 	return socialProvider.GetUserData(token)
 }
 
-func (t *Authentication) AuthenticateOTP(phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) AuthenticateOTP(ormService *orm.Engine, phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
 	q := &orm.RedisSearchQuery{}
 	q.FilterString(entity.GetPhoneFieldName(), phone)
-	found := t.ormService.RedisSearchOne(entity, q)
+	found := ormService.RedisSearchOne(entity, q)
 	if !found {
 		return "", "", errors.New("invalid credentials")
 	}
 
-	return t.generateUserTokens(entity.GetID())
+	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) AuthenticateOTPEmail(email string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) AuthenticateOTPEmail(ormService *orm.Engine, email string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
 	q := &orm.RedisSearchQuery{}
 	q.FilterString(entity.GetEmailFieldName(), email)
-	found := t.ormService.RedisSearchOne(entity, q)
+	found := ormService.RedisSearchOne(entity, q)
 	if !found {
 		return "", "", errors.New("invalid credentials")
 	}
 
-	return t.generateUserTokens(entity.GetID())
+	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) Authenticate(uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) Authenticate(ormService *orm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
 	q := &orm.RedisSearchQuery{}
 	q.FilterString(entity.GetUniqueFieldName(), uniqueValue)
-	found := t.ormService.RedisSearchOne(entity, q)
+	found := ormService.RedisSearchOne(entity, q)
 	if !found {
 		return "", "", errors.New("invalid user/pass")
 	}
@@ -257,19 +251,19 @@ func (t *Authentication) Authenticate(uniqueValue string, password string, entit
 		return "", "", errors.New("invalid user/pass")
 	}
 
-	return t.generateUserTokens(entity.GetID())
+	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) AuthenticateByID(id uint64, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
-	exists := t.ormService.LoadByID(id, entity)
+func (t *Authentication) AuthenticateByID(ormService *orm.Engine, id uint64, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
+	exists := ormService.LoadByID(id, entity)
 	if !exists {
 		return "", "", errors.New("id_does_not_exists")
 	}
-	return t.generateUserTokens(entity.GetID())
+	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) generateUserTokens(ID uint64) (accessToken string, refreshToken string, err error) {
-	accessKey := t.generateAndStoreAccessKey(ID, t.refreshTokenTTL)
+func (t *Authentication) generateUserTokens(ormService *orm.Engine, ID uint64) (accessToken string, refreshToken string, err error) {
+	accessKey := t.generateAndStoreAccessKey(ormService, ID, t.refreshTokenTTL)
 
 	accessToken, err = t.GenerateTokenPair(ID, accessKey, t.accessTokenTTL)
 	if err != nil {
@@ -281,11 +275,11 @@ func (t *Authentication) generateUserTokens(ID uint64) (accessToken string, refr
 		return "", "", err
 	}
 
-	t.addUserAccessKeyList(ID, accessKey, "", t.refreshTokenTTL)
+	t.addUserAccessKeyList(ormService, ID, accessKey, "", t.refreshTokenTTL)
 	return accessToken, refreshToken, nil
 }
 
-func (t *Authentication) VerifyAccessToken(accessToken string, entity orm.Entity) (map[string]string, error) {
+func (t *Authentication) VerifyAccessToken(ormService *orm.Engine, accessToken string, entity orm.Entity) (map[string]string, error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, accessToken, t.clockService.Now().Unix())
 	if err != nil {
 		return nil, err
@@ -298,12 +292,12 @@ func (t *Authentication) VerifyAccessToken(accessToken string, entity orm.Entity
 
 	accessKey := payload["jti"]
 
-	_, has := t.cacheService.Get(accessKey)
+	_, has := ormService.GetRedis().Get(accessKey)
 	if !has {
 		return nil, errors.New("access key not found")
 	}
 
-	found := t.ormService.LoadByID(id, entity)
+	found := ormService.LoadByID(id, entity)
 	if !found {
 		return nil, errors.New("user_not_found")
 	}
@@ -311,7 +305,7 @@ func (t *Authentication) VerifyAccessToken(accessToken string, entity orm.Entity
 	return payload, nil
 }
 
-func (t *Authentication) RefreshToken(refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
+func (t *Authentication) RefreshToken(ormService *orm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, refreshToken, t.clockService.Now().Unix())
 	if err != nil {
 		return "", "", err
@@ -324,14 +318,14 @@ func (t *Authentication) RefreshToken(refreshToken string) (newAccessToken strin
 
 	//check the access key
 	oldAccessKey := payload["jti"]
-	_, has := t.cacheService.Get(oldAccessKey)
+	_, has := ormService.GetRedis().Get(oldAccessKey)
 	if !has {
 		return "", "", errors.New("refresh token not valid")
 	}
 
-	t.cacheService.Del(oldAccessKey)
+	ormService.GetRedis().Del(oldAccessKey)
 
-	newAccessKey := t.generateAndStoreAccessKey(id, t.accessTokenTTL)
+	newAccessKey := t.generateAndStoreAccessKey(ormService, id, t.accessTokenTTL)
 
 	newAccessToken, err = t.GenerateTokenPair(id, newAccessKey, t.accessTokenTTL)
 	if err != nil {
@@ -343,13 +337,13 @@ func (t *Authentication) RefreshToken(refreshToken string) (newAccessToken strin
 		return "", "", err
 	}
 
-	t.addUserAccessKeyList(id, newAccessKey, oldAccessKey, t.refreshTokenTTL)
+	t.addUserAccessKeyList(ormService, id, newAccessKey, oldAccessKey, t.refreshTokenTTL)
 
 	return newAccessToken, newRefreshToken, err
 }
 
-func (t *Authentication) LogoutCurrentSession(accessKey string) {
-	cacheService := t.cacheService
+func (t *Authentication) LogoutCurrentSession(ormService *orm.Engine, accessKey string) {
+	cacheService := ormService.GetRedis()
 
 	cacheService.Del(accessKey)
 
@@ -371,9 +365,9 @@ func (t *Authentication) LogoutCurrentSession(accessKey string) {
 	}
 }
 
-func (t *Authentication) LogoutAllSessions(id uint64) {
+func (t *Authentication) LogoutAllSessions(ormService *orm.Engine, id uint64) {
 	tokenListKey := generateUserTokenListKey(id)
-	cacheService := t.cacheService
+	cacheService := ormService.GetRedis()
 
 	tokenList, has := cacheService.Get(tokenListKey)
 	if has && tokenList != "" {
@@ -403,15 +397,15 @@ func (t *Authentication) GenerateTokenPair(id uint64, accessKey string, ttl int)
 	return t.jwtService.EncodeJWT(t.secret, headers, payload)
 }
 
-func (t *Authentication) generateAndStoreAccessKey(id uint64, ttl int) string {
+func (t *Authentication) generateAndStoreAccessKey(ormService *orm.Engine, id uint64, ttl int) string {
 	key := generateAccessKey(id, t.generatorService.GenerateUUID())
-	t.cacheService.Set(key, "", ttl)
+	ormService.GetRedis().Set(key, "", ttl)
 	return key
 }
 
-func (t *Authentication) addUserAccessKeyList(id uint64, accessKey, oldAccessKey string, ttl int) {
+func (t *Authentication) addUserAccessKeyList(ormService *orm.Engine, id uint64, accessKey, oldAccessKey string, ttl int) {
 	key := generateUserTokenListKey(id)
-	cacheService := t.cacheService
+	cacheService := ormService.GetRedis()
 	res, has := cacheService.Get(key)
 	if !has {
 		cacheService.Set(key, accessKey, ttl)

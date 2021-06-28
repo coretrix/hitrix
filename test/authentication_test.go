@@ -103,6 +103,7 @@ func TestGenerateOTPEmail(t *testing.T) {
 		fakeGenerator := &generatorMock.FakeGenerator{}
 		fakeGenerator.On("GenerateRandomRangeNumber", min, max).Return(loginCode)
 		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), to, strconv.Itoa(loginCode))).Return("defjiwqwd")
+		ormService, _ := service.DI().OrmEngine()
 
 		createContextMyApp(t, "my-app", nil,
 			registry.ServiceProviderJWT(),
@@ -115,7 +116,7 @@ func TestGenerateOTPEmail(t *testing.T) {
 		)
 		fakeMail.On("SendTemplateAsync", to).Return(nil)
 		authenticationService, _ := service.DI().AuthenticationService()
-		otpResp, err := authenticationService.GenerateAndSendOTPEmail(to, template, from, title)
+		otpResp, err := authenticationService.GenerateAndSendOTPEmail(ormService, to, template, from, title)
 		assert.Nil(t, err)
 		assert.Equal(t, otpResp.Token, "defjiwqwd")
 		assert.Equal(t, otpResp.Email, to)
@@ -210,6 +211,7 @@ func TestAuthenticate(t *testing.T) {
 
 		passwordService, _ := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
+		ormService, _ := service.DI().OrmEngine()
 
 		createUser(map[string]interface{}{
 			"Email":    "test@test.com",
@@ -218,7 +220,7 @@ func TestAuthenticate(t *testing.T) {
 
 		authenticationService, _ := service.DI().AuthenticationService()
 		fetchedAdminEntity := &entity.AdminUserEntity{}
-		_, _, err := authenticationService.Authenticate("test@test.com", "1234", fetchedAdminEntity)
+		_, _, err := authenticationService.Authenticate(ormService, "test@test.com", "1234", fetchedAdminEntity)
 		assert.Nil(t, err)
 	})
 
@@ -239,6 +241,7 @@ func TestAuthenticate(t *testing.T) {
 
 		passwordService, _ := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
+		ormService, _ := service.DI().OrmEngine()
 
 		userEntity := createUser(map[string]interface{}{
 			"Email":    "test@test.com",
@@ -247,7 +250,7 @@ func TestAuthenticate(t *testing.T) {
 
 		authenticationService, _ := service.DI().AuthenticationService()
 		fetchedAdminEntity := &entity.AdminUserEntity{}
-		_, _, err := authenticationService.AuthenticateByID(userEntity.GetID(), fetchedAdminEntity)
+		_, _, err := authenticationService.AuthenticateByID(ormService, userEntity.GetID(), fetchedAdminEntity)
 		assert.Nil(t, err)
 		assert.Equal(t, fetchedAdminEntity.GetID(), userEntity.GetID())
 	})
@@ -266,6 +269,7 @@ func TestAuthenticate(t *testing.T) {
 
 		passwordService, _ := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
+		ormService, _ := service.DI().OrmEngine()
 
 		createUser(map[string]interface{}{
 			"Email":    "test@test.com",
@@ -274,7 +278,7 @@ func TestAuthenticate(t *testing.T) {
 
 		authenticationService, _ := service.DI().AuthenticationService()
 		fetchedAdminEntity := &entity.AdminUserEntity{}
-		_, _, err := authenticationService.Authenticate("test@tesat.com", "1234", fetchedAdminEntity)
+		_, _, err := authenticationService.Authenticate(ormService, "test@tesat.com", "1234", fetchedAdminEntity)
 		assert.NotNil(t, err)
 	})
 }
@@ -308,7 +312,7 @@ func TestVerifyAccessToken(t *testing.T) {
 		token, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.AdminUserEntity{}
-		payload, err := authenticationService.VerifyAccessToken(token, fetchedAdminEntity)
+		payload, err := authenticationService.VerifyAccessToken(ormService, token, fetchedAdminEntity)
 		assert.Nil(t, err)
 		assert.Equal(t, accessKey, payload["jti"])
 	})
@@ -339,7 +343,7 @@ func TestVerifyAccessToken(t *testing.T) {
 		token, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.AdminUserEntity{}
-		_, err = authenticationService.VerifyAccessToken(" wef"+token, fetchedAdminEntity)
+		_, err = authenticationService.VerifyAccessToken(ormService, " wef"+token, fetchedAdminEntity)
 		assert.NotNil(t, err)
 	})
 }
@@ -373,7 +377,7 @@ func TestRefreshToken(t *testing.T) {
 		authenticationService, _ := service.DI().AuthenticationService()
 		refresh, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
-		_, _, err = authenticationService.RefreshToken(refresh)
+		_, _, err = authenticationService.RefreshToken(ormService, refresh)
 		assert.Nil(t, err)
 	})
 
@@ -402,7 +406,7 @@ func TestRefreshToken(t *testing.T) {
 		authenticationService, _ := service.DI().AuthenticationService()
 		refresh, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
-		_, _, err = authenticationService.RefreshToken("ef" + refresh)
+		_, _, err = authenticationService.RefreshToken(ormService, "ef"+refresh)
 		assert.NotNil(t, err)
 	})
 }
@@ -436,10 +440,10 @@ func TestLogoutCurrentSession(t *testing.T) {
 		accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.AdminUserEntity{}
-		_, err = authenticationService.VerifyAccessToken(accessToken, fetchedAdminEntity)
+		_, err = authenticationService.VerifyAccessToken(ormService, accessToken, fetchedAdminEntity)
 		assert.Nil(t, err)
-		authenticationService.LogoutCurrentSession(accessKey)
-		_, err = authenticationService.VerifyAccessToken(accessToken, fetchedAdminEntity)
+		authenticationService.LogoutCurrentSession(ormService, accessKey)
+		_, err = authenticationService.VerifyAccessToken(ormService, accessToken, fetchedAdminEntity)
 		assert.NotNil(t, err)
 	})
 }
@@ -476,10 +480,10 @@ func TestLogoutAllSessions(t *testing.T) {
 		accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.AdminUserEntity{}
-		_, err = authenticationService.VerifyAccessToken(accessToken, fetchedAdminEntity)
+		_, err = authenticationService.VerifyAccessToken(ormService, accessToken, fetchedAdminEntity)
 		assert.Nil(t, err)
-		authenticationService.LogoutAllSessions(currentUser.ID)
-		_, err = authenticationService.VerifyAccessToken(accessToken, fetchedAdminEntity)
+		authenticationService.LogoutAllSessions(ormService, currentUser.ID)
+		_, err = authenticationService.VerifyAccessToken(ormService, accessToken, fetchedAdminEntity)
 		assert.NotNil(t, err)
 	})
 
@@ -516,14 +520,14 @@ func TestLogoutAllSessions(t *testing.T) {
 		accessToken2, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey2, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.AdminUserEntity{}
-		_, err = authenticationService.VerifyAccessToken(accessToken1, fetchedAdminEntity)
+		_, err = authenticationService.VerifyAccessToken(ormService, accessToken1, fetchedAdminEntity)
 		assert.Nil(t, err)
-		_, err = authenticationService.VerifyAccessToken(accessToken2, fetchedAdminEntity)
+		_, err = authenticationService.VerifyAccessToken(ormService, accessToken2, fetchedAdminEntity)
 		assert.Nil(t, err)
-		authenticationService.LogoutAllSessions(currentUser.ID)
-		_, err = authenticationService.VerifyAccessToken(accessToken1, fetchedAdminEntity)
+		authenticationService.LogoutAllSessions(ormService, currentUser.ID)
+		_, err = authenticationService.VerifyAccessToken(ormService, accessToken1, fetchedAdminEntity)
 		assert.NotNil(t, err)
-		_, err = authenticationService.VerifyAccessToken(accessToken2, fetchedAdminEntity)
+		_, err = authenticationService.VerifyAccessToken(ormService, accessToken2, fetchedAdminEntity)
 		assert.NotNil(t, err)
 	})
 }
@@ -555,7 +559,7 @@ func TestGenerateTokenPair(t *testing.T) {
 	accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, "test_key", 10)
 	assert.Nil(t, err)
 	fetchedAdminEntity := &entity.AdminUserEntity{}
-	payload, err := authenticationService.VerifyAccessToken(accessToken, fetchedAdminEntity)
+	payload, err := authenticationService.VerifyAccessToken(ormService, accessToken, fetchedAdminEntity)
 	assert.Nil(t, err)
 	assert.Equal(t, "test_key", payload["jti"])
 	assert.Equal(t, fmt.Sprint(currentUser.ID), payload["sub"])
