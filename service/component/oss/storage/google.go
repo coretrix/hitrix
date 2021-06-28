@@ -237,10 +237,19 @@ func (ossStorage *GoogleOSS) getObjectKey(storageCounter uint64, fileExtension s
 }
 
 func (ossStorage *GoogleOSS) GetObjectBase64Content(bucket string, object *oss.Object) (string, error) {
+	ossStorage.checkBucket(bucket)
+
+	bucketByEnv := bucket
+
+	if ossStorage.environment != app.ModeProd {
+		bucketByEnv += "-" + ossStorage.environment
+	}
+
 	reader, err := ossStorage.client.Bucket(bucket).Object(object.StorageKey).NewReader(context.Background())
 	if err != nil {
 		return "", err
 	}
+
 	content, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return "", err

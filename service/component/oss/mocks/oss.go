@@ -41,6 +41,6 @@ func (t *FakeOSSClient) UploadImageFromBase64(_ *orm.Engine, bucket, image, exte
 	return t.Called(bucket, image, extension).Get(0).(oss.Object)
 }
 
-func (t *FakeOSSClient) GetObjectBase64Content(bucket, object *oss.Object) (string, error) {
+func (t *FakeOSSClient) GetObjectBase64Content(bucket string, object *oss.Object) (string, error) {
 	return t.Called(bucket, object).Get(0).(string), t.Called(bucket, object).Get(0).(error)
 }
