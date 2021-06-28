@@ -245,7 +245,7 @@ func (ossStorage *GoogleOSS) GetObjectBase64Content(bucket string, object *oss.O
 		bucketByEnv += "-" + ossStorage.environment
 	}
 
-	reader, err := ossStorage.client.Bucket(bucket).Object(object.StorageKey).NewReader(context.Background())
+	reader, err := ossStorage.client.Bucket(bucketByEnv).Object(object.StorageKey).NewReader(context.Background())
 	if err != nil {
 		return "", err
 	}
