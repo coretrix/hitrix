@@ -79,6 +79,7 @@ type DIInterface interface {
 	MailMandrillService() mail.Sender
 	Stripe() (stripe.IStripe, bool)
 	GoogleService() *social.Google
+	ClockService() clock.Clock
 }
 
 type diContainer struct {
@@ -210,12 +211,8 @@ func (d *diContainer) APILoggerService() (apilogger.APILogger, bool) {
 	return nil, false
 }
 
-func (d *diContainer) ClockService() (clock.Clock, bool) {
-	v, has := GetServiceOptional(ClockService)
-	if has {
-		return v.(clock.Clock), true
-	}
-	return nil, false
+func (d *diContainer) ClockService() clock.Clock {
+	return GetServiceRequired(ClockService).(clock.Clock)
 }
 
 func (d *diContainer) AuthenticationService() (*authentication.Authentication, bool) {
