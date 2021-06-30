@@ -10,6 +10,13 @@ stripe:
   webhook_secrets:
     checkout: "key"
 
+checkout:
+  secret_key: "secret_key"
+  public_key: "public_key"
+  currency: "GBP"
+  webhook_keys:
+    main: "some_key"
+
 amazon_s3:
   endpoint: "https://somestorage.com"
   access_key_id: ""

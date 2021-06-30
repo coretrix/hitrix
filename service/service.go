@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/checkout"
+
 	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/social"
 	"github.com/coretrix/hitrix/service/component/stripe"
@@ -49,6 +51,7 @@ const (
 	SlackAPIService         = "slack_api"
 	AmazonS3Service         = "amazon_s3"
 	StripeService           = "stripe"
+	CheckoutService         = "checkout"
 	SocketRegistryService   = "socket_registry"
 	APILoggerService        = "api_logger"
 	AuthenticationService   = "authentication"
@@ -79,12 +82,20 @@ type DIInterface interface {
 	MailMandrillService() mail.Sender
 	Stripe() (stripe.IStripe, bool)
 	GoogleService() *social.Google
+	Checkout() (checkout.ICheckout, bool)
 	ClockService() clock.Clock
 }
 
 type diContainer struct {
 }
 
+func (d *diContainer) Checkout() (checkout.ICheckout, bool) {
+	v, has := GetServiceOptional(CheckoutService)
+	if has {
+		return v.(checkout.ICheckout), true
+	}
+	return nil, false
+}
 func (d *diContainer) AmazonS3() (s3.Client, bool) {
 	v, has := GetServiceOptional(AmazonS3Service)
 	if has {
