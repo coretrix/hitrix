@@ -221,6 +221,10 @@ func (amazonS3 *AmazonS3) GetObjectSignedURL(bucket string, object *Object, expi
 	return url
 }
 
+func (amazonS3 *AmazonS3) GetClient() *s3.S3 {
+	return amazonS3.client
+}
+
 type Object struct {
 	ID         uint64
 	StorageKey string
@@ -236,4 +240,5 @@ type Client interface {
 	UploadImageFromFile(ormService *orm.Engine, bucket, localFile string) Object
 	UploadImageFromBase64(ormService *orm.Engine, bucket, image, extension string) Object
 	DeleteObject(bucket string, objects ...*Object) bool
+	GetClient() *s3.S3
 }

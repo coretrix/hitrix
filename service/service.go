@@ -5,34 +5,24 @@ import (
 
 	"github.com/coretrix/hitrix/service/component/checkout"
 
-	"github.com/coretrix/hitrix/service/component/mail"
-	"github.com/coretrix/hitrix/service/component/social"
-	"github.com/coretrix/hitrix/service/component/stripe"
-
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
-
-	"github.com/coretrix/hitrix/service/component/generator"
-
-	"github.com/coretrix/hitrix/service/component/sms"
-
-	"github.com/coretrix/hitrix/service/component/authentication"
-
-	"github.com/coretrix/hitrix/service/component/clock"
-
 	apilogger "github.com/coretrix/hitrix/service/component/api_logger"
-
-	"github.com/coretrix/hitrix/service/component/socket"
-
-	"github.com/coretrix/hitrix/service/component/oss"
-
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
-	slackapi "github.com/coretrix/hitrix/service/component/slack_api"
-
-	"github.com/coretrix/hitrix/service/component/config"
-	"github.com/coretrix/hitrix/service/component/jwt"
-	"github.com/coretrix/hitrix/service/component/password"
-
 	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/coretrix/hitrix/service/component/authentication"
+	"github.com/coretrix/hitrix/service/component/clock"
+	"github.com/coretrix/hitrix/service/component/config"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+	"github.com/coretrix/hitrix/service/component/generator"
+	"github.com/coretrix/hitrix/service/component/jwt"
+	"github.com/coretrix/hitrix/service/component/mail"
+	"github.com/coretrix/hitrix/service/component/oss"
+	"github.com/coretrix/hitrix/service/component/password"
+	slackapi "github.com/coretrix/hitrix/service/component/slack_api"
+	"github.com/coretrix/hitrix/service/component/sms"
+	"github.com/coretrix/hitrix/service/component/social"
+	"github.com/coretrix/hitrix/service/component/socket"
+	"github.com/coretrix/hitrix/service/component/stripe"
+	"github.com/coretrix/hitrix/service/component/uploader"
 
 	"github.com/latolukasz/orm"
 )
@@ -50,6 +40,7 @@ const (
 	PasswordService         = "password"
 	SlackAPIService         = "slack_api"
 	AmazonS3Service         = "amazon_s3"
+	UploaderService         = "uploader"
 	StripeService           = "stripe"
 	CheckoutService         = "checkout"
 	SocketRegistryService   = "socket_registry"
@@ -84,6 +75,7 @@ type DIInterface interface {
 	GoogleService() *social.Google
 	Checkout() (checkout.ICheckout, bool)
 	ClockService() clock.Clock
+	Uploader() (uploader.Uploader, bool)
 }
 
 type diContainer struct {
@@ -240,4 +232,12 @@ func (d *diContainer) MailMandrillService() mail.Sender {
 
 func (d *diContainer) GoogleService() *social.Google {
 	return GetServiceRequired(GoogleService).(*social.Google)
+}
+
+func (d *diContainer) Uploader() (uploader.Uploader, bool) {
+	v, has := GetServiceOptional(UploaderService)
+	if has {
+		return v.(uploader.Uploader), true
+	}
+	return nil, false
 }
