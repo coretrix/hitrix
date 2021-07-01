@@ -20,7 +20,7 @@ func ServiceDefinitionUploader(c tusd.Config) *service.Definition {
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
-			s3Client := ctn.Get(service.AmazonS3Service).(s3hitrix.AmazonS3)
+			s3Client := ctn.Get(service.AmazonS3Service).(*s3hitrix.AmazonS3)
 
 			bucket, ok := configService.String("uploader.bucket")
 			if !ok {
