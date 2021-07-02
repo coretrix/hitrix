@@ -147,6 +147,7 @@ func (amazonS3 *AmazonS3) putObject(ormService *orm.Engine, bucket string, objec
 		StorageKey: objectKey,
 	}
 }
+
 func (amazonS3 *AmazonS3) getObjectKey(storageCounter uint64, fileExtension string) string {
 	return strconv.FormatUint(storageCounter, 10) + fileExtension
 }
@@ -221,8 +222,19 @@ func (amazonS3 *AmazonS3) GetObjectSignedURL(bucket string, object *Object, expi
 	return url
 }
 
+func (amazonS3 *AmazonS3) CreateObjectFromKey(ormService *orm.Engine, bucket, key string) Object {
+	return Object{
+		ID:         amazonS3.getCounter(ormService, bucket),
+		StorageKey: key,
+	}
+}
+
 func (amazonS3 *AmazonS3) GetClient() *s3.S3 {
 	return amazonS3.client
+}
+
+func (amazonS3 *AmazonS3) GetBucketName(bucket string) string {
+	return amazonS3.bucketsConfigDefinitions[bucket][amazonS3.environment]
 }
 
 type Object struct {
@@ -241,4 +253,6 @@ type Client interface {
 	UploadImageFromBase64(ormService *orm.Engine, bucket, image, extension string) Object
 	DeleteObject(bucket string, objects ...*Object) bool
 	GetClient() *s3.S3
+	CreateObjectFromKey(ormService *orm.Engine, bucket, key string) Object
+	GetBucketName(bucket string) string
 }
