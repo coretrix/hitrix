@@ -27,7 +27,7 @@ func ServiceDefinitionUploader(c tusd.Config) *service.Definition {
 				return nil, errors.New("missing bucket")
 			}
 
-			store := s3store.New(s3Client.GetBucketName(bucket), s3Client.GetClient())
+			store := s3store.New(s3Client.GetBucketName(bucket), s3Client.GetClient().(s3store.S3API))
 
 			composer := tusd.NewStoreComposer()
 			store.UseIn(composer)

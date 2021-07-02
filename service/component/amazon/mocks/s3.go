@@ -5,7 +5,6 @@ import (
 
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 
-	s3sdk "github.com/aws/aws-sdk-go/service/s3"
 	"github.com/latolukasz/orm"
 	"github.com/stretchr/testify/mock"
 )
@@ -42,8 +41,8 @@ func (t *FakeS3Client) DeleteObject(bucket string, objects ...*s3.Object) bool {
 	return t.Called(bucket, objects).Get(0).(bool)
 }
 
-func (t *FakeS3Client) GetClient() *s3sdk.S3 {
-	return t.Called().Get(0).(*s3sdk.S3)
+func (t *FakeS3Client) GetClient() interface{} {
+	return t.Called().Get(0)
 }
 
 func (t *FakeS3Client) CreateObjectFromKey(_ *orm.Engine, bucket, key string) s3.Object {

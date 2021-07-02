@@ -229,7 +229,7 @@ func (amazonS3 *AmazonS3) CreateObjectFromKey(ormService *orm.Engine, bucket, ke
 	}
 }
 
-func (amazonS3 *AmazonS3) GetClient() *s3.S3 {
+func (amazonS3 *AmazonS3) GetClient() interface{} {
 	return amazonS3.client
 }
 
@@ -245,6 +245,9 @@ type Object struct {
 }
 
 type Client interface {
+	GetClient() interface{}
+	GetBucketName(bucket string) string
+	CreateObjectFromKey(ormService *orm.Engine, bucket, key string) Object
 	GetObjectCachedURL(bucket string, object *Object) string
 	GetObjectSignedURL(bucket string, object *Object, expires time.Duration) string
 	UploadObjectFromFile(ormService *orm.Engine, bucket, localFile string) Object
@@ -252,7 +255,4 @@ type Client interface {
 	UploadImageFromFile(ormService *orm.Engine, bucket, localFile string) Object
 	UploadImageFromBase64(ormService *orm.Engine, bucket, image, extension string) Object
 	DeleteObject(bucket string, objects ...*Object) bool
-	GetClient() *s3.S3
-	CreateObjectFromKey(ormService *orm.Engine, bucket, key string) Object
-	GetBucketName(bucket string) string
 }
