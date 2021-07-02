@@ -45,3 +45,11 @@ func (t *FakeS3Client) DeleteObject(bucket string, objects ...*s3.Object) bool {
 func (t *FakeS3Client) GetClient() *s3sdk.S3 {
 	return t.Called().Get(0).(*s3sdk.S3)
 }
+
+func (t *FakeS3Client) CreateObjectFromKey(_ *orm.Engine, bucket, key string) s3.Object {
+	return t.Called(bucket, key).Get(0).(s3.Object)
+}
+
+func (t *FakeS3Client) GetBucketName(bucket string) string {
+	return t.Called(bucket).Get(0).(string)
+}
