@@ -4,36 +4,31 @@ import (
 	"errors"
 
 	"github.com/coretrix/hitrix/service"
-	s3hitrix "github.com/coretrix/hitrix/service/component/amazon/storage"
-	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/uploader"
-	tusd "github.com/tus/tusd/pkg/handler"
-	"github.com/tus/tusd/pkg/memorylocker"
-	"github.com/tus/tusd/pkg/s3store"
+	datastore "github.com/coretrix/hitrix/service/component/uploader/data_store"
+	"github.com/coretrix/hitrix/service/component/uploader/locker"
 
 	"github.com/sarulabs/di"
+	tusd "github.com/tus/tusd/pkg/handler"
 )
 
-func ServiceDefinitionUploader(c tusd.Config) *service.Definition {
+func ServiceDefinitionUploader(c tusd.Config, getStoreFunc datastore.GetStoreFunc, getLockerFunc locker.GetLockerFunc) *service.Definition {
 	return &service.Definition{
 		Name:   service.UploaderService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			configService := ctn.Get(service.ConfigService).(config.IConfig)
-			s3Client := ctn.Get(service.AmazonS3Service).(*s3hitrix.AmazonS3)
+			composer := tusd.NewStoreComposer()
 
-			bucket, ok := configService.String("uploader.bucket")
-			if !ok {
-				return nil, errors.New("missing bucket")
+			if getStoreFunc == nil {
+				panic(errors.New("missing get data store func"))
 			}
 
-			store := s3store.New(s3Client.GetBucketName(bucket), s3Client.GetClient().(s3store.S3API))
-
-			composer := tusd.NewStoreComposer()
+			store := getStoreFunc(ctn)
 			store.UseIn(composer)
 
-			// implement redis locker
-			composer.UseLocker(memorylocker.New())
+			if getLockerFunc != nil {
+				composer.UseLocker(getLockerFunc(ctn))
+			}
 
 			c.StoreComposer = composer
 			return uploader.NewTUSDUploader(c), nil
