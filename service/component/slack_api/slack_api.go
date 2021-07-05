@@ -24,10 +24,9 @@ func (s *SlackAPI) GetErrorChannel() string {
 	return s.errorChannel
 }
 
-func (s *SlackAPI) SendToChannel(channelName, message string, opt ...slack.MsgOption) {
+func (s *SlackAPI) SendToChannel(channelName, message string, opt ...slack.MsgOption) error {
 	opt = append(opt, slack.MsgOptionText(message, true))
 	_, _, err := s.client.PostMessage(channelName, opt...)
-	if err != nil {
-		panic(err)
-	}
+
+	return err
 }
