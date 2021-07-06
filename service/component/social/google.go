@@ -2,6 +2,7 @@ package social
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -23,6 +24,10 @@ func (p *Google) GetUserData(token string) (*UserData, error) {
 
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New("Status: "+ resp.Status)
 	}
 
 	// read all response body
