@@ -2,7 +2,7 @@ package registry
 
 import (
 	"github.com/coretrix/hitrix/service"
-	"github.com/coretrix/hitrix/service/component/clock"
+	"github.com/coretrix/hitrix/service/component/social"
 	"github.com/sarulabs/di"
 )
 
@@ -11,7 +11,7 @@ func ServiceGoogle() *service.Definition {
 		Name:   service.GoogleService,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return &clock.SysClock{}, nil
+			return &social.Google{}, nil
 		},
 	}
 }

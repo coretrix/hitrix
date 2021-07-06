@@ -80,11 +80,12 @@ func ServiceProviderAuthentication() *service.Definition {
 			var socialServiceMapping = make(map[string]social.IUserData)
 
 			if ok && supportSocialLoginGoogle {
-				var has bool
-				socialServiceMapping[authentication.SocialLoginGoogle], has = ctn.Get(service.GoogleService).(social.IUserData)
-				if !has {
-					panic("sms service not loaded")
+				googleService, err := ctn.SafeGet(service.GoogleService)
+				if err != nil {
+					panic("google service not loaded")
 				}
+
+				socialServiceMapping[authentication.SocialLoginGoogle] = googleService.(social.IUserData)
 			}
 
 			generatorService, has := service.DI().GeneratorService()
