@@ -51,6 +51,7 @@ const (
 	GeneratorService        = "generator_service"
 	MailMandrill            = "mail_mandrill"
 	GoogleService           = "google"
+	CrudService             = "crud"
 )
 
 type DIInterface interface {

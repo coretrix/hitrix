@@ -36,7 +36,10 @@ type ListRequest struct {
 	Sort     map[string]interface{}
 }
 
-func ExtractListParams(cols []Column, request *ListRequest) SearchParams {
+type Crud struct {
+}
+
+func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchParams {
 	finalPage := 1
 	finalPageSize := 10
 	if request.Page != nil && *request.Page > 0 {
@@ -151,7 +154,7 @@ mainLoop:
 }
 
 // TODO : add full text queries when supported by hitrix
-func GenerateListRedisSearchQuery(params SearchParams) *orm.RedisSearchQuery {
+func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *orm.RedisSearchQuery {
 	query := &orm.RedisSearchQuery{}
 	for field, value := range params.NumberFilters {
 		query.FilterInt(field, value)

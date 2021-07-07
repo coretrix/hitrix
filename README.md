@@ -438,7 +438,6 @@ To run script:
 ./app -run-script my-script
 ```
 
-
 ### Built-in services
 
 #### App 
@@ -937,7 +936,18 @@ sms:
     call_url: ENV[SMS_SINCH_CALL_URL]
     caller_number: ENV[SMS_SINCH_CALLER_NUMBER]
 ```
-    
+
+#### CRUD
+
+CRUD
+
+You can register CRUD service this way:
+
+```go
+hitrixRegistry.Crud(),
+```
+This service it gives you ability to build a query and apply different query parameters to the query that should be used in listing pages
+
 ### Validator
 We support 2 types of validators. One of them is related to graphql and the other one is related to rest
 
