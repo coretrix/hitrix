@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/coretrix/hitrix/service/component/crud"
 
 	"github.com/coretrix/hitrix/service/component/checkout"
 
@@ -77,6 +78,7 @@ type DIInterface interface {
 	Checkout() (checkout.ICheckout, bool)
 	ClockService() clock.Clock
 	Uploader() (uploader.Uploader, bool)
+	Crud() *crud.Crud
 }
 
 type diContainer struct {
@@ -241,4 +243,8 @@ func (d *diContainer) Uploader() (uploader.Uploader, bool) {
 		return v.(uploader.Uploader), true
 	}
 	return nil, false
+}
+
+func (d *diContainer) Crud() *crud.Crud {
+	return GetServiceRequired(CrudService).(*crud.Crud)
 }
