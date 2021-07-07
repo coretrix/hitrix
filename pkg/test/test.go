@@ -323,8 +323,8 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 func dropTables() error {
 	var query string
 	rows, deferF := dbService.Query(
-		"SELECT CONCAT('DROP TABLE ',table_schema,'.',table_name,';') AS query " +
-			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "')",
+		"SELECT CONCAT('delete from  ',table_schema,'.',table_name,';' , 'ALTER TABLE ', table_schema,'.',table_name , ' AUTO_INCREMENT = 1;') AS query " +
+			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "');",
 	)
 	defer deferF()
 
