@@ -13,7 +13,7 @@ type UploaderController struct {
 }
 
 func (controller *UploaderController) PostFileAction(c *gin.Context) {
-	uploaderService, ok := service.DI().Uploader()
+	uploaderService, ok := service.DI().UploaderService()
 	if !ok {
 		panic("missing uploader service")
 	}
@@ -46,7 +46,7 @@ func (controller *UploaderController) PostFileAction(c *gin.Context) {
 }
 
 func (controller *UploaderController) GetFileAction(c *gin.Context) {
-	uploaderService, ok := service.DI().Uploader()
+	uploaderService, ok := service.DI().UploaderService()
 	if !ok {
 		panic("missing uploader service")
 	}
@@ -60,7 +60,7 @@ func (controller *UploaderController) GetFileAction(c *gin.Context) {
 }
 
 func (controller *UploaderController) HeadFile(c *gin.Context) {
-	uploaderService, ok := service.DI().Uploader()
+	uploaderService, ok := service.DI().UploaderService()
 	if !ok {
 		panic("missing uploader service")
 	}
@@ -74,7 +74,7 @@ func (controller *UploaderController) HeadFile(c *gin.Context) {
 }
 
 func (controller *UploaderController) PatchFile(c *gin.Context) {
-	uploaderService, ok := service.DI().Uploader()
+	uploaderService, ok := service.DI().UploaderService()
 	if !ok {
 		panic("missing uploader service")
 	}
@@ -88,7 +88,7 @@ func (controller *UploaderController) PatchFile(c *gin.Context) {
 }
 
 func (controller *UploaderController) DeleteFile(c *gin.Context) {
-	uploaderService, ok := service.DI().Uploader()
+	uploaderService, ok := service.DI().UploaderService()
 	if !ok {
 		panic("missing uploader service")
 	}
