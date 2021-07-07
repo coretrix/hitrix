@@ -939,8 +939,6 @@ sms:
 
 #### CRUD
 
-CRUD
-
 You can register CRUD service this way:
 
 ```go
