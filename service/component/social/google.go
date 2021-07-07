@@ -27,7 +27,7 @@ func (p *Google) GetUserData(token string) (*UserData, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, errors.New("Status: "+ resp.Status)
+		return nil, errors.New("Status: " + resp.Status)
 	}
 
 	// read all response body

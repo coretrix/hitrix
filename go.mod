@@ -30,7 +30,7 @@ require (
 	github.com/kevinburke/go.uuid v1.2.0 // indirect
 	github.com/kevinburke/rest v0.0.0-20210425173428-1fcb8c8e9022 // indirect
 	github.com/kevinburke/twilio-go v0.0.0-20210327194925-1623146bcf73
-	github.com/latolukasz/orm v1.3.16
+	github.com/latolukasz/orm v1.3.17
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattbaird/gochimp v0.0.0-20200820164431-f1082bcdf63f
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
@@ -38,13 +38,12 @@ require (
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/sarulabs/di v2.0.0+incompatible
 	github.com/slack-go/slack v0.9.0
-	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/stripe/stripe-go/v72 v72.50.0
 	github.com/tj/assert v0.0.3
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.2.1 // indirect
-	github.com/tus/tusd v1.6.0 // indirect
+	github.com/tus/tusd v1.6.0
 	github.com/ugorji/go v1.2.2 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0
 	github.com/xorcare/pointer v1.1.0
