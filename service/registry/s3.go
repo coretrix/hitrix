@@ -3,7 +3,6 @@ package registry
 import (
 	"errors"
 
-	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -12,15 +11,18 @@ import (
 	"github.com/sarulabs/di"
 )
 
+// ServiceDefinitionAmazonS3 Be sure that you registered entity S3BucketCounterEntity
 func ServiceDefinitionAmazonS3(bucketsMapping map[string]uint64) *service.Definition {
-	ORMRegistryContainer = append(ORMRegistryContainer, func(registry *orm.Registry) {
-		registry.RegisterEntity(&entity.S3BucketCounterEntity{})
-	})
-
 	return &service.Definition{
 		Name:   service.AmazonS3Service,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
+			ormConfig := ctn.Get(service.ORMConfigService).(orm.ValidatedRegistry)
+			entities := ormConfig.GetEntities()
+			if _, ok := entities["entity.S3BucketCounterEntity"]; !ok {
+				return nil, errors.New("you should register S3BucketCounterEntity")
+			}
+
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 			appService := ctn.Get(service.AppService).(*app.App)
 			disableSSL := false

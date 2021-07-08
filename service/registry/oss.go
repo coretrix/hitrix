@@ -5,7 +5,6 @@ import (
 
 	"github.com/latolukasz/orm"
 
-	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -14,11 +13,8 @@ import (
 	"github.com/sarulabs/di"
 )
 
+// OSSGoogle Be sure that you registered entity OSSBucketCounterEntity
 func OSSGoogle(buckets map[string]uint64) *service.Definition {
-	ORMRegistryContainer = append(ORMRegistryContainer, func(registry *orm.Registry) {
-		registry.RegisterEntity(&entity.OSSBucketCounterEntity{})
-	})
-
 	return &service.Definition{
 		Name:   service.OSSGoogleService,
 		Global: true,
@@ -28,6 +24,12 @@ func OSSGoogle(buckets map[string]uint64) *service.Definition {
 
 			if !helper.ExistsInDir(".oss.json", configService.GetFolderPath()) {
 				return nil, errors.New(configService.GetFolderPath() + "/.oss.json does not exists")
+			}
+
+			ormConfig := ctn.Get(service.ORMConfigService).(orm.ValidatedRegistry)
+			entities := ormConfig.GetEntities()
+			if _, ok := entities["entity.OSSBucketCounterEntity"]; !ok {
+				return nil, errors.New("you should register OSSBucketCounterEntity")
 			}
 
 			if len(buckets) == 0 {

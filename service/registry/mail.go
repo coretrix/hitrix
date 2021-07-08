@@ -1,9 +1,9 @@
 package registry
 
 import (
+	"errors"
 	"fmt"
 
-	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/latolukasz/orm"
 
@@ -13,16 +13,18 @@ import (
 	"github.com/sarulabs/di"
 )
 
+// MailMandrill Be sure that you registered entity MailTrackerEntity
 func MailMandrill() *service.Definition {
-	ORMRegistryContainer = append(ORMRegistryContainer, func(registry *orm.Registry) {
-		registry.RegisterEntity(&entity.MailTrackerEntity{})
-		registry.RegisterEnumStruct("entity.MailTrackerStatusAll", entity.MailTrackerStatusAll)
-	})
-
 	return &service.Definition{
 		Name:   service.MailMandrill,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
+			ormConfig := ctn.Get(service.ORMConfigService).(orm.ValidatedRegistry)
+			entities := ormConfig.GetEntities()
+			if _, ok := entities["entity.MailTrackerEntity"]; !ok {
+				return nil, errors.New("you should register MailTrackerEntity")
+			}
+
 			configService := ctn.Get("config").(config.IConfig)
 
 			apiKey, ok := configService.String("mandrill.api_key")

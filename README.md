@@ -510,7 +510,7 @@ You can register amazon s3 service this way:
 ```go
 registry.ServiceDefinitionAmazonS3(map[string]uint64{"products": 1}) // 1 is the bucket ID for database counter
 ```
-
+and you should register the entity `S3BucketCounterEntity` into the ORM
 Also, you should put your credentials and other configs in `config/hitrix.yml`
 
 ```yml
@@ -591,6 +591,7 @@ This service is used for storage files into google storage
 You can register it in that way:
 `registry.OSSGoogle(map[string]uint64{"my-bucket-name": 1})`
 
+and you should register the entity `OSSBucketCounterEntity` into the ORM
 You should pass parameter as a map that contains all buckets you need as a key and as a value you should pass id. This id should be unique
 
 In your config folder you should put the .oss.json config file that you have from google
@@ -735,7 +736,7 @@ You can register the service this way:
 ```go
 registry.MailMandrill()
 ```
-
+and you should register the entity `MailTrackerEntity` into the ORM
 Also, you should put your credentials and other configs in your config file
 
 ```yml

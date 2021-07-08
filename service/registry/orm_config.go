@@ -11,8 +11,6 @@ import (
 	"github.com/latolukasz/orm"
 )
 
-var ORMRegistryContainer []func(registry *orm.Registry)
-
 type ORMRegistryInitFunc func(registry *orm.Registry)
 
 func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition {
@@ -36,9 +34,6 @@ func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition 
 
 			registry.InitByYaml(yamlConfig)
 			init(registry)
-			for _, callback := range ORMRegistryContainer {
-				callback(registry)
-			}
 
 			ormConfig, err := registry.Validate()
 			return ormConfig, err
