@@ -176,6 +176,7 @@ func (ossStorage *GoogleOSS) putObject(ormService *orm.Engine, bucket string, ob
 	}
 
 	ossBucketObject := ossStorage.client.Bucket(bucketByEnv).Object(objectKey).NewWriter(ossStorage.ctx)
+	ossStorage.setObjectContentTypeIfNecessary(ossBucketObject, extension)
 
 	_, err := ossBucketObject.Write(objectContent)
 
@@ -266,4 +267,13 @@ func (ossStorage *GoogleOSS) ReadFile(localFile string) ([]byte, string) {
 	}
 
 	return fileContent, filepath.Ext(localFile)
+}
+
+func (ossStorage *GoogleOSS) setObjectContentTypeIfNecessary(writer *storage.Writer, extension string) {
+	if writer == nil {
+		return
+	}
+	if extension == ".svg" && writer.ObjectAttrs.ContentType == "" {
+		writer.ObjectAttrs.ContentType = "image/svg+xml"
+	}
 }
