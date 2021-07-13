@@ -400,7 +400,10 @@ package main
 import "github.com/coretrix/hitrix"
 
 func main() {
-	hitrix.New("app_name", "your secret").Build().RunScript(&TestScript{})
+	h := hitrix.New("app_name", "your secret").Build()
+	h.RunBackgroundProcess(func(b *hitrix.BackgroundProcessor) {
+		b.RunScript(&TestScript)
+	})
 }
 ``` 
 
