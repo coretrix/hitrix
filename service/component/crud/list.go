@@ -184,3 +184,39 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *orm.RedisSearc
 
 	return query
 }
+
+func (c *Crud) GenerateListMysqlQuery(params SearchParams) *orm.Where {
+	where := orm.NewWhere("1")
+	for field, value := range params.NumberFilters {
+		where.Append(field+" = ?", value)
+	}
+
+	for field, value := range params.StringFilters {
+		where.Append(field+" = ?", value)
+	}
+
+	for field, value := range params.BooleanFilters {
+		where.Append(field+" = ?", value)
+	}
+
+	// TODO : use full text search
+	for field, value := range params.Search {
+		where.Append(field+" LIKE ?", value+"%")
+	}
+
+	if len(params.Sort) == 1 {
+		sortQuery := "ORDER BY "
+		for field, mode := range params.Sort {
+			sort := "ASC"
+			if !mode {
+				sort = "DESC"
+			}
+
+			sortQuery += field + " " + sort
+		}
+
+		where.Append(sortQuery)
+	}
+
+	return where
+}

@@ -6,7 +6,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func Crud() *service.Definition {
+func CrudService() *service.Definition {
 	return &service.Definition{
 		Name:   service.CrudService,
 		Global: true,
