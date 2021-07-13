@@ -103,6 +103,8 @@ func (h *Hitrix) preDeploy() {
 }
 
 func (h *Hitrix) Await() {
+	h.preDeploy()
+
 	termChan := make(chan os.Signal, 1)
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
 
