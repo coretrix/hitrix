@@ -35,7 +35,8 @@ func TestRunScript(t *testing.T) {
 	env := createContextMyApp(t, "my-app", nil, nil)
 
 	testScript2 := &testScript2{}
-	env.Hitrix.RunScript(testScript2)
+	b := &hitrix.BackgroundProcessor{Server: env.Hitrix}
+	b.RunScript(testScript2)
 	assert.Equal(t, 1, testScript2.RunCounter)
 	assert.Equal(t, "my-app", service.DI().App().Name)
 }

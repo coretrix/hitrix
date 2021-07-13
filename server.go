@@ -10,8 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/latolukasz/orm"
-
 	"github.com/coretrix/hitrix/service"
 	"github.com/fatih/color"
 
@@ -43,26 +41,37 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 		}
 		h.done <- true
 	}()
-	h.Await()
+	h.await()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Println("server forced to shutdown")
+		log.Println("Server forced to shutdown")
 	}
 }
 
-func (h *Hitrix) RunAsyncOrmConsumer() *Hitrix {
-	ormService, has := service.DI().OrmEngine()
-	if !has {
-		panic("Orm is not registered")
+func (h *Hitrix) RunBackgroundProcess(callback func(b *BackgroundProcessor)) {
+	h.preDeploy()
+	callback(&BackgroundProcessor{Server: h})
+	h.await()
+}
+
+func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
+	scripts := service.DI().App().Scripts
+	if len(scripts) == 0 {
+		panic(fmt.Sprintf("unknown script %s", code))
 	}
-
-	go func() {
-		asyncConsumer := orm.NewBackgroundConsumer(ormService)
-		asyncConsumer.Digest(h.ctx)
-	}()
-
-	return h
+	for _, defCode := range scripts {
+		if defCode == code {
+			def, has := service.GetServiceOptional(defCode)
+			if !has {
+				panic(fmt.Sprintf("unknown script %s", code))
+			}
+			defScript := def.(Script)
+			defScript.Run(ctx, &exit{s: h})
+			return
+		}
+	}
+	panic(fmt.Sprintf("unknown script %s", code))
 }
 
 func (h *Hitrix) preDeploy() {
@@ -102,9 +111,7 @@ func (h *Hitrix) preDeploy() {
 	os.Exit(0)
 }
 
-func (h *Hitrix) Await() {
-	h.preDeploy()
-
+func (h *Hitrix) await() {
 	termChan := make(chan os.Signal, 1)
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
 

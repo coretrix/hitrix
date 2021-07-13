@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/latolukasz/orm"
+
 	"github.com/coretrix/hitrix/service"
 
 	"github.com/ryanuber/columnize"
@@ -18,6 +20,10 @@ type Script interface {
 	Description() string
 	Run(ctx context.Context, exit Exit)
 	Unique() bool
+}
+
+type BackgroundProcessor struct {
+	Server *Hitrix
 }
 
 type Exit interface {
@@ -62,7 +68,7 @@ type ScriptOptional interface {
 	Active() bool
 }
 
-func (h *Hitrix) RunScript(script Script) {
+func (processor *BackgroundProcessor) RunScript(script Script) {
 	options, isOptional := script.(ScriptOptional)
 
 	if isOptional {
@@ -76,13 +82,13 @@ func (h *Hitrix) RunScript(script Script) {
 
 	go func() {
 		for {
-			valid := h.runScript(script)
+			valid := processor.runScript(script)
 			if isInfinity {
 				select {}
 			}
 
 			if !isInterval {
-				h.done <- true
+				processor.Server.done <- true
 				break
 			}
 
@@ -94,7 +100,7 @@ func (h *Hitrix) RunScript(script Script) {
 			time.Sleep(interval.Interval())
 		}
 	}()
-	h.Await()
+	processor.Server.await()
 }
 
 func listScrips() {
@@ -139,26 +145,7 @@ func listScrips() {
 	}
 }
 
-func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
-	scripts := service.DI().App().Scripts
-	if len(scripts) == 0 {
-		panic(fmt.Sprintf("unknown script %s", code))
-	}
-	for _, defCode := range scripts {
-		if defCode == code {
-			def, has := service.GetServiceOptional(defCode)
-			if !has {
-				panic(fmt.Sprintf("unknown script %s", code))
-			}
-			defScript := def.(Script)
-			defScript.Run(ctx, &exit{s: h})
-			return
-		}
-	}
-	panic(fmt.Sprintf("unknown script %s", code))
-}
-
-func (h *Hitrix) runScript(script Script) bool {
+func (processor *BackgroundProcessor) runScript(script Script) bool {
 	return func() bool {
 		valid := true
 		defer func() {
@@ -178,7 +165,19 @@ func (h *Hitrix) runScript(script Script) bool {
 				valid = false
 			}
 		}()
-		script.Run(h.ctx, &exit{s: h})
+		script.Run(processor.Server.ctx, &exit{s: processor.Server})
 		return valid
+	}()
+}
+
+func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
+	ormService, has := service.DI().OrmEngine()
+	if !has {
+		panic("Orm is not registered")
+	}
+
+	go func() {
+		asyncConsumer := orm.NewBackgroundConsumer(ormService)
+		asyncConsumer.Digest(processor.Server.ctx)
 	}()
 }

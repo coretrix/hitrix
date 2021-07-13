@@ -34,7 +34,8 @@ func main() {
 		RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil, nil).Build()
 	defer deferFunc()
 
-	s.RunAsyncOrmConsumer()
+	b := &hitrix.BackgroundProcessor{Server: s}
+	b.RunAsyncOrmConsumer()
 
 	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}), func(ginEngine *gin.Engine) {
 		exampleMiddleware.Router(ginEngine)
