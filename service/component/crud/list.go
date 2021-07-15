@@ -25,7 +25,12 @@ type Column struct {
 	Sortable       bool
 	Filterable     bool
 	Visible        bool
-	FilterValidMap []string
+	FilterValidMap []FilterValue
+}
+
+type FilterValue struct {
+	Key   string
+	Label string
 }
 
 type ListRequest struct {
@@ -52,7 +57,7 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 	var searchable = make([]string, 0)
 	var stringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
-	var stringEnumFilters = make(map[string][]string)
+	var stringEnumFilters = make(map[string][]FilterValue)
 	var numberFilters = make([]string, 0)
 	var sortables = make([]string, 0)
 	for i := range cols {
@@ -114,9 +119,11 @@ mainLoop:
 
 			for enumFiledName := range stringEnumFilters {
 				if field == enumFiledName {
-					if helper.StringInArray(stringValue, stringEnumFilters[enumFiledName]...) {
-						selectedStringFilters[field] = stringValue
-						continue mainLoop
+					for _, filterValue := range stringEnumFilters[enumFiledName] {
+						if filterValue.Key == stringValue {
+							selectedStringFilters[field] = stringValue
+							continue mainLoop
+						}
 					}
 				}
 			}
