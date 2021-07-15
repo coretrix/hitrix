@@ -30,8 +30,8 @@ func serviceDefinitionOrmEngine(global bool, enableGraphQLDataLoader bool) *serv
 			}
 
 			ormEngine := ormConfigService.(orm.ValidatedRegistry).CreateEngine()
-			if !global {
-				ormEngine.EnableRequestCache(enableGraphQLDataLoader)
+			if !global && enableGraphQLDataLoader {
+				ormEngine.EnableRequestCache()
 			}
 
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
