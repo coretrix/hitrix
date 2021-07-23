@@ -54,6 +54,7 @@ func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
 		fieldError, ok := (err).(errors.FieldErrors)
 		if ok {
 			response.ErrorResponseFields(c, fieldError, nil)
+			return
 		}
 		response.ErrorResponseGlobal(c, err, nil)
 		return
