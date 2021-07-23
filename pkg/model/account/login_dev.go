@@ -9,8 +9,8 @@ import (
 )
 
 type LoginDevForm struct {
-	Username string `binding:"required,min=6,max=60" json:"Username"`
-	Password string `binding:"required,min=8,max=60" json:"Password"`
+	Username string `binding:"required,min=6,max=60" json:"Username"  form:"username"`
+	Password string `binding:"required,min=8,max=60" json:"Password"  form:"password"`
 }
 
 func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
