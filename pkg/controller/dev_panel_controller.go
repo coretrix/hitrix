@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/coretrix/hitrix/pkg/binding"
+
 	"github.com/coretrix/hitrix/pkg/errors"
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
 	"github.com/coretrix/hitrix/pkg/response"
@@ -47,22 +49,25 @@ func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
 		panic("password is not registered")
 	}
 
-	username := c.Query("username")
-	pass := c.Query("password")
-
-	if username == "" || pass == "" {
-		response.ErrorResponseGlobal(c, "username and password query parameters are required", nil)
+	form := &accountModel.LoginDevForm{}
+	if err := binding.ShouldBindQuery(c, form); err != nil {
+		fieldError, ok := (err).(errors.FieldErrors)
+		if ok {
+			response.ErrorResponseFields(c, fieldError, nil)
+		}
+		response.ErrorResponseGlobal(c, err, nil)
 		return
 	}
+
 	adminEntity := service.DI().App().DevPanel.UserEntity
 
-	passwordHash, err := passwordService.HashPassword(pass)
+	passwordHash, err := passwordService.HashPassword(form.Password)
 	if err != nil {
 		response.ErrorResponseGlobal(c, err, nil)
 	}
 
 	adminTableSchema := ormService.GetRegistry().GetTableSchemaForEntity(adminEntity)
-	response.SuccessResponse(c, fmt.Sprintf(`INSERT INTO %s (Email, Password) VALUES("%s", "%s")`, adminTableSchema.GetTableName(), username, passwordHash))
+	response.SuccessResponse(c, fmt.Sprintf(`INSERT INTO %s (Email, Password) VALUES('%s', '%s')`, adminTableSchema.GetTableName(), form.Username, passwordHash))
 }
 
 func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
