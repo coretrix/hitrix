@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -8,10 +9,10 @@ import (
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/sarulabs/di"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
-type ORMRegistryInitFunc func(registry *orm.Registry)
+type ORMRegistryInitFunc func(registry *beeorm.Registry)
 
 func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition {
 	return &service.Definition{
@@ -20,7 +21,7 @@ func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition 
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 
-			registry := orm.NewRegistry()
+			registry := beeorm.NewRegistry()
 
 			configuration, ok := configService.Get("orm")
 			if !ok {
@@ -35,7 +36,7 @@ func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition 
 			registry.InitByYaml(yamlConfig)
 			init(registry)
 
-			ormConfig, err := registry.Validate()
+			ormConfig, err := registry.Validate(context.Background())
 			return ormConfig, err
 		},
 	}

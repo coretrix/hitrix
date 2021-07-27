@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/coretrix/hitrix/service/component/mail"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -19,7 +19,7 @@ func MailMandrill() *service.Definition {
 		Name:   service.MailMandrill,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			ormConfig := ctn.Get(service.ORMConfigService).(orm.ValidatedRegistry)
+			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()
 			if _, ok := entities["entity.MailTrackerEntity"]; !ok {
 				return nil, errors.New("you should register MailTrackerEntity")

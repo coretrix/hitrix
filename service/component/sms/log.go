@@ -3,11 +3,11 @@ package sms
 import (
 	"time"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 type LogEntity interface {
-	orm.Entity
+	beeorm.Entity
 	SetStatus(string)
 	SetTo(string)
 	SetText(string)
@@ -20,7 +20,7 @@ type LogEntity interface {
 }
 
 type DBLog struct {
-	ormService *orm.Engine
+	ormService *beeorm.Engine
 	logEntity  LogEntity
 }
 
@@ -32,6 +32,6 @@ type Logger interface {
 	Do()
 }
 
-func NewSmsLog(ormService *orm.Engine, entity LogEntity) Logger {
+func NewSmsLog(ormService *beeorm.Engine, entity LogEntity) Logger {
 	return &DBLog{ormService: ormService, logEntity: entity}
 }

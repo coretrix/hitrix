@@ -1,14 +1,14 @@
 package entity
 
 import (
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 type AdminUserEntity struct {
-	orm.ORM  `orm:"table=admin_users;redisCache;redisSearch=search"`
-	ID       uint64
-	Email    string `orm:"unique=Email;searchable"`
-	Password string
+	beeorm.ORM `orm:"table=admin_users;redisCache;redisSearch=search"`
+	ID         uint64
+	Email      string `orm:"unique=Email;searchable"`
+	Password   string
 }
 
 func (e *AdminUserEntity) GetUniqueFieldName() string {

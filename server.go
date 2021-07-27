@@ -17,10 +17,8 @@ import (
 )
 
 type Hitrix struct {
-	ctx    context.Context
-	cancel context.CancelFunc
-	done   chan bool
-	exit   chan int
+	done chan bool
+	exit chan int
 }
 
 func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gqlServerInitHandler GQLServerInitHandler) {
@@ -42,9 +40,10 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 		h.done <- true
 	}()
 	h.await()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
+
+	app := service.DI().App()
+	defer app.CancelContext()
+	if err := srv.Shutdown(app.GlobalContext); err != nil {
 		log.Println("Server forced to shutdown")
 	}
 }
@@ -114,16 +113,17 @@ func (h *Hitrix) preDeploy() {
 func (h *Hitrix) await() {
 	termChan := make(chan os.Signal, 1)
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
+	app := service.DI().App()
 
 	select {
 	case code := <-h.exit:
-		h.cancel()
+		app.CancelContext()
 		os.Exit(code)
 	case <-h.done:
-		h.cancel()
+		app.CancelContext()
 	case <-termChan:
 		log.Println("TERMINATING")
-		h.cancel()
+		app.CancelContext()
 		time.Sleep(time.Millisecond * 300)
 		log.Println("TERMINATED")
 	}

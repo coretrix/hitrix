@@ -7,7 +7,7 @@ import (
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/config"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 )
 
@@ -17,7 +17,7 @@ func ServiceDefinitionAmazonS3(bucketsMapping map[string]uint64) *service.Defini
 		Name:   service.AmazonS3Service,
 		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
-			ormConfig := ctn.Get(service.ORMConfigService).(orm.ValidatedRegistry)
+			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()
 			if _, ok := entities["entity.S3BucketCounterEntity"]; !ok {
 				return nil, errors.New("you should register S3BucketCounterEntity")

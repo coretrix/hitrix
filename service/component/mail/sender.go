@@ -1,15 +1,15 @@
 package mail
 
 import (
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 	"github.com/mattbaird/gochimp"
 )
 
 type Sender interface {
-	SendTemplate(ormService *orm.Engine, message *Message) error
-	SendTemplateAsync(ormService *orm.Engine, message *Message) error
-	SendTemplateWithAttachments(ormService *orm.Engine, message *MessageAttachment) error
-	SendTemplateWithAttachmentsAsync(ormService *orm.Engine, message *MessageAttachment) error
+	SendTemplate(ormService *beeorm.Engine, message *Message) error
+	SendTemplateAsync(ormService *beeorm.Engine, message *Message) error
+	SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error
+	SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, message *MessageAttachment) error
 }
 
 type Message struct {

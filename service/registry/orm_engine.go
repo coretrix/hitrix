@@ -1,9 +1,11 @@
 package registry
 
 import (
+	"context"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 )
 
@@ -29,7 +31,7 @@ func serviceDefinitionOrmEngine(global bool, enableGraphQLDataLoader bool) *serv
 				return nil, err
 			}
 
-			ormEngine := ormConfigService.(orm.ValidatedRegistry).CreateEngine()
+			ormEngine := ormConfigService.(beeorm.ValidatedRegistry).CreateEngine(context.Background())
 			if !global && enableGraphQLDataLoader {
 				ormEngine.EnableRequestCache()
 			}

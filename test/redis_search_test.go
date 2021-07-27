@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/coretrix/hitrix/example/entity"
@@ -15,7 +15,7 @@ func TestRedisSearch(t *testing.T) {
 
 	ormService, _ := service.DI().OrmEngine()
 
-	query := &orm.RedisSearchQuery{}
+	query := &beeorm.RedisSearchQuery{}
 	query.FilterString("Email", "test@coretrix.com")
 
 	newAdminUserEntity := &entity.AdminUserEntity{

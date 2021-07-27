@@ -22,7 +22,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/app"
 
 	"cloud.google.com/go/storage"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 	"golang.org/x/net/context"
 )
 
@@ -124,7 +124,7 @@ func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket string, object *oss.Objec
 	return signedURL
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *orm.Engine, bucket, localFile string) oss.Object {
+func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *beeorm.Engine, bucket, localFile string) oss.Object {
 	ossStorage.checkBucket(bucket)
 
 	fileContent, ext := ossStorage.ReadFile(localFile)
@@ -132,7 +132,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *orm.Engine, bucket
 	return ossStorage.putObject(ormService, bucket, fileContent, ext)
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromBase64(ormService *orm.Engine, bucket, base64content, extension string) oss.Object {
+func (ossStorage *GoogleOSS) UploadObjectFromBase64(ormService *beeorm.Engine, bucket, base64content, extension string) oss.Object {
 	byteData, err := base64.StdEncoding.DecodeString(base64content)
 
 	if err != nil {
@@ -142,7 +142,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromBase64(ormService *orm.Engine, buck
 	return ossStorage.putObject(ormService, bucket, byteData, extension)
 }
 
-func (ossStorage *GoogleOSS) UploadImageFromBase64(ormService *orm.Engine, bucket, base64image, extension string) oss.Object {
+func (ossStorage *GoogleOSS) UploadImageFromBase64(ormService *beeorm.Engine, bucket, base64image, extension string) oss.Object {
 	byteData, err := base64.StdEncoding.DecodeString(base64image)
 
 	if err != nil {
@@ -152,7 +152,7 @@ func (ossStorage *GoogleOSS) UploadImageFromBase64(ormService *orm.Engine, bucke
 	return ossStorage.putObject(ormService, bucket, byteData, extension)
 }
 
-func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *orm.Engine, bucket, localFile string) oss.Object {
+func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *beeorm.Engine, bucket, localFile string) oss.Object {
 	return ossStorage.UploadObjectFromFile(ormService, bucket, localFile)
 }
 
@@ -164,7 +164,7 @@ func (ossStorage *GoogleOSS) checkBucket(bucket string) {
 	}
 }
 
-func (ossStorage *GoogleOSS) putObject(ormService *orm.Engine, bucket string, objectContent []byte, extension string) oss.Object {
+func (ossStorage *GoogleOSS) putObject(ormService *beeorm.Engine, bucket string, objectContent []byte, extension string) oss.Object {
 	storageCounter := ossStorage.getStorageCounter(ormService, bucket)
 
 	objectKey := ossStorage.getObjectKey(storageCounter, extension)
@@ -197,7 +197,7 @@ func (ossStorage *GoogleOSS) putObject(ormService *orm.Engine, bucket string, ob
 	}
 }
 
-func (ossStorage *GoogleOSS) getStorageCounter(ormService *orm.Engine, bucket string) uint64 {
+func (ossStorage *GoogleOSS) getStorageCounter(ormService *beeorm.Engine, bucket string) uint64 {
 	ossStorage.checkBucket(bucket)
 
 	bucketID, has := ossStorage.buckets[bucket]
@@ -209,7 +209,7 @@ func (ossStorage *GoogleOSS) getStorageCounter(ormService *orm.Engine, bucket st
 	googleOSSBucketCounterEntity := &entity.OSSBucketCounterEntity{}
 
 	locker := ormService.GetRedis().GetLocker()
-	lock, hasLock := locker.Obtain(ossStorage.ctx, "locker_google_oss_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
+	lock, hasLock := locker.Obtain("locker_google_oss_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
 	defer lock.Release()
 
 	if !hasLock {

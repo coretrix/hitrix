@@ -3,13 +3,13 @@ package ddos
 import (
 	"strconv"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 type DDOS struct {
 }
 
-func (t *DDOS) ProtectManyAttempts(redis *orm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool {
+func (t *DDOS) ProtectManyAttempts(redis *beeorm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool {
 	attempts, has := redis.Get("ddos_" + protectCriterion)
 	count := 0
 	if len(attempts) > 0 {

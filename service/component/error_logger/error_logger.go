@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 const GroupError = "error"
@@ -52,12 +52,12 @@ type ErrorMessage struct {
 }
 
 type RedisErrorLogger struct {
-	redisStorage *orm.RedisCache
+	redisStorage *beeorm.RedisCache
 	slackService *slackapi.SlackAPI
 	appService   *app.App
 }
 
-func NewRedisErrorLogger(appService *app.App, ormService *orm.Engine, slackService *slackapi.SlackAPI) ErrorLogger {
+func NewRedisErrorLogger(appService *app.App, ormService *beeorm.Engine, slackService *slackapi.SlackAPI) ErrorLogger {
 	return &RedisErrorLogger{redisStorage: ormService.GetRedis(), slackService: slackService, appService: appService}
 }
 

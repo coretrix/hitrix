@@ -13,7 +13,7 @@ Hitrix is based on top of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](htt
 ### Built-in features:
 
  * It supports all features of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](https://github.com/gin-gonic/gin)
- * Integrated with [ORM](https://github.com/latolukasz/orm)
+ * Integrated with [ORM](https://github.com/latolukasz/beeorm)
  * Follows [Dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) pattern
  * Provides many DI services that makes your live easier. You can read more about them [here](https://github.com/coretrix/hitrix#built-in-services)
  * Provides [Dev panel](https://github.com/coretrix/dev-frontend) where you can monitor and manage your application(monitoring, error log, db alters redis status and so on)
@@ -123,16 +123,16 @@ If you want to use our dev panel and to be able to manage alters, error log, red
 package entity
 
 import (
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 type AdminUserEntity struct {
-	orm.ORM   `orm:"table=admin_users;redisCache"`
+	beeorm.ORM   `orm:"table=admin_users;redisCache"`
 	ID        uint64
 	Email     string `orm:"unique=Email"`
 	Password  string
 
-	UserEmailIndex *orm.CachedQuery `queryOne:":Email = ?"`
+	UserEmailIndex *beeorm.CachedQuery `queryOne:":Email = ?"`
 }
 
 func (e *AdminUserEntity) GetUsername() string {
@@ -149,9 +149,9 @@ After that you should register it to the `entity.Init` function
 ```go
 package entity
 
-import "github.com/latolukasz/orm"
+import "github.com/latolukasz/beeorm"
 
-func Init(registry *orm.Registry) {
+func Init(registry *beeorm.Registry) {
 	registry.RegisterEntity(
 		&AdminUserEntity{},
 	)
@@ -751,10 +751,10 @@ mandrill:
 
 Some of the functions this service provide are:
 ```go
-	SendTemplate(ormService *orm.Engine, message *TemplateMessage) error
-	SendTemplateAsync(ormService *orm.Engine, message *TemplateMessage) error
-	SendTemplateWithAttachments(ormService *orm.Engine, message *TemplateAttachmentMessage) error
-	SendTemplateWithAttachmentsAsync(ormService *orm.Engine, message *TemplateAttachmentMessage) error
+	SendTemplate(ormService *beeorm.Engine, message *TemplateMessage) error
+	SendTemplateAsync(ormService *beeorm.Engine, message *TemplateMessage) error
+	SendTemplateWithAttachments(ormService *beeorm.Engine, message *TemplateAttachmentMessage) error
+	SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, message *TemplateAttachmentMessage) error
 ```
 
 #### Authentication Service
@@ -772,21 +772,21 @@ This service is used to making the life easy by doing the whole authentication l
 `SMSService` # optional , when you need to support for otp
 
 ```go
-func Authenticate(ormService *orm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {}
-func VerifyAccessToken(ormService *orm.Engine, accessToken string, entity orm.Entity) error {}
-func RefreshToken(ormService *orm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {}
-func LogoutCurrentSession(ormService *orm.Engine, accessKey string){}
-func LogoutAllSessions(ormService *orm.Engine, id uint64)
-func GenerateAndSendOTP(ormService *orm.Engine, mobile string, country string){}
-func VerifyOTP(ormService *orm.Engine, code string, input *GenerateOTP) error{}
-func AuthenticateOTP(ormService *orm.Engine, phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error){}
+func Authenticate(ormService *beeorm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {}
+func VerifyAccessToken(ormService *beeorm.Engine, accessToken string, entity beeorm.Entity) error {}
+func RefreshToken(ormService *beeorm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {}
+func LogoutCurrentSession(ormService *beeorm.Engine, accessKey string){}
+func LogoutAllSessions(ormService *beeorm.Engine, id uint64)
+func GenerateAndSendOTP(ormService *beeorm.Engine, mobile string, country string){}
+func VerifyOTP(ormService *beeorm.Engine, code string, input *GenerateOTP) error{}
+func AuthenticateOTP(ormService *beeorm.Engine, phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error){}
 ```
 1. The `Authenticate` function will take an uniqueValue such as Email or Mobile, a plain password, and generates accessToken and refreshToken. 
    You will also need to pass your entity as third argument, and it will give you the specific user entity related to provided access token
    The entity should implement the `AuthProviderEntity` interface : 
     ```go
        type AuthProviderEntity interface {
-        orm.Entity
+        beeorm.Entity
         GetUniqueFieldName() string
         GetPassword() string
        }
@@ -794,7 +794,7 @@ func AuthenticateOTP(ormService *orm.Engine, phone string, entity OTPProviderEnt
     The example of such entity is as follows:
     ```go
     type UserEntity struct {
-	    orm.ORM  `orm:"table=users;redisCache;redisSearch=search_pool"`
+	    beeorm.ORM  `orm:"table=users;redisCache;redisSearch=search_pool"`
 	    ID       uint64 `orm:"searchable;sortable"`
 	    Email    string `orm:"required;unique=Email;searchable"`
 	    Password string `orm:"required"`
@@ -825,7 +825,7 @@ func AuthenticateOTP(ormService *orm.Engine, phone string, entity OTPProviderEnt
    the response is asa same as the `Authenticate`.
    ```go
    type OTPProviderEntity interface {
-	    orm.Entity
+	    beeorm.Entity
 	    GetPhoneFieldName() string
     }
    ```
@@ -852,7 +852,7 @@ for now we support 3 sms providers : `twilio` `sinch` `kavenegar`
 and also when registering the service you need to pass it the `LogEntity` that is responsible to log every action made by sms service : 
 ```go
 type LogEntity interface {
-    orm.Entity
+    beeorm.Entity
     SetStatus(string)
     SetTo(string)
     SetText(string)
@@ -882,7 +882,7 @@ var SMSTrackerTypeAll = smsTrackerTypeAll{
 }
 
 type SmsTrackerEntity struct {
-	orm.ORM               `orm:"table=sms_tracker"`
+	beeorm.ORM               `orm:"table=sms_tracker"`
 	ID                    uint64
 	Status                string
 	To                    string `orm:"varchar=15"`

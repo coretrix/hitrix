@@ -14,7 +14,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/app"
 
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/orm/tools"
+	"github.com/latolukasz/beeorm/tools"
 )
 
 type MenuItem struct {
@@ -164,7 +164,7 @@ func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
 		panic("provide stream name")
 	}
 
-	redisStreamService.XTrim(name, 0, false)
+	redisStreamService.XTrim(name, 0)
 
 	c.JSON(200, gin.H{})
 }

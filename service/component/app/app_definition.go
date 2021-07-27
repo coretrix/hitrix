@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 const ModeLocal = "local"
@@ -13,7 +13,7 @@ const ModeDemo = "demo"
 const ModeProd = "prod"
 
 type DevPanelUserEntity interface {
-	orm.Entity
+	beeorm.Entity
 	GetUsername() string
 	GetPassword() string
 }
@@ -26,13 +26,14 @@ type DevPanel struct {
 }
 
 type App struct {
-	Mode     string
-	Name     string
-	Secret   string
-	Flags    *Flags
-	Scripts  []string
-	DevPanel *DevPanel
-	Ctx      context.Context
+	Mode          string
+	Name          string
+	Secret        string
+	Flags         *Flags
+	Scripts       []string
+	DevPanel      *DevPanel
+	GlobalContext context.Context
+	CancelContext context.CancelFunc
 }
 
 func (app *App) IsInLocalMode() bool {

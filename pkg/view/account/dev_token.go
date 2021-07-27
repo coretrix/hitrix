@@ -14,14 +14,14 @@ import (
 	"github.com/coretrix/hitrix/service"
 
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 const LoggedDevPanelUserEntity = "logged_dev_panel_user_entity"
 const expireTimeToken = 3600
 const expireTimeRefreshToken = 7200
 
-func GenerateDevTokenAndRefreshToken(ormService *orm.Engine, userID uint64) (string, string, error) {
+func GenerateDevTokenAndRefreshToken(ormService *beeorm.Engine, userID uint64) (string, string, error) {
 	appService := service.DI().App()
 	token, err := generateTokenValue(appService.Secret, userID, time.Now().Unix()+expireTimeToken)
 	if err != nil {

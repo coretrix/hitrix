@@ -6,36 +6,36 @@ import (
 
 	"github.com/coretrix/hitrix/service"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 type ConsumerOneByModulo interface {
 	GetMaxModulo() int
-	Consume(event orm.Event) error
+	Consume(event beeorm.Event) error
 	GetQueueName(moduloID int) string
 	GetGroupName(moduloID int, suffix *string) string
 }
 
 type ConsumerManyByModulo interface {
 	GetMaxModulo() int
-	Consume(events []orm.Event) error
+	Consume(events []beeorm.Event) error
 	GetQueueName(moduloID int) string
 	GetGroupName(moduloID int, suffix *string) string
 }
 
 type ConsumerOne interface {
-	Consume(event orm.Event) error
+	Consume(event beeorm.Event) error
 	GetQueueName() string
 	GetGroupName(suffix *string) string
 }
 
 type ConsumerMany interface {
-	Consume(events []orm.Event) error
+	Consume(events []beeorm.Event) error
 	GetQueueName() string
 	GetGroupName(suffix *string) string
 }
 
-var consumerErrorHandler = func(err interface{}, event orm.Event) error {
+var consumerErrorHandler = func(err error, event beeorm.Event) {
 	defer func() {
 		if newError := recover(); newError != nil {
 			log.Printf("Error: %v\nNew Error: %v", err, newError)
@@ -46,36 +46,33 @@ var consumerErrorHandler = func(err interface{}, event orm.Event) error {
 	if has {
 		errorLoggerService.LogError(err)
 	}
-	return nil
 }
 
 type ConsumerRunner struct {
 	ctx        context.Context
-	ormService *orm.Engine
+	ormService *beeorm.Engine
 }
 
-func NewConsumerRunner(ctx context.Context, ormService *orm.Engine) *ConsumerRunner {
+func NewConsumerRunner(ctx context.Context, ormService *beeorm.Engine) *ConsumerRunner {
 	return &ConsumerRunner{ctx: ctx, ormService: ormService}
 }
 
-func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix *string, prefetchCount int, blocking bool) {
-	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetQueueName(), consumer.GetGroupName(groupNameSuffix))
-	eventsConsumer.SetLimit(10)
+func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix *string, prefetchCount int) {
+	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 	eventsConsumer.SetErrorHandler(consumerErrorHandler)
 
-	eventsConsumer.Consume(r.ctx, prefetchCount, blocking, func(events []orm.Event) {
+	eventsConsumer.Consume(prefetchCount, func(events []beeorm.Event) {
 		if err := consumer.Consume(events); err != nil {
 			panic(err)
 		}
 	})
 }
 
-func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *string, prefetchCount int, blocking bool) {
-	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetQueueName(), consumer.GetGroupName(groupNameSuffix))
-	eventsConsumer.SetLimit(10)
+func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *string, prefetchCount int) {
+	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 	eventsConsumer.SetErrorHandler(consumerErrorHandler)
 
-	eventsConsumer.Consume(r.ctx, prefetchCount, blocking, func(events []orm.Event) {
+	eventsConsumer.Consume(prefetchCount, func(events []beeorm.Event) {
 		for _, event := range events {
 			if err := consumer.Consume(event); err != nil {
 				panic(err)
@@ -85,15 +82,14 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 	})
 }
 
-func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, groupNameSuffix *string, prefetchCount int, blocking bool) {
+func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, groupNameSuffix *string, prefetchCount int) {
 	for moduloID := 1; moduloID <= consumer.GetMaxModulo(); moduloID++ {
 		currentModulo := moduloID
 
 		go func() {
-			eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetQueueName(currentModulo), consumer.GetGroupName(currentModulo, groupNameSuffix))
-			eventsConsumer.SetLimit(10)
+			eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
 			eventsConsumer.SetErrorHandler(consumerErrorHandler)
-			eventsConsumer.Consume(r.ctx, prefetchCount, blocking, func(events []orm.Event) {
+			eventsConsumer.Consume(prefetchCount, func(events []beeorm.Event) {
 				for _, event := range events {
 					if err := consumer.Consume(event); err != nil {
 						panic(err)
@@ -105,14 +101,13 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 	}
 }
 
-func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, groupNameSuffix *string, prefetchCount int, blocking bool) {
+func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, groupNameSuffix *string, prefetchCount int) {
 	for moduloID := 1; moduloID <= consumer.GetMaxModulo(); moduloID++ {
 		currentModulo := moduloID
 		go func() {
-			eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetQueueName(currentModulo), consumer.GetGroupName(currentModulo, groupNameSuffix))
-			eventsConsumer.SetLimit(10)
+			eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
 			eventsConsumer.SetErrorHandler(consumerErrorHandler)
-			eventsConsumer.Consume(r.ctx, prefetchCount, blocking, func(events []orm.Event) {
+			eventsConsumer.Consume(prefetchCount, func(events []beeorm.Event) {
 				if err := consumer.Consume(events); err != nil {
 					panic(err)
 				}

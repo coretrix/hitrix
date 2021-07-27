@@ -3,12 +3,12 @@ package helper
 import (
 	"fmt"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 type transaction func() error
 
-func DBTransaction(ormService *orm.Engine, callback transaction) error {
+func DBTransaction(ormService *beeorm.Engine, callback transaction) error {
 	dbService := ormService.GetMysql()
 
 	dbService.Begin()
@@ -23,6 +23,6 @@ func DBTransaction(ormService *orm.Engine, callback transaction) error {
 	return nil
 }
 
-func Limit(pager *orm.Pager) string {
+func Limit(pager *beeorm.Pager) string {
 	return fmt.Sprintf("LIMIT %d,%d", (pager.CurrentPage-1)*pager.PageSize, pager.PageSize)
 }

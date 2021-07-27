@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/service"
 
@@ -165,7 +165,10 @@ func (processor *BackgroundProcessor) runScript(script Script) bool {
 				valid = false
 			}
 		}()
-		script.Run(processor.Server.ctx, &exit{s: processor.Server})
+
+		app := service.DI().App()
+
+		script.Run(app.GlobalContext, &exit{s: processor.Server})
 		return valid
 	}()
 }
@@ -177,7 +180,7 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 	}
 
 	go func() {
-		asyncConsumer := orm.NewBackgroundConsumer(ormService)
-		asyncConsumer.Digest(processor.Server.ctx)
+		asyncConsumer := beeorm.NewBackgroundConsumer(ormService)
+		asyncConsumer.Digest()
 	}()
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/coretrix/hitrix/service/component/oss"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -25,19 +25,19 @@ func (t *FakeOSSClient) GetObjectSignedURL(bucket string, object *oss.Object, ex
 	return t.Called(bucket, object, expires).String(0)
 }
 
-func (t *FakeOSSClient) UploadObjectFromFile(_ *orm.Engine, bucket, localFile string) oss.Object {
+func (t *FakeOSSClient) UploadObjectFromFile(_ *beeorm.Engine, bucket, localFile string) oss.Object {
 	return t.Called(bucket, localFile).Get(0).(oss.Object)
 }
 
-func (t *FakeOSSClient) UploadObjectFromBase64(_ *orm.Engine, bucket, content, extension string) oss.Object {
+func (t *FakeOSSClient) UploadObjectFromBase64(_ *beeorm.Engine, bucket, content, extension string) oss.Object {
 	return t.Called(bucket, content, extension).Get(0).(oss.Object)
 }
 
-func (t *FakeOSSClient) UploadImageFromFile(_ *orm.Engine, bucket, localFile string) oss.Object {
+func (t *FakeOSSClient) UploadImageFromFile(_ *beeorm.Engine, bucket, localFile string) oss.Object {
 	return t.Called(bucket, localFile).Get(0).(oss.Object)
 }
 
-func (t *FakeOSSClient) UploadImageFromBase64(_ *orm.Engine, bucket, image, extension string) oss.Object {
+func (t *FakeOSSClient) UploadImageFromBase64(_ *beeorm.Engine, bucket, image, extension string) oss.Object {
 	return t.Called(bucket, image, extension).Get(0).(oss.Object)
 }
 

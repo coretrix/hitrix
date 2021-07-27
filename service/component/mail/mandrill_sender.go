@@ -10,7 +10,7 @@ import (
 
 	"github.com/juju/errors"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 	"github.com/mattbaird/gochimp"
 )
 
@@ -30,23 +30,23 @@ func NewMandrill(apiKey, defaultFromEmail, fromName string) *Mandrill {
 	return &Mandrill{client: mandrillAPI, defaultFromEmail: defaultFromEmail, fromName: fromName}
 }
 
-func (s *Mandrill) SendTemplate(ormService *orm.Engine, message *Message) error {
+func (s *Mandrill) SendTemplate(ormService *beeorm.Engine, message *Message) error {
 	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.TemplateName, message.TemplateData, nil, false)
 }
 
-func (s *Mandrill) SendTemplateAsync(ormService *orm.Engine, message *Message) error {
+func (s *Mandrill) SendTemplateAsync(ormService *beeorm.Engine, message *Message) error {
 	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.TemplateName, message.TemplateData, nil, true)
 }
 
-func (s *Mandrill) SendTemplateWithAttachments(ormService *orm.Engine, message *MessageAttachment) error {
+func (s *Mandrill) SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error {
 	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.TemplateName, message.TemplateData, message.Attachments, false)
 }
 
-func (s *Mandrill) SendTemplateWithAttachmentsAsync(ormService *orm.Engine, message *MessageAttachment) error {
+func (s *Mandrill) SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, message *MessageAttachment) error {
 	return s.sendTemplate(ormService, message.From, message.To, message.Subject, message.TemplateName, message.TemplateData, message.Attachments, true)
 }
 
-func (s *Mandrill) sendTemplate(ormService *orm.Engine, from string, to string, subject string, templateName string, templateData interface{}, attachments []gochimp.Attachment, async bool) error {
+func (s *Mandrill) sendTemplate(ormService *beeorm.Engine, from string, to string, subject string, templateName string, templateData interface{}, attachments []gochimp.Attachment, async bool) error {
 	if from == "" {
 		from = s.defaultFromEmail
 	}

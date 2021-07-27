@@ -15,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 type AmazonS3 struct {
@@ -51,7 +51,7 @@ func NewAmazonS3(endpoint string, accessKeyID string, secretAccessKey string, al
 	}
 }
 
-func (amazonS3 *AmazonS3) getCounter(ormService *orm.Engine, bucket string) uint64 {
+func (amazonS3 *AmazonS3) getCounter(ormService *beeorm.Engine, bucket string) uint64 {
 	amazonS3.checkBucket(bucket)
 
 	bucketID, has := amazonS3.bucketsMapping[bucket]
@@ -63,7 +63,7 @@ func (amazonS3 *AmazonS3) getCounter(ormService *orm.Engine, bucket string) uint
 	amazonS3BucketCounterEntity := &entity.S3BucketCounterEntity{}
 
 	locker := ormService.GetRedis().GetLocker()
-	lock, hasLock := locker.Obtain(amazonS3.ctx, "locker_amazon_s3_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
+	lock, hasLock := locker.Obtain("locker_amazon_s3_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
 	defer lock.Release()
 
 	if !hasLock {
@@ -125,7 +125,7 @@ func (amazonS3 *AmazonS3) DeleteObject(bucket string, objects ...*Object) bool {
 	return len(deletedObjects.Deleted) == len(objects)
 }
 
-func (amazonS3 *AmazonS3) putObject(ormService *orm.Engine, bucket string, objectContent []byte, extension string) Object {
+func (amazonS3 *AmazonS3) putObject(ormService *beeorm.Engine, bucket string, objectContent []byte, extension string) Object {
 	storageCounter := amazonS3.getCounter(ormService, bucket)
 
 	objectKey := amazonS3.getObjectKey(storageCounter, extension)
@@ -152,7 +152,7 @@ func (amazonS3 *AmazonS3) getObjectKey(storageCounter uint64, fileExtension stri
 	return strconv.FormatUint(storageCounter, 10) + fileExtension
 }
 
-func (amazonS3 *AmazonS3) UploadObjectFromFile(ormService *orm.Engine, bucket, localFile string) Object {
+func (amazonS3 *AmazonS3) UploadObjectFromFile(ormService *beeorm.Engine, bucket, localFile string) Object {
 	amazonS3.checkBucket(bucket)
 
 	fileContent, ext := amazonS3.ReadFile(localFile)
@@ -160,7 +160,7 @@ func (amazonS3 *AmazonS3) UploadObjectFromFile(ormService *orm.Engine, bucket, l
 	return amazonS3.putObject(ormService, bucket, fileContent, ext)
 }
 
-func (amazonS3 *AmazonS3) UploadObjectFromBase64(ormService *orm.Engine, bucket, base64content, extension string) Object {
+func (amazonS3 *AmazonS3) UploadObjectFromBase64(ormService *beeorm.Engine, bucket, base64content, extension string) Object {
 	byteData, err := base64.StdEncoding.DecodeString(base64content)
 
 	if err != nil {
@@ -170,7 +170,7 @@ func (amazonS3 *AmazonS3) UploadObjectFromBase64(ormService *orm.Engine, bucket,
 	return amazonS3.putObject(ormService, bucket, byteData, extension)
 }
 
-func (amazonS3 *AmazonS3) UploadImageFromBase64(ormService *orm.Engine, bucket, base64image, extension string) Object {
+func (amazonS3 *AmazonS3) UploadImageFromBase64(ormService *beeorm.Engine, bucket, base64image, extension string) Object {
 	byteData, err := base64.StdEncoding.DecodeString(base64image)
 
 	if err != nil {
@@ -180,7 +180,7 @@ func (amazonS3 *AmazonS3) UploadImageFromBase64(ormService *orm.Engine, bucket, 
 	return amazonS3.putObject(ormService, bucket, byteData, extension)
 }
 
-func (amazonS3 *AmazonS3) UploadImageFromFile(ormService *orm.Engine, bucket, localFile string) Object {
+func (amazonS3 *AmazonS3) UploadImageFromFile(ormService *beeorm.Engine, bucket, localFile string) Object {
 	return amazonS3.UploadObjectFromFile(ormService, bucket, localFile)
 }
 
@@ -222,7 +222,7 @@ func (amazonS3 *AmazonS3) GetObjectSignedURL(bucket string, object *Object, expi
 	return url
 }
 
-func (amazonS3 *AmazonS3) CreateObjectFromKey(ormService *orm.Engine, bucket, key string) Object {
+func (amazonS3 *AmazonS3) CreateObjectFromKey(ormService *beeorm.Engine, bucket, key string) Object {
 	return Object{
 		ID:         amazonS3.getCounter(ormService, bucket),
 		StorageKey: key,
@@ -247,12 +247,12 @@ type Object struct {
 type Client interface {
 	GetClient() interface{}
 	GetBucketName(bucket string) string
-	CreateObjectFromKey(ormService *orm.Engine, bucket, key string) Object
+	CreateObjectFromKey(ormService *beeorm.Engine, bucket, key string) Object
 	GetObjectCachedURL(bucket string, object *Object) string
 	GetObjectSignedURL(bucket string, object *Object, expires time.Duration) string
-	UploadObjectFromFile(ormService *orm.Engine, bucket, localFile string) Object
-	UploadObjectFromBase64(ormService *orm.Engine, bucket, content, extension string) Object
-	UploadImageFromFile(ormService *orm.Engine, bucket, localFile string) Object
-	UploadImageFromBase64(ormService *orm.Engine, bucket, image, extension string) Object
+	UploadObjectFromFile(ormService *beeorm.Engine, bucket, localFile string) Object
+	UploadObjectFromBase64(ormService *beeorm.Engine, bucket, content, extension string) Object
+	UploadImageFromFile(ormService *beeorm.Engine, bucket, localFile string) Object
+	UploadImageFromBase64(ormService *beeorm.Engine, bucket, image, extension string) Object
 	DeleteObject(bucket string, objects ...*Object) bool
 }

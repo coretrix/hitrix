@@ -4,11 +4,11 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 type LogEntity interface {
-	orm.Entity
+	beeorm.Entity
 	SetID(value uint64)
 	SetType(value string)
 	SetStatus(value string)
@@ -19,9 +19,9 @@ type LogEntity interface {
 }
 
 type APILogger interface {
-	LogStart(ormService *orm.Engine, logType string, request interface{})
-	LogError(ormService *orm.Engine, message string, response interface{})
-	LogSuccess(ormService *orm.Engine, response interface{})
+	LogStart(ormService *beeorm.Engine, logType string, request interface{})
+	LogError(ormService *beeorm.Engine, message string, response interface{})
+	LogSuccess(ormService *beeorm.Engine, response interface{})
 }
 
 type DBLog struct {
@@ -33,7 +33,7 @@ func NewAPILog(entity LogEntity) APILogger {
 	return &DBLog{logEntity: entity}
 }
 
-func (l *DBLog) LogStart(ormService *orm.Engine, logType string, request interface{}) {
+func (l *DBLog) LogStart(ormService *beeorm.Engine, logType string, request interface{}) {
 	var logEntity LogEntity
 
 	if l.logEntity.GetID() == 0 {
@@ -52,7 +52,7 @@ func (l *DBLog) LogStart(ormService *orm.Engine, logType string, request interfa
 	l.currentLog = logEntity
 }
 
-func (l *DBLog) LogError(ormService *orm.Engine, message string, response interface{}) {
+func (l *DBLog) LogError(ormService *beeorm.Engine, message string, response interface{}) {
 	if l.currentLog == nil {
 		panic("log is not created")
 	}
@@ -65,7 +65,7 @@ func (l *DBLog) LogError(ormService *orm.Engine, message string, response interf
 	ormService.Flush(currentLog)
 }
 
-func (l *DBLog) LogSuccess(ormService *orm.Engine, response interface{}) {
+func (l *DBLog) LogSuccess(ormService *beeorm.Engine, response interface{}) {
 	if l.currentLog == nil {
 		panic("log is not created")
 	}

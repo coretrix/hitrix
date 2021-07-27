@@ -3,7 +3,7 @@ package registry
 import (
 	"errors"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
@@ -26,7 +26,7 @@ func OSSGoogle(buckets map[string]uint64) *service.Definition {
 				return nil, errors.New(configService.GetFolderPath() + "/.oss.json does not exists")
 			}
 
-			ormConfig := ctn.Get(service.ORMConfigService).(orm.ValidatedRegistry)
+			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()
 			if _, ok := entities["entity.OSSBucketCounterEntity"]; !ok {
 				return nil, errors.New("you should register OSSBucketCounterEntity")

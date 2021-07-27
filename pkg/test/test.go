@@ -29,11 +29,11 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
-var dbService *orm.DB
-var ormService *orm.Engine
+var dbService *beeorm.DB
+var ormService *beeorm.Engine
 var ginTestInstance *gin.Engine
 var testSpringInstance *hitrix.Hitrix
 

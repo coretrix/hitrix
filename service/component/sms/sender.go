@@ -6,13 +6,13 @@ import (
 	"github.com/coretrix/hitrix/example/entity"
 
 	"github.com/coretrix/hitrix/service/component/clock"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 type ISender interface {
-	SendOTPSMS(ormService *orm.Engine, otp *OTP) error
-	SendOTPCallout(ormService *orm.Engine, otp *OTP) error
-	SendMessage(ormService *orm.Engine, message *Message) error
+	SendOTPSMS(ormService *beeorm.Engine, otp *OTP) error
+	SendOTPCallout(ormService *beeorm.Engine, otp *OTP) error
+	SendMessage(ormService *beeorm.Engine, message *Message) error
 }
 
 type Sender struct {
@@ -21,7 +21,7 @@ type Sender struct {
 	Logger         LogEntity
 }
 
-func (s *Sender) SendOTPSMS(ormService *orm.Engine, otp *OTP) error {
+func (s *Sender) SendOTPSMS(ormService *beeorm.Engine, otp *OTP) error {
 	primaryProvider := otp.Provider.Primary
 	secondaryProvider := otp.Provider.Secondary
 
@@ -66,7 +66,7 @@ func (s *Sender) SendOTPSMS(ormService *orm.Engine, otp *OTP) error {
 	return nil
 }
 
-func (s *Sender) SendOTPCallout(ormService *orm.Engine, otp *OTP) error {
+func (s *Sender) SendOTPCallout(ormService *beeorm.Engine, otp *OTP) error {
 	primaryProvider := otp.Provider.Primary
 	secondaryProvider := otp.Provider.Secondary
 
@@ -111,7 +111,7 @@ func (s *Sender) SendOTPCallout(ormService *orm.Engine, otp *OTP) error {
 	return nil
 }
 
-func (s *Sender) SendMessage(ormService *orm.Engine, message *Message) error {
+func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error {
 	primaryProvider := message.Provider.Primary
 	secondaryProvider := message.Provider.Secondary
 

@@ -24,7 +24,7 @@ import (
 
 	"github.com/coretrix/hitrix/service/component/jwt"
 	"github.com/coretrix/hitrix/service/component/password"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 const (
@@ -38,13 +38,13 @@ const (
 )
 
 type OTPProviderEntity interface {
-	orm.Entity
+	beeorm.Entity
 	GetPhoneFieldName() string
 	GetEmailFieldName() string
 }
 
 type AuthProviderEntity interface {
-	orm.Entity
+	beeorm.Entity
 	GetUniqueFieldName() string
 	GetPassword() string
 }
@@ -102,7 +102,7 @@ type GenerateOTPEmail struct {
 	Token          string
 }
 
-func (t *Authentication) GenerateAndSendOTP(ormService *orm.Engine, mobile string, country string) (*GenerateOTP, error) {
+func (t *Authentication) GenerateAndSendOTP(ormService *beeorm.Engine, mobile string, country string) (*GenerateOTP, error) {
 	// validate mobile number
 	if len(country) != 2 {
 		return nil, errors.New("use alpha2 code for country")
@@ -136,7 +136,7 @@ func (t *Authentication) GenerateAndSendOTP(ormService *orm.Engine, mobile strin
 	}, nil
 }
 
-func (t *Authentication) GenerateAndSendOTPEmail(ormService *orm.Engine, email string, template string, from string, title string) (*GenerateOTPEmail, error) {
+func (t *Authentication) GenerateAndSendOTPEmail(ormService *beeorm.Engine, email string, template string, from string, title string) (*GenerateOTPEmail, error) {
 	_, err := mail2.ParseAddress(email)
 
 	if err != nil {
@@ -217,8 +217,8 @@ func (t *Authentication) VerifySocialLogin(source, token string) (*social.UserDa
 	return socialProvider.GetUserData(token)
 }
 
-func (t *Authentication) AuthenticateOTP(ormService *orm.Engine, phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
-	q := &orm.RedisSearchQuery{}
+func (t *Authentication) AuthenticateOTP(ormService *beeorm.Engine, phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
+	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetPhoneFieldName(), phone)
 	found := ormService.RedisSearchOne(entity, q)
 	if !found {
@@ -228,8 +228,8 @@ func (t *Authentication) AuthenticateOTP(ormService *orm.Engine, phone string, e
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) AuthenticateOTPEmail(ormService *orm.Engine, email string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
-	q := &orm.RedisSearchQuery{}
+func (t *Authentication) AuthenticateOTPEmail(ormService *beeorm.Engine, email string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
+	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetEmailFieldName(), email)
 	found := ormService.RedisSearchOne(entity, q)
 	if !found {
@@ -239,8 +239,8 @@ func (t *Authentication) AuthenticateOTPEmail(ormService *orm.Engine, email stri
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) Authenticate(ormService *orm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
-	q := &orm.RedisSearchQuery{}
+func (t *Authentication) Authenticate(ormService *beeorm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
+	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetUniqueFieldName(), uniqueValue)
 	found := ormService.RedisSearchOne(entity, q)
 	if !found {
@@ -254,7 +254,7 @@ func (t *Authentication) Authenticate(ormService *orm.Engine, uniqueValue string
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) AuthenticateByID(ormService *orm.Engine, id uint64, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) AuthenticateByID(ormService *beeorm.Engine, id uint64, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
 	exists := ormService.LoadByID(id, entity)
 	if !exists {
 		return "", "", errors.New("id_does_not_exists")
@@ -262,7 +262,7 @@ func (t *Authentication) AuthenticateByID(ormService *orm.Engine, id uint64, ent
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) generateUserTokens(ormService *orm.Engine, ID uint64) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) generateUserTokens(ormService *beeorm.Engine, ID uint64) (accessToken string, refreshToken string, err error) {
 	accessKey := t.generateAndStoreAccessKey(ormService, ID, t.refreshTokenTTL)
 
 	accessToken, err = t.GenerateTokenPair(ID, accessKey, t.accessTokenTTL)
@@ -279,7 +279,7 @@ func (t *Authentication) generateUserTokens(ormService *orm.Engine, ID uint64) (
 	return accessToken, refreshToken, nil
 }
 
-func (t *Authentication) VerifyAccessToken(ormService *orm.Engine, accessToken string, entity orm.Entity) (map[string]string, error) {
+func (t *Authentication) VerifyAccessToken(ormService *beeorm.Engine, accessToken string, entity beeorm.Entity) (map[string]string, error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, accessToken, t.clockService.Now().Unix())
 	if err != nil {
 		return nil, err
@@ -305,7 +305,7 @@ func (t *Authentication) VerifyAccessToken(ormService *orm.Engine, accessToken s
 	return payload, nil
 }
 
-func (t *Authentication) RefreshToken(ormService *orm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
+func (t *Authentication) RefreshToken(ormService *beeorm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, refreshToken, t.clockService.Now().Unix())
 	if err != nil {
 		return "", "", err
@@ -342,7 +342,7 @@ func (t *Authentication) RefreshToken(ormService *orm.Engine, refreshToken strin
 	return newAccessToken, newRefreshToken, err
 }
 
-func (t *Authentication) LogoutCurrentSession(ormService *orm.Engine, accessKey string) {
+func (t *Authentication) LogoutCurrentSession(ormService *beeorm.Engine, accessKey string) {
 	cacheService := ormService.GetRedis()
 
 	cacheService.Del(accessKey)
@@ -365,7 +365,7 @@ func (t *Authentication) LogoutCurrentSession(ormService *orm.Engine, accessKey 
 	}
 }
 
-func (t *Authentication) LogoutAllSessions(ormService *orm.Engine, id uint64) {
+func (t *Authentication) LogoutAllSessions(ormService *beeorm.Engine, id uint64) {
 	tokenListKey := generateUserTokenListKey(id)
 	cacheService := ormService.GetRedis()
 
@@ -397,13 +397,13 @@ func (t *Authentication) GenerateTokenPair(id uint64, accessKey string, ttl int)
 	return t.jwtService.EncodeJWT(t.secret, headers, payload)
 }
 
-func (t *Authentication) generateAndStoreAccessKey(ormService *orm.Engine, id uint64, ttl int) string {
+func (t *Authentication) generateAndStoreAccessKey(ormService *beeorm.Engine, id uint64, ttl int) string {
 	key := generateAccessKey(id, t.generatorService.GenerateUUID())
 	ormService.GetRedis().Set(key, "", ttl)
 	return key
 }
 
-func (t *Authentication) addUserAccessKeyList(ormService *orm.Engine, id uint64, accessKey, oldAccessKey string, ttl int) {
+func (t *Authentication) addUserAccessKeyList(ormService *beeorm.Engine, id uint64, accessKey, oldAccessKey string, ttl int) {
 	key := generateUserTokenListKey(id)
 	cacheService := ormService.GetRedis()
 	res, has := cacheService.Get(key)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/coretrix/hitrix/pkg/helper"
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 type SearchParams struct {
@@ -161,8 +161,8 @@ mainLoop:
 }
 
 // TODO : add full text queries when supported by hitrix
-func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *orm.RedisSearchQuery {
-	query := &orm.RedisSearchQuery{}
+func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSearchQuery {
+	query := &beeorm.RedisSearchQuery{}
 	for field, value := range params.NumberFilters {
 		query.FilterInt(field, value)
 	}
@@ -192,8 +192,8 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *orm.RedisSearc
 	return query
 }
 
-func (c *Crud) GenerateListMysqlQuery(params SearchParams) *orm.Where {
-	where := orm.NewWhere("1")
+func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
+	where := beeorm.NewWhere("1")
 	for field, value := range params.NumberFilters {
 		where.Append(field+" = ?", value)
 	}

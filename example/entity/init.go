@@ -1,10 +1,10 @@
 package entity
 
 import (
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
-func Init(registry *orm.Registry) {
+func Init(registry *beeorm.Registry) {
 	registry.RegisterEntity(
 		&AdminUserEntity{}, &APILogEntity{}, &SmsTrackerEntity{},
 	)

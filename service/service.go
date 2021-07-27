@@ -26,7 +26,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/stripe"
 	"github.com/coretrix/hitrix/service/component/uploader"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 const (
@@ -59,9 +59,9 @@ const (
 type DIInterface interface {
 	App() *app.App
 	Config() config.IConfig
-	OrmConfig() (orm.ValidatedRegistry, bool)
-	OrmEngine() (*orm.Engine, bool)
-	OrmEngineForContext(ctx context.Context) (*orm.Engine, bool)
+	OrmConfig() (beeorm.ValidatedRegistry, bool)
+	OrmEngine() (*beeorm.Engine, bool)
+	OrmEngineForContext(ctx context.Context) (*beeorm.Engine, bool)
 	JWT() (*jwt.JWT, bool)
 	Password() (*password.Password, bool)
 	SlackAPI() (*slackapi.SlackAPI, bool)
@@ -122,26 +122,26 @@ func (d *diContainer) Config() config.IConfig {
 	return GetServiceRequired(ConfigService).(config.IConfig)
 }
 
-func (d *diContainer) OrmConfig() (orm.ValidatedRegistry, bool) {
+func (d *diContainer) OrmConfig() (beeorm.ValidatedRegistry, bool) {
 	v, has := GetServiceOptional(ORMConfigService)
 	if has {
-		return v.(orm.ValidatedRegistry), true
+		return v.(beeorm.ValidatedRegistry), true
 	}
 	return nil, false
 }
 
-func (d *diContainer) OrmEngine() (*orm.Engine, bool) {
+func (d *diContainer) OrmEngine() (*beeorm.Engine, bool) {
 	v, has := GetServiceOptional(ORMEngineGlobalService)
 	if has {
-		return v.(*orm.Engine), true
+		return v.(*beeorm.Engine), true
 	}
 	return nil, false
 }
 
-func (d *diContainer) OrmEngineForContext(ctx context.Context) (*orm.Engine, bool) {
+func (d *diContainer) OrmEngineForContext(ctx context.Context) (*beeorm.Engine, bool) {
 	v, has := GetServiceForRequestOptional(ctx, ORMEngineRequestService)
 	if has {
-		return v.(*orm.Engine), true
+		return v.(*beeorm.Engine), true
 	}
 	return nil, false
 }

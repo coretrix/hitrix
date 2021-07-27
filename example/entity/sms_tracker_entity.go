@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	"github.com/latolukasz/orm"
+	"github.com/latolukasz/beeorm"
 )
 
 const (
@@ -22,7 +22,7 @@ var SMSTrackerTypeAll = smsTrackerTypeAll{
 }
 
 type SmsTrackerEntity struct {
-	orm.ORM               `orm:"table=sms_tracker"`
+	beeorm.ORM            `orm:"table=sms_tracker"`
 	ID                    uint64
 	Status                string
 	To                    string `orm:"varchar=15"`

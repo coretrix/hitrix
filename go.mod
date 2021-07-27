@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go v1.38.39
 	github.com/checkout/checkout-sdk-go v0.0.19
 	github.com/dongri/phonenumber v0.0.0-20210304071411-690733f34185
-	github.com/fatih/color v1.10.0
+	github.com/fatih/color v1.12.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/timeout v0.0.1
 	github.com/gin-gonic/gin v1.6.3
@@ -30,7 +30,7 @@ require (
 	github.com/kevinburke/go.uuid v1.2.0 // indirect
 	github.com/kevinburke/rest v0.0.0-20210425173428-1fcb8c8e9022 // indirect
 	github.com/kevinburke/twilio-go v0.0.0-20210327194925-1623146bcf73
-	github.com/latolukasz/orm v1.3.25
+	github.com/latolukasz/beeorm v1.0.3
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattbaird/gochimp v0.0.0-20200820164431-f1082bcdf63f
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
