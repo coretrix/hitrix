@@ -16,7 +16,7 @@ format-check: ## Check if the code is formatted
 	@go get golang.org/x/tools/cmd/goimports
 	@for i in $$(${GOPATH}/bin/goimports -l .); do echo "[ERROR] Code is not formated run 'make format'" && exit 1; done
 
-check: format-check ## Linting and static analysis
+check: format-check cyclo ## Linting and static analysis
 	@if grep -r --include='*.go' -E "fmt.Print|spew.Dump" *; then \
 		echo "code contains fmt.Print* or spew.Dump function"; \
 		exit 1; \
@@ -24,6 +24,10 @@ check: format-check ## Linting and static analysis
 
 	@go install honnef.co/go/tools/cmd/staticcheck@latest;
 	@${GOPATH}/bin/staticcheck ./...;
+
+cyclo: ## Cyclomatic complexities analysis
+	@go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+	@gocyclo -over 100 .
 
 init:
 	cd ./example && go run github.com/99designs/gqlgen init
