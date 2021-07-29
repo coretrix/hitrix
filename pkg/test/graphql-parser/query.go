@@ -71,15 +71,16 @@ func writeArgumentType(w io.Writer, t reflect.Type, value bool) {
 
 func query(v interface{}) string {
 	var buf bytes.Buffer
-	writeQuery(&buf, reflect.TypeOf(v), false)
+	writeQuery(&buf, reflect.TypeOf(v), false, 0)
 	return buf.String()
 }
 
-func writeQuery(w io.Writer, t reflect.Type, inline bool) {
+func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint) {
 	switch t.Kind() {
 	case reflect.Ptr, reflect.Slice:
-		writeQuery(w, t.Elem(), false)
+		writeQuery(w, t.Elem(), false, depth)
 	case reflect.Struct:
+
 		if reflect.PtrTo(t).Implements(jsonUnmarshaler) {
 			return
 		}
@@ -87,11 +88,18 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool) {
 			// nolint
 			io.WriteString(w, "{")
 		}
+
+		skipComma := false
 		for i := 0; i < t.NumField(); i++ {
-			if i != 0 {
+			hasStruct := false
+			if depth > 2 {
+				continue
+			}
+			if i != 0 && !skipComma {
 				// nolint
 				io.WriteString(w, ",")
 			}
+			skipComma = false
 			f := t.Field(i)
 			value, ok := f.Tag.Lookup("graphql")
 			inlineField := f.Anonymous && !ok
@@ -100,12 +108,28 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool) {
 					// nolint
 					io.WriteString(w, value)
 				} else {
+					if f.Type.Kind() == reflect.Slice && f.Type.Elem().Kind() == reflect.Ptr &&
+						f.Type.Elem().Elem().Kind() == reflect.Struct ||
+						f.Type.Kind() == reflect.Slice && f.Type.Elem().Kind() == reflect.Struct ||
+						f.Type.Kind() == reflect.Ptr && f.Type.Elem().Kind() == reflect.Struct && f.Type.Elem().Name() != "Time" ||
+						f.Type.Kind() == reflect.Struct && f.Type.Name() != "Time" {
+						hasStruct = true
+
+						if depth+1 > 2 {
+							skipComma = true
+							continue
+						}
+					}
 					// nolint
 					//io.WriteString(w, ident.ParseMixedCaps(f.Name).ToLowerCamelCase())
 					io.WriteString(w, f.Name)
 				}
 			}
-			writeQuery(w, f.Type, inlineField)
+			if hasStruct {
+				writeQuery(w, f.Type, inlineField, depth+1)
+			} else {
+				writeQuery(w, f.Type, inlineField, depth)
+			}
 		}
 		if !inline {
 			// nolint
