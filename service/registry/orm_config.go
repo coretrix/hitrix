@@ -3,6 +3,7 @@ package registry
 import (
 	"errors"
 	"fmt"
+
 	"github.com/coretrix/hitrix/service/component/app"
 
 	"github.com/coretrix/hitrix/service"
