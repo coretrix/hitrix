@@ -181,6 +181,11 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 
 	go func() {
 		asyncConsumer := beeorm.NewBackgroundConsumer(ormService)
-		asyncConsumer.Digest()
+		for {
+			if asyncConsumer.Digest() {
+				break
+			}
+			time.Sleep(time.Second * 30)
+		}
 	}()
 }
