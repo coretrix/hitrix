@@ -92,7 +92,7 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint) {
 		skipComma := false
 		for i := 0; i < t.NumField(); i++ {
 			hasStruct := false
-			if depth > 2 {
+			if depth > 3 {
 				continue
 			}
 			if i != 0 && !skipComma {
@@ -115,7 +115,7 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint) {
 						f.Type.Kind() == reflect.Struct && f.Type.Name() != "Time" {
 						hasStruct = true
 
-						if depth+1 > 2 {
+						if depth+1 > 3 {
 							skipComma = true
 							continue
 						}
