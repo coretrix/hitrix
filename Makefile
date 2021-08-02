@@ -27,7 +27,7 @@ check: format-check cyclo ## Linting and static analysis
 
 cyclo: ## Cyclomatic complexities analysis
 	@go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
-	@gocyclo -over 100 .
+	@${GOPATH}/bin/gocyclo -over 100 .
 
 init:
 	cd ./example && go run github.com/99designs/gqlgen init
