@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/coretrix/hitrix/service"
 
 	"github.com/coretrix/hitrix"
-
-	"github.com/tj/assert"
 )
 
 type testScript2 struct {
