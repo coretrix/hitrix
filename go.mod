@@ -40,7 +40,6 @@ require (
 	github.com/slack-go/slack v0.9.0
 	github.com/stretchr/testify v1.7.0
 	github.com/stripe/stripe-go/v72 v72.50.0
-	github.com/tj/assert v0.0.3
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.2.1 // indirect
 	github.com/tus/tusd v1.6.0
@@ -52,4 +51,5 @@ require (
 	golang.org/x/tools v0.1.5 // indirect
 	google.golang.org/api v0.38.0
 	google.golang.org/grpc v1.37.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c // indirect
 )

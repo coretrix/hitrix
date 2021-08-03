@@ -526,9 +526,13 @@ amazon_s3:
   url_prefix: prefix
   domain: domain.com
   buckets: # Register your buckets here for each app mode
-    products:
+    products: # bucket name
       prod: bucket-name
       local: bucket-name-local
+  public_urls: # Register your public urls for the GetObjectCachedURL method
+    product: # bucket name
+      prod: "https://somesite.com/{{.StorageKey}}/" # Available variables are: .Environment, .BucketName, .CounterID, and, .StorageKey
+      local: "http://127.0.0.1/{{.Environment}}/{{.BucketName}}/{{.StorageKey}}/{{.CounterID}}" # Will output "http://127.0.0.1/local/product/1.jpeg/1"
 ```
 
 #### Uploader

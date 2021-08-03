@@ -29,4 +29,8 @@ amazon_s3:
     product:
       prod: bucket-name
       local: bucket-name-local
+  public_urls:
+    product: # Available variables are: .Environment, .BucketName, and, .StorageKey
+      prod: "https://somesite.com/{.StorageKey}/"
+      local: "http://127.0.0.1/{.StorageKey}/"
 orm_debug: true
