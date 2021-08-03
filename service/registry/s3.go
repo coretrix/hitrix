@@ -51,16 +51,6 @@ func ServiceDefinitionAmazonS3(bucketsMapping map[string]uint64) *service.Defini
 				return nil, errors.New("missing region")
 			}
 
-			urlPrefix, ok := configService.String("amazon_s3.url_prefix")
-			if !ok {
-				return nil, errors.New("missing url_prefix")
-			}
-
-			domain, ok := configService.String("amazon_s3.domain")
-			if !ok {
-				return nil, errors.New("missing domain")
-			}
-
 			bucketsConfigDefinitions, ok := configService.Get("amazon_s3.buckets")
 			if !ok {
 				return nil, errors.New("missing buckets")
@@ -76,16 +66,32 @@ func ServiceDefinitionAmazonS3(bucketsMapping map[string]uint64) *service.Defini
 				bucketsConfigDefinitionsMap[k.(string)] = bucketsConfigDefinitionsInnerMap
 			}
 
+			bucketsPublicUrlConfig, ok := configService.Get("amazon_s3.public_urls")
+			if !ok {
+				return nil, errors.New("missing public_urls")
+			}
+
+			bucketsPublicUrlConfigMap := map[string]map[string]string{}
+			for k, v := range bucketsPublicUrlConfig.(map[interface{}]interface{}) {
+
+				bucketsPublicUrlConfigInnerMap := map[string]string{}
+
+				for k1, v1 := range v.(map[interface{}]interface{}) {
+					bucketsPublicUrlConfigInnerMap[k1.(string)] = v1.(string)
+				}
+
+				bucketsPublicUrlConfigMap[k.(string)] = bucketsPublicUrlConfigInnerMap
+			}
+
 			return s3.NewAmazonS3(
 				endpoint,
 				accessKeyID,
 				secretAccessKey,
 				bucketsMapping,
 				bucketsConfigDefinitionsMap,
+				bucketsPublicUrlConfigMap,
 				region,
 				disableSSL,
-				urlPrefix,
-				domain,
 				appService.Mode), nil
 		},
 	}

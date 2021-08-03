@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strconv"
+	"text/template"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -24,12 +24,18 @@ type AmazonS3 struct {
 	environment              string
 	bucketsMapping           map[string]uint64
 	bucketsConfigDefinitions map[string]map[string]string
-	urlPrefix                string
-	domain                   string
+	bucketsPublicUrls        map[string]map[string]string
 }
 
-func NewAmazonS3(endpoint string, accessKeyID string, secretAccessKey string, allowedBuckets map[string]uint64, bucketsConfigDefinitions map[string]map[string]string,
-	region string, disableSSL bool, urlPrefix string, domain string, environment string) *AmazonS3 {
+func NewAmazonS3(endpoint string,
+	accessKeyID string,
+	secretAccessKey string,
+	allowedBuckets map[string]uint64,
+	bucketsConfigDefinitions map[string]map[string]string,
+	bucketsPublicUrlConfigMap map[string]map[string]string,
+	region string,
+	disableSSL bool,
+	environment string) *AmazonS3 {
 	s3Config := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
 		Endpoint:         aws.String(endpoint),
@@ -46,8 +52,7 @@ func NewAmazonS3(endpoint string, accessKeyID string, secretAccessKey string, al
 		bucketsMapping:           allowedBuckets,
 		bucketsConfigDefinitions: bucketsConfigDefinitions,
 		environment:              environment,
-		urlPrefix:                urlPrefix,
-		domain:                   domain,
+		bucketsPublicUrls:        bucketsPublicUrlConfigMap,
 	}
 }
 
@@ -194,13 +199,50 @@ func (amazonS3 *AmazonS3) ReadFile(localFile string) ([]byte, string) {
 	return fileContent, filepath.Ext(localFile)
 }
 
+type CachedObjectURLTemplate struct {
+	Environment string
+	BucketName  string
+	StorageKey  string
+	CounterID   string
+}
+
+func (amazonS3 *AmazonS3) getPublicUrlsForBucket(bucketName string) string {
+	if bucketConfig, ok := amazonS3.bucketsPublicUrls[bucketName]; ok {
+		if url, ok := bucketConfig[amazonS3.environment]; ok {
+			return url
+		}
+	}
+
+	return ""
+}
+
 func (amazonS3 *AmazonS3) GetObjectCachedURL(bucket string, object *Object) string {
 	amazonS3.checkBucket(bucket)
 
-	bucketByEnv := amazonS3.getBucketName(bucket)
+	url := amazonS3.getPublicUrlsForBucket(bucket)
 
-	return fmt.Sprintf("https://%s%s.%s/%s/%s", amazonS3.urlPrefix, amazonS3.environment, amazonS3.domain,
-		bucketByEnv, object.StorageKey)
+	obj := CachedObjectURLTemplate{
+		Environment: amazonS3.environment,
+		BucketName:  bucket,
+		StorageKey:  object.StorageKey,
+		CounterID:   strconv.FormatUint(object.ID, 10),
+	}
+
+	temp, err := template.New("amazon").Parse(url)
+	if err != nil {
+		panic("failed creating new template for amazon s3")
+	}
+
+	buf := new(bytes.Buffer)
+
+	err = temp.Execute(buf, obj)
+	if err != nil {
+		panic("failed executing the new template for amazon s3")
+	}
+
+	text := buf.String()
+
+	return text
 }
 
 func (amazonS3 *AmazonS3) GetObjectSignedURL(bucket string, object *Object, expiresIn time.Duration) string {
