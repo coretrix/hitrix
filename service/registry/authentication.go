@@ -19,10 +19,9 @@ const (
 	DefaultRefreshTokenTTLInSeconds = 365 * 24 * 60 * 60
 )
 
-func ServiceProviderAuthentication() *service.Definition {
-	return &service.Definition{
-		Name:   service.AuthenticationService,
-		Global: true,
+func ServiceProviderAuthentication() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.AuthenticationService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 			if configService == nil {

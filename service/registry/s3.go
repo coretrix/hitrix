@@ -12,10 +12,9 @@ import (
 )
 
 // ServiceDefinitionAmazonS3 Be sure that you registered entity S3BucketCounterEntity
-func ServiceDefinitionAmazonS3(bucketsMapping map[string]uint64) *service.Definition {
-	return &service.Definition{
-		Name:   service.AmazonS3Service,
-		Global: true,
+func ServiceDefinitionAmazonS3(bucketsMapping map[string]uint64) *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.AmazonS3Service,
 		Build: func(ctn di.Container) (interface{}, error) {
 			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()

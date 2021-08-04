@@ -32,7 +32,7 @@ func (script *testScript2) Description() string {
 }
 
 func TestRunScript(t *testing.T) {
-	env := createContextMyApp(t, "my-app", nil, nil)
+	env := createContextMyApp(t, "my-app", nil, nil, nil)
 
 	testScript2 := &testScript2{}
 	b := &hitrix.BackgroundProcessor{Server: env.Hitrix}

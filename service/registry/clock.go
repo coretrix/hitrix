@@ -6,10 +6,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceClock() *service.Definition {
-	return &service.Definition{
-		Name:   service.ClockService,
-		Global: true,
+func ServiceClock() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.ClockService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &clock.SysClock{}, nil
 		},

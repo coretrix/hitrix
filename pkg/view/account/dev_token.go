@@ -102,11 +102,7 @@ func IsValidDevToken(c *gin.Context, token string) error {
 }
 
 func verifyDevUser(c *gin.Context, userID uint64, token string) error {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	redisService := ormService.GetRedis()
 	// #nosec

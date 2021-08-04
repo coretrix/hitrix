@@ -10,10 +10,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderSMS(entity sms.LogEntity) *service.Definition {
-	return &service.Definition{
-		Name:   service.SMSService,
-		Global: true,
+func ServiceProviderSMS(entity sms.LogEntity) *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.SMSService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			clockService := ctn.Get(service.ClockService).(clock.Clock)
 			configService := ctn.Get("config").(config.IConfig)

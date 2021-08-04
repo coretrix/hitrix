@@ -18,18 +18,27 @@ const (
 )
 
 var container di.Container
+var servicesDefinitionsRequestList []*DefinitionRequest
 
-type Definition struct {
+type DefinitionGlobal struct {
 	Name   string
-	Global bool
 	Script bool
 	Build  func(ctn di.Container) (interface{}, error)
 	Close  func(obj interface{}) error
 	Flags  func(registry *app.FlagsRegistry)
 }
 
+type DefinitionRequest struct {
+	Name  string
+	Build func(ctn *gin.Context) (interface{}, error)
+}
+
 func SetContainer(c di.Container) {
 	container = c
+}
+
+func SetRequestServices(servicesDefinitionsRequest []*DefinitionRequest) {
+	servicesDefinitionsRequestList = servicesDefinitionsRequest
 }
 
 func HasService(key string) bool {
@@ -49,16 +58,8 @@ func GetServiceRequired(key string) interface{} {
 	return getServiceRequired(container, key)
 }
 
-func GetServiceForRequestSafe(ctx context.Context, key string) (service interface{}, has bool, err error) {
-	return getServiceSafe(GetContainerFromRequest(ctx), key)
-}
-
-func GetServiceForRequestOptional(ctx context.Context, key string) (service interface{}, has bool) {
-	return getServiceOptional(GetContainerFromRequest(ctx), key)
-}
-
 func GetServiceForRequestRequired(ctx context.Context, key string) interface{} {
-	return getServiceRequired(GetContainerFromRequest(ctx), key)
+	return GetServiceFromRequest(ctx, key)
 }
 
 func getServiceSafe(ctn di.Container, key string) (service interface{}, has bool, err error) {
@@ -91,21 +92,28 @@ func getServiceRequired(ctn di.Container, key string) interface{} {
 	return service
 }
 
-func GetContainerFromRequest(ctx context.Context) (ctn di.Container) {
+func GetServiceFromRequest(ctx context.Context, key string) interface{} {
 	c := GinFromContext(ctx)
-	requestContainer, has := c.Get("RequestContainer")
+	requestService, has := c.Get(key)
 
 	if !has {
 		var err error
-		ctn, err = container.SubContainer()
-		if err != nil {
-			panic(err)
+		for _, s := range servicesDefinitionsRequestList {
+			if s.Name == key {
+				requestService, err = s.Build(c)
+				if err != nil {
+					panic(err)
+				}
+			}
 		}
-		c.Set("RequestContainer", ctn)
-	} else {
-		ctn = requestContainer.(di.Container)
+		c.Set(key, requestService)
 	}
-	return ctn
+
+	if requestService == nil {
+		panic("not defined service " + key)
+	}
+
+	return requestService
 }
 
 func GinFromContext(ctx context.Context) *gin.Context {

@@ -76,14 +76,15 @@ import (
 func main() {
 	s, deferFunc := hitrix.New(
 		"app-name", "your secret",
-	).RegisterDIService(
+	).RegisterDIGlobalService(
 		registry.ServiceProviderErrorLogger(), //register redis error logger
 		registry.ServiceProviderConfigDirectory("../config"), //register config service. As param you should point to the folder of your config file
 		registry.ServiceDefinitionOrmRegistry(entity.Init), //register our ORM and pass function where we set some configurations 
 		registry.ServiceDefinitionOrmEngine(), //register our ORM engine for background processes
-		registry.ServiceDefinitionOrmEngineForContext(), //register our ORM engine per context used in foreground processes
 		registry.ServiceProviderJWT(), //register JWT DI service
 		registry.ServiceProviderPassword(), //register pasword DI service
+	).RegisterDIRequestService(
+		registry.ServiceDefinitionOrmEngineForContext(), //register our ORM engine per context used in foreground processes 
 	).Build()
     defer deferFunc()
 
@@ -180,7 +181,7 @@ This will generate sql query that should be executed into your database to creat
 ```go
 s, deferFunc := hitrix.New(
 		"app-name", "your secret",
-	).RegisterDIService(
+	).RegisterDIGlobalService(
 		registry.ServiceProviderErrorLogger(), //register redis error logger
 		//...
 	).
@@ -207,13 +208,12 @@ service.DI().Password() //access JWT
 //...and so on
 ```
 
-#### Register new DI service
+#### Register new DI global service
 ```go
 
 func ServiceDefinitionMyService() *ServiceDefinition {
 	return &ServiceDefinition{
 		Name:   "my_service",
-		Global: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &yourService{}, nil
 		},
@@ -419,7 +419,7 @@ func main() {
     hitrix.New("app_name", "your secret").RegisterDIService(
         &registry.ServiceDefinition{
             Name:   "my-script",
-            Global: true,
+            
             Script: true, // you need to set true here
             Build: func(ctn di.Container) (interface{}, error) {
                 return &TestScript{}, nil

@@ -5,10 +5,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeStripeService(fake interface{}) *service.Definition {
-	return &service.Definition{
-		Name:   service.StripeService,
-		Global: true,
+func FakeStripeService(fake interface{}) *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.StripeService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return fake, nil
 		},

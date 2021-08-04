@@ -61,7 +61,7 @@ type DIInterface interface {
 	Config() config.IConfig
 	OrmConfig() (beeorm.ValidatedRegistry, bool)
 	OrmEngine() (*beeorm.Engine, bool)
-	OrmEngineForContext(ctx context.Context) (*beeorm.Engine, bool)
+	OrmEngineForContext(ctx context.Context) *beeorm.Engine
 	JWT() (*jwt.JWT, bool)
 	Password() (*password.Password, bool)
 	SlackAPI() (*slackapi.SlackAPI, bool)
@@ -138,12 +138,8 @@ func (d *diContainer) OrmEngine() (*beeorm.Engine, bool) {
 	return nil, false
 }
 
-func (d *diContainer) OrmEngineForContext(ctx context.Context) (*beeorm.Engine, bool) {
-	v, has := GetServiceForRequestOptional(ctx, ORMEngineRequestService)
-	if has {
-		return v.(*beeorm.Engine), true
-	}
-	return nil, false
+func (d *diContainer) OrmEngineForContext(ctx context.Context) *beeorm.Engine {
+	return GetServiceForRequestRequired(ctx, ORMEngineRequestService).(*beeorm.Engine)
 }
 
 func (d *diContainer) JWT() (*jwt.JWT, bool) {

@@ -5,10 +5,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeAmazonS3Service(fake interface{}) *service.Definition {
-	return &service.Definition{
-		Name:   service.AmazonS3Service,
-		Global: true,
+func FakeAmazonS3Service(fake interface{}) *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.AmazonS3Service,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return fake, nil
 		},

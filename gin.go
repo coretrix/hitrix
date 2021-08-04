@@ -31,17 +31,6 @@ func contextToContextMiddleware() gin.HandlerFunc {
 	}
 }
 
-func afterRequestMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Next()
-
-		err := service.GetContainerFromRequest(c.Request.Context()).Delete()
-		if err != nil {
-			panic(err)
-		}
-	}
-}
-
 func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gqlServerInitHandler GQLServerInitHandler) *gin.Engine {
 	app := service.DI().App()
 	if app.IsInProdMode() {
@@ -58,7 +47,6 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 
 	ginEngine.Use(recovery())
 	ginEngine.Use(contextToContextMiddleware())
-	ginEngine.Use(afterRequestMiddleware())
 
 	if ginInitHandler != nil {
 		ginInitHandler(ginEngine)

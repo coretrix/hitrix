@@ -15,10 +15,9 @@ import (
 
 type ORMRegistryInitFunc func(registry *beeorm.Registry)
 
-func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.Definition {
-	return &service.Definition{
-		Name:   service.ORMConfigService,
-		Global: true,
+func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.ORMConfigService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 			appService := ctn.Get(service.AppService).(*app.App)

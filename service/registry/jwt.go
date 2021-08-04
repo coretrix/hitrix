@@ -6,10 +6,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderJWT() *service.Definition {
-	return &service.Definition{
-		Name:   service.JWTService,
-		Global: true,
+func ServiceProviderJWT() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.JWTService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &jwt.JWT{}, nil
 		},

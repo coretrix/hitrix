@@ -10,11 +10,14 @@ import (
 	"github.com/coretrix/hitrix/service/registry"
 )
 
-func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, mockServices ...*service.Definition) *test.Environment {
-	defaultServices := []*service.Definition{
+func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, mockGlobalServices []*service.DefinitionGlobal, mockRequestServices []*service.DefinitionRequest) *test.Environment {
+	defaultGlobalServices := []*service.DefinitionGlobal{
 		registry.ServiceProviderConfigDirectory("../example/config"),
 		registry.ServiceDefinitionOrmRegistry(entity.Init),
 		registry.ServiceDefinitionOrmEngine(),
+	}
+
+	defaultRequestServices := []*service.DefinitionRequest{
 		registry.ServiceDefinitionOrmEngineForContext(false),
 	}
 
@@ -22,7 +25,9 @@ func createContextMyApp(t *testing.T, projectName string, resolvers graphql.Exec
 		projectName,
 		resolvers,
 		nil,
-		defaultServices,
-		mockServices...,
+		defaultGlobalServices,
+		defaultRequestServices,
+		mockGlobalServices,
+		mockRequestServices,
 	)
 }

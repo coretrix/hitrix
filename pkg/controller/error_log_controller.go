@@ -18,10 +18,7 @@ type ErrorLogController struct {
 }
 
 func (controller *ErrorLogController) GetErrors(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	type errorRow struct {
 		File    string
@@ -77,10 +74,7 @@ func (controller *ErrorLogController) GetErrors(c *gin.Context) {
 }
 
 func (controller *ErrorLogController) DeleteError(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	id := c.Param("id")
 	if len(id) <= 0 {
@@ -95,11 +89,7 @@ func (controller *ErrorLogController) DeleteError(c *gin.Context) {
 }
 
 func (controller *ErrorLogController) DeleteAllErrors(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-	if !has {
-		panic("orm is not registered")
-	}
-
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 	ormService.GetRedis().Del(errorlogger.GroupError)
 
 	response.SuccessResponse(c, nil)

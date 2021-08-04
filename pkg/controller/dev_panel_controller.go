@@ -94,10 +94,7 @@ func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) PostGenerateTokenAction(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	devPanelUserEntity := c.MustGet(account.LoggedDevPanelUserEntity).(app.DevPanelUserEntity)
 
@@ -114,11 +111,7 @@ func (controller *DevPanelController) PostGenerateTokenAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetClearCacheAction(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	redisService := ormService.GetRedis()
 
@@ -128,11 +121,7 @@ func (controller *DevPanelController) GetClearCacheAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetClearRedisStreamsAction(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	devPanel := service.DI().App().DevPanel
 	if devPanel == nil || devPanel.PoolStream == nil {
@@ -146,11 +135,7 @@ func (controller *DevPanelController) GetClearRedisStreamsAction(c *gin.Context)
 }
 
 func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	devPanel := service.DI().App().DevPanel
 	if devPanel == nil || devPanel.PoolStream == nil {
@@ -170,11 +155,7 @@ func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetAlters(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	dbService := ormService.GetMysql()
 
@@ -199,11 +180,7 @@ func (controller *DevPanelController) GetAlters(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetRedisStreams(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	stats := tools.GetRedisStreamsStatistics(ormService)
 	sort.Slice(stats, func(i, j int) bool {
@@ -213,11 +190,7 @@ func (controller *DevPanelController) GetRedisStreams(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetRedisStatistics(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	stats := tools.GetRedisStatistics(ormService)
 	sort.Slice(stats, func(i, j int) bool {
@@ -227,21 +200,13 @@ func (controller *DevPanelController) GetRedisStatistics(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetRedisSearchStatistics(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	response.SuccessResponse(c, tools.GetRedisSearchStatistics(ormService))
 }
 
 func (controller *DevPanelController) GetRedisSearchAlters(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	altersSearch := ormService.GetRedisSearchIndexAlters()
 	result := make([]string, len(altersSearch))
@@ -259,11 +224,7 @@ func (controller *DevPanelController) GetRedisSearchAlters(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	devPanel := service.DI().App().DevPanel
 	if devPanel == nil || devPanel.PoolSearch == nil {
@@ -275,11 +236,7 @@ func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
 }
 
 func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	indexName := c.Param("index")
 	if indexName == "" {
@@ -297,11 +254,7 @@ func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context
 }
 
 func (controller *DevPanelController) PostRedisSearchIndexInfo(c *gin.Context) {
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	indexName := c.Param("index")
 	if indexName == "" {

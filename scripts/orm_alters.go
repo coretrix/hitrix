@@ -10,10 +10,10 @@ import (
 	"github.com/fatih/color"
 )
 
-func ORMAlters() *service.Definition {
-	return &service.Definition{
-		Name:   "orm-alters",
-		Global: true,
+func ORMAlters() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: "orm-alters",
+
 		Script: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &ORMAltersScript{}, nil

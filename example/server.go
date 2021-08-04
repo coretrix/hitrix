@@ -20,16 +20,17 @@ var eventHandlersMap = socket.NamespaceEventHandlerMap{
 func main() {
 	s, deferFunc := hitrix.New(
 		"my-app", "secret",
-	).RegisterDIService(
+	).RegisterDIGlobalService(
 		registry.ServiceProviderErrorLogger(),
 		registry.ServiceProviderConfigDirectory("config"),
 		registry.ServiceDefinitionOrmRegistry(entity.Init),
 		registry.ServiceDefinitionOrmEngine(),
 		registry.OSSGoogle(map[string]uint64{"test": 1}),
-		registry.ServiceDefinitionOrmEngineForContext(false),
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
 		registry.ServiceSocketRegistry(eventHandlersMap),
+	).RegisterDIRequestService(
+		registry.ServiceDefinitionOrmEngineForContext(false),
 	).
 		RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil, nil).Build()
 	defer deferFunc()

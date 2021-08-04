@@ -5,10 +5,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeSMSService(fake interface{}) *service.Definition {
-	return &service.Definition{
-		Name:   service.SMSService,
-		Global: true,
+func FakeSMSService(fake interface{}) *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.SMSService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return fake, nil
 		},

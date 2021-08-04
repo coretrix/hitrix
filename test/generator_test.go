@@ -10,7 +10,10 @@ import (
 func TestGenerateRandomRangeNumber(t *testing.T) {
 	t.Run("generate otp code", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
-			registry.GeneratorService(),
+			[]*service.DefinitionGlobal{
+				registry.GeneratorService(),
+			},
+			nil,
 		)
 
 		generatorService, _ := service.DI().GeneratorService()

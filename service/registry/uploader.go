@@ -12,10 +12,9 @@ import (
 	tusd "github.com/tus/tusd/pkg/handler"
 )
 
-func ServiceDefinitionUploader(c tusd.Config, getStoreFunc datastore.GetStoreFunc, getLockerFunc locker.GetLockerFunc) *service.Definition {
-	return &service.Definition{
-		Name:   service.UploaderService,
-		Global: true,
+func ServiceDefinitionUploader(c tusd.Config, getStoreFunc datastore.GetStoreFunc, getLockerFunc locker.GetLockerFunc) *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.UploaderService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			composer := tusd.NewStoreComposer()
 

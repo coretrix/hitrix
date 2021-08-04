@@ -6,10 +6,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func CrudService() *service.Definition {
-	return &service.Definition{
-		Name:   service.CrudService,
-		Global: true,
+func CrudService() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.CrudService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &crud.Crud{}, nil
 		},

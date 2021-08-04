@@ -19,11 +19,7 @@ func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
 		return "", "", err
 	}
 
-	ormService, has := service.DI().OrmEngineForContext(c.Request.Context())
-
-	if !has {
-		return "", "", errors.New("orm is not registered")
-	}
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	passwordService, has := service.DI().Password()
 	if !has {

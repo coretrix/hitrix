@@ -8,10 +8,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceDefinitionSlackAPI() *service.Definition {
-	return &service.Definition{
-		Name:   service.SlackAPIService,
-		Global: true,
+func ServiceDefinitionSlackAPI() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.SlackAPIService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 

@@ -11,7 +11,7 @@ import (
 )
 
 func TestRedisSearch(t *testing.T) {
-	createContextMyApp(t, "my-app", nil, nil)
+	createContextMyApp(t, "my-app", nil, nil, nil)
 
 	ormService, _ := service.DI().OrmEngine()
 

@@ -9,10 +9,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderErrorLogger() *service.Definition {
-	return &service.Definition{
-		Name:   service.ErrorLoggerService,
-		Global: true,
+func ServiceProviderErrorLogger() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.ErrorLoggerService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			slackAPIService, err := ctn.SafeGet(service.SlackAPIService)
 

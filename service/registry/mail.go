@@ -14,10 +14,9 @@ import (
 )
 
 // MailMandrill Be sure that you registered entity MailTrackerEntity
-func MailMandrill() *service.Definition {
-	return &service.Definition{
-		Name:   service.MailMandrill,
-		Global: true,
+func MailMandrill() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.MailMandrill,
 		Build: func(ctn di.Container) (interface{}, error) {
 			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()

@@ -5,10 +5,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeGeneratorService(fake interface{}) *service.Definition {
-	return &service.Definition{
-		Name:   service.GeneratorService,
-		Global: true,
+func FakeGeneratorService(fake interface{}) *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.GeneratorService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return fake, nil
 		},

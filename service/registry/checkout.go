@@ -11,10 +11,9 @@ import (
 	"github.com/xorcare/pointer"
 )
 
-func ServiceDefinitionCheckout() *service.Definition {
-	return &service.Definition{
-		Name:   service.CheckoutService,
-		Global: true,
+func ServiceDefinitionCheckout() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.CheckoutService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 

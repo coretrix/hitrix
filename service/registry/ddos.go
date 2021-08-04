@@ -6,10 +6,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderDDOS() *service.Definition {
-	return &service.Definition{
-		Name:   service.DDOSService,
-		Global: true,
+func ServiceProviderDDOS() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.DDOSService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &ddos.DDOS{}, nil
 		},

@@ -38,22 +38,22 @@ func (script *testScript) Interval() time.Duration {
 
 func main() {
 	r := hitrix.New("test_script", "secret")
-	r.RegisterDIService(&service.Definition{
-		Name:   "aa",
-		Global: true,
+	r.RegisterDIGlobalService(&service.DefinitionGlobal{
+		Name: "aa",
+
 		Script: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &testScript{"takie tam", false}, nil
 		},
 	})
-	r.RegisterDIService(&service.Definition{
-		Name:   "bb",
-		Global: true,
+	r.RegisterDIGlobalService(&service.DefinitionGlobal{
+		Name: "bb",
+
 		Script: true,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &testScript{"takie tam dwa", true}, nil
 		},
 	})
-	r.RegisterDIService(registry.ServiceProviderConfigDirectory("../config"))
-	r.RegisterDIService().Build()
+	r.RegisterDIGlobalService(registry.ServiceProviderConfigDirectory("../config"))
+	r.RegisterDIGlobalService().Build()
 }

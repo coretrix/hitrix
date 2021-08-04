@@ -6,10 +6,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderPassword() *service.Definition {
-	return &service.Definition{
-		Name:   service.PasswordService,
-		Global: true,
+func ServiceProviderPassword() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.PasswordService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &password.Password{}, nil
 		},

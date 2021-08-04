@@ -178,7 +178,7 @@ func (env *Environment) handleMultiPart(query string, variables interface{},
 	return nil, *out.Data
 }
 
-func CreateContext(t *testing.T, projectName string, defaultServices []*service.Definition, mockServices ...*service.Definition) *Environment {
+func CreateContext(t *testing.T, projectName string, defaultServices []*service.DefinitionGlobal, mockServices ...*service.DefinitionGlobal) *Environment {
 	var deferFunc func()
 
 	if testSpringInstance == nil {
@@ -191,7 +191,7 @@ func CreateContext(t *testing.T, projectName string, defaultServices []*service.
 			t.Fatal(err)
 		}
 
-		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
+		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIGlobalService(append(defaultServices, mockServices...)...).Build()
 		defer deferFunc()
 
 		var has bool
@@ -222,7 +222,7 @@ func CreateContext(t *testing.T, projectName string, defaultServices []*service.
 	}
 
 	if len(mockServices) != 0 {
-		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
+		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIGlobalService(append(defaultServices, mockServices...)...).Build()
 		defer deferFunc()
 
 		// TODO: fix multiple connections to mysql
@@ -246,7 +246,7 @@ func CreateContext(t *testing.T, projectName string, defaultServices []*service.
 	return &Environment{t: t, Hitrix: testSpringInstance, GinEngine: ginTestInstance}
 }
 
-func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, ginInitHandler hitrix.GinInitHandler, defaultServices []*service.Definition, mockServices ...*service.Definition) *Environment {
+func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, ginInitHandler hitrix.GinInitHandler, defaultGlobalServices []*service.DefinitionGlobal, defaultRequestServices []*service.DefinitionRequest, mockGlobalServices []*service.DefinitionGlobal, mockRequestServices []*service.DefinitionRequest) *Environment {
 	var deferFunc func()
 	gqlServerInitHandler := func(server *handler.Server) {
 		server.AddTransport(transport.MultipartForm{})
@@ -261,7 +261,9 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 			t.Fatal(err)
 		}
 
-		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
+		testSpringInstance, deferFunc = hitrix.New(projectName, "").
+			RegisterDIGlobalService(append(defaultGlobalServices, mockGlobalServices...)...).
+			RegisterDIRequestService(append(defaultRequestServices, mockRequestServices...)...).Build()
 		defer deferFunc()
 		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)
 
@@ -292,8 +294,10 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 		}
 	}
 
-	if len(mockServices) != 0 {
-		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIService(append(defaultServices, mockServices...)...).Build()
+	if len(mockGlobalServices) != 0 || len(mockRequestServices) != 0 {
+		testSpringInstance, deferFunc = hitrix.New(projectName, "").
+			RegisterDIGlobalService(append(defaultGlobalServices, mockGlobalServices...)...).
+			RegisterDIRequestService(append(defaultRequestServices, mockRequestServices...)...).Build()
 		defer deferFunc()
 		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)
 

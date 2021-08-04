@@ -6,10 +6,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func GeneratorService() *service.Definition {
-	return &service.Definition{
-		Name:   service.GeneratorService,
-		Global: true,
+func GeneratorService() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.GeneratorService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &generator.SimpleGenerator{}, nil
 		},

@@ -17,8 +17,9 @@ import (
 )
 
 type Registry struct {
-	app                 *app.App
-	servicesDefinitions []*service.Definition
+	app                        *app.App
+	servicesDefinitionsGlobal  []*service.DefinitionGlobal
+	servicesDefinitionsRequest []*service.DefinitionRequest
 }
 
 func New(appName string, secret string) *Registry {
@@ -74,38 +75,37 @@ func (r *Registry) RegisterDevPanel(devPanelUserEntity app.DevPanelUserEntity, r
 	return r
 }
 
-func (r *Registry) RegisterDIService(service ...*service.Definition) *Registry {
-	r.servicesDefinitions = append(r.servicesDefinitions, service...)
+func (r *Registry) RegisterDIGlobalService(service ...*service.DefinitionGlobal) *Registry {
+	r.servicesDefinitionsGlobal = append(r.servicesDefinitionsGlobal, service...)
+	return r
+}
+
+func (r *Registry) RegisterDIRequestService(service ...*service.DefinitionRequest) *Registry {
+	r.servicesDefinitionsRequest = append(r.servicesDefinitionsRequest, service...)
 	return r
 }
 
 func (r *Registry) initializeIoCHandlers() {
 	ioCBuilder, _ := di.NewBuilder()
 
-	defaultDefinitions := []*service.Definition{
+	defaultDefinitions := []*service.DefinitionGlobal{
 		registry.ServiceApp(r.app),
 		registry.ServiceConfig(),
 	}
 
 	flagsRegistry := &app.FlagsRegistry{Flags: make(map[string]interface{})}
-	for _, def := range append(defaultDefinitions, r.servicesDefinitions...) {
+	for _, def := range append(defaultDefinitions, r.servicesDefinitionsGlobal...) {
 		if def == nil {
 			continue
 		}
 
-		var scope string
-		if def.Global {
-			scope = di.App
-		} else {
-			scope = di.Request
-		}
 		if def.Script {
 			r.app.Scripts = append(r.app.Scripts, def.Name)
 		}
 
 		err := ioCBuilder.Add(di.Def{
 			Name:  def.Name,
-			Scope: scope,
+			Scope: di.App,
 			Build: def.Build,
 			Close: def.Close,
 		})
@@ -128,6 +128,7 @@ func (r *Registry) initializeIoCHandlers() {
 		panic(err)
 	}
 	service.SetContainer(ioCBuilder.Build())
+	service.SetRequestServices(r.servicesDefinitionsRequest)
 	if !flag.Parsed() {
 		flag.Parse()
 	}

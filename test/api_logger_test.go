@@ -10,7 +10,12 @@ import (
 )
 
 func TestApiLogger(t *testing.T) {
-	createContextMyApp(t, "my-app", nil, registry.APILogger(&entity.APILogEntity{}))
+	createContextMyApp(t, "my-app", nil,
+		[]*service.DefinitionGlobal{
+			registry.APILogger(&entity.APILogEntity{}),
+		},
+		nil,
+	)
 
 	apiLoggerService, has := service.DI().APILoggerService()
 	if !has {

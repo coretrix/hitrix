@@ -6,20 +6,19 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderConfigDirectory(configDirectory string) *service.Definition {
-	return &service.Definition{
-		Name:   "config_directory",
-		Global: true,
+func ServiceProviderConfigDirectory(configDirectory string) *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: "config_directory",
 		Build: func(ctn di.Container) (interface{}, error) {
 			return configDirectory, nil
 		},
 	}
 }
 
-func ServiceConfig() *service.Definition {
-	return &service.Definition{
-		Name:   service.ConfigService,
-		Global: true,
+func ServiceConfig() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.ConfigService,
+
 		Build: func(ctn di.Container) (interface{}, error) {
 			configDirectory := ctn.Get("config_directory").(string)
 			return config.NewConfig(service.DI().App().Name, service.DI().App().Mode, configDirectory)

@@ -5,10 +5,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeCheckoutService(fake interface{}) *service.Definition {
-	return &service.Definition{
-		Name:   service.CheckoutService,
-		Global: true,
+func FakeCheckoutService(fake interface{}) *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.CheckoutService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return fake, nil
 		},
