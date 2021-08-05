@@ -16,6 +16,10 @@ import (
 type ORMRegistryInitFunc func(registry *beeorm.Registry)
 
 func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlobal {
+	var defferFunc func()
+	var ormConfig beeorm.ValidatedRegistry
+	var err error
+
 	return &service.DefinitionGlobal{
 		Name: service.ORMConfigService,
 		Build: func(ctn di.Container) (interface{}, error) {
@@ -37,8 +41,12 @@ func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionG
 			registry.InitByYaml(yamlConfig)
 			init(registry)
 
-			ormConfig, err := registry.Validate(appService.GlobalContext)
+			ormConfig, defferFunc, err = registry.Validate(appService.GlobalContext)
 			return ormConfig, err
+		},
+		Close: func(obj interface{}) error {
+			defferFunc()
+			return nil
 		},
 	}
 }
