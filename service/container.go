@@ -34,6 +34,9 @@ type DefinitionRequest struct {
 }
 
 func SetContainer(c di.Container) {
+	if container != nil {
+		_ = container.Delete()
+	}
 	container = c
 }
 
