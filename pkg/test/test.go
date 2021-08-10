@@ -20,8 +20,6 @@ import (
 
 	graphqlParser "github.com/coretrix/hitrix/pkg/test/graphql-parser"
 
-	"github.com/coretrix/hitrix/pkg/test/graphql-parser/jsonutil"
-
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 
@@ -92,7 +90,7 @@ func (env *Environment) handle(buff bytes.Buffer, v interface{}, headers map[str
 	}
 
 	if out.Data != nil {
-		if err := jsonutil.UnmarshalGraphQL(*out.Data, v); err != nil {
+		if err := json.Unmarshal(*out.Data, v); err != nil {
 			env.t.Fatal(err)
 		}
 	}
