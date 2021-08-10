@@ -2,6 +2,7 @@ package crud
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/latolukasz/beeorm"
@@ -178,8 +179,8 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 	// TODO : use full text search
 	for field, value := range params.Search {
 		query.QueryRaw(fmt.Sprintf(
-			"@%s:%v",
-			field, value,
+			"@%s:%v* ",
+			field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
 		))
 	}
 
