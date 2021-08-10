@@ -17,6 +17,10 @@ type Gateway interface {
 	SendOTPCallout(*OTP) (string, error)
 	SendSMSMessage(*Message) (string, error)
 	SendCalloutMessage(*Message) (string, error)
+	SendVerificationSMS(*OTP) (string, error)
+	SendVerificationCallout(*OTP) (string, error)
+	VerifyCode(*OTP) (string, error)
+	// VerifyCode(code *string, number *string) (string, error)
 }
 
 type OTP struct {

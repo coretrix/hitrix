@@ -43,12 +43,18 @@ func ServiceProviderSMS(entity sms.LogEntity) *service.DefinitionGlobal {
 				return nil, errors.New("missing sms.twilio.authy_api_key")
 			}
 
+			verifySID, ok := configService.String("sms.twilio.verify_sid")
+			if !ok {
+				return nil, errors.New("missing sms.twilio.verify_sid")
+			}
+
 			twilioGateway := &sms.TwilioGateway{
 				SID:         sid,
 				Token:       token,
 				FromNumber:  fromNumberTwilio,
 				AuthyURL:    authyURL,
 				AuthyAPIKey: authyAPIKey,
+				VerifySID:   verifySID,
 			}
 
 			//register sinch

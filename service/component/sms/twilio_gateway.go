@@ -11,6 +11,8 @@ import (
 	"github.com/coretrix/hitrix/pkg/helper"
 
 	"github.com/kevinburke/twilio-go"
+	twilioGo "github.com/twilio/twilio-go"
+	openapi "github.com/twilio/twilio-go/rest/verify/v2"
 )
 
 type TwilioGateway struct {
@@ -19,6 +21,7 @@ type TwilioGateway struct {
 	FromNumber  string
 	AuthyURL    string
 	AuthyAPIKey string
+	VerifySID   string
 }
 
 func (g *TwilioGateway) SendOTPSMS(otp *OTP) (string, error) {
@@ -124,4 +127,64 @@ func (g *TwilioGateway) SendSMSMessage(message *Message) (string, error) {
 func (g *TwilioGateway) SendCalloutMessage(message *Message) (string, error) {
 	// not supported for now
 	return "", nil
+}
+
+func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
+	client := twilioGo.NewRestClientWithParams(twilioGo.RestClientParams{
+		Username: g.SID,
+		Password: g.Token,
+	})
+	channel := "sms"
+	locale := "en"
+	params := &openapi.CreateVerificationParams{
+		To: &otp.Number,
+		// CustomCode: &otp.OTP,
+		Channel: &channel,
+		Locale:  &locale,
+	}
+	_, err := client.VerifyV2.CreateVerification(g.VerifySID, params)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	return success, nil
+}
+
+func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
+	client := twilioGo.NewRestClientWithParams(twilioGo.RestClientParams{
+		Username: g.SID,
+		Password: g.Token,
+	})
+	channel := "call"
+	locale := "en"
+	params := &openapi.CreateVerificationParams{
+		To: &otp.Number,
+		// CustomCode: &otp.OTP,
+		Channel: &channel,
+		Locale:  &locale,
+	}
+	_, err := client.VerifyV2.CreateVerification(g.VerifySID, params)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	return success, nil
+}
+
+// func (g *TwilioGateway) VerifyCode(code *string, number *string) (string, error) {
+func (g *TwilioGateway) VerifyCode(opt *OTP) (string, error) {
+	client := twilioGo.NewRestClientWithParams(twilioGo.RestClientParams{
+		Username: g.SID,
+		Password: g.Token,
+	})
+	params := &openapi.CreateVerificationCheckParams{
+		Code: &opt.OTP,
+		To:   &opt.Number,
+	}
+	_, err := client.VerifyV2.CreateVerificationCheck(g.VerifySID, params)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	return success, nil
 }
