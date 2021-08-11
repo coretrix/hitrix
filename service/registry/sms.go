@@ -43,6 +43,11 @@ func ServiceProviderSMS(entity sms.LogEntity) *service.DefinitionGlobal {
 				return nil, errors.New("missing sms.twilio.authy_api_key")
 			}
 
+			verifyURL, ok := configService.String("sms.twilio.verify_url")
+			if !ok {
+				return nil, errors.New("missing sms.twilio.verify_url")
+			}
+
 			verifySID, ok := configService.String("sms.twilio.verify_sid")
 			if !ok {
 				return nil, errors.New("missing sms.twilio.verify_sid")
@@ -54,6 +59,7 @@ func ServiceProviderSMS(entity sms.LogEntity) *service.DefinitionGlobal {
 				FromNumber:  fromNumberTwilio,
 				AuthyURL:    authyURL,
 				AuthyAPIKey: authyAPIKey,
+				VerifyURL:   verifyURL,
 				VerifySID:   verifySID,
 			}
 
