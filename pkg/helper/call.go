@@ -22,9 +22,16 @@ func Call(ctx context.Context,
 	timeout time.Duration,
 	payload interface{},
 	cookies []*http.Cookie) ([]byte, http.Header, int, error) {
-	d, err := json.Marshal(payload)
-	if err != nil {
-		panic(err)
+	var d []byte
+	var e error
+	switch v := payload.(type) {
+	case string:
+		d = []byte(v)
+	default:
+		d, e = json.Marshal(v)
+		if e != nil {
+			panic(e)
+		}
 	}
 
 	var b io.Reader
