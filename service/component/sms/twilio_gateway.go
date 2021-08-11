@@ -171,7 +171,6 @@ func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
 	return success, nil
 }
 
-// func (g *TwilioGateway) VerifyCode(code *string, number *string) (string, error) {
 func (g *TwilioGateway) VerifyCode(opt *OTP) (string, error) {
 	client := twilioGo.NewRestClientWithParams(twilioGo.RestClientParams{
 		Username: g.SID,
