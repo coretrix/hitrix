@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/coretrix/hitrix/pkg/helper"
@@ -19,6 +20,8 @@ type TwilioGateway struct {
 	FromNumber  string
 	AuthyURL    string
 	AuthyAPIKey string
+	VerifyURL   string
+	VerifySID   string
 }
 
 func (g *TwilioGateway) SendOTPSMS(otp *OTP) (string, error) {
@@ -124,4 +127,136 @@ func (g *TwilioGateway) SendSMSMessage(message *Message) (string, error) {
 func (g *TwilioGateway) SendCalloutMessage(message *Message) (string, error) {
 	// not supported for now
 	return "", nil
+}
+
+func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
+	data := url.Values{}
+	data.Set("To", otp.Number)
+	data.Set("Channel", "sms")
+
+	endpoint := strings.Join([]string{
+		"https://verify.twilio.com/v2/",
+		"Services",
+		"/",
+		g.VerifySID,
+		"/",
+		"Verifications",
+	}, "")
+	baseURL, err := url.Parse(endpoint)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	headers := map[string]string{
+		"Authorization": "Basic " + helper.BasicAuth(g.SID, g.Token),
+		"Content-Type":  "application/x-www-form-urlencoded",
+	}
+
+	_, _, code, err := helper.Call(
+		context.Background(),
+		"POST",
+		baseURL.String(),
+		headers,
+		time.Duration(timeoutInSeconds)*time.Second,
+		data.Encode(),
+		nil)
+
+	if err != nil {
+		return failure, err
+	}
+
+	if code != http.StatusOK {
+		e := fmt.Errorf("expected status code OK, but got %v", code)
+		return e.Error(), e
+	}
+
+	return success, nil
+}
+
+func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
+	data := url.Values{}
+	data.Set("To", otp.Number)
+	data.Set("Channel", "call")
+
+	endpoint := strings.Join([]string{
+		"https://verify.twilio.com/v2/",
+		"Services",
+		"/",
+		g.VerifySID,
+		"/",
+		"Verifications",
+	}, "")
+	baseURL, err := url.Parse(endpoint)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	headers := map[string]string{
+		"Authorization": "Basic " + helper.BasicAuth(g.SID, g.Token),
+		"Content-Type":  "application/x-www-form-urlencoded",
+	}
+
+	_, _, code, err := helper.Call(
+		context.Background(),
+		"POST",
+		baseURL.String(),
+		headers,
+		time.Duration(timeoutInSeconds)*time.Second,
+		data.Encode(),
+		nil)
+
+	if err != nil {
+		return failure, err
+	}
+
+	if code != http.StatusOK {
+		e := fmt.Errorf("expected status code OK, but got %v", code)
+		return e.Error(), e
+	}
+
+	return success, nil
+}
+
+func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
+	data := url.Values{}
+	data.Set("To", otp.Number)
+	data.Set("Code", otp.OTP)
+
+	endpoint := strings.Join([]string{
+		"https://verify.twilio.com/v2/",
+		"Services",
+		"/",
+		g.VerifySID,
+		"/",
+		"VerificationCheck",
+	}, "")
+	baseURL, err := url.Parse(endpoint)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	headers := map[string]string{
+		"Authorization": "Basic " + helper.BasicAuth(g.SID, g.Token),
+		"Content-Type":  "application/x-www-form-urlencoded",
+	}
+
+	_, _, code, err := helper.Call(
+		context.Background(),
+		"POST",
+		baseURL.String(),
+		headers,
+		time.Duration(timeoutInSeconds)*time.Second,
+		data.Encode(),
+		nil)
+
+	if err != nil {
+		return failure, err
+	}
+
+	if code != http.StatusOK {
+		e := fmt.Errorf("expected status code OK, but got %v", code)
+		return e.Error(), e
+	}
+
+	return success, nil
 }

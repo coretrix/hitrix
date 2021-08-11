@@ -132,3 +132,15 @@ func (g *SinchGateway) getSinchHeaders() map[string]string {
 		"X-Timestamp":   g.Clock.Now().Format(javascriptISOString),
 	}
 }
+
+func (g *SinchGateway) SendVerificationSMS(otp *OTP) (string, error) {
+	panic("not implemented.")
+}
+
+func (g *SinchGateway) SendVerificationCallout(otp *OTP) (string, error) {
+	panic("not implemented.")
+}
+
+func (g *SinchGateway) VerifyCode(opt *OTP) (string, error) {
+	panic("not implemented.")
+}
