@@ -6,13 +6,12 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/coretrix/hitrix/pkg/helper"
 
 	"github.com/kevinburke/twilio-go"
-	twilioGo "github.com/twilio/twilio-go"
-	openapi "github.com/twilio/twilio-go/rest/verify/v2"
 )
 
 type TwilioGateway struct {
@@ -21,6 +20,7 @@ type TwilioGateway struct {
 	FromNumber  string
 	AuthyURL    string
 	AuthyAPIKey string
+	VerifyURL   string
 	VerifySID   string
 }
 
@@ -130,59 +130,132 @@ func (g *TwilioGateway) SendCalloutMessage(message *Message) (string, error) {
 }
 
 func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
-	client := twilioGo.NewRestClientWithParams(twilioGo.RestClientParams{
-		Username: g.SID,
-		Password: g.Token,
-	})
-	channel := "sms"
-	locale := "en"
-	params := &openapi.CreateVerificationParams{
-		To: &otp.Number,
-		// CustomCode: &otp.OTP,
-		Channel: &channel,
-		Locale:  &locale,
-	}
-	_, err := client.VerifyV2.CreateVerification(g.VerifySID, params)
+	data := url.Values{}
+	data.Set("To", otp.Number)
+	data.Set("Channel", "sms")
+
+	endpoint := strings.Join([]string{
+		"https://verify.twilio.com/v2/",
+		"Services",
+		"/",
+		g.VerifySID,
+		"/",
+		"Verifications",
+	}, "")
+	baseURL, err := url.Parse(endpoint)
 	if err != nil {
-		return err.Error(), err
+		fmt.Println(err)
+	}
+
+	headers := map[string]string{
+		"Authorization": "Basic " + helper.BasicAuth(g.SID, g.Token),
+		"Content-Type":  "application/x-www-form-urlencoded",
+	}
+
+	_, _, code, err := helper.Call(
+		context.Background(),
+		"POST",
+		baseURL.String(),
+		headers,
+		time.Duration(timeoutInSeconds)*time.Second,
+		data.Encode(),
+		nil)
+
+	if err != nil {
+		return failure, err
+	}
+
+	if code != http.StatusOK {
+		e := fmt.Errorf("expected status code OK, but got %v", code)
+		return e.Error(), e
 	}
 
 	return success, nil
 }
 
 func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
-	client := twilioGo.NewRestClientWithParams(twilioGo.RestClientParams{
-		Username: g.SID,
-		Password: g.Token,
-	})
-	channel := "call"
-	locale := "en"
-	params := &openapi.CreateVerificationParams{
-		To: &otp.Number,
-		// CustomCode: &otp.OTP,
-		Channel: &channel,
-		Locale:  &locale,
-	}
-	_, err := client.VerifyV2.CreateVerification(g.VerifySID, params)
+	data := url.Values{}
+	data.Set("To", otp.Number)
+	data.Set("Channel", "call")
+
+	endpoint := strings.Join([]string{
+		"https://verify.twilio.com/v2/",
+		"Services",
+		"/",
+		g.VerifySID,
+		"/",
+		"Verifications",
+	}, "")
+	baseURL, err := url.Parse(endpoint)
 	if err != nil {
-		return err.Error(), err
+		fmt.Println(err)
+	}
+
+	headers := map[string]string{
+		"Authorization": "Basic " + helper.BasicAuth(g.SID, g.Token),
+		"Content-Type":  "application/x-www-form-urlencoded",
+	}
+
+	_, _, code, err := helper.Call(
+		context.Background(),
+		"POST",
+		baseURL.String(),
+		headers,
+		time.Duration(timeoutInSeconds)*time.Second,
+		data.Encode(),
+		nil)
+
+	if err != nil {
+		return failure, err
+	}
+
+	if code != http.StatusOK {
+		e := fmt.Errorf("expected status code OK, but got %v", code)
+		return e.Error(), e
 	}
 
 	return success, nil
 }
 
-func (g *TwilioGateway) VerifyCode(opt *OTP) (string, error) {
-	client := twilioGo.NewRestClientWithParams(twilioGo.RestClientParams{
-		Username: g.SID,
-		Password: g.Token,
-	})
-	params := &openapi.CreateVerificationCheckParams{
-		Code: &opt.OTP,
-		To:   &opt.Number,
-	}
-	_, err := client.VerifyV2.CreateVerificationCheck(g.VerifySID, params)
+func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
+	data := url.Values{}
+	data.Set("To", otp.Number)
+	data.Set("Code", otp.OTP)
+
+	endpoint := strings.Join([]string{
+		"https://verify.twilio.com/v2/",
+		"Services",
+		"/",
+		g.VerifySID,
+		"/",
+		"VerificationCheck",
+	}, "")
+	baseURL, err := url.Parse(endpoint)
 	if err != nil {
-		return err.Error(), err
+		fmt.Println(err)
+	}
+
+	headers := map[string]string{
+		"Authorization": "Basic " + helper.BasicAuth(g.SID, g.Token),
+		"Content-Type":  "application/x-www-form-urlencoded",
+	}
+
+	_, _, code, err := helper.Call(
+		context.Background(),
+		"POST",
+		baseURL.String(),
+		headers,
+		time.Duration(timeoutInSeconds)*time.Second,
+		data.Encode(),
+		nil)
+
+	if err != nil {
+		return failure, err
+	}
+
+	if code != http.StatusOK {
+		e := fmt.Errorf("expected status code OK, but got %v", code)
+		return e.Error(), e
 	}
 
 	return success, nil
