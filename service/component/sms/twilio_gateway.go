@@ -135,7 +135,7 @@ func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
 	data.Set("Channel", "sms")
 
 	endpoint := strings.Join([]string{
-		"https://verify.twilio.com/v2/",
+		g.VerifyURL,
 		"Services",
 		"/",
 		g.VerifySID,
@@ -179,7 +179,7 @@ func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
 	data.Set("Channel", "call")
 
 	endpoint := strings.Join([]string{
-		"https://verify.twilio.com/v2/",
+		g.VerifyURL,
 		"Services",
 		"/",
 		g.VerifySID,
@@ -223,7 +223,7 @@ func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 	data.Set("Code", otp.OTP)
 
 	endpoint := strings.Join([]string{
-		"https://verify.twilio.com/v2/",
+		g.VerifyURL,
 		"Services",
 		"/",
 		g.VerifySID,
