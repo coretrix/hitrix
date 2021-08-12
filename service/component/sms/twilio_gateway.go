@@ -144,7 +144,7 @@ func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
 	}, "")
 	baseURL, err := url.Parse(endpoint)
 	if err != nil {
-		fmt.Println(err)
+		return err.Error(), err
 	}
 
 	headers := map[string]string{
@@ -188,7 +188,7 @@ func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
 	}, "")
 	baseURL, err := url.Parse(endpoint)
 	if err != nil {
-		fmt.Println(err)
+		return err.Error(), err
 	}
 
 	headers := map[string]string{
@@ -232,7 +232,7 @@ func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 	}, "")
 	baseURL, err := url.Parse(endpoint)
 	if err != nil {
-		fmt.Println(err)
+		return err.Error(), err
 	}
 
 	headers := map[string]string{
