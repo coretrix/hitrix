@@ -21,3 +21,15 @@ func (f *FakeSMSSender) SendOTPCallout(_ *beeorm.Engine, otp *sms.OTP) error {
 func (f *FakeSMSSender) SendMessage(_ *beeorm.Engine, message *sms.Message) error {
 	return f.Called(message).Error(0)
 }
+
+func (f *FakeSMSSender) SendVerificationSMS(_ *beeorm.Engine, otp *sms.OTP) error {
+	return f.Called(otp).Error(0)
+}
+
+func (f *FakeSMSSender) SendVerificationCallout(_ *beeorm.Engine, otp *sms.OTP) error {
+	return f.Called(otp).Error(0)
+}
+
+func (f *FakeSMSSender) VerifyCode(_ *beeorm.Engine, otp *sms.OTP) error {
+	return f.Called(otp).Error(0)
+}
