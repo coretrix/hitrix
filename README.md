@@ -933,6 +933,8 @@ sms:
     from_number: ENV[SMS_TWILIO_FROM_NUMBER]
     authy_url: ENV[SMS_TWILIO_AUTHY_URL]
     authy_api_key: ENV[SMS_TWILIO_AUTHY_API_KEY]
+    verify_url: ENV[SMS_TWILIO_VERIFY_URL]
+    verify_sid: ENV[SMS_TWILIO_VERIFY_SID]
   kavenegar:
     api_key: ENV[SMS_KAVENEGAR_API_KEY]
     sender: ENV[SMS_KAVENEGAR_SENDER]
