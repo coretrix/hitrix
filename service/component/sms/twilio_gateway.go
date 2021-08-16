@@ -165,7 +165,7 @@ func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
 		return failure, err
 	}
 
-	if code != http.StatusOK {
+	if code < 200 && code >= 300 {
 		e := fmt.Errorf("expected status code OK, but got %v", code)
 		return e.Error(), e
 	}
@@ -209,7 +209,7 @@ func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
 		return failure, err
 	}
 
-	if code != http.StatusOK {
+	if code < 200 && code >= 300 {
 		e := fmt.Errorf("expected status code OK, but got %v", code)
 		return e.Error(), e
 	}
@@ -253,7 +253,7 @@ func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 		return failure, err
 	}
 
-	if code != http.StatusOK {
+	if code < 200 && code >= 300 {
 		e := fmt.Errorf("expected status code OK, but got %v", code)
 		return e.Error(), e
 	}
