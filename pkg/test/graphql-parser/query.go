@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"reflect"
 	"sort"
 	"strings"
 )
+
+const writeQueryDeepLimit = 10
 
 func constructQuery(v interface{}, variables map[string]interface{}) string {
 	query := query(v)
@@ -92,7 +95,8 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint) {
 		skipComma := false
 		for i := 0; i < t.NumField(); i++ {
 			hasStruct := false
-			if depth > 3 {
+			if depth > writeQueryDeepLimit {
+				log.Println("You reached writeQueryDeepLimit constant")
 				continue
 			}
 			if i != 0 && !skipComma {
@@ -115,7 +119,8 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint) {
 						f.Type.Kind() == reflect.Struct && f.Type.Name() != "Time" {
 						hasStruct = true
 
-						if depth+1 > 3 {
+						if depth+1 > writeQueryDeepLimit {
+							log.Println("You reached writeQueryDeepLimit constant")
 							skipComma = true
 							continue
 						}

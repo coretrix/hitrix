@@ -16,7 +16,7 @@ require (
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.2.0
-	github.com/go-redis/redis/v8 v8.11.0
+	github.com/go-redis/redis/v8 v8.11.2
 	github.com/gookit/config v1.1.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/h2non/filetype v1.1.1
@@ -30,7 +30,7 @@ require (
 	github.com/kevinburke/go.uuid v1.2.0 // indirect
 	github.com/kevinburke/rest v0.0.0-20210425173428-1fcb8c8e9022 // indirect
 	github.com/kevinburke/twilio-go v0.0.0-20210327194925-1623146bcf73
-	github.com/latolukasz/beeorm v1.0.10
+	github.com/latolukasz/beeorm v1.0.18
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattbaird/gochimp v0.0.0-20200820164431-f1082bcdf63f
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
