@@ -44,14 +44,7 @@ func ServiceProviderSMS(entity sms.LogEntity) *service.DefinitionGlobal {
 			}
 
 			verifyURL, ok := configService.String("sms.twilio.verify_url")
-			if !ok {
-				return nil, errors.New("missing sms.twilio.verify_url")
-			}
-
 			verifySID, ok := configService.String("sms.twilio.verify_sid")
-			if !ok {
-				return nil, errors.New("missing sms.twilio.verify_sid")
-			}
 
 			twilioGateway := &sms.TwilioGateway{
 				SID:         sid,
