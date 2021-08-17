@@ -75,9 +75,9 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				mailService = &convertedMail
 			}
 
-			supportSocialLoginGoogle, ok := configService.Bool("authentication.support_social_login_google")
 			var socialServiceMapping = make(map[string]social.IUserData)
 
+			supportSocialLoginGoogle, ok := configService.Bool("authentication.support_social_login_google")
 			if ok && supportSocialLoginGoogle {
 				googleService, err := ctn.SafeGet(service.GoogleService)
 				if err != nil {
@@ -85,6 +85,16 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				}
 
 				socialServiceMapping[authentication.SocialLoginGoogle] = googleService.(social.IUserData)
+			}
+
+			supportSocialLoginFacebook, ok := configService.Bool("authentication.support_social_login_facebook")
+			if ok && supportSocialLoginFacebook {
+				googleService, err := ctn.SafeGet(service.FacebookService)
+				if err != nil {
+					panic("google service not loaded")
+				}
+
+				socialServiceMapping[authentication.SocialLoginFacebook] = googleService.(social.IUserData)
 			}
 
 			generatorService, has := service.DI().GeneratorService()

@@ -14,3 +14,12 @@ func ServiceGoogle() *service.DefinitionGlobal {
 		},
 	}
 }
+
+func ServiceFacebook() *service.DefinitionGlobal {
+	return &service.DefinitionGlobal{
+		Name: service.FacebookService,
+		Build: func(ctn di.Container) (interface{}, error) {
+			return &social.Facebook{}, nil
+		},
+	}
+}

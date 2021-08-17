@@ -53,6 +53,7 @@ const (
 	GeneratorService        = "generator_service"
 	MailMandrill            = "mail_mandrill"
 	GoogleService           = "google"
+	FacebookService         = "facebook"
 	CrudService             = "crud"
 )
 

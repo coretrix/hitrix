@@ -775,9 +775,14 @@ This service is used to making the life easy by doing the whole authentication l
 
 `SMSService` # optional , when you need to support for otp
 
+`GoogleService` # optional , when you need to support google login
+
+`FacebookService` # optional , when you need to support facebook login
+
 ```go
 func Authenticate(ormService *beeorm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {}
 func VerifyAccessToken(ormService *beeorm.Engine, accessToken string, entity beeorm.Entity) error {}
+func VerifySocialLogin(source, token string)
 func RefreshToken(ormService *beeorm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {}
 func LogoutCurrentSession(ormService *beeorm.Engine, accessKey string){}
 func LogoutAllSessions(ormService *beeorm.Engine, id uint64)

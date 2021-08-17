@@ -3,6 +3,7 @@ package social
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -21,6 +22,9 @@ type Google struct {
 func (p *Google) GetUserData(token string) (*UserData, error) {
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=" +
 		url.QueryEscape(token))
+	defer func(body io.ReadCloser) {
+		_ = body.Close()
+	}(resp.Body)
 
 	if err != nil {
 		return nil, err
@@ -36,16 +40,16 @@ func (p *Google) GetUserData(token string) (*UserData, error) {
 		panic(err.Error())
 	}
 
-	googleUserData := &googleUserData{}
-	err = json.Unmarshal(body, googleUserData)
+	googleUser := &googleUserData{}
+	err = json.Unmarshal(body, googleUser)
 	if err != nil {
 		panic(err.Error())
 	}
 
 	return &UserData{
-		FirstName: googleUserData.FirstName,
-		LastName:  googleUserData.LastName,
-		Avatar:    googleUserData.Picture,
-		Email:     googleUserData.Email,
+		FirstName: googleUser.FirstName,
+		LastName:  googleUser.LastName,
+		Avatar:    googleUser.Picture,
+		Email:     googleUser.Email,
 	}, nil
 }

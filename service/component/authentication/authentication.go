@@ -34,7 +34,8 @@ const (
 	userAccessListPrefix     = "USER_KEYS"
 	maxUserAccessKeysAllowed = 10
 
-	SocialLoginGoogle = "google"
+	SocialLoginGoogle   = "google"
+	SocialLoginFacebook = "facebook"
 )
 
 type OTPProviderEntity interface {
