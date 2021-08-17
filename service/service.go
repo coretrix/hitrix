@@ -45,6 +45,7 @@ const (
 	UploaderService         = "uploader"
 	StripeService           = "stripe"
 	CheckoutService         = "checkout"
+	DynamicLinkService      = "dynamic_link"
 	SocketRegistryService   = "socket_registry"
 	APILoggerService        = "api_logger"
 	AuthenticationService   = "authentication"
