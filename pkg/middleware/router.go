@@ -29,7 +29,7 @@ func Router(ginEngine *gin.Engine) {
 			devGroup.GET("redis-search/statistics/", devPanel.GetRedisSearchStatistics)
 			devGroup.GET("redis-search/indexes/", devPanel.GetRedisSearchIndexes)
 			devGroup.GET("redis-search/index/info/:index/", devPanel.PostRedisSearchIndexInfo)
-			devGroup.GET("redis-search/force-reindex/:index/", devPanel.GetRedisSearchIndexes)
+			devGroup.GET("redis-search/force-reindex/:index/", devPanel.PostRedisSearchForceReindex)
 
 			devGroup.GET("redis-streams/", devPanel.GetRedisStreams)
 			devGroup.GET("redis-statistics/", devPanel.GetRedisStatistics)
