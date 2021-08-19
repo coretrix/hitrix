@@ -63,7 +63,9 @@ func ServiceDefinitionDynamicLink() *service.DefinitionGlobal {
 
 			enableForcedRedirect, ok := configService.Bool("firebase.dynamic_link_info.navigation_info.enable_forced_redirect")
 			if ok {
-				generator.DynamicLinkInfo.NavigationInfo.EnableForcedRedirect = enableForcedRedirect
+				generator.DynamicLinkInfo.NavigationInfo = &firebase.NavigationInfo{
+					EnableForcedRedirect: enableForcedRedirect,
+				}
 			}
 
 			googlePlayAnalyticsMap, ok := configService.StringMap("firebase.dynamic_link_info.analytics_info.google_play_analytics")
@@ -116,7 +118,7 @@ func ServiceDefinitionDynamicLink() *service.DefinitionGlobal {
 					panic(fmt.Sprintf("invalid firebase.suffix.option value, please provide one of following: %v", availableSuffixOptions))
 				}
 
-				generator.Suffix.Option = suffixOption
+				generator.Suffix = &firebase.Suffix{Option: suffixOption}
 			}
 
 			return generator, nil
