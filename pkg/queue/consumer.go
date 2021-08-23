@@ -2,10 +2,6 @@ package queue
 
 import (
 	"context"
-	"log"
-
-	"github.com/coretrix/hitrix/service"
-
 	"github.com/latolukasz/beeorm"
 )
 
@@ -33,19 +29,6 @@ type ConsumerMany interface {
 	Consume(events []beeorm.Event) error
 	GetQueueName() string
 	GetGroupName(suffix *string) string
-}
-
-var consumerErrorHandler = func(err error, event beeorm.Event) {
-	defer func() {
-		if newError := recover(); newError != nil {
-			log.Printf("Error: %v\nNew Error: %v", err, newError)
-		}
-	}()
-
-	errorLoggerService, has := service.DI().ErrorLogger()
-	if has {
-		errorLoggerService.LogError(err)
-	}
 }
 
 type ConsumerRunner struct {
