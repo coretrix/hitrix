@@ -59,9 +59,8 @@ func NewConsumerRunner(ctx context.Context, ormService *beeorm.Engine) *Consumer
 
 func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix *string, prefetchCount int) {
 	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
-	eventsConsumer.SetErrorHandler(consumerErrorHandler)
 
-	eventsConsumer.Consume(prefetchCount, func(events []beeorm.Event) {
+	eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 		if err := consumer.Consume(events); err != nil {
 			panic(err)
 		}
@@ -70,9 +69,8 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 
 func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *string, prefetchCount int) {
 	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
-	eventsConsumer.SetErrorHandler(consumerErrorHandler)
 
-	eventsConsumer.Consume(prefetchCount, func(events []beeorm.Event) {
+	eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 		for _, event := range events {
 			if err := consumer.Consume(event); err != nil {
 				panic(err)
@@ -88,8 +86,7 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 		go func() {
 			eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
-			eventsConsumer.SetErrorHandler(consumerErrorHandler)
-			eventsConsumer.Consume(prefetchCount, func(events []beeorm.Event) {
+			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 				for _, event := range events {
 					if err := consumer.Consume(event); err != nil {
 						panic(err)
@@ -106,8 +103,7 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 		currentModulo := moduloID
 		go func() {
 			eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
-			eventsConsumer.SetErrorHandler(consumerErrorHandler)
-			eventsConsumer.Consume(prefetchCount, func(events []beeorm.Event) {
+			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 				if err := consumer.Consume(events); err != nil {
 					panic(err)
 				}
