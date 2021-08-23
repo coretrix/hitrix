@@ -2,6 +2,7 @@ package queue
 
 import (
 	"context"
+
 	"github.com/latolukasz/beeorm"
 )
 
