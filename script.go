@@ -175,6 +175,8 @@ func (processor *BackgroundProcessor) runScript(script Script) bool {
 
 func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 	ormService, has := service.DI().OrmEngine()
+	appService := service.DI().App()
+
 	if !has {
 		panic("Orm is not registered")
 	}
@@ -182,7 +184,7 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 	go func() {
 		asyncConsumer := beeorm.NewBackgroundConsumer(ormService)
 		for {
-			if asyncConsumer.Digest() {
+			if asyncConsumer.Digest(appService.GlobalContext) {
 				break
 			}
 			time.Sleep(time.Second * 30)

@@ -1,7 +1,6 @@
 package registry
 
 import (
-	"context"
 	"errors"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +21,7 @@ func ServiceDefinitionOrmEngine() *service.DefinitionGlobal {
 				return nil, err
 			}
 
-			ormEngine := ormConfigService.(beeorm.ValidatedRegistry).CreateEngine(context.Background())
+			ormEngine := ormConfigService.(beeorm.ValidatedRegistry).CreateEngine()
 
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 
@@ -45,7 +44,7 @@ func ServiceDefinitionOrmEngineForContext(enableGraphQLDataLoader bool) *service
 				return nil, errors.New("not registered orm config")
 			}
 
-			ormEngine := ormConfigService.CreateEngine(c)
+			ormEngine := ormConfigService.CreateEngine()
 			if enableGraphQLDataLoader {
 				ormEngine.EnableRequestCache()
 			}
