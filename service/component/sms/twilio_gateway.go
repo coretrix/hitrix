@@ -253,9 +253,9 @@ func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 		return failure, err
 	}
 
-	if code < 200 && code >= 300 {
+	if code < 200 || code >= 300 {
 		e := fmt.Errorf("expected status code OK, but got %v", code)
-		return e.Error(), e
+		return success, e
 	}
 
 	return success, nil
