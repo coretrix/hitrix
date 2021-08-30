@@ -12,8 +12,7 @@ import (
 )
 
 const (
-	seperator       = "|-|"
-	ErrorsBucketKey = "errors"
+	seperator = "|-|"
 )
 
 type Localizer interface {
