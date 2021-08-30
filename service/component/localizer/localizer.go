@@ -91,8 +91,6 @@ func (l *SimpleLocalizer) SaveBucketToFile(bucket string, path string) {
 	if err != nil {
 		panic(err)
 	}
-
-	return
 }
 
 func (l *SimpleLocalizer) PushBucketToSource(bucket string) (err error) {
