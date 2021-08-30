@@ -14,8 +14,10 @@ import (
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+	fileextractor "github.com/coretrix/hitrix/service/component/file_extractor"
 	"github.com/coretrix/hitrix/service/component/generator"
 	"github.com/coretrix/hitrix/service/component/jwt"
+	"github.com/coretrix/hitrix/service/component/localizer"
 	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/oss"
 	"github.com/coretrix/hitrix/service/component/password"
@@ -33,6 +35,8 @@ const (
 	AppService              = "app"
 	ConfigService           = "config"
 	ErrorLoggerService      = "error_logger"
+	LocalizerService        = "localizer"
+	ExtractorService        = "extractor"
 	JWTService              = "jwt"
 	DDOSService             = "ddos"
 	ORMConfigService        = "orm_config"
@@ -82,6 +86,8 @@ type DIInterface interface {
 	ClockService() clock.Clock
 	UploaderService() (uploader.Uploader, bool)
 	CrudService() *crud.Crud
+	LocalizerService() localizer.Localizer
+	FileExtractorService() *fileextractor.FileExtractor
 }
 
 type diContainer struct {
@@ -246,4 +252,12 @@ func (d *diContainer) UploaderService() (uploader.Uploader, bool) {
 
 func (d *diContainer) CrudService() *crud.Crud {
 	return GetServiceRequired(CrudService).(*crud.Crud)
+}
+
+func (d *diContainer) LocalizerService() localizer.Localizer {
+	return GetServiceRequired(LocalizerService).(localizer.Localizer)
+}
+
+func (d *diContainer) FileExtractorService() *fileextractor.FileExtractor {
+	return GetServiceRequired(ExtractorService).(*fileextractor.FileExtractor)
 }
