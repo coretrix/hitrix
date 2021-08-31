@@ -14,9 +14,9 @@ require (
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/timeout v0.0.1
 	github.com/gin-gonic/gin v1.7.4
-	github.com/go-playground/locales v0.13.0
-	github.com/go-playground/universal-translator v0.17.0
-	github.com/go-playground/validator/v10 v10.4.1
+	github.com/go-playground/locales v0.14.0
+	github.com/go-playground/universal-translator v0.18.0
+	github.com/go-playground/validator/v10 v10.9.0
 	github.com/go-redis/redis/v8 v8.11.3
 	github.com/gookit/config v1.1.0
 	github.com/gorilla/websocket v1.4.2
@@ -32,7 +32,6 @@ require (
 	github.com/kevinburke/rest v0.0.0-20210425173428-1fcb8c8e9022 // indirect
 	github.com/kevinburke/twilio-go v0.0.0-20210327194925-1623146bcf73
 	github.com/latolukasz/beeorm v1.0.25
-	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattbaird/gochimp v0.0.0-20200820164431-f1082bcdf63f
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
 	github.com/pariz/gountries v0.0.0-20200430155801-1c6a393df9c7
@@ -52,5 +51,4 @@ require (
 	golang.org/x/tools v0.1.5 // indirect
 	google.golang.org/api v0.38.0
 	google.golang.org/grpc v1.37.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c // indirect
 )

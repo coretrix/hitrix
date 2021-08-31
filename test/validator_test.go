@@ -16,9 +16,9 @@ func TestBasicValidation(t *testing.T) {
 }
 
 func TestCountryCodeValidation(t *testing.T) {
-	err := helper.NewValidator().Validate(1, "country_code")
+	err := helper.NewValidator().Validate("ABCDEFG", "country_code_custom")
 	assert.NotNil(t, err)
 
-	err = helper.NewValidator().Validate("SE", "country_code")
+	err = helper.NewValidator().Validate("SE", "country_code_custom")
 	assert.Nil(t, err)
 }

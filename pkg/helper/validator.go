@@ -58,7 +58,7 @@ func (t *Validator) translateError(err error) (errs []error) {
 
 // custom validators
 var customValidations = map[string]func(validator.FieldLevel) bool{
-	"country_code": validateCountryCodeAlpha2,
+	"country_code_custom": validateCountryCodeAlpha2,
 }
 
 func validateCountryCodeAlpha2(fl validator.FieldLevel) bool {
