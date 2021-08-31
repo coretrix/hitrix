@@ -28,7 +28,7 @@ func TestJWTCreation(t *testing.T) {
 	jwt := &jwt2.JWT{}
 	jwtToken, err := jwt.EncodeJWT("mynewsecret", headers, payload)
 
-	assert.NoError(t, err, "An error occured while creating JWT!")
+	assert.NoError(t, err, "An error occurred while creating JWT!")
 	assert.Equal(t, expectedJWT, jwtToken, "Cannot create jwt token!")
 }
 
