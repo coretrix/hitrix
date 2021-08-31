@@ -2,6 +2,8 @@ package sms
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -22,6 +24,10 @@ type TwilioGateway struct {
 	AuthyAPIKey string
 	VerifyURL   string
 	VerifySID   string
+}
+
+type twilioResponse struct {
+	Valid bool
 }
 
 func (g *TwilioGateway) SendOTPSMS(otp *OTP) (string, error) {
@@ -136,10 +142,8 @@ func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
 
 	endpoint := strings.Join([]string{
 		g.VerifyURL,
-		"Services",
-		"/",
-		g.VerifySID,
-		"/",
+		"Services", "/",
+		g.VerifySID, "/",
 		"Verifications",
 	}, "")
 	baseURL, err := url.Parse(endpoint)
@@ -180,10 +184,8 @@ func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
 
 	endpoint := strings.Join([]string{
 		g.VerifyURL,
-		"Services",
-		"/",
-		g.VerifySID,
-		"/",
+		"Services", "/",
+		g.VerifySID, "/",
 		"Verifications",
 	}, "")
 	baseURL, err := url.Parse(endpoint)
@@ -224,10 +226,8 @@ func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 
 	endpoint := strings.Join([]string{
 		g.VerifyURL,
-		"Services",
-		"/",
-		g.VerifySID,
-		"/",
+		"Services", "/",
+		g.VerifySID, "/",
 		"VerificationCheck",
 	}, "")
 	baseURL, err := url.Parse(endpoint)
@@ -240,7 +240,7 @@ func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
-	_, _, code, err := helper.Call(
+	b, _, code, err := helper.Call(
 		context.Background(),
 		"POST",
 		baseURL.String(),
@@ -256,6 +256,15 @@ func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 	if code < 200 || code >= 300 {
 		e := fmt.Errorf("expected status code OK, but got %v", code)
 		return failure, e
+	}
+
+	response := twilioResponse{}
+	if err := json.Unmarshal(b, &response); err != nil {
+		return failure, err
+	}
+
+	if !response.Valid {
+		return failure, errors.New("the code is not valid")
 	}
 
 	return success, nil
