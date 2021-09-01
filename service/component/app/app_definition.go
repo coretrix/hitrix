@@ -9,6 +9,7 @@ import (
 
 const ModeLocal = "local"
 const ModeTest = "test"
+const ModeDev = "dev"
 const ModeDemo = "demo"
 const ModeProd = "prod"
 
@@ -46,6 +47,10 @@ func (app *App) IsInTestMode() bool {
 
 func (app *App) IsInProdMode() bool {
 	return app.IsInMode(ModeProd)
+}
+
+func (app *App) IsInDevMode() bool {
+	return app.Mode == ModeDev
 }
 
 func (app *App) IsInDemoMode() bool {
