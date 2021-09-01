@@ -284,7 +284,7 @@ Hitrix provides by default four modes:
    * Gin Framework is running in GinDebug mode
  * **hitrix.ModeTest - test**
    * should be used when you run your application tests
- * **hitrix.ModeDev - demo**
+ * **hitrix.ModeDev - dev**
    * should be used on your dev server
  * **hitrix.ModeDemo - demo**
    * should be used on your demo server
