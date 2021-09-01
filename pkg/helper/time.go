@@ -67,6 +67,9 @@ func GetWeekDay(dateTime time.Time) uint8 {
 
 	return uint8(weekday)
 }
+func TruncateTime(in time.Time) time.Time {
+	return time.Date(in.Year(), in.Month(), in.Day(), 0, 0, 0, 0, in.Location())
+}
 
 func ValidateAndParseTimeRange(startsAt, endsAt, fromName, toName string, startsAtGTENow bool, c *gin.Context) (*time.Time, *time.Time, error) {
 	var from *time.Time
