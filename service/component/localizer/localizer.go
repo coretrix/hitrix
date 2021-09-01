@@ -12,14 +12,13 @@ import (
 )
 
 const (
-	seperator = "|-|"
+	separator = "|-|"
 )
 
 type Localizer interface {
 	Localize(bucket string, key string) (string, error)
 	LoadBucketFromFile(bucket string, path string, append bool)
 	LoadBucketFromMap(bucket string, pairs map[string]string, append bool)
-	// SaveToFile(path string)
 	SaveBucketToFile(bucket string, path string)
 	PushBucketToSource(bucket string) (err error)
 	PullBucketFromSource(bucket string, append bool) (err error)
@@ -159,11 +158,11 @@ func (l *SimpleLocalizer) touchFile(path string) error {
 }
 
 func (l *SimpleLocalizer) genKey(bucket string, key string) string {
-	return bucket + seperator + key
+	return bucket + separator + key
 }
 
 func (l *SimpleLocalizer) removeKeyPrefix(bucket string, key string) string {
-	return strings.Replace(key, bucket+seperator, "", 1)
+	return strings.Replace(key, bucket+separator, "", 1)
 }
 
 func NewSimpleLocalizer(source *PoeditorSource) *SimpleLocalizer {
