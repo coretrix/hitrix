@@ -112,8 +112,8 @@ func parseEnvVariables(content []byte) []byte {
 
 	subMatchAll := re.FindAllString(string(content), -1)
 	for _, element := range subMatchAll {
-		element = strings.Trim(element, "ENV[")
-		element = strings.Trim(element, "]")
+		element = strings.TrimPrefix(element, "ENV[")
+		element = strings.TrimSuffix(element, "]")
 
 		newContent = strings.Replace(newContent, "ENV["+element+"]", os.Getenv(element), -1)
 	}
