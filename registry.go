@@ -117,6 +117,7 @@ func (r *Registry) initializeIoCHandlers() {
 		}
 	}
 	if !flag.Parsed() {
+		flagsRegistry.Bool("force-alters", false, "Execute all alters")
 		flagsRegistry.Bool("pre-deploy", false, "Check for alters and exit")
 		flagsRegistry.Bool("list-scripts", false, "list all available scripts")
 		flagsRegistry.String("run-script", "", "run script")

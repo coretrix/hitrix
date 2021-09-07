@@ -32,6 +32,7 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 	}
 
 	h.preDeploy()
+	h.forceAlters()
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -50,6 +51,7 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 
 func (h *Hitrix) RunBackgroundProcess(callback func(b *BackgroundProcessor)) {
 	h.preDeploy()
+	h.forceAlters()
 	callback(&BackgroundProcessor{Server: h})
 	h.await()
 }
@@ -108,6 +110,45 @@ func (h *Hitrix) preDeploy() {
 	}
 
 	os.Exit(0)
+}
+
+func (h *Hitrix) forceAlters() {
+	app := service.DI().App()
+
+	if !app.IsInLocalMode() {
+		return
+	}
+
+	forceAltersFlag := app.Flags.Bool("force-alters")
+
+	if !forceAltersFlag {
+		return
+	}
+
+	ormService, has := service.DI().OrmEngine()
+	if !has {
+		return
+	}
+	dbService := ormService.GetMysql()
+
+	alters := ormService.GetAlters()
+	var queries string
+
+	for _, alter := range alters {
+		queries += alter.SQL
+	}
+
+	if queries != "" {
+		_, def := dbService.Query(queries)
+		defer def()
+	}
+
+	altersSearch := ormService.GetRedisSearchIndexAlters()
+	for _, alter := range altersSearch {
+		alter.Execute()
+	}
+
+	log.Println("FORCE ALTERS executed")
 }
 
 func (h *Hitrix) await() {
