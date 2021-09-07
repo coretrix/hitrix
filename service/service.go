@@ -39,6 +39,7 @@ const (
 	ExtractorService        = "extractor"
 	JWTService              = "jwt"
 	DDOSService             = "ddos"
+	FCMService              = "fcm"
 	ORMConfigService        = "orm_config"
 	ORMEngineGlobalService  = "orm_engine_global"
 	ORMEngineRequestService = "orm_engine_request"
