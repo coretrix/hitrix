@@ -3,7 +3,10 @@ module github.com/coretrix/hitrix
 go 1.16
 
 require (
-	cloud.google.com/go/storage v1.13.0
+	cloud.google.com/go v0.94.1 // indirect
+	cloud.google.com/go/firestore v1.5.0 // indirect
+	cloud.google.com/go/storage v1.16.1
+	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.13.0
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/aws/aws-sdk-go v1.38.39
@@ -45,9 +48,11 @@ require (
 	github.com/ugorji/go v1.2.2 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0
 	github.com/xorcare/pointer v1.1.0
-	golang.org/x/net v0.0.0-20210428140749-89ef3d95e781
-	golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3
+	golang.org/x/net v0.0.0-20210903162142-ad29c8ab022f
+	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
+	golang.org/x/sys v0.0.0-20210906170528-6f6e22806c34 // indirect
+	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.5 // indirect
-	google.golang.org/api v0.38.0
-	google.golang.org/grpc v1.37.0 // indirect
+	google.golang.org/api v0.56.0
+	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83 // indirect
 )

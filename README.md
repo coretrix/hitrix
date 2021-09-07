@@ -645,6 +645,20 @@ Config sample:
    option: string # required, values: "SHORT" or "UNGUESSABLE"
 ```
 
+
+#### Firebase cloud messaging (FCM) service
+This service is used for sending different types of push notifications
+
+You can register FCM service this way:
+
+```go
+hitrixRegistry.ServiceDefinitionFCM(),
+```
+
+Config sample:
+
+expose FIREBASE_CONFIG="path/to/service-account-file.json"
+
 #### OSS Google
 This service is used for storage files into google storage
 
