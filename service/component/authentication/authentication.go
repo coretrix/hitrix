@@ -5,6 +5,8 @@ import (
 	"fmt"
 	mail2 "net/mail"
 
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+
 	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/social"
 
@@ -54,6 +56,7 @@ type Authentication struct {
 	refreshTokenTTL      int
 	otpTTL               int
 	passwordService      *password.Password
+	errorLoggerService   errorlogger.ErrorLogger
 	jwtService           *jwt.JWT
 	smsService           sms.ISender
 	mailService          *mail.Sender
@@ -70,6 +73,7 @@ func NewAuthenticationService(
 	otpTTL int,
 	smsService sms.ISender,
 	generatorService generator.Generator,
+	errorLoggerService errorlogger.ErrorLogger,
 	clockService clock.Clock,
 	passwordService *password.Password,
 	jwtService *jwt.JWT,
@@ -82,6 +86,7 @@ func NewAuthenticationService(
 		refreshTokenTTL:      refreshTokenTTL,
 		otpTTL:               otpTTL,
 		passwordService:      passwordService,
+		errorLoggerService:   errorLoggerService,
 		jwtService:           jwtService,
 		smsService:           smsService,
 		clockService:         clockService,
@@ -115,7 +120,7 @@ func (t *Authentication) GenerateAndSendOTP(ormService *beeorm.Engine, mobile st
 
 	code := t.generatorService.GenerateRandomRangeNumber(10000, 99999)
 
-	err := t.smsService.SendOTPSMS(ormService, &sms.OTP{
+	err := t.smsService.SendOTPSMS(ormService, t.errorLoggerService, &sms.OTP{
 		OTP:      fmt.Sprint(code),
 		Number:   phone,
 		CC:       country,

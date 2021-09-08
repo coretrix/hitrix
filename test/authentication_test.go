@@ -66,6 +66,7 @@ func TestGenerateOTP(t *testing.T) {
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				mocks.FakeSMSService(fakeSMS),
@@ -111,6 +112,7 @@ func TestGenerateOTPEmail(t *testing.T) {
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				mocks.FakeSMSService(fakeSMS),
@@ -149,6 +151,7 @@ func TestVerifyOTP(t *testing.T) {
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				mocks.FakeSMSService(fakeSMS),
@@ -184,6 +187,7 @@ func TestVerifyOTPEmail(t *testing.T) {
 		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), "iman.daneshi@coretrix.com", "12345")).Return("defjiwqwd")
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				mocks.FakeGeneratorService(fakeGenerator),
@@ -216,6 +220,7 @@ func TestAuthenticate(t *testing.T) {
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				registry.ServiceProviderAuthentication(),
@@ -249,6 +254,7 @@ func TestAuthenticate(t *testing.T) {
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				registry.ServiceProviderAuthentication(),
@@ -280,6 +286,7 @@ func TestAuthenticate(t *testing.T) {
 		fakeGenerator := &generatorMock.FakeGenerator{}
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				registry.ServiceProviderAuthentication(),
@@ -312,6 +319,7 @@ func TestVerifyAccessToken(t *testing.T) {
 	t.Run("simple success", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				registry.ServiceProviderAuthentication(),
@@ -346,6 +354,7 @@ func TestVerifyAccessToken(t *testing.T) {
 	t.Run("wrong token", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				registry.ServiceProviderAuthentication(),
@@ -384,6 +393,7 @@ func TestRefreshToken(t *testing.T) {
 	t.Run("success refresh", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				registry.ServiceProviderAuthentication(),
@@ -416,6 +426,7 @@ func TestRefreshToken(t *testing.T) {
 	t.Run("wrong refresh", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				registry.ServiceProviderAuthentication(),
@@ -452,6 +463,7 @@ func TestLogoutCurrentSession(t *testing.T) {
 	t.Run("simple logout", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				registry.ServiceProviderAuthentication(),
@@ -492,6 +504,7 @@ func TestLogoutAllSessions(t *testing.T) {
 	t.Run("logout from one session", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				registry.ServiceProviderAuthentication(),
@@ -531,6 +544,7 @@ func TestLogoutAllSessions(t *testing.T) {
 	t.Run("logout from both sessions", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
 				registry.ServiceProviderAuthentication(),
@@ -581,6 +595,7 @@ func TestGenerateTokenPair(t *testing.T) {
 	fakeGenerator := &generatorMock.FakeGenerator{}
 	createContextMyApp(t, "my-app", nil,
 		[]*service.DefinitionGlobal{
+			registry.ServiceProviderErrorLogger(),
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
 			registry.ServiceProviderAuthentication(),

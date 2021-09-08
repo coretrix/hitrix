@@ -102,6 +102,11 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				panic("generator service not loaded")
 			}
 
+			errorLoggerService, has := service.DI().ErrorLogger()
+			if !has {
+				panic("error logger service not loaded")
+			}
+
 			return authentication.NewAuthenticationService(
 				secret,
 				accessTokenTTL,
@@ -109,6 +114,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				otpTTL,
 				smsService,
 				generatorService,
+				errorLoggerService,
 				clockService,
 				passwordService,
 				jwtService,

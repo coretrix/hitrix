@@ -3,19 +3,20 @@ package sms
 import (
 	"fmt"
 
-	"github.com/coretrix/hitrix/example/entity"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 
+	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/latolukasz/beeorm"
 )
 
 type ISender interface {
-	SendOTPSMS(ormService *beeorm.Engine, otp *OTP) error
-	SendOTPCallout(ormService *beeorm.Engine, otp *OTP) error
-	SendMessage(ormService *beeorm.Engine, message *Message) error
-	SendVerificationSMS(ormService *beeorm.Engine, otp *OTP) error
-	SendVerificationCallout(ormService *beeorm.Engine, otp *OTP) error
-	VerifyCode(ormService *beeorm.Engine, otp *OTP) error
+	SendOTPSMS(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, otp *OTP) error
+	SendOTPCallout(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, otp *OTP) error
+	SendMessage(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, message *Message) error
+	SendVerificationSMS(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, otp *OTP) error
+	SendVerificationCallout(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, otp *OTP) error
+	VerifyCode(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, otp *OTP) error
 }
 
 type Sender struct {
@@ -24,7 +25,7 @@ type Sender struct {
 	Logger         LogEntity
 }
 
-func (s *Sender) SendOTPSMS(ormService *beeorm.Engine, otp *OTP) error {
+func (s *Sender) SendOTPSMS(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, otp *OTP) error {
 	primaryProvider := otp.Provider.Primary
 	secondaryProvider := otp.Provider.Secondary
 
@@ -32,8 +33,6 @@ func (s *Sender) SendOTPSMS(ormService *beeorm.Engine, otp *OTP) error {
 	if !ok {
 		return fmt.Errorf("primary provider not supported")
 	}
-
-	otp.OTP = fmt.Sprintf(otp.Template, otp.OTP)
 
 	smsTrackerEntity := s.Logger
 	smsTrackerEntity.SetTo(otp.Number)
@@ -47,6 +46,7 @@ func (s *Sender) SendOTPSMS(ormService *beeorm.Engine, otp *OTP) error {
 	if err != nil {
 		trySecondaryProvider = true
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
+		errorLoggerService.LogError(err)
 	}
 
 	if trySecondaryProvider {
@@ -60,16 +60,22 @@ func (s *Sender) SendOTPSMS(ormService *beeorm.Engine, otp *OTP) error {
 		status, err = secondaryGateway.SendOTPSMS(otp)
 		if err != nil {
 			smsTrackerEntity.SetSecondaryGatewayError(err.Error())
+			errorLoggerService.LogError(err)
 		}
 	}
 
 	smsTrackerEntity.SetStatus(status)
 	logger := NewSmsLog(ormService, smsTrackerEntity)
 	logger.Do()
+
+	if status != success {
+		return fmt.Errorf("sending sms failed")
+	}
+
 	return nil
 }
 
-func (s *Sender) SendOTPCallout(ormService *beeorm.Engine, otp *OTP) error {
+func (s *Sender) SendOTPCallout(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, otp *OTP) error {
 	primaryProvider := otp.Provider.Primary
 	secondaryProvider := otp.Provider.Secondary
 
@@ -77,8 +83,6 @@ func (s *Sender) SendOTPCallout(ormService *beeorm.Engine, otp *OTP) error {
 	if !ok {
 		return fmt.Errorf("primary provider not supported")
 	}
-
-	otp.OTP = fmt.Sprintf(otp.Template, otp.OTP)
 
 	smsTrackerEntity := s.Logger
 	smsTrackerEntity.SetTo(otp.Number)
@@ -92,6 +96,7 @@ func (s *Sender) SendOTPCallout(ormService *beeorm.Engine, otp *OTP) error {
 	if err != nil {
 		trySecondaryProvider = true
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
+		errorLoggerService.LogError(err)
 	}
 
 	if trySecondaryProvider {
@@ -105,16 +110,22 @@ func (s *Sender) SendOTPCallout(ormService *beeorm.Engine, otp *OTP) error {
 		status, err = secondaryGateway.SendOTPCallout(otp)
 		if err != nil {
 			smsTrackerEntity.SetSecondaryGatewayError(err.Error())
+			errorLoggerService.LogError(err)
 		}
 	}
 
 	smsTrackerEntity.SetStatus(status)
 	logger := NewSmsLog(ormService, smsTrackerEntity)
 	logger.Do()
+
+	if status != success {
+		return fmt.Errorf("sending sms failed")
+	}
+
 	return nil
 }
 
-func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error {
+func (s *Sender) SendMessage(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, message *Message) error {
 	primaryProvider := message.Provider.Primary
 	secondaryProvider := message.Provider.Secondary
 
@@ -135,6 +146,7 @@ func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error 
 	if err != nil {
 		trySecondaryProvider = true
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
+		errorLoggerService.LogError(err)
 	}
 
 	if trySecondaryProvider {
@@ -148,16 +160,22 @@ func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error 
 		status, err = secondaryGateway.SendSMSMessage(message)
 		if err != nil {
 			smsTrackerEntity.SetSecondaryGatewayError(err.Error())
+			errorLoggerService.LogError(err)
 		}
 	}
 
 	smsTrackerEntity.SetStatus(status)
 	logger := NewSmsLog(ormService, smsTrackerEntity)
 	logger.Do()
+
+	if status != success {
+		return fmt.Errorf("sending sms failed")
+	}
+
 	return nil
 }
 
-func (s *Sender) SendVerificationSMS(ormService *beeorm.Engine, otp *OTP) error {
+func (s *Sender) SendVerificationSMS(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, otp *OTP) error {
 	primaryProvider := otp.Provider.Primary
 	secondaryProvider := otp.Provider.Secondary
 
@@ -165,8 +183,6 @@ func (s *Sender) SendVerificationSMS(ormService *beeorm.Engine, otp *OTP) error 
 	if !ok {
 		return fmt.Errorf("primary provider not supported")
 	}
-
-	otp.OTP = fmt.Sprintf(otp.Template, otp.OTP)
 
 	smsTrackerEntity := s.Logger
 	smsTrackerEntity.SetTo(otp.Number)
@@ -180,6 +196,7 @@ func (s *Sender) SendVerificationSMS(ormService *beeorm.Engine, otp *OTP) error 
 	if err != nil {
 		trySecondaryProvider = true
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
+		errorLoggerService.LogError(err)
 	}
 
 	if trySecondaryProvider {
@@ -193,16 +210,22 @@ func (s *Sender) SendVerificationSMS(ormService *beeorm.Engine, otp *OTP) error 
 		status, err = secondaryGateway.SendVerificationSMS(otp)
 		if err != nil {
 			smsTrackerEntity.SetSecondaryGatewayError(err.Error())
+			errorLoggerService.LogError(err)
 		}
 	}
 
 	smsTrackerEntity.SetStatus(status)
 	logger := NewSmsLog(ormService, smsTrackerEntity)
 	logger.Do()
+
+	if status != success {
+		return fmt.Errorf("sending sms failed")
+	}
+
 	return nil
 }
 
-func (s *Sender) SendVerificationCallout(ormService *beeorm.Engine, otp *OTP) error {
+func (s *Sender) SendVerificationCallout(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, otp *OTP) error {
 	primaryProvider := otp.Provider.Primary
 	secondaryProvider := otp.Provider.Secondary
 
@@ -210,8 +233,6 @@ func (s *Sender) SendVerificationCallout(ormService *beeorm.Engine, otp *OTP) er
 	if !ok {
 		return fmt.Errorf("primary provider not supported")
 	}
-
-	otp.OTP = fmt.Sprintf(otp.Template, otp.OTP)
 
 	smsTrackerEntity := s.Logger
 	smsTrackerEntity.SetTo(otp.Number)
@@ -225,6 +246,7 @@ func (s *Sender) SendVerificationCallout(ormService *beeorm.Engine, otp *OTP) er
 	if err != nil {
 		trySecondaryProvider = true
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
+		errorLoggerService.LogError(err)
 	}
 
 	if trySecondaryProvider {
@@ -238,16 +260,22 @@ func (s *Sender) SendVerificationCallout(ormService *beeorm.Engine, otp *OTP) er
 		status, err = secondaryGateway.SendVerificationCallout(otp)
 		if err != nil {
 			smsTrackerEntity.SetSecondaryGatewayError(err.Error())
+			errorLoggerService.LogError(err)
 		}
 	}
 
 	smsTrackerEntity.SetStatus(status)
 	logger := NewSmsLog(ormService, smsTrackerEntity)
 	logger.Do()
+
+	if status != success {
+		return fmt.Errorf("sending sms failed")
+	}
+
 	return nil
 }
 
-func (s *Sender) VerifyCode(ormService *beeorm.Engine, otp *OTP) error {
+func (s *Sender) VerifyCode(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, otp *OTP) error {
 	primaryProvider := otp.Provider.Primary
 	secondaryProvider := otp.Provider.Secondary
 
@@ -256,13 +284,11 @@ func (s *Sender) VerifyCode(ormService *beeorm.Engine, otp *OTP) error {
 		return fmt.Errorf("primary provider not supported")
 	}
 
-	otp.OTP = fmt.Sprintf(otp.Template, otp.OTP)
-
 	//TODO: create new log type for check the code
 	smsTrackerEntity := s.Logger
 	smsTrackerEntity.SetTo(otp.Number)
 	smsTrackerEntity.SetType(entity.SMSTrackerTypeSMS)
-	smsTrackerEntity.SetText(otp.OTP)
+	smsTrackerEntity.SetText(fmt.Sprintf(otp.Template, otp.OTP))
 	smsTrackerEntity.SetFromPrimaryGateway(primaryProvider)
 	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
@@ -271,6 +297,7 @@ func (s *Sender) VerifyCode(ormService *beeorm.Engine, otp *OTP) error {
 	if err != nil {
 		trySecondaryProvider = true
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
+		errorLoggerService.LogError(err)
 	}
 
 	if trySecondaryProvider {
@@ -284,11 +311,17 @@ func (s *Sender) VerifyCode(ormService *beeorm.Engine, otp *OTP) error {
 		status, err = secondaryGateway.VerifyCode(otp)
 		if err != nil {
 			smsTrackerEntity.SetSecondaryGatewayError(err.Error())
+			errorLoggerService.LogError(err)
 		}
 	}
 
 	smsTrackerEntity.SetStatus(status)
 	logger := NewSmsLog(ormService, smsTrackerEntity)
 	logger.Do()
+
+	if status != success {
+		return fmt.Errorf("sending sms failed")
+	}
+
 	return nil
 }

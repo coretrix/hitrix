@@ -43,7 +43,7 @@ func Call(ctx context.Context,
 
 	r, err := http.NewRequest(method, url, b)
 	if err != nil {
-		return nil, nil, 0, errors.New("error while creating request")
+		return nil, nil, 0, err
 	}
 
 	for i := range headers {

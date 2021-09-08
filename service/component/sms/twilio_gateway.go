@@ -52,7 +52,7 @@ func (g *TwilioGateway) SendOTPSMS(otp *OTP) (string, error) {
 		"Content-Length": strconv.Itoa(len(data.Encode())),
 	}
 
-	_, _, code, err := helper.Call(
+	responseBody, _, code, err := helper.Call(
 		context.Background(),
 		"POST",
 		baseURL.String(),
@@ -66,13 +66,12 @@ func (g *TwilioGateway) SendOTPSMS(otp *OTP) (string, error) {
 	}
 
 	if code != http.StatusOK {
-		e := fmt.Errorf("expected status code OK, but got %v", code)
-		return e.Error(), e
+		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
 	}
 
 	// TODO: find out the format of response
 
-	return "success", nil
+	return success, nil
 }
 
 func (g *TwilioGateway) SendOTPCallout(otp *OTP) (string, error) {
@@ -97,7 +96,7 @@ func (g *TwilioGateway) SendOTPCallout(otp *OTP) (string, error) {
 		"Content-Length": strconv.Itoa(len(data.Encode())),
 	}
 
-	_, _, code, err := helper.Call(
+	responseBody, _, code, err := helper.Call(
 		context.Background(),
 		baseURL.String(),
 		"POST",
@@ -111,8 +110,7 @@ func (g *TwilioGateway) SendOTPCallout(otp *OTP) (string, error) {
 	}
 
 	if code != http.StatusOK {
-		e := fmt.Errorf("expected status code OK, but got %v", code)
-		return e.Error(), e
+		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
 	}
 	// TODO: find out the format of response
 
@@ -156,7 +154,7 @@ func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
-	_, _, code, err := helper.Call(
+	responseBody, _, code, err := helper.Call(
 		context.Background(),
 		"POST",
 		baseURL.String(),
@@ -170,8 +168,7 @@ func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
 	}
 
 	if code < 200 && code >= 300 {
-		e := fmt.Errorf("expected status code OK, but got %v", code)
-		return e.Error(), e
+		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
 	}
 
 	return success, nil
@@ -198,7 +195,7 @@ func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
-	_, _, code, err := helper.Call(
+	responseBody, _, code, err := helper.Call(
 		context.Background(),
 		"POST",
 		baseURL.String(),
@@ -212,8 +209,7 @@ func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
 	}
 
 	if code < 200 && code >= 300 {
-		e := fmt.Errorf("expected status code OK, but got %v", code)
-		return e.Error(), e
+		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
 	}
 
 	return success, nil
@@ -240,7 +236,7 @@ func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
-	b, _, code, err := helper.Call(
+	responseBody, _, code, err := helper.Call(
 		context.Background(),
 		"POST",
 		baseURL.String(),
@@ -254,12 +250,11 @@ func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 	}
 
 	if code < 200 || code >= 300 {
-		e := fmt.Errorf("expected status code OK, but got %v", code)
-		return failure, e
+		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
 	}
 
 	response := twilioResponse{}
-	if err := json.Unmarshal(b, &response); err != nil {
+	if err := json.Unmarshal(responseBody, &response); err != nil {
 		return failure, err
 	}
 
