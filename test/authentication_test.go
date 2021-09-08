@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dongri/phonenumber"
+
 	mocks2 "github.com/coretrix/hitrix/service/component/mail/mocks"
 
 	"github.com/coretrix/hitrix/service/component/authentication"
@@ -39,11 +41,14 @@ func createUser(input map[string]interface{}) *entity.AdminUserEntity {
 
 func TestGenerateOTP(t *testing.T) {
 	t.Run("generate token", func(t *testing.T) {
+		mobile := "989375722346"
 		fakeSMS := &smsMock.FakeSMSSender{}
 		expectOTP := &sms.OTP{
-			OTP:    "12345",
-			Number: "989375722346",
-			CC:     "IR",
+			OTP: "12345",
+			Phone: &sms.Phone{
+				Number:  mobile,
+				ISO3166: phonenumber.GetISO3166ByNumber(mobile, false),
+			},
 			Provider: &sms.Provider{
 				Primary:   sms.Kavenegar,
 				Secondary: sms.Twilio,

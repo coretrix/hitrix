@@ -108,23 +108,26 @@ type GenerateOTPEmail struct {
 	Token          string
 }
 
-func (t *Authentication) GenerateAndSendOTP(ormService *beeorm.Engine, mobile string, country string) (*GenerateOTP, error) {
+func (t *Authentication) GenerateAndSendOTP(ormService *beeorm.Engine, mobile string, countryCodeAlpha2 string) (*GenerateOTP, error) {
 	// validate mobile number
-	if len(country) != 2 {
+	if len(countryCodeAlpha2) != 2 {
 		return nil, errors.New("use alpha2 code for country")
 	}
-	phone := phonenumber.Parse(mobile, country)
-	if phone == "" {
+
+	number := phonenumber.Parse(mobile, countryCodeAlpha2)
+	if number == "" {
 		return nil, errors.New("phone number not valid")
 	}
 
 	code := t.generatorService.GenerateRandomRangeNumber(10000, 99999)
 
 	err := t.smsService.SendOTPSMS(ormService, t.errorLoggerService, &sms.OTP{
-		OTP:      fmt.Sprint(code),
-		Number:   phone,
-		CC:       country,
-		Provider: factorySMSProviders(country),
+		OTP: fmt.Sprint(code),
+		Phone: &sms.Phone{
+			Number:  number,
+			ISO3166: phonenumber.GetISO3166ByNumber(number, false),
+		},
+		Provider: factorySMSProviders(countryCodeAlpha2),
 		// TODO : replace with the desired message or get as a argument
 		Template: "your verification code id : %s",
 	})
@@ -133,10 +136,10 @@ func (t *Authentication) GenerateAndSendOTP(ormService *beeorm.Engine, mobile st
 	}
 
 	expirationTime := t.clockService.Now().Add(time.Duration(t.otpTTL) * time.Second).Unix()
-	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(strconv.FormatInt(expirationTime, 10), phone, fmt.Sprint(code)))
+	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(strconv.FormatInt(expirationTime, 10), number, fmt.Sprint(code)))
 
 	return &GenerateOTP{
-		Mobile:         phone,
+		Mobile:         number,
 		ExpirationTime: strconv.FormatInt(expirationTime, 10),
 		Token:          token,
 	}, nil

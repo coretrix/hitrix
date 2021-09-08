@@ -35,7 +35,7 @@ func (s *Sender) SendOTPSMS(ormService *beeorm.Engine, errorLoggerService errorl
 	}
 
 	smsTrackerEntity := s.Logger
-	smsTrackerEntity.SetTo(otp.Number)
+	smsTrackerEntity.SetTo(otp.Phone.Number)
 	smsTrackerEntity.SetType(entity.SMSTrackerTypeSMS)
 	smsTrackerEntity.SetText(otp.OTP)
 	smsTrackerEntity.SetFromPrimaryGateway(primaryProvider)
@@ -85,7 +85,7 @@ func (s *Sender) SendOTPCallout(ormService *beeorm.Engine, errorLoggerService er
 	}
 
 	smsTrackerEntity := s.Logger
-	smsTrackerEntity.SetTo(otp.Number)
+	smsTrackerEntity.SetTo(otp.Phone.Number)
 	smsTrackerEntity.SetType(entity.SMSTrackerTypeCallout)
 	smsTrackerEntity.SetText(otp.OTP)
 	smsTrackerEntity.SetFromPrimaryGateway(primaryProvider)
@@ -185,7 +185,7 @@ func (s *Sender) SendVerificationSMS(ormService *beeorm.Engine, errorLoggerServi
 	}
 
 	smsTrackerEntity := s.Logger
-	smsTrackerEntity.SetTo(otp.Number)
+	smsTrackerEntity.SetTo(otp.Phone.Number)
 	smsTrackerEntity.SetType(entity.SMSTrackerTypeSMS)
 	smsTrackerEntity.SetText(otp.OTP)
 	smsTrackerEntity.SetFromPrimaryGateway(primaryProvider)
@@ -235,7 +235,7 @@ func (s *Sender) SendVerificationCallout(ormService *beeorm.Engine, errorLoggerS
 	}
 
 	smsTrackerEntity := s.Logger
-	smsTrackerEntity.SetTo(otp.Number)
+	smsTrackerEntity.SetTo(otp.Phone.Number)
 	smsTrackerEntity.SetType(entity.SMSTrackerTypeCallout)
 	smsTrackerEntity.SetText(otp.OTP)
 	smsTrackerEntity.SetFromPrimaryGateway(primaryProvider)
@@ -286,7 +286,7 @@ func (s *Sender) VerifyCode(ormService *beeorm.Engine, errorLoggerService errorl
 
 	//TODO: create new log type for check the code
 	smsTrackerEntity := s.Logger
-	smsTrackerEntity.SetTo(otp.Number)
+	smsTrackerEntity.SetTo(otp.Phone.Number)
 	smsTrackerEntity.SetType(entity.SMSTrackerTypeSMS)
 	smsTrackerEntity.SetText(fmt.Sprintf(otp.Template, otp.OTP))
 	smsTrackerEntity.SetFromPrimaryGateway(primaryProvider)

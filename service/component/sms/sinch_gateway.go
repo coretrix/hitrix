@@ -29,14 +29,14 @@ type SinchGateway struct {
 func (g *SinchGateway) SendOTPSMS(otp *OTP) (string, error) {
 	return g.SendSMSMessage(&Message{
 		Text:   fmt.Sprintf(otp.Template, otp.OTP),
-		Number: otp.Number,
+		Number: otp.Phone.Number,
 	})
 }
 
 func (g *SinchGateway) SendOTPCallout(otp *OTP) (string, error) {
 	return g.SendCalloutMessage(&Message{
 		Text:   fmt.Sprintf(otp.Template, otp.OTP),
-		Number: otp.Number,
+		Number: otp.Phone.Number,
 	})
 }
 

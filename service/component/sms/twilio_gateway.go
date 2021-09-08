@@ -34,8 +34,8 @@ func (g *TwilioGateway) SendOTPSMS(otp *OTP) (string, error) {
 	data := url.Values{}
 	data.Set("api_key", g.AuthyAPIKey)
 	data.Set("via", "sms")
-	data.Set("phone_number", otp.Number)
-	data.Set("country_code", otp.CC)
+	data.Set("phone_number", otp.Phone.Number)
+	data.Set("country_code", otp.Phone.ISO3166.CountryName)
 	data.Set("custom_code", otp.OTP)
 	data.Set("locale", "en")
 	data.Set("code_length", "4")
@@ -78,8 +78,8 @@ func (g *TwilioGateway) SendOTPCallout(otp *OTP) (string, error) {
 	data := url.Values{}
 	data.Set("api_key", g.AuthyAPIKey)
 	data.Set("via", "call")
-	data.Set("phone_number", otp.Number)
-	data.Set("country_code", otp.CC)
+	data.Set("phone_number", otp.Phone.Number)
+	data.Set("country_code", otp.Phone.ISO3166.CountryCode)
 	data.Set("custom_code", otp.OTP)
 	data.Set("locale", "en")
 	data.Set("code_length", "4")
@@ -135,7 +135,7 @@ func (g *TwilioGateway) SendCalloutMessage(message *Message) (string, error) {
 
 func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
 	data := url.Values{}
-	data.Set("To", otp.Number)
+	data.Set("To", otp.Phone.Number)
 	data.Set("Channel", "sms")
 
 	endpoint := strings.Join([]string{
@@ -176,7 +176,7 @@ func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
 
 func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
 	data := url.Values{}
-	data.Set("To", otp.Number)
+	data.Set("To", otp.Phone.Number)
 	data.Set("Channel", "call")
 
 	endpoint := strings.Join([]string{
@@ -217,7 +217,7 @@ func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
 
 func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 	data := url.Values{}
-	data.Set("To", otp.Number)
+	data.Set("To", otp.Phone.Number)
 	data.Set("Code", otp.OTP)
 
 	endpoint := strings.Join([]string{
