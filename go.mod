@@ -8,6 +8,7 @@ require (
 	cloud.google.com/go/storage v1.16.1
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.13.0
+	github.com/AmirSoleimani/VoucherCodeGenerator v0.0.0-20201014193813-0206853dccb9
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/aws/aws-sdk-go v1.38.39
 	github.com/checkout/checkout-sdk-go v0.0.19
@@ -52,7 +53,6 @@ require (
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
 	golang.org/x/sys v0.0.0-20210906170528-6f6e22806c34 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.5 // indirect
 	google.golang.org/api v0.56.0
 	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83 // indirect
 )
