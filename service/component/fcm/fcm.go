@@ -19,7 +19,7 @@ type FCM interface {
 }
 
 func NewFCM(ctx context.Context) (FCM, error) {
-	app, err := firebase.NewApp(ctx, nil, nil)
+	app, err := firebase.NewApp(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
