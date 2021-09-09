@@ -4,9 +4,10 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
-	"github.com/AmirSoleimani/VoucherCodeGenerator/vcgen"
 	"math/big"
 	"strings"
+
+	"github.com/AmirSoleimani/VoucherCodeGenerator/vcgen"
 
 	"github.com/coretrix/hitrix/pkg/helper"
 )
