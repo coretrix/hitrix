@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	templatePrefix = "mandrill_template_"
+	templateCachePrefix = "mandrill_template_"
 )
 
 type Mandrill struct {
@@ -130,7 +130,7 @@ func (s *Mandrill) sendTemplate(ormService *beeorm.Engine, from string, to strin
 
 // Zero ttl expiration means the key has no expiration time.
 func (s *Mandrill) GetTemplateHTMLCode(ormService *beeorm.Engine, templateName string, ttl int) (string, error) {
-	key := templatePrefix + templateName
+	key := templateCachePrefix + templateName
 	redisCache := ormService.GetRedis()
 
 	htmlCode, has := redisCache.Get(key)
