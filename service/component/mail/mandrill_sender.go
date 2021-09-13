@@ -14,6 +14,10 @@ import (
 	"github.com/mattbaird/gochimp"
 )
 
+const (
+	templatePrefix = "mandrill_template_"
+)
+
 type Mandrill struct {
 	client           *gochimp.MandrillAPI
 	defaultFromEmail string
@@ -122,4 +126,24 @@ func (s *Mandrill) sendTemplate(ormService *beeorm.Engine, from string, to strin
 	ormService.Flush(mailTrackerEntity)
 
 	return nil
+}
+
+// Zero ttl expiration means the key has no expiration time.
+func (s *Mandrill) GetTemplateHTMLCode(ormService *beeorm.Engine, templateName string, ttl int) (string, error) {
+	key := templatePrefix + templateName
+	redisCache := ormService.GetRedis()
+
+	htmlCode, has := redisCache.Get(key)
+	if has {
+		return htmlCode, nil
+	}
+
+	template, err := s.client.TemplateInfo(templateName)
+	if err != nil {
+		return "", err
+	}
+
+	redisCache.Set(key, template.Code, ttl)
+
+	return template.Code, nil
 }
