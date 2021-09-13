@@ -325,6 +325,7 @@ orm:
     local_cache: 1000
 ```
 where `DEFAULT_MYSQL` and `DEFAULT_REDIS` are env variables and our framework will automatically replace `ENV[DEFAULT_MYSQL]` and `ENV[DEFAULT_REDIS]` with the right values
+
 If you want to define array of values you should split them by `;` and they will be presented into the yaml file in that way:
 ```yaml
 cors:
