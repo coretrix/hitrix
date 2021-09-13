@@ -116,12 +116,7 @@ func parseEnvVariables(content []byte) []byte {
 
 		values := strings.Split(os.Getenv(element), ";")
 		if len(values) > 1 {
-			var value string
-			for _, val := range values {
-				value += "\n    - " + val
-			}
-
-			newContent = strings.Replace(newContent, "ENV["+element+"]", value, -1)
+			newContent = strings.Replace(newContent, "ENV["+element+"]", "["+strings.Join(values, ",")+"]", -1)
 		} else {
 			newContent = strings.Replace(newContent, "ENV["+element+"]", os.Getenv(element), -1)
 		}
