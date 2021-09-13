@@ -90,7 +90,6 @@ func NewConfig(appName, mode, localConfigFolder string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	err = c.LoadSources(config.Yaml, parseEnvVariables(yamlFileAppConfig), parseEnvVariables(yamlFileHitrixConfig))
 	if err != nil {
 		return nil, err
@@ -115,7 +114,17 @@ func parseEnvVariables(content []byte) []byte {
 		element = strings.TrimPrefix(element, "ENV[")
 		element = strings.TrimSuffix(element, "]")
 
-		newContent = strings.Replace(newContent, "ENV["+element+"]", os.Getenv(element), -1)
+		values := strings.Split(os.Getenv(element), ";")
+		if len(values) > 1 {
+			var value string
+			for _, val := range values {
+				value += "\n    - " + val
+			}
+
+			newContent = strings.Replace(newContent, "ENV["+element+"]", value, -1)
+		} else {
+			newContent = strings.Replace(newContent, "ENV["+element+"]", os.Getenv(element), -1)
+		}
 	}
 
 	return []byte(newContent)

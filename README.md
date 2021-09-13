@@ -325,6 +325,12 @@ orm:
     local_cache: 1000
 ```
 where `DEFAULT_MYSQL` and `DEFAULT_REDIS` are env variables and our framework will automatically replace `ENV[DEFAULT_MYSQL]` and `ENV[DEFAULT_REDIS]` with the right values
+If you want to define array of values you should split them by `;` and they will be presented into the yaml file in that way:
+```yaml
+cors:
+    - test1
+    - test2
+```
 
 If you want to enable the debug for orm you can add this tag `orm_debug: true` on the main level of your config
 

@@ -3,7 +3,7 @@ slack:
   error_channel: ""
   dev_panel_url: ""
 oss:
-  domain: hymn.tv
+  domain: coretrix.com
 
 stripe:
   key: "api_key"
