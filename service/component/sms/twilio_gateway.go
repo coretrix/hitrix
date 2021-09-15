@@ -35,7 +35,7 @@ func (g *TwilioGateway) SendOTPSMS(otp *OTP) (string, error) {
 	data.Set("api_key", g.AuthyAPIKey)
 	data.Set("via", "sms")
 	data.Set("phone_number", otp.Phone.Number)
-	data.Set("country_code", otp.Phone.ISO3166.CountryName)
+	data.Set("country_code", otp.Phone.ISO3166.CountryCode)
 	data.Set("custom_code", otp.OTP)
 	data.Set("locale", "en")
 	data.Set("code_length", "4")
