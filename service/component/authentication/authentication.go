@@ -129,7 +129,7 @@ func (t *Authentication) GenerateAndSendOTP(ormService *beeorm.Engine, mobile st
 		},
 		Provider: factorySMSProviders(countryCodeAlpha2),
 		// TODO : replace with the desired message or get as a argument
-		Template: "your verification code id : %s",
+		Template: "ICE-STORM",
 	})
 	if err != nil {
 		return nil, err
