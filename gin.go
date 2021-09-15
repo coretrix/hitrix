@@ -1,9 +1,11 @@
 package hitrix
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"runtime/debug"
 	"time"
 
@@ -25,7 +27,15 @@ type GQLServerInitHandler func(server *handler.Server)
 
 func contextToContextMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		body, err := c.GetRawData()
+		if err != nil {
+			panic(err)
+		}
+
+		c.Request.Body = ioutil.NopCloser(bytes.NewReader(body))
+
 		ctx := context.WithValue(c.Request.Context(), service.GinKey, c)
+		ctx = context.WithValue(ctx, service.RequestBodyKey, body)
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
 	}
@@ -92,6 +102,8 @@ func graphqlHandler(server graphql.ExecutableSchema, gqlServerInitHandler GQLSer
 		errorLogger, has := service.DI().ErrorLogger()
 		if has {
 			ginContext := ctx.Value(service.GinKey).(*gin.Context)
+			requestBody := ctx.Value(service.RequestBodyKey).([]byte)
+			ginContext.Request.Body = ioutil.NopCloser(bytes.NewReader(requestBody))
 			errorLogger.LogErrorWithRequest(ginContext, errors.New(errorMessage))
 		}
 		return errors.New("internal server error")

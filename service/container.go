@@ -15,6 +15,7 @@ type key int
 
 const (
 	GinKey key = iota
+	RequestBodyKey
 )
 
 var container di.Container
