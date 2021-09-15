@@ -25,12 +25,12 @@ type SmsTrackerEntity struct {
 	beeorm.ORM            `orm:"table=sms_tracker"`
 	ID                    uint64
 	Status                string
-	To                    string `orm:"varchar=15"`
+	To                    string `orm:"length=15"`
 	Text                  string
 	FromPrimaryGateway    string
 	FromSecondaryGateway  string
-	PrimaryGatewayError   string
-	SecondaryGatewayError string
+	PrimaryGatewayError   string    `orm:"length=max"`
+	SecondaryGatewayError string    `orm:"length=max"`
 	Type                  string    `orm:"enum=entity.SMSTrackerTypeAll;required"`
 	SentAt                time.Time `orm:"time"`
 }
