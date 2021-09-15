@@ -1,6 +1,8 @@
 package hitrix
 
 import (
+	"bytes"
+	"io/ioutil"
 	"log"
 
 	"github.com/coretrix/hitrix/service"
@@ -14,6 +16,8 @@ func recovery() gin.HandlerFunc {
 			if r := recover(); r != nil {
 				errorLogger, has := service.DI().ErrorLogger()
 				if has {
+					requestBody := c.Request.Context().Value(service.RequestBodyKey).([]byte)
+					c.Request.Body = ioutil.NopCloser(bytes.NewReader(requestBody))
 					errorLogger.LogErrorWithRequest(c, r)
 				} else {
 					log.Println(r.(string))
