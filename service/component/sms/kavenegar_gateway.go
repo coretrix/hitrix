@@ -12,10 +12,19 @@ type KavenegarGateway struct {
 }
 
 func (g *KavenegarGateway) SendOTPSMS(otp *OTP) (string, error) {
-	return g.SendSMSMessage(&Message{
-		Text:   fmt.Sprintf(otp.Template, otp.OTP),
-		Number: otp.Phone.Number,
-	})
+	api := kavenegar.New(g.APIKey)
+
+	res, err := api.Verify.Lookup(otp.Phone.Number, otp.Template, otp.OTP, nil)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	if res.Status != kavenegar.Type_MessageStatus_Sent && res.Status != kavenegar.Type_MessageStatus_Delivered {
+		e := fmt.Errorf("there was a problem sending sms")
+		return e.Error(), e
+	}
+
+	return res.Message, nil
 }
 
 func (g *KavenegarGateway) SendOTPCallout(otp *OTP) (string, error) {
