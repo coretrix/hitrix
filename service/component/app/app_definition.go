@@ -29,6 +29,7 @@ type DevPanel struct {
 type App struct {
 	Mode          string
 	Name          string
+	TestThread    uint16
 	Secret        string
 	Flags         *Flags
 	Scripts       []string

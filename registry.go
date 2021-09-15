@@ -34,6 +34,10 @@ func New(appName string, secret string) *Registry {
 	return r
 }
 
+func (r *Registry) SetTestThread(thread uint16) *Registry {
+	r.app.TestThread = thread
+	return r
+}
 func (r *Registry) Build() (*Hitrix, func()) {
 	globalContext, cancel := context.WithCancel(context.Background())
 	r.app.GlobalContext = globalContext

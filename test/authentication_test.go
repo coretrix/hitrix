@@ -53,7 +53,7 @@ func TestGenerateOTP(t *testing.T) {
 				Primary:   sms.Kavenegar,
 				Secondary: sms.Twilio,
 			},
-			Template: "your verification code id : %s",
+			Template: "ICE-STORM",
 		}
 		fakeSMS.On("SendOTPSMS", expectOTP).Return(nil)
 
