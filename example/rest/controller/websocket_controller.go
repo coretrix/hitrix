@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/coretrix/hitrix"
 	model "github.com/coretrix/hitrix/example/model/socket"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/socket"
@@ -57,16 +58,21 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 
 	socketRegistryService.Register <- socketHolder
 
-	go socketHolder.WritePump()
-	go socketHolder.ReadPump(socketRegistryService, func(rawData []byte) {
-		dto := &DTOMessage{}
-		err = json.Unmarshal(rawData, dto)
-		if err != nil {
-			errorLoggerService.LogError(err)
-			return
-		}
-		//return back the received message
-		s, _ := socketRegistryService.Sockets.Load(socketHolder.ID)
-		s.(*socket.Socket).Emit(dto)
+	hitrix.Goroutine(func() {
+		socketHolder.WritePump()
+	})
+
+	hitrix.Goroutine(func() {
+		socketHolder.ReadPump(socketRegistryService, func(rawData []byte) {
+			dto := &DTOMessage{}
+			err = json.Unmarshal(rawData, dto)
+			if err != nil {
+				errorLoggerService.LogError(err)
+				return
+			}
+			//return back the received message
+			s, _ := socketRegistryService.Sockets.Load(socketHolder.ID)
+			s.(*socket.Socket).Emit(dto)
+		})
 	})
 }

@@ -3,6 +3,7 @@ package queue
 import (
 	"context"
 
+	"github.com/coretrix/hitrix"
 	"github.com/latolukasz/beeorm"
 )
 
@@ -68,7 +69,7 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 	for moduloID := 1; moduloID <= consumer.GetMaxModulo(); moduloID++ {
 		currentModulo := moduloID
 
-		go func() {
+		hitrix.GoroutineWithRestart(func() {
 			eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
 			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 				for _, event := range events {
@@ -78,20 +79,21 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 					event.Ack()
 				}
 			})
-		}()
+		})
 	}
 }
 
 func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, groupNameSuffix *string, prefetchCount int) {
 	for moduloID := 1; moduloID <= consumer.GetMaxModulo(); moduloID++ {
 		currentModulo := moduloID
-		go func() {
+
+		hitrix.GoroutineWithRestart(func() {
 			eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
 			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 				if err := consumer.Consume(events); err != nil {
 					panic(err)
 				}
 			})
-		}()
+		})
 	}
 }

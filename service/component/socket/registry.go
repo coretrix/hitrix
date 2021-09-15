@@ -33,7 +33,10 @@ func BuildAndRunSocketRegistry(eventHandlersMap NamespaceEventHandlerMap) *Regis
 		Sockets:    &sync.Map{},
 	}
 
+	//TODO use hitrix
+	//hitrix.GoroutineWithRestart(func() {
 	go registry.run(eventHandlersMap)
+	//})
 
 	return registry
 }
