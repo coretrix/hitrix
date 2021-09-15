@@ -3,9 +3,10 @@ package sms
 import (
 	"fmt"
 
+	"github.com/coretrix/hitrix/pkg/entity"
+
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 
-	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/latolukasz/beeorm"
 )
