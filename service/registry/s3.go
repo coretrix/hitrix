@@ -11,8 +11,8 @@ import (
 	"github.com/sarulabs/di"
 )
 
-// ServiceDefinitionAmazonS3 Be sure that you registered entity S3BucketCounterEntity
-func ServiceDefinitionAmazonS3(bucketsMapping map[string]uint64) *service.DefinitionGlobal {
+// ServiceProviderAmazonS3 Be sure that you registered entity S3BucketCounterEntity
+func ServiceProviderAmazonS3(bucketsMapping map[string]uint64) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.AmazonS3Service,
 		Build: func(ctn di.Container) (interface{}, error) {

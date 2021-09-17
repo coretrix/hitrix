@@ -5,6 +5,8 @@ import (
 	"fmt"
 	mail2 "net/mail"
 
+	"github.com/coretrix/hitrix/service/component/uuid"
+
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 
 	"github.com/coretrix/hitrix/service/component/mail"
@@ -51,18 +53,20 @@ type AuthProviderEntity interface {
 	GetUniqueFieldName() string
 	GetPassword() string
 }
+
 type Authentication struct {
 	accessTokenTTL       int
 	refreshTokenTTL      int
 	otpTTL               int
-	passwordService      *password.Password
+	passwordService      password.Password
 	errorLoggerService   errorlogger.ErrorLogger
 	jwtService           *jwt.JWT
 	smsService           sms.ISender
 	mailService          *mail.Sender
 	socialServiceMapping map[string]social.IUserData
-	generatorService     generator.Generator
-	clockService         clock.Clock
+	generatorService     generator.IGenerator
+	clockService         clock.IClock
+	uuidService          uuid.IUUID
 	secret               string
 }
 
@@ -72,13 +76,14 @@ func NewAuthenticationService(
 	refreshTokenTTL int,
 	otpTTL int,
 	smsService sms.ISender,
-	generatorService generator.Generator,
+	generatorService generator.IGenerator,
 	errorLoggerService errorlogger.ErrorLogger,
-	clockService clock.Clock,
-	passwordService *password.Password,
+	clockService clock.IClock,
+	passwordService password.Password,
 	jwtService *jwt.JWT,
 	mailService *mail.Sender,
 	socialServiceMapping map[string]social.IUserData,
+	uuidService uuid.IUUID,
 ) *Authentication {
 	return &Authentication{
 		secret:               secret,
@@ -93,6 +98,7 @@ func NewAuthenticationService(
 		generatorService:     generatorService,
 		mailService:          mailService,
 		socialServiceMapping: socialServiceMapping,
+		uuidService:          uuidService,
 	}
 }
 
@@ -407,7 +413,7 @@ func (t *Authentication) GenerateTokenPair(id uint64, accessKey string, ttl int)
 }
 
 func (t *Authentication) generateAndStoreAccessKey(ormService *beeorm.Engine, id uint64, ttl int) string {
-	key := generateAccessKey(id, t.generatorService.GenerateUUID())
+	key := generateAccessKey(id, t.uuidService.Generate())
 	ormService.GetRedis().Set(key, "", ttl)
 	return key
 }

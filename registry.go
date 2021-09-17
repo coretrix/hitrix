@@ -67,7 +67,7 @@ func (r *Registry) Build() (*Hitrix, func()) {
 	}
 }
 
-func (r *Registry) RegisterDevPanel(devPanelUserEntity app.DevPanelUserEntity, router func(ginEngine *gin.Engine), poolStream, poolSearch *string) *Registry {
+func (r *Registry) RegisterDevPanel(devPanelUserEntity app.IDevPanelUserEntity, router func(ginEngine *gin.Engine), poolStream, poolSearch *string) *Registry {
 	if devPanelUserEntity == nil {
 		panic("devPanelUserEntity cannot be nil")
 	}
@@ -93,8 +93,9 @@ func (r *Registry) initializeIoCHandlers() {
 	ioCBuilder, _ := di.NewBuilder()
 
 	defaultDefinitions := []*service.DefinitionGlobal{
-		registry.ServiceApp(r.app),
-		registry.ServiceConfig(),
+		registry.ServiceProviderApp(r.app),
+		registry.ServiceProviderConfig(),
+		registry.ServiceProviderGoroutine(),
 	}
 
 	flagsRegistry := &app.FlagsRegistry{Flags: make(map[string]interface{})}

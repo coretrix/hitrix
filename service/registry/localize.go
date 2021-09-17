@@ -5,13 +5,13 @@ import (
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
-	localizer "github.com/coretrix/hitrix/service/component/localizer"
+	"github.com/coretrix/hitrix/service/component/localize"
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderLocalizer() *service.DefinitionGlobal {
+func ServiceProviderLocalize() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: service.LocalizerService,
+		Name: service.LocalizeService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 			apiKey, ok := configService.String("translation.poeditor.api_key")
@@ -27,13 +27,13 @@ func ServiceProviderLocalizer() *service.DefinitionGlobal {
 				return nil, errors.New("missing translation.poeditor.language")
 			}
 
-			apiSource := localizer.NewPoeditorSource(
+			apiSource := localize.NewPoeditorSource(
 				apiKey,
 				projectId,
 				language,
 			)
 
-			return localizer.NewSimpleLocalizer(apiSource), nil
+			return localize.NewSimpleLocalizer(apiSource), nil
 		},
 	}
 }

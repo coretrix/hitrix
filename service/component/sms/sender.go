@@ -21,7 +21,7 @@ type ISender interface {
 }
 
 type Sender struct {
-	Clock          clock.Clock
+	Clock          clock.IClock
 	GatewayFactory map[string]Gateway
 	Logger         LogEntity
 }

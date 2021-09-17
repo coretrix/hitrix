@@ -1,7 +1,6 @@
 package helper
 
 import (
-	cryptoRand "crypto/rand"
 	"fmt"
 )
 
@@ -73,14 +72,4 @@ func SliceUint64Difference(slice1 []uint64, slice2 []uint64) []uint64 {
 
 func ConvertUint64ToHex(serialNumber uint64) string {
 	return fmt.Sprintf("%0X", serialNumber)
-}
-
-func GenerateUUID() string {
-	b := make([]byte, 16)
-	_, err := cryptoRand.Read(b)
-	if err != nil {
-		panic(err)
-	}
-	return fmt.Sprintf("%x-%x-%x-%x-%x",
-		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 }

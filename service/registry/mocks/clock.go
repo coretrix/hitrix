@@ -6,11 +6,11 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeClockService(clockService clock.Clock) *service.DefinitionGlobal {
+func ServiceProviderMockClock(mock clock.IClock) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.ClockService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return clockService, nil
+			return mock, nil
 		},
 	}
 }

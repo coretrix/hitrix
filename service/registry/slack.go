@@ -3,14 +3,14 @@ package registry
 import (
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
-	slackapi "github.com/coretrix/hitrix/service/component/slack_api"
+	"github.com/coretrix/hitrix/service/component/slack"
 	"github.com/juju/errors"
 	"github.com/sarulabs/di"
 )
 
-func ServiceDefinitionSlackAPI() *service.DefinitionGlobal {
+func ServiceProviderSlack() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: service.SlackAPIService,
+		Name: service.SlackService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 
@@ -22,7 +22,7 @@ func ServiceDefinitionSlackAPI() *service.DefinitionGlobal {
 			errorChannel, _ := configService.String("slack.error_channel")
 			devPanelURL, _ := configService.String("slack.dev_panel_url")
 
-			return slackapi.NewSlack(token, errorChannel, devPanelURL), nil
+			return slack.NewSlackGo(token, errorChannel, devPanelURL), nil
 		},
 	}
 }

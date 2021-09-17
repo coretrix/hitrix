@@ -11,7 +11,7 @@ import (
 	"github.com/xorcare/pointer"
 )
 
-func ServiceDefinitionCheckout() *service.DefinitionGlobal {
+func ServiceProviderCheckout() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.CheckoutService,
 		Build: func(ctn di.Container) (interface{}, error) {

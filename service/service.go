@@ -3,6 +3,11 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/uuid"
+
+	"github.com/coretrix/hitrix/service/component/goroutine"
+	"github.com/coretrix/hitrix/service/component/localize"
+
 	"github.com/coretrix/hitrix/service/component/crud"
 
 	"github.com/coretrix/hitrix/service/component/checkout"
@@ -17,11 +22,10 @@ import (
 	fileextractor "github.com/coretrix/hitrix/service/component/file_extractor"
 	"github.com/coretrix/hitrix/service/component/generator"
 	"github.com/coretrix/hitrix/service/component/jwt"
-	"github.com/coretrix/hitrix/service/component/localizer"
 	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/oss"
 	"github.com/coretrix/hitrix/service/component/password"
-	slackapi "github.com/coretrix/hitrix/service/component/slack_api"
+	"github.com/coretrix/hitrix/service/component/slack"
 	"github.com/coretrix/hitrix/service/component/sms"
 	"github.com/coretrix/hitrix/service/component/social"
 	"github.com/coretrix/hitrix/service/component/socket"
@@ -35,7 +39,7 @@ const (
 	AppService              = "app"
 	ConfigService           = "config"
 	ErrorLoggerService      = "error_logger"
-	LocalizerService        = "localizer"
+	LocalizeService         = "localize"
 	ExtractorService        = "extractor"
 	JWTService              = "jwt"
 	DDOSService             = "ddos"
@@ -45,7 +49,7 @@ const (
 	ORMEngineRequestService = "orm_engine_request"
 	OSSGoogleService        = "oss_google"
 	PasswordService         = "password"
-	SlackAPIService         = "slack_api"
+	SlackService            = "slack"
 	AmazonS3Service         = "amazon_s3"
 	UploaderService         = "uploader"
 	StripeService           = "stripe"
@@ -56,11 +60,13 @@ const (
 	AuthenticationService   = "authentication"
 	ClockService            = "clock"
 	SMSService              = "sms"
-	GeneratorService        = "generator_service"
-	MailMandrill            = "mail_mandrill"
+	GoroutineService        = "goroutine"
+	GeneratorService        = "generator"
+	MailMandrillService     = "mail_mandrill"
 	GoogleService           = "google"
 	FacebookService         = "facebook"
 	CrudService             = "crud"
+	UUIDService             = "uuid"
 )
 
 type DIInterface interface {
@@ -70,25 +76,27 @@ type DIInterface interface {
 	OrmEngine() (*beeorm.Engine, bool)
 	OrmEngineForContext(ctx context.Context) *beeorm.Engine
 	JWT() (*jwt.JWT, bool)
-	Password() (*password.Password, bool)
-	SlackAPI() (*slackapi.SlackAPI, bool)
+	Password() (password.Password, bool)
+	Slack() (slack.Slack, bool)
 	ErrorLogger() (errorlogger.ErrorLogger, bool)
 	OSSGoogle() (oss.Client, bool)
 	AmazonS3() (s3.Client, bool)
 	SocketRegistry() (*socket.Registry, bool)
-	APILoggerService() (apilogger.APILogger, bool)
-	AuthenticationService() (*authentication.Authentication, bool)
-	SMSService() (sms.ISender, bool)
-	GeneratorService() (generator.Generator, bool)
-	MailMandrillService() mail.Sender
+	APILogger() (apilogger.IAPILogger, bool)
+	Authentication() (*authentication.Authentication, bool)
+	SMS() (sms.ISender, bool)
+	Generator() (generator.IGenerator, bool)
+	MailMandrill() mail.Sender
 	Stripe() (stripe.IStripe, bool)
-	GoogleService() *social.Google
+	Google() *social.Google
 	Checkout() (checkout.ICheckout, bool)
-	ClockService() clock.Clock
-	UploaderService() (uploader.Uploader, bool)
+	Clock() clock.IClock
+	Uploader() (uploader.Uploader, bool)
 	CrudService() *crud.Crud
-	LocalizerService() localizer.Localizer
-	FileExtractorService() *fileextractor.FileExtractor
+	Localize() localize.ILocalizer
+	FileExtractor() *fileextractor.FileExtractor
+	Goroutine() goroutine.IGoroutine
+	UUID() uuid.IUUID
 }
 
 type diContainer struct {
@@ -159,7 +167,7 @@ func (d *diContainer) JWT() (*jwt.JWT, bool) {
 	return nil, false
 }
 
-func (d *diContainer) SMSService() (sms.ISender, bool) {
+func (d *diContainer) SMS() (sms.ISender, bool) {
 	v, has := GetServiceOptional(SMSService)
 	if has {
 		return v.(sms.ISender), true
@@ -167,26 +175,26 @@ func (d *diContainer) SMSService() (sms.ISender, bool) {
 	return nil, false
 }
 
-func (d *diContainer) GeneratorService() (generator.Generator, bool) {
+func (d *diContainer) Generator() (generator.IGenerator, bool) {
 	v, has := GetServiceOptional(GeneratorService)
 	if has {
-		return v.(generator.Generator), true
+		return v.(generator.IGenerator), true
 	}
 	return nil, false
 }
 
-func (d *diContainer) Password() (*password.Password, bool) {
+func (d *diContainer) Password() (password.Password, bool) {
 	v, has := GetServiceOptional(PasswordService)
 	if has {
-		return v.(*password.Password), true
+		return v.(password.Password), true
 	}
 	return nil, false
 }
 
-func (d *diContainer) SlackAPI() (*slackapi.SlackAPI, bool) {
-	v, has := GetServiceOptional(SlackAPIService)
+func (d *diContainer) Slack() (slack.Slack, bool) {
+	v, has := GetServiceOptional(SlackService)
 	if has {
-		return v.(*slackapi.SlackAPI), true
+		return v.(slack.Slack), true
 	}
 	return nil, false
 }
@@ -215,19 +223,19 @@ func (d *diContainer) SocketRegistry() (*socket.Registry, bool) {
 	return nil, false
 }
 
-func (d *diContainer) APILoggerService() (apilogger.APILogger, bool) {
+func (d *diContainer) APILogger() (apilogger.IAPILogger, bool) {
 	v, has := GetServiceOptional(APILoggerService)
 	if has {
-		return v.(apilogger.APILogger), true
+		return v.(apilogger.IAPILogger), true
 	}
 	return nil, false
 }
 
-func (d *diContainer) ClockService() clock.Clock {
-	return GetServiceRequired(ClockService).(clock.Clock)
+func (d *diContainer) Clock() clock.IClock {
+	return GetServiceRequired(ClockService).(clock.IClock)
 }
 
-func (d *diContainer) AuthenticationService() (*authentication.Authentication, bool) {
+func (d *diContainer) Authentication() (*authentication.Authentication, bool) {
 	v, has := GetServiceOptional(AuthenticationService)
 	if has {
 		return v.(*authentication.Authentication), true
@@ -235,15 +243,15 @@ func (d *diContainer) AuthenticationService() (*authentication.Authentication, b
 	return nil, false
 }
 
-func (d *diContainer) MailMandrillService() mail.Sender {
-	return GetServiceRequired(MailMandrill).(mail.Sender)
+func (d *diContainer) MailMandrill() mail.Sender {
+	return GetServiceRequired(MailMandrillService).(mail.Sender)
 }
 
-func (d *diContainer) GoogleService() *social.Google {
+func (d *diContainer) Google() *social.Google {
 	return GetServiceRequired(GoogleService).(*social.Google)
 }
 
-func (d *diContainer) UploaderService() (uploader.Uploader, bool) {
+func (d *diContainer) Uploader() (uploader.Uploader, bool) {
 	v, has := GetServiceOptional(UploaderService)
 	if has {
 		return v.(uploader.Uploader), true
@@ -255,10 +263,18 @@ func (d *diContainer) CrudService() *crud.Crud {
 	return GetServiceRequired(CrudService).(*crud.Crud)
 }
 
-func (d *diContainer) LocalizerService() localizer.Localizer {
-	return GetServiceRequired(LocalizerService).(localizer.Localizer)
+func (d *diContainer) Localize() localize.ILocalizer {
+	return GetServiceRequired(LocalizeService).(localize.ILocalizer)
 }
 
-func (d *diContainer) FileExtractorService() *fileextractor.FileExtractor {
+func (d *diContainer) FileExtractor() *fileextractor.FileExtractor {
 	return GetServiceRequired(ExtractorService).(*fileextractor.FileExtractor)
+}
+
+func (d *diContainer) Goroutine() goroutine.IGoroutine {
+	return GetServiceRequired(GoroutineService).(goroutine.IGoroutine)
+}
+
+func (d *diContainer) UUID() uuid.IUUID {
+	return GetServiceRequired(UUIDService).(uuid.IUUID)
 }

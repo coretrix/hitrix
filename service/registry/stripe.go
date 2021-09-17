@@ -10,7 +10,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceDefinitionStripe() *service.DefinitionGlobal {
+func ServiceProviderStripe() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.StripeService,
 		Build: func(ctn di.Container) (interface{}, error) {

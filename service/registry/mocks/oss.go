@@ -7,11 +7,11 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeGoogleOSSService(fakeOSSService oss.Client) *service.DefinitionGlobal {
+func ServiceProviderMockOSS(mock oss.Client) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.OSSGoogleService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return fakeOSSService, nil
+			return mock, nil
 		},
 	}
 }

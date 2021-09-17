@@ -17,7 +17,7 @@ const (
 )
 
 type SinchGateway struct {
-	Clock        clock.Clock
+	Clock        clock.IClock
 	AppID        string
 	AppSecret    string
 	MsgURL       string

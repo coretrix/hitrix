@@ -96,7 +96,7 @@ func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
 func (controller *DevPanelController) PostGenerateTokenAction(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	devPanelUserEntity := c.MustGet(account.LoggedDevPanelUserEntity).(app.DevPanelUserEntity)
+	devPanelUserEntity := c.MustGet(account.LoggedDevPanelUserEntity).(app.IDevPanelUserEntity)
 
 	token, refreshToken, err := account.GenerateDevTokenAndRefreshToken(ormService, devPanelUserEntity.GetID())
 	if err != nil {

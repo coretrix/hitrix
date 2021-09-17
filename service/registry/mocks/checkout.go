@@ -5,11 +5,11 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeCheckoutService(fake interface{}) *service.DefinitionGlobal {
+func ServiceProviderMockCheckout(mock interface{}) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.CheckoutService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return fake, nil
+			return mock, nil
 		},
 	}
 }

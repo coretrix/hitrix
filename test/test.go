@@ -13,12 +13,12 @@ import (
 func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, mockGlobalServices []*service.DefinitionGlobal, mockRequestServices []*service.DefinitionRequest) *test.Environment {
 	defaultGlobalServices := []*service.DefinitionGlobal{
 		registry.ServiceProviderConfigDirectory("../example/config"),
-		registry.ServiceDefinitionOrmRegistry(entity.Init),
-		registry.ServiceDefinitionOrmEngine(),
+		registry.ServiceProviderOrmRegistry(entity.Init),
+		registry.ServiceProviderOrmEngine(),
 	}
 
 	defaultRequestServices := []*service.DefinitionRequest{
-		registry.ServiceDefinitionOrmEngineForContext(false),
+		registry.ServiceProviderOrmEngineForContext(false),
 	}
 
 	return test.CreateAPIContext(t,

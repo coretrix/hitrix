@@ -52,9 +52,9 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				otpTTL = otpTTLConfig
 			}
 
-			passwordService := ctn.Get(service.PasswordService).(*password.Password)
+			passwordService := ctn.Get(service.PasswordService).(password.Password)
 			jwtService := ctn.Get(service.JWTService).(*jwt.JWT)
-			clockService := ctn.Get(service.ClockService).(clock.Clock)
+			clockService := ctn.Get(service.ClockService).(clock.IClock)
 
 			supportOTPConfig, ok := configService.Bool("authentication.support_otp")
 
@@ -68,7 +68,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 			}
 
 			var mailService *mail.Sender
-			mailServiceHitrix, err := ctn.SafeGet(service.MailMandrill)
+			mailServiceHitrix, err := ctn.SafeGet(service.MailMandrillService)
 
 			if err == nil && mailServiceHitrix != nil {
 				convertedMail := mailServiceHitrix.(mail.Sender)
@@ -97,7 +97,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				socialServiceMapping[authentication.SocialLoginFacebook] = googleService.(social.IUserData)
 			}
 
-			generatorService, has := service.DI().GeneratorService()
+			generatorService, has := service.DI().Generator()
 			if !has {
 				panic("generator service not loaded")
 			}
@@ -120,6 +120,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				jwtService,
 				mailService,
 				socialServiceMapping,
+				service.DI().UUID(),
 			), nil
 		},
 	}

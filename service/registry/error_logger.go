@@ -4,7 +4,7 @@ import (
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
-	slackapi "github.com/coretrix/hitrix/service/component/slack_api"
+	"github.com/coretrix/hitrix/service/component/slack"
 	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 )
@@ -13,13 +13,13 @@ func ServiceProviderErrorLogger() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.ErrorLoggerService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			slackAPIService, err := ctn.SafeGet(service.SlackAPIService)
+			slackAPIService, err := ctn.SafeGet(service.SlackService)
 
 			if err == nil {
 				return errorlogger.NewRedisErrorLogger(
 					ctn.Get(service.AppService).(*app.App),
 					ctn.Get(service.ORMEngineGlobalService).(*beeorm.Engine),
-					slackAPIService.(*slackapi.SlackAPI),
+					slackAPIService.(slack.Slack),
 				), nil
 			}
 

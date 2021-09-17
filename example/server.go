@@ -23,14 +23,14 @@ func main() {
 	).RegisterDIGlobalService(
 		registry.ServiceProviderErrorLogger(),
 		registry.ServiceProviderConfigDirectory("config"),
-		registry.ServiceDefinitionOrmRegistry(entity.Init),
-		registry.ServiceDefinitionOrmEngine(),
-		registry.OSSGoogle(map[string]uint64{"test": 1}),
+		registry.ServiceProviderOrmRegistry(entity.Init),
+		registry.ServiceProviderOrmEngine(),
+		registry.ServiceProviderOSS(map[string]uint64{"test": 1}),
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
-		registry.ServiceSocketRegistry(eventHandlersMap),
+		registry.ServiceProviderSocketRegistry(eventHandlersMap),
 	).RegisterDIRequestService(
-		registry.ServiceDefinitionOrmEngineForContext(false),
+		registry.ServiceProviderOrmEngineForContext(false),
 	).
 		RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil, nil).Build()
 	defer deferFunc()

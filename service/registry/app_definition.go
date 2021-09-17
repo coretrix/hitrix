@@ -6,7 +6,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceApp(app *app.App) *service.DefinitionGlobal {
+func ServiceProviderApp(app *app.App) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.AppService,
 		Build: func(ctn di.Container) (interface{}, error) {

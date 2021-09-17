@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	"github.com/coretrix/hitrix/service/component/goroutine"
 )
 
 const (
@@ -21,22 +23,23 @@ const (
 )
 
 type Registry struct {
-	Register   chan *Socket
-	Unregister chan *Socket
-	Sockets    *sync.Map
+	Register         chan *Socket
+	Unregister       chan *Socket
+	Sockets          *sync.Map
+	ServiceGoroutine goroutine.IGoroutine
 }
 
-func BuildAndRunSocketRegistry(eventHandlersMap NamespaceEventHandlerMap) *Registry {
+func NewSocketRegistry(eventHandlersMap NamespaceEventHandlerMap, serviceGoroutine goroutine.IGoroutine) *Registry {
 	registry := &Registry{
-		Register:   make(chan *Socket),
-		Unregister: make(chan *Socket),
-		Sockets:    &sync.Map{},
+		Register:         make(chan *Socket),
+		Unregister:       make(chan *Socket),
+		Sockets:          &sync.Map{},
+		ServiceGoroutine: serviceGoroutine,
 	}
 
-	//TODO use hitrix
-	//hitrix.GoroutineWithRestart(func() {
-	go registry.run(eventHandlersMap)
-	//})
+	registry.ServiceGoroutine.GoroutineWithRestart(func() {
+		registry.run(eventHandlersMap)
+	})
 
 	return registry
 }

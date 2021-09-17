@@ -11,8 +11,7 @@ func ServiceProviderFCM() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.FCMService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			appService := ctn.Get(service.AppService).(*app.App)
-			return fcm.NewFCM(appService.GlobalContext)
+			return fcm.NewFCM(ctn.Get(service.AppService).(*app.App).GlobalContext)
 		},
 	}
 }
