@@ -58,7 +58,7 @@ type Authentication struct {
 	accessTokenTTL       int
 	refreshTokenTTL      int
 	otpTTL               int
-	passwordService      password.Password
+	passwordService      password.IPassword
 	errorLoggerService   errorlogger.ErrorLogger
 	jwtService           *jwt.JWT
 	smsService           sms.ISender
@@ -79,7 +79,7 @@ func NewAuthenticationService(
 	generatorService generator.IGenerator,
 	errorLoggerService errorlogger.ErrorLogger,
 	clockService clock.IClock,
-	passwordService password.Password,
+	passwordService password.IPassword,
 	jwtService *jwt.JWT,
 	mailService *mail.Sender,
 	socialServiceMapping map[string]social.IUserData,

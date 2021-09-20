@@ -52,7 +52,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				otpTTL = otpTTLConfig
 			}
 
-			passwordService := ctn.Get(service.PasswordService).(password.Password)
+			passwordService := ctn.Get(service.PasswordService).(password.IPassword)
 			jwtService := ctn.Get(service.JWTService).(*jwt.JWT)
 			clockService := ctn.Get(service.ClockService).(clock.IClock)
 

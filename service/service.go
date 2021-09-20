@@ -77,7 +77,7 @@ type DIInterface interface {
 	OrmEngine() (*beeorm.Engine, bool)
 	OrmEngineForContext(ctx context.Context) *beeorm.Engine
 	JWT() (*jwt.JWT, bool)
-	Password() (password.Password, bool)
+	Password() (password.IPassword, bool)
 	Slack() (slack.Slack, bool)
 	ErrorLogger() (errorlogger.ErrorLogger, bool)
 	OSSGoogle() (oss.Client, bool)
@@ -184,10 +184,10 @@ func (d *diContainer) Generator() (generator.IGenerator, bool) {
 	return nil, false
 }
 
-func (d *diContainer) Password() (password.Password, bool) {
+func (d *diContainer) Password() (password.IPassword, bool) {
 	v, has := GetServiceOptional(PasswordService)
 	if has {
-		return v.(password.Password), true
+		return v.(password.IPassword), true
 	}
 	return nil, false
 }
