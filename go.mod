@@ -12,6 +12,8 @@ require (
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/aws/aws-sdk-go v1.38.39
 	github.com/checkout/checkout-sdk-go v0.0.19
+	github.com/chromedp/cdproto v0.0.0-20210910012206-68626162910d
+	github.com/chromedp/chromedp v0.7.4
 	github.com/dongri/phonenumber v0.0.0-20210304071411-690733f34185
 	github.com/fatih/color v1.12.0
 	github.com/gin-contrib/cors v1.3.1
@@ -21,7 +23,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/go-redis/redis/v8 v8.11.3
-	github.com/google/uuid v1.3.0 // indirect
+	github.com/google/uuid v1.3.0
 	github.com/gookit/config v1.1.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/h2non/filetype v1.1.1
@@ -53,7 +55,6 @@ require (
 	golang.org/x/net v0.0.0-20210903162142-ad29c8ab022f
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.5 // indirect
 	google.golang.org/api v0.56.0
 	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83 // indirect
 )

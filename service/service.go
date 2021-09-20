@@ -40,6 +40,7 @@ const (
 	ConfigService           = "config"
 	ErrorLoggerService      = "error_logger"
 	LocalizeService         = "localize"
+	PDFService              = "pdf"
 	ExtractorService        = "extractor"
 	JWTService              = "jwt"
 	DDOSService             = "ddos"
