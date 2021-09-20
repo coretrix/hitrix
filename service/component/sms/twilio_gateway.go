@@ -32,7 +32,6 @@ type twilioResponse struct {
 
 func (g *TwilioGateway) SendOTPSMS(otp *OTP) (string, error) {
 	data := url.Values{}
-	data.Set("api_key", g.AuthyAPIKey)
 	data.Set("via", "sms")
 	data.Set("phone_number", otp.Phone.Number)
 	data.Set("country_code", otp.Phone.ISO3166.CountryCode)
@@ -48,8 +47,9 @@ func (g *TwilioGateway) SendOTPSMS(otp *OTP) (string, error) {
 	baseURL.RawQuery = data.Encode()
 
 	headers := map[string]string{
-		"Content-Type":   "application/x-www-form-urlencoded",
-		"Content-Length": strconv.Itoa(len(data.Encode())),
+		"Content-Type":    "application/x-www-form-urlencoded",
+		"Content-Length":  strconv.Itoa(len(data.Encode())),
+		"X-Authy-API-Key": g.AuthyAPIKey,
 	}
 
 	responseBody, _, code, err := helper.Call(
