@@ -114,6 +114,50 @@ type GenerateOTPEmail struct {
 	Token          string
 }
 
+func (t *Authentication) SendVerifyAPIOTP(ormService *beeorm.Engine, mobile string, countryCodeAlpha2 string) error {
+	// validate mobile number
+	if len(countryCodeAlpha2) != 2 {
+		return errors.New("use alpha2 code for country")
+	}
+
+	number := phonenumber.Parse(mobile, countryCodeAlpha2)
+	if number == "" {
+		return errors.New("phone number not valid")
+	}
+
+	return t.smsService.SendVerificationSMS(ormService, t.errorLoggerService, &sms.OTP{
+		Phone: &sms.Phone{
+			Number:  number,
+			ISO3166: phonenumber.GetISO3166ByNumber(number, false),
+		},
+		Provider: factorySMSProviders(countryCodeAlpha2),
+		// TODO : replace with the desired message or get as a argument
+		Template: "ICE-STORM",
+	})
+}
+
+func (t *Authentication) VerifyAPIOTP(ormService *beeorm.Engine, mobile string, code string, countryCodeAlpha2 string) error {
+	// validate mobile number
+	if len(countryCodeAlpha2) != 2 {
+		return errors.New("use alpha2 code for country")
+	}
+
+	number := phonenumber.Parse(mobile, countryCodeAlpha2)
+	if number == "" {
+		return errors.New("phone number not valid")
+	}
+
+	return t.smsService.VerifyCode(ormService, t.errorLoggerService, &sms.OTP{
+		OTP: code,
+		Phone: &sms.Phone{
+			Number:  number,
+			ISO3166: phonenumber.GetISO3166ByNumber(number, false),
+		},
+		// TODO : replace with the desired message or get as a argument
+		Template: "ICE-STORM",
+	})
+}
+
 func (t *Authentication) GenerateAndSendOTP(ormService *beeorm.Engine, mobile string, countryCodeAlpha2 string) (*GenerateOTP, error) {
 	// validate mobile number
 	if len(countryCodeAlpha2) != 2 {
