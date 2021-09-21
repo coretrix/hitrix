@@ -186,6 +186,24 @@ func (t *Authentication) GenerateAndSendOTPEmail(ormService *beeorm.Engine, emai
 	}, nil
 }
 
+func (t *Authentication) GenerateAndSend2FA(ormService *beeorm.Engine, mobileNumber string, countryCodeAlpha2 string) (otp *GenerateOTP, err error) {
+	otp, err = t.GenerateAndSendOTP(ormService, mobileNumber, countryCodeAlpha2)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (t *Authentication) GenerateAndSend2FAEmail(ormService *beeorm.Engine, email string, template string, from string, title string) (otp *GenerateOTPEmail, err error) {
+	otp, err = t.GenerateAndSendOTPEmail(ormService, email, template, from, title)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (t *Authentication) VerifyOTP(code string, input *GenerateOTP) error {
 	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(input.ExpirationTime, input.Mobile, code))
 	if token != input.Token {
@@ -224,6 +242,14 @@ func (t *Authentication) VerifyOTPEmail(code string, input *GenerateOTPEmail) er
 	return nil
 }
 
+func (t *Authentication) Verify2FA(code string, input *GenerateOTP) error {
+	return t.VerifyOTP(code, input)
+}
+
+func (t *Authentication) Verify2FAEmail(code string, input *GenerateOTPEmail) error {
+	return t.VerifyOTPEmail(code, input)
+}
+
 func (t *Authentication) VerifySocialLogin(source, token string) (*social.UserData, error) {
 	socialProvider, ok := t.socialServiceMapping[source]
 	if !ok {
@@ -252,6 +278,14 @@ func (t *Authentication) AuthenticateOTPEmail(ormService *beeorm.Engine, email s
 	}
 
 	return t.generateUserTokens(ormService, entity.GetID())
+}
+
+func (t *Authentication) Authenticate2FA(ormService *beeorm.Engine, phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
+	return t.AuthenticateOTP(ormService, phone, entity)
+}
+
+func (t *Authentication) Authenticate2FAEmail(ormService *beeorm.Engine, email string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
+	return t.AuthenticateOTPEmail(ormService, email, entity)
 }
 
 func (t *Authentication) Authenticate(ormService *beeorm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
