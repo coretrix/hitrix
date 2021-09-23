@@ -5,11 +5,11 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeStripeService(fake interface{}) *service.DefinitionGlobal {
+func ServiceProviderMockStripe(mock interface{}) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.StripeService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return fake, nil
+			return mock, nil
 		},
 	}
 }

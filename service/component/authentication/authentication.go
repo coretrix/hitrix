@@ -5,6 +5,10 @@ import (
 	"fmt"
 	mail2 "net/mail"
 
+	"github.com/coretrix/hitrix/service/component/uuid"
+
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+
 	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/social"
 
@@ -49,17 +53,20 @@ type AuthProviderEntity interface {
 	GetUniqueFieldName() string
 	GetPassword() string
 }
+
 type Authentication struct {
 	accessTokenTTL       int
 	refreshTokenTTL      int
 	otpTTL               int
-	passwordService      *password.Password
+	passwordService      password.IPassword
+	errorLoggerService   errorlogger.ErrorLogger
 	jwtService           *jwt.JWT
 	smsService           sms.ISender
 	mailService          *mail.Sender
 	socialServiceMapping map[string]social.IUserData
-	generatorService     generator.Generator
-	clockService         clock.Clock
+	generatorService     generator.IGenerator
+	clockService         clock.IClock
+	uuidService          uuid.IUUID
 	secret               string
 }
 
@@ -69,12 +76,14 @@ func NewAuthenticationService(
 	refreshTokenTTL int,
 	otpTTL int,
 	smsService sms.ISender,
-	generatorService generator.Generator,
-	clockService clock.Clock,
-	passwordService *password.Password,
+	generatorService generator.IGenerator,
+	errorLoggerService errorlogger.ErrorLogger,
+	clockService clock.IClock,
+	passwordService password.IPassword,
 	jwtService *jwt.JWT,
 	mailService *mail.Sender,
 	socialServiceMapping map[string]social.IUserData,
+	uuidService uuid.IUUID,
 ) *Authentication {
 	return &Authentication{
 		secret:               secret,
@@ -82,12 +91,14 @@ func NewAuthenticationService(
 		refreshTokenTTL:      refreshTokenTTL,
 		otpTTL:               otpTTL,
 		passwordService:      passwordService,
+		errorLoggerService:   errorLoggerService,
 		jwtService:           jwtService,
 		smsService:           smsService,
 		clockService:         clockService,
 		generatorService:     generatorService,
 		mailService:          mailService,
 		socialServiceMapping: socialServiceMapping,
+		uuidService:          uuidService,
 	}
 }
 
@@ -103,35 +114,82 @@ type GenerateOTPEmail struct {
 	Token          string
 }
 
-func (t *Authentication) GenerateAndSendOTP(ormService *beeorm.Engine, mobile string, country string) (*GenerateOTP, error) {
+func (t *Authentication) SendVerifyAPIOTP(ormService *beeorm.Engine, mobile string, countryCodeAlpha2 string) error {
 	// validate mobile number
-	if len(country) != 2 {
+	if len(countryCodeAlpha2) != 2 {
+		return errors.New("use alpha2 code for country")
+	}
+
+	number := phonenumber.Parse(mobile, countryCodeAlpha2)
+	if number == "" {
+		return errors.New("phone number not valid")
+	}
+
+	return t.smsService.SendVerificationSMS(ormService, t.errorLoggerService, &sms.OTP{
+		Phone: &sms.Phone{
+			Number:  number,
+			ISO3166: phonenumber.GetISO3166ByNumber(number, false),
+		},
+		Provider: factorySMSProviders(countryCodeAlpha2),
+		// TODO : replace with the desired message or get as a argument
+		Template: "ICE-STORM",
+	})
+}
+
+func (t *Authentication) VerifyAPIOTP(ormService *beeorm.Engine, mobile string, code string, countryCodeAlpha2 string) error {
+	// validate mobile number
+	if len(countryCodeAlpha2) != 2 {
+		return errors.New("use alpha2 code for country")
+	}
+
+	number := phonenumber.Parse(mobile, countryCodeAlpha2)
+	if number == "" {
+		return errors.New("phone number not valid")
+	}
+
+	return t.smsService.VerifyCode(ormService, t.errorLoggerService, &sms.OTP{
+		OTP: code,
+		Phone: &sms.Phone{
+			Number:  number,
+			ISO3166: phonenumber.GetISO3166ByNumber(number, false),
+		},
+		// TODO : replace with the desired message or get as a argument
+		Template: "ICE-STORM",
+	})
+}
+
+func (t *Authentication) GenerateAndSendOTP(ormService *beeorm.Engine, mobile string, countryCodeAlpha2 string) (*GenerateOTP, error) {
+	// validate mobile number
+	if len(countryCodeAlpha2) != 2 {
 		return nil, errors.New("use alpha2 code for country")
 	}
-	phone := phonenumber.Parse(mobile, country)
-	if phone == "" {
+
+	number := phonenumber.Parse(mobile, countryCodeAlpha2)
+	if number == "" {
 		return nil, errors.New("phone number not valid")
 	}
 
 	code := t.generatorService.GenerateRandomRangeNumber(10000, 99999)
 
-	err := t.smsService.SendOTPSMS(ormService, &sms.OTP{
-		OTP:      fmt.Sprint(code),
-		Number:   phone,
-		CC:       country,
-		Provider: factorySMSProviders(country),
+	err := t.smsService.SendOTPSMS(ormService, t.errorLoggerService, &sms.OTP{
+		OTP: fmt.Sprint(code),
+		Phone: &sms.Phone{
+			Number:  number,
+			ISO3166: phonenumber.GetISO3166ByNumber(number, false),
+		},
+		Provider: factorySMSProviders(countryCodeAlpha2),
 		// TODO : replace with the desired message or get as a argument
-		Template: "your verification code id : %s",
+		Template: "ICE-STORM",
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	expirationTime := t.clockService.Now().Add(time.Duration(t.otpTTL) * time.Second).Unix()
-	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(strconv.FormatInt(expirationTime, 10), phone, fmt.Sprint(code)))
+	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(strconv.FormatInt(expirationTime, 10), number, fmt.Sprint(code)))
 
 	return &GenerateOTP{
-		Mobile:         phone,
+		Mobile:         number,
 		ExpirationTime: strconv.FormatInt(expirationTime, 10),
 		Token:          token,
 	}, nil
@@ -399,7 +457,7 @@ func (t *Authentication) GenerateTokenPair(id uint64, accessKey string, ttl int)
 }
 
 func (t *Authentication) generateAndStoreAccessKey(ormService *beeorm.Engine, id uint64, ttl int) string {
-	key := generateAccessKey(id, t.generatorService.GenerateUUID())
+	key := generateAccessKey(id, t.uuidService.Generate())
 	ormService.GetRedis().Set(key, "", ttl)
 	return key
 }

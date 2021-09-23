@@ -12,7 +12,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
+var upGrader = websocket.Upgrader{
 	ReadBufferSize:    1024,
 	WriteBufferSize:   1024,
 	EnableCompression: true,
@@ -27,12 +27,13 @@ type DTOMessage struct {
 	Data     interface{}
 }
 
-//if u want to test with websocket-demo.html u should add it to CORS policy
 type WebsocketController struct {
 }
 
+//if u want to test with websocket-demo.html u should add it to CORS policy
+
 func (controller *WebsocketController) InitConnection(c *gin.Context) {
-	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -57,16 +58,23 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 
 	socketRegistryService.Register <- socketHolder
 
-	go socketHolder.WritePump()
-	go socketHolder.ReadPump(socketRegistryService, func(rawData []byte) {
-		dto := &DTOMessage{}
-		err = json.Unmarshal(rawData, dto)
-		if err != nil {
-			errorLoggerService.LogError(err)
-			return
-		}
-		//return back the received message
-		s, _ := socketRegistryService.Sockets.Load(socketHolder.ID)
-		s.(*socket.Socket).Emit(dto)
+	serviceGoroutine := service.DI().Goroutine()
+
+	serviceGoroutine.Goroutine(func() {
+		socketHolder.WritePump()
+	})
+
+	serviceGoroutine.Goroutine(func() {
+		socketHolder.ReadPump(socketRegistryService, func(rawData []byte) {
+			dto := &DTOMessage{}
+			err = json.Unmarshal(rawData, dto)
+			if err != nil {
+				errorLoggerService.LogError(err)
+				return
+			}
+			//return back the received message
+			s, _ := socketRegistryService.Sockets.Load(socketHolder.ID)
+			s.(*socket.Socket).Emit(dto)
+		})
 	})
 }

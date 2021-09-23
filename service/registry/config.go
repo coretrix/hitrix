@@ -15,13 +15,11 @@ func ServiceProviderConfigDirectory(configDirectory string) *service.DefinitionG
 	}
 }
 
-func ServiceConfig() *service.DefinitionGlobal {
+func ServiceProviderConfig() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.ConfigService,
-
 		Build: func(ctn di.Container) (interface{}, error) {
-			configDirectory := ctn.Get("config_directory").(string)
-			return config.NewConfig(service.DI().App().Name, service.DI().App().Mode, configDirectory)
+			return config.NewConfig(service.DI().App().Name, service.DI().App().Mode, ctn.Get("config_directory").(string))
 		},
 	}
 }

@@ -5,11 +5,11 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeAmazonS3Service(fake interface{}) *service.DefinitionGlobal {
+func ServiceProviderMockAmazonS3(mock interface{}) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.AmazonS3Service,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return fake, nil
+			return mock, nil
 		},
 	}
 }

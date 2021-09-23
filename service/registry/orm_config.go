@@ -13,7 +13,7 @@ import (
 
 type ORMRegistryInitFunc func(registry *beeorm.Registry)
 
-func ServiceDefinitionOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlobal {
+func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlobal {
 	var defferFunc func()
 	var ormConfig beeorm.ValidatedRegistry
 	var err error

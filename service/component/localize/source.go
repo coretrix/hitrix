@@ -1,4 +1,4 @@
-package localizer
+package localize
 
 type Source interface {
 	Push([]string) error

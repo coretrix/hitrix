@@ -1,4 +1,4 @@
-package localizer
+package localize
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ const (
 	separator = "|-|"
 )
 
-type Localizer interface {
+type ILocalizer interface {
 	Localize(bucket string, key string) (string, error)
 	LoadBucketFromFile(bucket string, path string, append bool)
 	LoadBucketFromMap(bucket string, pairs map[string]string, append bool)

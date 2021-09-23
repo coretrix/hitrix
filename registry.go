@@ -34,6 +34,10 @@ func New(appName string, secret string) *Registry {
 	return r
 }
 
+func (r *Registry) SetTestThread(thread uint16) *Registry {
+	r.app.TestThread = thread
+	return r
+}
 func (r *Registry) Build() (*Hitrix, func()) {
 	globalContext, cancel := context.WithCancel(context.Background())
 	r.app.GlobalContext = globalContext
@@ -63,7 +67,7 @@ func (r *Registry) Build() (*Hitrix, func()) {
 	}
 }
 
-func (r *Registry) RegisterDevPanel(devPanelUserEntity app.DevPanelUserEntity, router func(ginEngine *gin.Engine), poolStream, poolSearch *string) *Registry {
+func (r *Registry) RegisterDevPanel(devPanelUserEntity app.IDevPanelUserEntity, router func(ginEngine *gin.Engine), poolStream, poolSearch *string) *Registry {
 	if devPanelUserEntity == nil {
 		panic("devPanelUserEntity cannot be nil")
 	}
@@ -89,8 +93,9 @@ func (r *Registry) initializeIoCHandlers() {
 	ioCBuilder, _ := di.NewBuilder()
 
 	defaultDefinitions := []*service.DefinitionGlobal{
-		registry.ServiceApp(r.app),
-		registry.ServiceConfig(),
+		registry.ServiceProviderApp(r.app),
+		registry.ServiceProviderConfig(),
+		registry.ServiceProviderGoroutine(),
 	}
 
 	flagsRegistry := &app.FlagsRegistry{Flags: make(map[string]interface{})}
@@ -117,6 +122,7 @@ func (r *Registry) initializeIoCHandlers() {
 		}
 	}
 	if !flag.Parsed() {
+		flagsRegistry.Bool("force-alters", false, "Execute all alters")
 		flagsRegistry.Bool("pre-deploy", false, "Check for alters and exit")
 		flagsRegistry.Bool("list-scripts", false, "list all available scripts")
 		flagsRegistry.String("run-script", "", "run script")

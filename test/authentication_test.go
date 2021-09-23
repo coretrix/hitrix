@@ -6,12 +6,13 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dongri/phonenumber"
+
 	mocks2 "github.com/coretrix/hitrix/service/component/mail/mocks"
 
 	"github.com/coretrix/hitrix/service/component/authentication"
 
 	"github.com/coretrix/hitrix/example/entity"
-	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
 	clockMock "github.com/coretrix/hitrix/service/component/clock/mocks"
 	generatorMock "github.com/coretrix/hitrix/service/component/generator/mocks"
@@ -39,16 +40,19 @@ func createUser(input map[string]interface{}) *entity.AdminUserEntity {
 
 func TestGenerateOTP(t *testing.T) {
 	t.Run("generate token", func(t *testing.T) {
+		mobile := "989375722346"
 		fakeSMS := &smsMock.FakeSMSSender{}
 		expectOTP := &sms.OTP{
-			OTP:    "12345",
-			Number: "989375722346",
-			CC:     "IR",
+			OTP: "12345",
+			Phone: &sms.Phone{
+				Number:  mobile,
+				ISO3166: phonenumber.GetISO3166ByNumber(mobile, false),
+			},
 			Provider: &sms.Provider{
 				Primary:   sms.Kavenegar,
 				Secondary: sms.Twilio,
 			},
-			Template: "your verification code id : %s",
+			Template: "ICE-STORM",
 		}
 		fakeSMS.On("SendOTPSMS", expectOTP).Return(nil)
 
@@ -66,18 +70,20 @@ func TestGenerateOTP(t *testing.T) {
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
-				mocks.FakeClockService(fakeClock),
+				registry.ServiceProviderUUID(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
+				mocks.ServiceProviderMockClock(fakeClock),
 				registry.ServiceProviderAuthentication(),
 			},
 			nil,
 		)
 		ormService, _ := service.DI().OrmEngine()
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		otpResp, err := authenticationService.GenerateAndSendOTP(ormService, "+989375722346", "IR")
 		assert.Nil(t, err)
 		assert.Equal(t, otpResp.Token, "defjiwqwd")
@@ -111,19 +117,21 @@ func TestGenerateOTPEmail(t *testing.T) {
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeMailService(fakeMail),
-				mocks.FakeGeneratorService(fakeGenerator),
-				mocks.FakeClockService(fakeClock),
+				registry.ServiceProviderUUID(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockMail(fakeMail),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
+				mocks.ServiceProviderMockClock(fakeClock),
 				registry.ServiceProviderAuthentication(),
 			},
 			nil,
 		)
 
 		fakeMail.On("SendTemplateAsync", to).Return(nil)
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		otpResp, err := authenticationService.GenerateAndSendOTPEmail(ormService, to, template, from, title)
 		assert.Nil(t, err)
 		assert.Equal(t, otpResp.Token, "defjiwqwd")
@@ -149,16 +157,18 @@ func TestVerifyOTP(t *testing.T) {
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
-				mocks.FakeClockService(fakeClock),
+				registry.ServiceProviderUUID(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
+				mocks.ServiceProviderMockClock(fakeClock),
 				registry.ServiceProviderAuthentication(),
 			},
 			nil,
 		)
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 
 		err := authenticationService.VerifyOTP("12345", &authentication.GenerateOTP{
 			Mobile:         "989375722346",
@@ -184,17 +194,19 @@ func TestVerifyOTPEmail(t *testing.T) {
 		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), "iman.daneshi@coretrix.com", "12345")).Return("defjiwqwd")
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
-				mocks.FakeGeneratorService(fakeGenerator),
-				mocks.FakeClockService(fakeClock),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeMailService(fakeEmail),
+				registry.ServiceProviderUUID(),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
+				mocks.ServiceProviderMockClock(fakeClock),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockMail(fakeEmail),
 				registry.ServiceProviderAuthentication(),
 			},
 			nil,
 		)
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 
 		err := authenticationService.VerifyOTPEmail("12345", &authentication.GenerateOTPEmail{
 			Email:          "iman.daneshi@coretrix.com",
@@ -216,12 +228,14 @@ func TestAuthenticate(t *testing.T) {
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
+				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
-				registry.ServiceClock(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
+				registry.ServiceProviderClock(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
 			},
 			nil,
 		)
@@ -235,7 +249,7 @@ func TestAuthenticate(t *testing.T) {
 			"Password": hashedPassword,
 		})
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		fetchedAdminEntity := &entity.AdminUserEntity{}
 		_, _, err := authenticationService.Authenticate(ormService, "test@test.com", "1234", fetchedAdminEntity)
 		assert.Nil(t, err)
@@ -249,12 +263,14 @@ func TestAuthenticate(t *testing.T) {
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
+				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
-				registry.ServiceClock(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
+				registry.ServiceProviderClock(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
 			},
 			nil,
 		)
@@ -268,7 +284,7 @@ func TestAuthenticate(t *testing.T) {
 			"Password": hashedPassword,
 		})
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		fetchedAdminEntity := &entity.AdminUserEntity{}
 		_, _, err := authenticationService.AuthenticateByID(ormService, userEntity.GetID(), fetchedAdminEntity)
 		assert.Nil(t, err)
@@ -280,12 +296,14 @@ func TestAuthenticate(t *testing.T) {
 		fakeGenerator := &generatorMock.FakeGenerator{}
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
+				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
-				registry.ServiceClock(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
+				registry.ServiceProviderClock(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
 			},
 			nil,
 		)
@@ -299,7 +317,7 @@ func TestAuthenticate(t *testing.T) {
 			"Password": hashedPassword,
 		})
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		fetchedAdminEntity := &entity.AdminUserEntity{}
 		_, _, err := authenticationService.Authenticate(ormService, "test@tesat.com", "1234", fetchedAdminEntity)
 		assert.NotNil(t, err)
@@ -312,12 +330,14 @@ func TestVerifyAccessToken(t *testing.T) {
 	t.Run("simple success", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
+				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
-				registry.ServiceClock(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
+				registry.ServiceProviderClock(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
 			},
 			nil,
 		)
@@ -330,11 +350,11 @@ func TestVerifyAccessToken(t *testing.T) {
 			"Password": hashedPassword,
 		})
 
-		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, helper.GenerateUUID())
+		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService, _ := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		token, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.AdminUserEntity{}
@@ -346,12 +366,14 @@ func TestVerifyAccessToken(t *testing.T) {
 	t.Run("wrong token", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
+				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
-				registry.ServiceClock(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
+				registry.ServiceProviderClock(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
 			},
 			nil,
 		)
@@ -364,11 +386,11 @@ func TestVerifyAccessToken(t *testing.T) {
 			"Password": hashedPassword,
 		})
 
-		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, helper.GenerateUUID())
+		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService, _ := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		token, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.AdminUserEntity{}
@@ -384,12 +406,14 @@ func TestRefreshToken(t *testing.T) {
 	t.Run("success refresh", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
+				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
-				registry.ServiceClock(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
+				registry.ServiceProviderClock(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
 			},
 			nil,
 		)
@@ -402,11 +426,11 @@ func TestRefreshToken(t *testing.T) {
 			"Password": hashedPassword,
 		})
 
-		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, helper.GenerateUUID())
+		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService, _ := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		refresh, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		_, _, err = authenticationService.RefreshToken(ormService, refresh)
@@ -416,12 +440,14 @@ func TestRefreshToken(t *testing.T) {
 	t.Run("wrong refresh", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
+				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
-				registry.ServiceClock(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
+				registry.ServiceProviderClock(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
 			},
 			nil,
 		)
@@ -434,11 +460,11 @@ func TestRefreshToken(t *testing.T) {
 			"Password": hashedPassword,
 		})
 
-		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, helper.GenerateUUID())
+		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService, _ := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		refresh, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		_, _, err = authenticationService.RefreshToken(ormService, "ef"+refresh)
@@ -452,12 +478,14 @@ func TestLogoutCurrentSession(t *testing.T) {
 	t.Run("simple logout", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
+				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
-				registry.ServiceClock(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
+				registry.ServiceProviderClock(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
 			},
 			nil,
 		)
@@ -470,11 +498,11 @@ func TestLogoutCurrentSession(t *testing.T) {
 			"Password": hashedPassword,
 		})
 
-		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, helper.GenerateUUID())
+		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService, _ := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.AdminUserEntity{}
@@ -492,12 +520,14 @@ func TestLogoutAllSessions(t *testing.T) {
 	t.Run("logout from one session", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
+				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
-				registry.ServiceClock(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
+				registry.ServiceProviderClock(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
 			},
 			nil,
 		)
@@ -510,14 +540,14 @@ func TestLogoutAllSessions(t *testing.T) {
 			"Password": hashedPassword,
 		})
 
-		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, helper.GenerateUUID())
+		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService, _ := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
 		accessListKey := fmt.Sprintf("USER_KEYS:%d", currentUser.ID)
 		ormService.GetRedis().Set(accessListKey, accessKey, 10)
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.AdminUserEntity{}
@@ -531,12 +561,14 @@ func TestLogoutAllSessions(t *testing.T) {
 	t.Run("logout from both sessions", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
+				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
 				registry.ServiceProviderPassword(),
+				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
-				registry.ServiceClock(),
-				mocks.FakeSMSService(fakeSMS),
-				mocks.FakeGeneratorService(fakeGenerator),
+				registry.ServiceProviderClock(),
+				mocks.ServiceProviderMockSMS(fakeSMS),
+				mocks.ServiceProviderMockGenerator(fakeGenerator),
 			},
 			nil,
 		)
@@ -549,8 +581,8 @@ func TestLogoutAllSessions(t *testing.T) {
 			"Password": hashedPassword,
 		})
 
-		accessKey1 := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, helper.GenerateUUID())
-		accessKey2 := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, helper.GenerateUUID())
+		accessKey1 := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
+		accessKey2 := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService, _ := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey1, "", 10)
 		ormService.GetRedis().Set(accessKey2, "", 10)
@@ -558,7 +590,7 @@ func TestLogoutAllSessions(t *testing.T) {
 		accessListKey := fmt.Sprintf("USER_KEYS:%d", currentUser.ID)
 		ormService.GetRedis().Set(accessListKey, accessKey1+";"+accessKey2, 10)
 
-		authenticationService, _ := service.DI().AuthenticationService()
+		authenticationService, _ := service.DI().Authentication()
 		accessToken1, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey1, 10)
 		assert.Nil(t, err)
 		accessToken2, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey2, 10)
@@ -581,12 +613,14 @@ func TestGenerateTokenPair(t *testing.T) {
 	fakeGenerator := &generatorMock.FakeGenerator{}
 	createContextMyApp(t, "my-app", nil,
 		[]*service.DefinitionGlobal{
+			registry.ServiceProviderErrorLogger(),
 			registry.ServiceProviderJWT(),
 			registry.ServiceProviderPassword(),
+			registry.ServiceProviderUUID(),
 			registry.ServiceProviderAuthentication(),
-			registry.ServiceClock(),
-			mocks.FakeSMSService(fakeSMS),
-			mocks.FakeGeneratorService(fakeGenerator),
+			registry.ServiceProviderClock(),
+			mocks.ServiceProviderMockSMS(fakeSMS),
+			mocks.ServiceProviderMockGenerator(fakeGenerator),
 		},
 		nil,
 	)
@@ -599,7 +633,7 @@ func TestGenerateTokenPair(t *testing.T) {
 		"Password": hashedPassword,
 	})
 
-	authenticationService, _ := service.DI().AuthenticationService()
+	authenticationService, _ := service.DI().Authentication()
 
 	ormService, _ := service.DI().OrmEngine()
 	ormService.GetRedis().Set("test_key", "", 10)

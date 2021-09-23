@@ -1,5 +1,7 @@
 package sms
 
+import "github.com/dongri/phonenumber"
+
 const (
 	Sinch  = "sinch"
 	Twilio = "twilio"
@@ -22,10 +24,14 @@ type Gateway interface {
 	VerifyCode(*OTP) (string, error)
 }
 
+type Phone struct {
+	Number  string
+	ISO3166 phonenumber.ISO3166
+}
+
 type OTP struct {
 	OTP      string
-	Number   string
-	CC       string
+	Phone    *Phone
 	Provider *Provider
 	Template string
 }

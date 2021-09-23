@@ -10,6 +10,7 @@ type Sender interface {
 	SendTemplateAsync(ormService *beeorm.Engine, message *Message) error
 	SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error
 	SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, message *MessageAttachment) error
+	GetTemplateHTMLCode(ormService *beeorm.Engine, templateName string, ttl int) (string, error)
 }
 
 type Message struct {

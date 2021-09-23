@@ -13,14 +13,14 @@ const ModeDev = "dev"
 const ModeDemo = "demo"
 const ModeProd = "prod"
 
-type DevPanelUserEntity interface {
+type IDevPanelUserEntity interface {
 	beeorm.Entity
 	GetUsername() string
 	GetPassword() string
 }
 
 type DevPanel struct {
-	UserEntity DevPanelUserEntity
+	UserEntity IDevPanelUserEntity
 	Router     func(ginEngine *gin.Engine)
 	PoolStream *string
 	PoolSearch *string
@@ -29,6 +29,7 @@ type DevPanel struct {
 type App struct {
 	Mode          string
 	Name          string
+	TestThread    uint16
 	Secret        string
 	Flags         *Flags
 	Scripts       []string

@@ -6,11 +6,11 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func APILogger(entity apilogger.LogEntity) *service.DefinitionGlobal {
+func ServiceProviderAPILogger(entity apilogger.ILogEntity) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.APILoggerService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return apilogger.NewAPILog(entity), nil
+			return apilogger.NewMysqlAPILogger(entity), nil
 		},
 	}
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceGoogle() *service.DefinitionGlobal {
+func ServiceProviderGoogleSocial() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.GoogleService,
 		Build: func(ctn di.Container) (interface{}, error) {
@@ -15,7 +15,7 @@ func ServiceGoogle() *service.DefinitionGlobal {
 	}
 }
 
-func ServiceFacebook() *service.DefinitionGlobal {
+func ServiceProviderFacebookSocial() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.FacebookService,
 		Build: func(ctn di.Container) (interface{}, error) {

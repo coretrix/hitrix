@@ -5,11 +5,11 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeDynamicLinkService(fake interface{}) *service.DefinitionGlobal {
+func ServiceProviderMockDynamicLink(mock interface{}) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.DynamicLinkService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return fake, nil
+			return mock, nil
 		},
 	}
 }

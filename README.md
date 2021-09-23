@@ -326,6 +326,13 @@ orm:
 ```
 where `DEFAULT_MYSQL` and `DEFAULT_REDIS` are env variables and our framework will automatically replace `ENV[DEFAULT_MYSQL]` and `ENV[DEFAULT_REDIS]` with the right values
 
+If you want to define array of values you should split them by `;` and they will be presented into the yaml file in that way:
+```yaml
+cors:
+    - test1
+    - test2
+```
+
 If you want to enable the debug for orm you can add this tag `orm_debug: true` on the main level of your config
 
 Also we check if there is .env.XXX file in main config folder where XXX is the value of the APP_MODE.
@@ -645,6 +652,20 @@ Config sample:
    option: string # required, values: "SHORT" or "UNGUESSABLE"
 ```
 
+
+#### Firebase cloud messaging (FCM) service
+This service is used for sending different types of push notifications
+
+You can register FCM service this way:
+
+```go
+hitrixRegistry.ServiceDefinitionFCM(),
+```
+
+Config sample:
+
+expose FIREBASE_CONFIG="path/to/service-account-file.json"
+
 #### OSS Google
 This service is used for storage files into google storage
 
@@ -694,6 +715,33 @@ You can register it in that way:
 
 You can protect for example login endpoint from many attempts  by using method `ProtectManyAttempts`
 
+#### PDF service
+PDF service provides a generating pdf function from html code using Chrome headless.
+
+First you need these in your app config:
+```yaml
+chrome_headless:
+  web_socket_url: ENV[CHROME_HEADLESS_WEB_SOCKET_URL]
+```
+Register the PDF service:
+
+```go
+registry.ServiceProviderPDF()
+```
+
+Access the registered DI service:
+```go
+pdfService := service.DI().PDFService()
+```
+Using `HtmlToPdf()` function to generate PDF from html:
+```go
+pdfBytes := pdfService.HtmlToPdf("<html><p>Hi!</p></html>")
+```
+
+Recommended docker file for Chrome headless:
+```
+https://hub.docker.com/r/chromedp/headless-shell/
+```
 #### Localizer service
 Localizer provides you a simple translation service that can pull and push translation pairs from local (file) and external sources (online services).
 
@@ -1151,6 +1199,9 @@ The function `hitrix.Validate(ctx, nil)` as second param accept callback where y
 
 ### Pre deploy
 If you run your binary with argument `-pre-deploy` the program will check for alters and if there is no alters it will exit with code 0 but if there is an alters it will exit with code 1.
+
+### Force alters
+If you run your binary with argument `-force-alters` the program will check for DB and RediSearch alters and it will execute them(only in local mode).
 
 You can use this feature during the deployment process check if you need to execute the alters before you deploy it
 

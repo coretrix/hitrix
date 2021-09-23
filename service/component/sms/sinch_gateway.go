@@ -17,7 +17,7 @@ const (
 )
 
 type SinchGateway struct {
-	Clock        clock.Clock
+	Clock        clock.IClock
 	AppID        string
 	AppSecret    string
 	MsgURL       string
@@ -28,15 +28,15 @@ type SinchGateway struct {
 
 func (g *SinchGateway) SendOTPSMS(otp *OTP) (string, error) {
 	return g.SendSMSMessage(&Message{
-		Text:   otp.OTP,
-		Number: otp.Number,
+		Text:   fmt.Sprintf(otp.Template, otp.OTP),
+		Number: otp.Phone.Number,
 	})
 }
 
 func (g *SinchGateway) SendOTPCallout(otp *OTP) (string, error) {
 	return g.SendCalloutMessage(&Message{
-		Text:   otp.OTP,
-		Number: otp.Number,
+		Text:   fmt.Sprintf(otp.Template, otp.OTP),
+		Number: otp.Phone.Number,
 	})
 }
 
@@ -52,10 +52,10 @@ func (g *SinchGateway) SendSMSMessage(message *Message) (string, error) {
 	}
 
 	headers := g.getSinchHeaders()
-	_, _, code, err := helper.Call(
+	responseBody, _, code, err := helper.Call(
 		context.Background(),
-		g.MsgURL+"/"+message.Number,
 		"POST",
+		g.MsgURL+"/"+message.Number,
 		headers,
 		time.Duration(timeoutInSeconds)*time.Second,
 		body,
@@ -66,7 +66,7 @@ func (g *SinchGateway) SendSMSMessage(message *Message) (string, error) {
 	}
 
 	if code != http.StatusOK {
-		return failure, fmt.Errorf("expected status code OK, but got %v", code)
+		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
 	}
 
 	return success, nil
@@ -104,7 +104,7 @@ func (g *SinchGateway) SendCalloutMessage(message *Message) (string, error) {
 	}
 
 	headers := g.getSinchHeaders()
-	_, _, code, err := helper.Call(
+	responseBody, _, code, err := helper.Call(
 		context.Background(),
 		g.CallURL,
 		"POST",
@@ -118,7 +118,7 @@ func (g *SinchGateway) SendCalloutMessage(message *Message) (string, error) {
 	}
 
 	if code != http.StatusOK {
-		return failure, fmt.Errorf("expected status code OK, but got %v", code)
+		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
 	}
 
 	return success, nil
@@ -128,7 +128,7 @@ func (g *SinchGateway) getSinchHeaders() map[string]string {
 	base64Credentials := base64.StdEncoding.EncodeToString([]byte(g.AppID + ":" + g.AppSecret))
 	return map[string]string{
 		"Content-Type":  "application/json",
-		"Authorization": "Basic" + base64Credentials,
+		"Authorization": "Basic " + base64Credentials,
 		"X-Timestamp":   g.Clock.Now().Format(javascriptISOString),
 	}
 }

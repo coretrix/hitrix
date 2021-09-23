@@ -11,7 +11,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceDefinitionOrmEngine() *service.DefinitionGlobal {
+func ServiceProviderOrmEngine() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: "orm_engine_global",
 
@@ -35,7 +35,7 @@ func ServiceDefinitionOrmEngine() *service.DefinitionGlobal {
 	}
 }
 
-func ServiceDefinitionOrmEngineForContext(enableGraphQLDataLoader bool) *service.DefinitionRequest {
+func ServiceProviderOrmEngineForContext(enableGraphQLDataLoader bool) *service.DefinitionRequest {
 	return &service.DefinitionRequest{
 		Name: "orm_engine_request",
 		Build: func(c *gin.Context) (interface{}, error) {

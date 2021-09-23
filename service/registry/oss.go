@@ -14,7 +14,7 @@ import (
 )
 
 // OSSGoogle Be sure that you registered entity OSSBucketCounterEntity
-func OSSGoogle(buckets map[string]uint64) *service.DefinitionGlobal {
+func ServiceProviderOSS(buckets map[string]uint64) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.OSSGoogleService,
 		Build: func(ctn di.Container) (interface{}, error) {

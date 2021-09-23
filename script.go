@@ -181,7 +181,7 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 		panic("Orm is not registered")
 	}
 
-	go func() {
+	GoroutineWithRestart(func() {
 		asyncConsumer := beeorm.NewBackgroundConsumer(ormService)
 		for {
 			if asyncConsumer.Digest(appService.GlobalContext) {
@@ -189,5 +189,5 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 			}
 			time.Sleep(time.Second * 30)
 		}
-	}()
+	})
 }

@@ -6,11 +6,11 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func FakeMailService(fakeMailSender mail.Sender) *service.DefinitionGlobal {
+func ServiceProviderMockMail(mock mail.Sender) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: service.MailMandrill,
+		Name: service.MailMandrillService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return fakeMailSender, nil
+			return mock, nil
 		},
 	}
 }

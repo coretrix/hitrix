@@ -14,7 +14,7 @@ func ServiceProviderSMS(entity sms.LogEntity) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.SMSService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			clockService := ctn.Get(service.ClockService).(clock.Clock)
+			clockService := ctn.Get(service.ClockService).(clock.IClock)
 			configService := ctn.Get("config").(config.IConfig)
 
 			// register twilio

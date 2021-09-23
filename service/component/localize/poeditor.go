@@ -1,4 +1,4 @@
-package localizer
+package localize
 
 import (
 	"encoding/json"

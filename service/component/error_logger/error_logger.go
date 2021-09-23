@@ -6,9 +6,8 @@ import (
 	"math"
 	"net/http/httputil"
 
-	"github.com/slack-go/slack"
-
-	slackapi "github.com/coretrix/hitrix/service/component/slack_api"
+	"github.com/coretrix/hitrix/service/component/slack"
+	slackgo "github.com/slack-go/slack"
 
 	"github.com/coretrix/hitrix/service/component/app"
 
@@ -53,11 +52,11 @@ type ErrorMessage struct {
 
 type RedisErrorLogger struct {
 	redisStorage *beeorm.RedisCache
-	slackService *slackapi.SlackAPI
+	slackService slack.Slack
 	appService   *app.App
 }
 
-func NewRedisErrorLogger(appService *app.App, ormService *beeorm.Engine, slackService *slackapi.SlackAPI) ErrorLogger {
+func NewRedisErrorLogger(appService *app.App, ormService *beeorm.Engine, slackService slack.Slack) ErrorLogger {
 	return &RedisErrorLogger{redisStorage: ormService.GetRedis(), slackService: slackService, appService: appService}
 }
 
@@ -114,12 +113,12 @@ func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
 
 	logg := math.Log10(float64(counter))
 
-	if (e.slackService != nil && e.appService.IsInProdMode() || e.appService.IsInDemoMode()) && logg == float64(int64(logg)) {
+	if (e.slackService != nil && !e.appService.IsInLocalMode() && !e.appService.IsInTestMode()) && logg == float64(int64(logg)) {
 		_ = e.slackService.SendToChannel(
 			e.slackService.GetErrorChannel(),
 			value.Message,
-			slack.MsgOptionAttachments(
-				slack.Attachment{
+			slackgo.MsgOptionAttachments(
+				slackgo.Attachment{
 					AuthorName: e.appService.Name,
 					Title:      "Error link",
 					TitleLink:  e.slackService.GetDevPanelURL() + "#err-" + errorKey,

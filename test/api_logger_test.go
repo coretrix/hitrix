@@ -12,12 +12,12 @@ import (
 func TestApiLogger(t *testing.T) {
 	createContextMyApp(t, "my-app", nil,
 		[]*service.DefinitionGlobal{
-			registry.APILogger(&entity.APILogEntity{}),
+			registry.ServiceProviderAPILogger(&entity.APILogEntity{}),
 		},
 		nil,
 	)
 
-	apiLoggerService, has := service.DI().APILoggerService()
+	apiLoggerService, has := service.DI().APILogger()
 	if !has {
 		panic("no api logger service registered")
 	}
