@@ -75,13 +75,14 @@ func removeDBs(appService *app.App, configService config.IConfig) {
 	if err != nil {
 		panic(err)
 	}
-	newDBName := "test_" + appService.ParallelTestID
+	newDBName := "t_" + appService.ParallelTestID
 
 	_, err = db.Exec("DROP DATABASE `" + newDBName + "`")
 	if err != nil {
 		panic(err)
 	}
 }
+
 func overwriteORMConfig(appService *app.App, configService config.IConfig, registry *beeorm.Registry, yamlConfig map[string]interface{}) {
 	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
 	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
@@ -89,7 +90,7 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 		panic(err)
 	}
 
-	newDBName := "test_" + appService.ParallelTestID
+	newDBName := "t_" + appService.ParallelTestID
 	color.Blue("DB name: %s", newDBName)
 
 	_, err = db.Exec("DROP DATABASE IF EXISTS `" + newDBName + "`; CREATE DATABASE `" + newDBName + "`")

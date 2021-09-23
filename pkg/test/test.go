@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -14,10 +15,10 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/juju/fslock"
 	"github.com/latolukasz/beeorm"
-
-	"github.com/google/uuid"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
@@ -34,7 +35,6 @@ import (
 )
 
 var dbAlters string
-var redisAltersExecuted bool
 
 type Environment struct {
 	t                *testing.T
@@ -189,7 +189,9 @@ func CreateContext(t *testing.T, projectName string, defaultServices []*service.
 		t.Fatal(err)
 	}
 
-	testSpringInstance, deferFunc := hitrix.New(projectName, "").RegisterDIGlobalService(append(defaultServices, mockServices...)...).Build()
+	testSpringInstance, deferFunc := hitrix.New(projectName, "").
+		SetParallelTestID(getParallelID()).
+		RegisterDIGlobalService(append(defaultServices, mockServices...)...).Build()
 	defer deferFunc()
 
 	var has bool
@@ -217,15 +219,8 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 		t.Fatal(err)
 	}
 
-	var parallelTestID string
-	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
-		parallelTestID = "1"
-	} else {
-		parallelTestID = uuid.New().String()
-	}
-
 	testSpringInstance, deferFunc := hitrix.New(projectName, "").
-		SetParallelTestID(parallelTestID).
+		SetParallelTestID(getParallelID()).
 		RegisterDIGlobalService(append(defaultGlobalServices, mockGlobalServices...)...).
 		RegisterDIRequestService(append(defaultRequestServices, mockRequestServices...)...).Build()
 
@@ -264,16 +259,30 @@ func executeAlters(ormService *beeorm.Engine) {
 	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
 		ormService.GetLocalCache().Clear()
 		ormService.GetRedis().FlushAll()
-		redisAltersExecuted = false
 	}
 
-	if !redisAltersExecuted {
-		altersSearch := ormService.GetRedisSearchIndexAlters()
-		for _, alter := range altersSearch {
-			alter.Execute()
-		}
+	lock := fslock.New(os.TempDir() + "/lock.txt")
 
-		redisAltersExecuted = true
+	altersSearch := ormService.GetRedisSearchIndexAlters()
+	for _, alter := range altersSearch {
+		alter.Execute()
+	}
+
+	lock.Unlock()
+}
+
+func getRandomString() string {
+	rand.Seed(time.Now().UnixNano())
+	b := make([]byte, 10)
+	rand.Read(b)
+	return fmt.Sprintf("%x%d", b, os.Getpid())[:10]
+}
+
+func getParallelID() string {
+	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
+		return "1"
+	} else {
+		return getRandomString()
 	}
 }
 

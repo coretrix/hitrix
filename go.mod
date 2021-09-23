@@ -31,6 +31,7 @@ require (
 	github.com/icza/gox v0.0.0-20201215141822-6edfac6c05b5
 	github.com/joho/godotenv v1.3.0
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
+	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/juju/testing v0.0.0-20201216035041-2be42bba85f3 // indirect
 	github.com/kavenegar/kavenegar-go v0.0.0-20200629080648-6e28263b7162
 	github.com/kevinburke/go-types v0.0.0-20201208005256-aee49f568a20 // indirect
