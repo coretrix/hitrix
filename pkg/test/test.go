@@ -7,18 +7,22 @@ import (
 	"io"
 	"io/ioutil"
 	"mime/multipart"
-
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/h2non/filetype"
-
 	"net/http"
 	"net/http/httptest"
 	"net/textproto"
 	"os"
+	"regexp"
+	"strings"
 	"testing"
 
+	"github.com/latolukasz/beeorm"
+
+	"github.com/google/uuid"
+
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	graphqlParser "github.com/coretrix/hitrix/pkg/test/graphql-parser"
+	"github.com/h2non/filetype"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -27,13 +31,10 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 )
 
-var dbService *beeorm.DB
-var ormService *beeorm.Engine
-var ginTestInstance *gin.Engine
-var testSpringInstance *hitrix.Hitrix
+var dbAlters string
+var redisAltersExecuted bool
 
 type Environment struct {
 	t                *testing.T
@@ -179,69 +180,27 @@ func (env *Environment) handleMultiPart(query string, variables interface{},
 func CreateContext(t *testing.T, projectName string, defaultServices []*service.DefinitionGlobal, mockServices ...*service.DefinitionGlobal) *Environment {
 	var deferFunc func()
 
-	if testSpringInstance == nil {
-		err := os.Setenv("TZ", "UTC")
-		if err != nil {
-			t.Fatal(err)
-		}
-		err = os.Setenv("APP_MODE", app.ModeTest)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIGlobalService(append(defaultServices, mockServices...)...).Build()
-		defer deferFunc()
-
-		var has bool
-		ormService, has = service.DI().OrmEngine()
-		if !has {
-			panic("ORM is not loaded")
-		}
-
-		dbService = ormService.GetMysql()
-
-		err = dropTables()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		alters := ormService.GetAlters()
-
-		var queries string
-
-		for _, alter := range alters {
-			queries += alter.SQL
-		}
-
-		if queries != "" {
-			_, def := dbService.Query(queries)
-			defer def()
-		}
+	err := os.Setenv("TZ", "UTC")
+	if err != nil {
+		t.Fatal(err)
 	}
-
-	if len(mockServices) != 0 {
-		testSpringInstance, deferFunc = hitrix.New(projectName, "").RegisterDIGlobalService(append(defaultServices, mockServices...)...).Build()
-		defer deferFunc()
-
-		// TODO: fix multiple connections to mysql
-		ormService, _ = service.DI().OrmEngine()
-		dbService = ormService.GetMysql()
-	}
-
-	err := truncateTables()
+	err = os.Setenv("APP_MODE", app.ModeTest)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ormService.GetLocalCache().Clear()
-	ormService.GetRedis().FlushAll()
+	testSpringInstance, deferFunc := hitrix.New(projectName, "").RegisterDIGlobalService(append(defaultServices, mockServices...)...).Build()
+	defer deferFunc()
 
-	altersSearch := ormService.GetRedisSearchIndexAlters()
-	for _, alter := range altersSearch {
-		alter.Execute()
+	var has bool
+	ormService, has := service.DI().OrmEngine()
+	if !has {
+		panic("ORM is not loaded")
 	}
 
-	return &Environment{t: t, Hitrix: testSpringInstance, GinEngine: ginTestInstance}
+	executeAlters(ormService)
+
+	return &Environment{t: t, Hitrix: testSpringInstance}
 }
 
 func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, ginInitHandler hitrix.GinInitHandler, defaultGlobalServices []*service.DefinitionGlobal, defaultRequestServices []*service.DefinitionRequest, mockGlobalServices []*service.DefinitionGlobal, mockRequestServices []*service.DefinitionRequest) *Environment {
@@ -249,120 +208,141 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 	gqlServerInitHandler := func(server *handler.Server) {
 		server.AddTransport(transport.MultipartForm{})
 	}
-	if testSpringInstance == nil {
-		err := os.Setenv("TZ", "UTC")
-		if err != nil {
-			t.Fatal(err)
-		}
-		err = os.Setenv("APP_MODE", app.ModeTest)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		testSpringInstance, deferFunc = hitrix.New(projectName, "").
-			RegisterDIGlobalService(append(defaultGlobalServices, mockGlobalServices...)...).
-			RegisterDIRequestService(append(defaultRequestServices, mockRequestServices...)...).Build()
-		defer deferFunc()
-		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)
-
-		var has bool
-		ormService, has = service.DI().OrmEngine()
-		if !has {
-			panic("ORM is not loaded")
-		}
-
-		dbService = ormService.GetMysql()
-
-		err = dropTables()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		alters := ormService.GetAlters()
-
-		var queries string
-
-		for _, alter := range alters {
-			queries += alter.SQL
-		}
-
-		if queries != "" {
-			_, def := dbService.Query(queries)
-			defer def()
-		}
+	err := os.Setenv("TZ", "UTC")
+	if err != nil {
+		t.Fatal(err)
 	}
-
-	if len(mockGlobalServices) != 0 || len(mockRequestServices) != 0 {
-		testSpringInstance, deferFunc = hitrix.New(projectName, "").
-			RegisterDIGlobalService(append(defaultGlobalServices, mockGlobalServices...)...).
-			RegisterDIRequestService(append(defaultRequestServices, mockRequestServices...)...).Build()
-		defer deferFunc()
-		ginTestInstance = hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)
-
-		// TODO: fix multiple connections to mysql
-		ormService, _ = service.DI().OrmEngine()
-		dbService = ormService.GetMysql()
-	}
-
-	err := truncateTables()
+	err = os.Setenv("APP_MODE", app.ModeTest)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ormService.GetLocalCache().Clear()
-	ormService.GetRedis().FlushAll()
-
-	altersSearch := ormService.GetRedisSearchIndexAlters()
-	for _, alter := range altersSearch {
-		alter.Execute()
+	var parallelTestID string
+	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
+		parallelTestID = "1"
+	} else {
+		parallelTestID = uuid.New().String()
 	}
+
+	testSpringInstance, deferFunc := hitrix.New(projectName, "").
+		SetParallelTestID(parallelTestID).
+		RegisterDIGlobalService(append(defaultGlobalServices, mockGlobalServices...)...).
+		RegisterDIRequestService(append(defaultRequestServices, mockRequestServices...)...).Build()
+
+	defer deferFunc()
+	ginTestInstance := hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)
+
+	var has bool
+	ormService, has := service.DI().OrmEngine()
+	if !has {
+		panic("ORM is not loaded")
+	}
+
+	executeAlters(ormService)
 
 	resp := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(resp)
 	return &Environment{t: t, Hitrix: testSpringInstance, GinEngine: ginTestInstance, Cxt: c, ResponseRecorder: resp}
 }
 
-func dropTables() error {
-	var query string
-	rows, deferF := dbService.Query(
-		"SELECT CONCAT('DROP TABLE ',table_schema,'.',table_name,';') AS query " +
-			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "')",
-	)
-	defer deferF()
-
-	if rows != nil {
-		var queries string
-
-		for rows.Next() {
-			rows.Scan(&query)
-			queries += query
+func executeAlters(ormService *beeorm.Engine) {
+	if dbAlters == "" {
+		for _, alter := range ormService.GetAlters() {
+			dbAlters += alter.SQL
 		}
-		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
-
-		defer def()
+	} else {
+		left := "CREATE TABLE `"
+		right := "`."
+		rx := regexp.MustCompile(`(?s)` + regexp.QuoteMeta(left) + `(.*?)` + regexp.QuoteMeta(right))
+		matches := rx.FindStringSubmatch(dbAlters)
+		dbAlters = strings.ReplaceAll(dbAlters, matches[1], ormService.GetRegistry().GetMySQLPools()["default"].GetDatabase())
 	}
 
-	return nil
-}
+	_, def := ormService.GetMysql().Query(dbAlters)
+	defer def()
 
-func truncateTables() error {
-	var query string
-	rows, deferF := dbService.Query(
-		"SELECT CONCAT('delete from  ',table_schema,'.',table_name,';' , 'ALTER TABLE ', table_schema,'.',table_name , ' AUTO_INCREMENT = 1;') AS query " +
-			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "');",
-	)
-	defer deferF()
-	if rows != nil {
-		var queries string
-
-		for rows.Next() {
-			rows.Scan(&query)
-			queries += query
-		}
-
-		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
-		defer def()
+	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
+		ormService.GetLocalCache().Clear()
+		ormService.GetRedis().FlushAll()
+		redisAltersExecuted = false
 	}
 
-	return nil
+	if !redisAltersExecuted {
+		altersSearch := ormService.GetRedisSearchIndexAlters()
+		for _, alter := range altersSearch {
+			alter.Execute()
+		}
+
+		redisAltersExecuted = true
+	}
 }
+
+//func getParallelTestID() int {
+//	mainDir, _ := os.Getwd()
+//	mainDirSplit := strings.Split(mainDir, "/tests/")
+//	lock := fslock.New(mainDirSplit[0] + "/lock.txt")
+//
+//	var parallelTestID int
+//	// read the whole file at once
+//	b, err := os.ReadFile(mainDirSplit[0] + "/parallelTestID.txt")
+//	if err != nil {
+//		err = ioutil.WriteFile(mainDirSplit[0]+"/parallelTestID.txt", []byte(strconv.Itoa(parallelTestID)), 0644)
+//		if err != nil {
+//			panic(err)
+//		}
+//	} else {
+//		parallelTestID, _ = strconv.Atoi(string(b))
+//		err = ioutil.WriteFile(mainDirSplit[0]+"/parallelTestID.txt", []byte(strconv.Itoa(parallelTestID+1)), 0644)
+//		if err != nil {
+//			panic(err)
+//		}
+//	}
+//
+//	lock.Unlock()
+//	return parallelTestID
+//}
+
+//func dropTables(dbService *beeorm.DB) error {
+//	var query string
+//	rows, deferF := dbService.Query(
+//		"SELECT CONCAT('DROP TABLE ',table_schema,'.',table_name,';') AS query " +
+//			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "')",
+//	)
+//	defer deferF()
+//
+//	if rows != nil {
+//		var queries string
+//
+//		for rows.Next() {
+//			rows.Scan(&query)
+//			queries += query
+//		}
+//		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
+//
+//		defer def()
+//	}
+//
+//	return nil
+//}
+
+//func truncateTables(dbService *beeorm.DB) error {
+//	var query string
+//	rows, deferF := dbService.Query(
+//		"SELECT CONCAT('delete from  ',table_schema,'.',table_name,';' , 'ALTER TABLE ', table_schema,'.',table_name , ' AUTO_INCREMENT = 1;') AS query " +
+//			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "');",
+//	)
+//	defer deferF()
+//	if rows != nil {
+//		var queries string
+//
+//		for rows.Next() {
+//			rows.Scan(&query)
+//			queries += query
+//		}
+//
+//		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
+//		defer def()
+//	}
+//
+//	return nil
+//}

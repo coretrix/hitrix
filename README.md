@@ -1282,8 +1282,10 @@ func TestProcessApplePurchaseWithEmail(t *testing.T) {
 }
 ```
 
-
-
+Hitrix supports `parallel` tests
+In case you want to execute parallel tests you need to set
+`PARALLEL_TESTS=true` env var in your IDE config and be sure you don't have set `-p 1` in `Go tool arguments` 
+In case you want to disable `parallel` tests remove `PARALLEL_TESTS` or set it to `false` and set in `Go tool arguments` value `-p 1`
 
 
 ## Other Features
