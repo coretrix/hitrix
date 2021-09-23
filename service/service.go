@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/trustpilot"
+
 	"github.com/coretrix/hitrix/service/component/uuid"
 
 	"github.com/coretrix/hitrix/service/component/goroutine"
@@ -67,6 +69,7 @@ const (
 	GoogleService           = "google"
 	FacebookService         = "facebook"
 	CrudService             = "crud"
+	TrustpilotService       = "trustpilot"
 	UUIDService             = "uuid"
 )
 
@@ -98,6 +101,7 @@ type DIInterface interface {
 	FileExtractor() *fileextractor.FileExtractor
 	Goroutine() goroutine.IGoroutine
 	UUID() uuid.IUUID
+	Trustpilot() (*trustpilot.ITrustpilot, bool)
 }
 
 type diContainer struct {
@@ -270,6 +274,14 @@ func (d *diContainer) Localize() localize.ILocalizer {
 
 func (d *diContainer) FileExtractor() *fileextractor.FileExtractor {
 	return GetServiceRequired(ExtractorService).(*fileextractor.FileExtractor)
+}
+
+func (d *diContainer) Trustpilot() (*trustpilot.ITrustpilot, bool) {
+	v, has := GetServiceOptional(TrustpilotService)
+	if has {
+		return v.(*trustpilot.ITrustpilot), true
+	}
+	return nil, false
 }
 
 func (d *diContainer) Goroutine() goroutine.IGoroutine {

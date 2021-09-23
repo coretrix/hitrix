@@ -1,17 +1,22 @@
 package entity
 
-import "github.com/latolukasz/beeorm"
+import (
+	"github.com/latolukasz/beeorm"
+)
 
 const (
-	seedsSetting = "seeds"
+	seedsSetting      = "seeds"
+	trustpilotSetting = "trustpilot-accesstoken"
 )
 
 type HitrixSettings struct {
-	Seeds string
+	Seeds      string
+	Trustpilot string
 }
 
 var HitrixSettingAll = HitrixSettings{
-	Seeds: seedsSetting,
+	Seeds:      seedsSetting,
+	Trustpilot: trustpilotSetting,
 }
 
 type SettingSeedsValue map[string]int
