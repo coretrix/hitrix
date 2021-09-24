@@ -4,14 +4,9 @@ import (
 	"database/sql"
 	"errors"
 	"os"
-	"strconv"
 	"strings"
 
-	"github.com/fatih/color"
-
 	"fmt"
-	"reflect"
-
 	"github.com/coretrix/hitrix/service/component/app"
 
 	"github.com/coretrix/hitrix/service"
@@ -86,44 +81,44 @@ func removeDBs(appService *app.App, configService config.IConfig) {
 	}
 }
 
-func overwriteORMConfig(appService *app.App, configService config.IConfig, registry *beeorm.Registry, yamlConfig map[string]interface{}) {
-	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
-	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	newDBName := "t_" + appService.ParallelTestID
-	color.Blue("DB name: %s", newDBName)
-
-	if os.Getenv("PARALLEL_TESTS") == "true" {
-		_, err = db.Exec("DROP DATABASE IF EXISTS `" + newDBName + "`; CREATE DATABASE `" + newDBName + "`")
-	} else {
-		_, err = db.Exec("CREATE DATABASE IF NOT EXISTS `" + newDBName + "`")
-	}
-
-	if err != nil {
-		panic(err)
-	}
-
-	registry.RegisterMySQLPool(mysqlConnection[0] + "/" + newDBName)
-
-	for pool, value := range yamlConfig {
-		if _, ok := value.(map[interface{}]interface{})["sentinel"]; ok {
-			for masterConf, sentinelConnections := range value.(map[interface{}]interface{})["sentinel"].(map[interface{}]interface{}) {
-				sentinelConn := make([]string, 0)
-				sentinelConnValues := reflect.ValueOf(sentinelConnections)
-
-				for i := 0; i < reflect.ValueOf(sentinelConnections).Len(); i++ {
-					sentinelConn = append(sentinelConn, fmt.Sprint(sentinelConnValues.Index(i)))
-				}
-
-				settings := strings.Split(fmt.Sprint(masterConf), ":")
-				dbIndex, _ := strconv.Atoi(settings[1])
-				//appService.ParallelTestID
-				registry.RegisterRedisSentinel(settings[0], dbIndex, sentinelConn, fmt.Sprint(pool))
-			}
-		}
-	}
-}
+//func overwriteORMConfig(appService *app.App, configService config.IConfig, registry *beeorm.Registry, yamlConfig map[string]interface{}) {
+//	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
+//	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
+//	if err != nil {
+//		panic(err)
+//	}
+//	defer db.Close()
+//
+//	newDBName := "t_" + appService.ParallelTestID
+//	color.Blue("DB name: %s", newDBName)
+//
+//	if os.Getenv("PARALLEL_TESTS") == "true" {
+//		_, err = db.Exec("DROP DATABASE IF EXISTS `" + newDBName + "`; CREATE DATABASE `" + newDBName + "`")
+//	} else {
+//		_, err = db.Exec("CREATE DATABASE IF NOT EXISTS `" + newDBName + "`")
+//	}
+//
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	registry.RegisterMySQLPool(mysqlConnection[0] + "/" + newDBName)
+//
+//	for pool, value := range yamlConfig {
+//		if _, ok := value.(map[interface{}]interface{})["sentinel"]; ok {
+//			for masterConf, sentinelConnections := range value.(map[interface{}]interface{})["sentinel"].(map[interface{}]interface{}) {
+//				sentinelConn := make([]string, 0)
+//				sentinelConnValues := reflect.ValueOf(sentinelConnections)
+//
+//				for i := 0; i < reflect.ValueOf(sentinelConnections).Len(); i++ {
+//					sentinelConn = append(sentinelConn, fmt.Sprint(sentinelConnValues.Index(i)))
+//				}
+//
+//				settings := strings.Split(fmt.Sprint(masterConf), ":")
+//				dbIndex, _ := strconv.Atoi(settings[1])
+//				//appService.ParallelTestID
+//				registry.RegisterRedisSentinel(settings[0], dbIndex, sentinelConn, fmt.Sprint(pool))
+//			}
+//		}
+//	}
+//}
