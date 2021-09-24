@@ -75,10 +75,11 @@ func removeDBs(appService *app.App, configService config.IConfig) {
 	if err != nil {
 		panic(err)
 	}
+	defer db.Close()
+
 	newDBName := "t_" + appService.ParallelTestID
 
 	_, err = db.Exec("DROP DATABASE `" + newDBName + "`")
-	defer db.Close()
 
 	if err != nil {
 		panic(err)
@@ -91,12 +92,16 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 	if err != nil {
 		panic(err)
 	}
+	defer db.Close()
 
 	newDBName := "t_" + appService.ParallelTestID
 	color.Blue("DB name: %s", newDBName)
 
-	_, err = db.Exec("DROP DATABASE IF EXISTS `" + newDBName + "`; CREATE DATABASE `" + newDBName + "`")
-	defer db.Close()
+	if os.Getenv("PARALLEL_TESTS") == "true" {
+		_, err = db.Exec("DROP DATABASE IF EXISTS `" + newDBName + "`; CREATE DATABASE `" + newDBName + "`")
+	} else {
+		_, err = db.Exec("CREATE DATABASE IF NOT EXISTS `" + newDBName + "`")
+	}
 
 	if err != nil {
 		panic(err)

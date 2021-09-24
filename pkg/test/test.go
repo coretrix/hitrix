@@ -240,20 +240,39 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 }
 
 func executeAlters(ormService *beeorm.Engine) {
+	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
+		if dbAlters != "" {
+			err := truncateTables(ormService.GetMysql())
+			if err != nil {
+				panic(err)
+			}
+		}
+	} else {
+		if dbAlters != "" {
+			left := "CREATE TABLE `"
+			right := "`."
+			rx := regexp.MustCompile(`(?s)` + regexp.QuoteMeta(left) + `(.*?)` + regexp.QuoteMeta(right))
+			matches := rx.FindStringSubmatch(dbAlters)
+			dbAlters = strings.ReplaceAll(dbAlters, matches[1], ormService.GetRegistry().GetMySQLPools()["default"].GetDatabase())
+
+			_, def := ormService.GetMysql().Query(dbAlters)
+			defer def()
+		}
+	}
+
 	if dbAlters == "" {
+		err := dropTables(ormService.GetMysql())
+		if err != nil {
+			panic(err)
+		}
+
 		for _, alter := range ormService.GetAlters() {
 			dbAlters += alter.SQL
 		}
-	} else {
-		left := "CREATE TABLE `"
-		right := "`."
-		rx := regexp.MustCompile(`(?s)` + regexp.QuoteMeta(left) + `(.*?)` + regexp.QuoteMeta(right))
-		matches := rx.FindStringSubmatch(dbAlters)
-		dbAlters = strings.ReplaceAll(dbAlters, matches[1], ormService.GetRegistry().GetMySQLPools()["default"].GetDatabase())
-	}
 
-	_, def := ormService.GetMysql().Query(dbAlters)
-	defer def()
+		_, def := ormService.GetMysql().Query(dbAlters)
+		defer def()
+	}
 
 	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
 		ormService.GetLocalCache().Clear()
@@ -281,72 +300,49 @@ func getParallelID() string {
 	}
 }
 
-//func getParallelTestID() int {
-//	mainDir, _ := os.Getwd()
-//	mainDirSplit := strings.Split(mainDir, "/tests/")
-//	lock := fslock.New(mainDirSplit[0] + "/lock.txt")
-//
-//	var parallelTestID int
-//	// read the whole file at once
-//	b, err := os.ReadFile(mainDirSplit[0] + "/parallelTestID.txt")
-//	if err != nil {
-//		err = ioutil.WriteFile(mainDirSplit[0]+"/parallelTestID.txt", []byte(strconv.Itoa(parallelTestID)), 0644)
-//		if err != nil {
-//			panic(err)
-//		}
-//	} else {
-//		parallelTestID, _ = strconv.Atoi(string(b))
-//		err = ioutil.WriteFile(mainDirSplit[0]+"/parallelTestID.txt", []byte(strconv.Itoa(parallelTestID+1)), 0644)
-//		if err != nil {
-//			panic(err)
-//		}
-//	}
-//
-//	lock.Unlock()
-//	return parallelTestID
-//}
+func dropTables(dbService *beeorm.DB) error {
+	var query string
+	rows, deferF := dbService.Query(
+		"SELECT CONCAT('DROP TABLE ',table_schema,'.',table_name,';') AS query " +
+			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "')",
+	)
+	defer deferF()
 
-//func dropTables(dbService *beeorm.DB) error {
-//	var query string
-//	rows, deferF := dbService.Query(
-//		"SELECT CONCAT('DROP TABLE ',table_schema,'.',table_name,';') AS query " +
-//			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "')",
-//	)
-//	defer deferF()
-//
-//	if rows != nil {
-//		var queries string
-//
-//		for rows.Next() {
-//			rows.Scan(&query)
-//			queries += query
-//		}
-//		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
-//
-//		defer def()
-//	}
-//
-//	return nil
-//}
+	if rows != nil {
+		var queries string
 
-//func truncateTables(dbService *beeorm.DB) error {
-//	var query string
-//	rows, deferF := dbService.Query(
-//		"SELECT CONCAT('delete from  ',table_schema,'.',table_name,';' , 'ALTER TABLE ', table_schema,'.',table_name , ' AUTO_INCREMENT = 1;') AS query " +
-//			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "');",
-//	)
-//	defer deferF()
-//	if rows != nil {
-//		var queries string
-//
-//		for rows.Next() {
-//			rows.Scan(&query)
-//			queries += query
-//		}
-//
-//		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
-//		defer def()
-//	}
-//
-//	return nil
-//}
+		for rows.Next() {
+			rows.Scan(&query)
+			queries += query
+		}
+		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
+
+		defer def()
+	}
+
+	return nil
+}
+
+func truncateTables(dbService *beeorm.DB) error {
+	var query string
+	rows, deferF := dbService.Query(
+		"SELECT CONCAT('delete from  ',table_schema,'.',table_name,';' , 'ALTER TABLE ', table_schema,'.',table_name , ' AUTO_INCREMENT = 1;') AS query " +
+			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "');",
+	)
+	defer deferF()
+
+	if rows != nil {
+		var queries string
+
+		for rows.Next() {
+
+			rows.Scan(&query)
+			queries += query
+		}
+
+		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
+		defer def()
+	}
+
+	return nil
+}
