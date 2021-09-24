@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/otp"
+
 	"github.com/coretrix/hitrix/service/component/uuid"
 
 	"github.com/coretrix/hitrix/service/component/goroutine"
@@ -68,6 +70,7 @@ const (
 	FacebookService         = "facebook"
 	CrudService             = "crud"
 	UUIDService             = "uuid"
+	OTPService              = "otp"
 )
 
 type DIInterface interface {
@@ -98,6 +101,7 @@ type DIInterface interface {
 	FileExtractor() *fileextractor.FileExtractor
 	Goroutine() goroutine.IGoroutine
 	UUID() uuid.IUUID
+	OTP() otp.IOTP
 }
 
 type diContainer struct {
@@ -278,4 +282,8 @@ func (d *diContainer) Goroutine() goroutine.IGoroutine {
 
 func (d *diContainer) UUID() uuid.IUUID {
 	return GetServiceRequired(UUIDService).(uuid.IUUID)
+}
+
+func (d *diContainer) OTP() otp.IOTP {
+	return GetServiceRequired(OTPService).(otp.IOTP)
 }
