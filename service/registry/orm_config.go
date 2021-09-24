@@ -121,8 +121,8 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 
 				settings := strings.Split(fmt.Sprint(masterConf), ":")
 				dbIndex, _ := strconv.Atoi(settings[1])
-
-				registry.RegisterRedisSentinel(settings[0], appService.ParallelTestID, dbIndex, sentinelConn, fmt.Sprint(pool))
+				//appService.ParallelTestID
+				registry.RegisterRedisSentinel(settings[0], dbIndex, sentinelConn, fmt.Sprint(pool))
 			}
 		}
 	}
