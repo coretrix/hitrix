@@ -23,7 +23,6 @@ require (
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/go-redis/redis/v8 v8.11.3
-	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/google/uuid v1.3.0
 	github.com/gookit/config v1.1.0
 	github.com/gorilla/websocket v1.4.2
@@ -31,14 +30,13 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/icza/gox v0.0.0-20201215141822-6edfac6c05b5
 	github.com/joho/godotenv v1.3.0
-	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
-	github.com/juju/testing v0.0.0-20201216035041-2be42bba85f3 // indirect
+	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
 	github.com/kavenegar/kavenegar-go v0.0.0-20200629080648-6e28263b7162
 	github.com/kevinburke/go-types v0.0.0-20201208005256-aee49f568a20 // indirect
 	github.com/kevinburke/go.uuid v1.2.0 // indirect
 	github.com/kevinburke/rest v0.0.0-20210425173428-1fcb8c8e9022 // indirect
 	github.com/kevinburke/twilio-go v0.0.0-20210327194925-1623146bcf73
-	github.com/latolukasz/beeorm v1.0.43
+	github.com/latolukasz/beeorm v1.1.2
 	github.com/mattbaird/gochimp v0.0.0-20200820164431-f1082bcdf63f
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
 	github.com/pariz/gountries v0.0.0-20200430155801-1c6a393df9c7
@@ -50,13 +48,13 @@ require (
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.2.1 // indirect
 	github.com/tus/tusd v1.6.0
+	github.com/twilio/twilio-go v0.15.0
 	github.com/ugorji/go v1.2.2 // indirect
 	github.com/vektah/gqlparser/v2 v2.1.0
 	github.com/xorcare/pointer v1.1.0
 	golang.org/x/net v0.0.0-20210903162142-ad29c8ab022f
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.6 // indirect
 	google.golang.org/api v0.56.0
 	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83 // indirect
 )

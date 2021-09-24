@@ -29,6 +29,7 @@ func main() {
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
 		registry.ServiceProviderSocketRegistry(eventHandlersMap),
+		registry.ServiceProviderOTP(),
 	).RegisterDIRequestService(
 		registry.ServiceProviderOrmEngineForContext(false),
 	).

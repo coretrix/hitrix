@@ -3,14 +3,14 @@ package helper
 import (
 	"bytes"
 	"encoding/csv"
+	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path"
 	"runtime"
 	"strings"
-
-	"github.com/juju/errors"
 )
 
 const (
@@ -120,7 +120,7 @@ func Copy(src, dst string, bufferSize int64) error {
 
 	_, err = os.Stat(dst)
 	if err == nil {
-		return errors.Errorf("file %s already exists.", dst)
+		return fmt.Errorf("file %s already exists", dst)
 	}
 
 	destination, err := os.Create(dst)

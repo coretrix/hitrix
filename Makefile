@@ -9,11 +9,11 @@ cover: ## Run tests with coverage and creates cover.out profile
 	@${GOPATH}/bin/go-acc ./... --output=resources/cover/cover.out --covermode=atomic
 
 format: ## Format go code with goimports
-	@go get golang.org/x/tools/cmd/goimports
+	@go get -d golang.org/x/tools/cmd/goimports
 	@${GOPATH}/bin/goimports -l -w .
 
 format-check: ## Check if the code is formatted
-	@go get golang.org/x/tools/cmd/goimports
+	@go get -d golang.org/x/tools/cmd/goimports
 	@for i in $$(${GOPATH}/bin/goimports -l .); do echo "[ERROR] Code is not formatted run 'make format'" && exit 1; done
 
 check: format-check cyclo ## Linting and static analysis

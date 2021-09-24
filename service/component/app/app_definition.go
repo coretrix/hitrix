@@ -27,15 +27,15 @@ type DevPanel struct {
 }
 
 type App struct {
-	Mode          string
-	Name          string
-	TestThread    uint16
-	Secret        string
-	Flags         *Flags
-	Scripts       []string
-	DevPanel      *DevPanel
-	GlobalContext context.Context
-	CancelContext context.CancelFunc
+	Mode           string
+	Name           string
+	ParallelTestID string
+	Secret         string
+	Flags          *Flags
+	Scripts        []string
+	DevPanel       *DevPanel
+	GlobalContext  context.Context
+	CancelContext  context.CancelFunc
 }
 
 func (app *App) IsInLocalMode() bool {

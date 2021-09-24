@@ -34,8 +34,8 @@ func New(appName string, secret string) *Registry {
 	return r
 }
 
-func (r *Registry) SetTestThread(thread uint16) *Registry {
-	r.app.TestThread = thread
+func (r *Registry) SetParallelTestID(parallelTestID string) *Registry {
+	r.app.ParallelTestID = parallelTestID
 	return r
 }
 func (r *Registry) Build() (*Hitrix, func()) {

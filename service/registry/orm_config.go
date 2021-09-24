@@ -1,8 +1,18 @@
 package registry
 
 import (
+	"database/sql"
 	"errors"
+	"os"
+	"strconv"
+	"strings"
+
+	"github.com/fatih/color"
+
 	"fmt"
+	"reflect"
+
+	"github.com/coretrix/hitrix/service/component/app"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -15,13 +25,16 @@ type ORMRegistryInitFunc func(registry *beeorm.Registry)
 
 func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlobal {
 	var defferFunc func()
-	var ormConfig beeorm.ValidatedRegistry
 	var err error
+	var ormConfig beeorm.ValidatedRegistry
+	var appService *app.App
+	var configService config.IConfig
 
 	return &service.DefinitionGlobal{
 		Name: service.ORMConfigService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			configService := ctn.Get(service.ConfigService).(config.IConfig)
+			appService = ctn.Get(service.AppService).(*app.App)
+			configService = ctn.Get(service.ConfigService).(config.IConfig)
 
 			registry := beeorm.NewRegistry()
 
@@ -38,12 +51,74 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 			registry.InitByYaml(yamlConfig)
 			init(registry)
 
+			if appService.IsInTestMode() {
+				overwriteORMConfig(appService, configService, registry, yamlConfig)
+			}
+
 			ormConfig, defferFunc, err = registry.Validate()
 			return ormConfig, err
 		},
 		Close: func(obj interface{}) error {
+			if appService.IsInTestMode() && os.Getenv("PARALLEL_TESTS") == "true" {
+				removeDBs(appService, configService)
+			}
+
 			defferFunc()
 			return nil
 		},
+	}
+}
+
+func removeDBs(appService *app.App, configService config.IConfig) {
+	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
+	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
+	if err != nil {
+		panic(err)
+	}
+	newDBName := "t_" + appService.ParallelTestID
+
+	_, err = db.Exec("DROP DATABASE `" + newDBName + "`")
+	defer db.Close()
+
+	if err != nil {
+		panic(err)
+	}
+}
+
+func overwriteORMConfig(appService *app.App, configService config.IConfig, registry *beeorm.Registry, yamlConfig map[string]interface{}) {
+	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
+	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
+	if err != nil {
+		panic(err)
+	}
+
+	newDBName := "t_" + appService.ParallelTestID
+	color.Blue("DB name: %s", newDBName)
+
+	_, err = db.Exec("DROP DATABASE IF EXISTS `" + newDBName + "`; CREATE DATABASE `" + newDBName + "`")
+	defer db.Close()
+
+	if err != nil {
+		panic(err)
+	}
+
+	registry.RegisterMySQLPool(mysqlConnection[0] + "/" + newDBName)
+
+	for pool, value := range yamlConfig {
+		if _, ok := value.(map[interface{}]interface{})["sentinel"]; ok {
+			for masterConf, sentinelConnections := range value.(map[interface{}]interface{})["sentinel"].(map[interface{}]interface{}) {
+				sentinelConn := make([]string, 0)
+				sentinelConnValues := reflect.ValueOf(sentinelConnections)
+
+				for i := 0; i < reflect.ValueOf(sentinelConnections).Len(); i++ {
+					sentinelConn = append(sentinelConn, fmt.Sprint(sentinelConnValues.Index(i)))
+				}
+
+				settings := strings.Split(fmt.Sprint(masterConf), ":")
+				dbIndex, _ := strconv.Atoi(settings[1])
+
+				registry.RegisterRedisSentinel(settings[0], appService.ParallelTestID, dbIndex, sentinelConn, fmt.Sprint(pool))
+			}
+		}
 	}
 }

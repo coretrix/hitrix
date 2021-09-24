@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/coretrix/hitrix/service/component/trustpilot"
+	"github.com/coretrix/hitrix/service/component/otp"
 
 	"github.com/coretrix/hitrix/service/component/uuid"
 
@@ -71,6 +72,7 @@ const (
 	CrudService             = "crud"
 	TrustpilotService       = "trustpilot"
 	UUIDService             = "uuid"
+	OTPService              = "otp"
 )
 
 type DIInterface interface {
@@ -102,6 +104,7 @@ type DIInterface interface {
 	Goroutine() goroutine.IGoroutine
 	UUID() uuid.IUUID
 	Trustpilot() (*trustpilot.ITrustpilot, bool)
+	OTP() otp.IOTP
 }
 
 type diContainer struct {
@@ -290,4 +293,8 @@ func (d *diContainer) Goroutine() goroutine.IGoroutine {
 
 func (d *diContainer) UUID() uuid.IUUID {
 	return GetServiceRequired(UUIDService).(uuid.IUUID)
+}
+
+func (d *diContainer) OTP() otp.IOTP {
+	return GetServiceRequired(OTPService).(otp.IOTP)
 }
