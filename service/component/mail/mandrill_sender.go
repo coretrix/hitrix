@@ -2,13 +2,12 @@ package mail
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 
 	"github.com/xorcare/pointer"
-
-	"github.com/juju/errors"
 
 	"github.com/latolukasz/beeorm"
 	"github.com/mattbaird/gochimp"
@@ -128,7 +127,6 @@ func (s *Mandrill) sendTemplate(ormService *beeorm.Engine, from string, to strin
 	return nil
 }
 
-// Zero ttl expiration means the key has no expiration time.
 func (s *Mandrill) GetTemplateHTMLCode(ormService *beeorm.Engine, templateName string, ttl int) (string, error) {
 	key := templateCachePrefix + templateName
 	redisCache := ormService.GetRedis()

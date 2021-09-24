@@ -14,7 +14,6 @@ require (
 	github.com/checkout/checkout-sdk-go v0.0.19
 	github.com/chromedp/cdproto v0.0.0-20210910012206-68626162910d
 	github.com/chromedp/chromedp v0.7.4
-	github.com/davecgh/go-spew v1.1.1
 	github.com/dongri/phonenumber v0.0.0-20210304071411-690733f34185
 	github.com/fatih/color v1.12.0
 	github.com/gin-contrib/cors v1.3.1
@@ -31,9 +30,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/icza/gox v0.0.0-20201215141822-6edfac6c05b5
 	github.com/joho/godotenv v1.3.0
-	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/juju/fslock v0.0.0-20160525022230-4d5c94c67b4b
-	github.com/juju/testing v0.0.0-20201216035041-2be42bba85f3 // indirect
 	github.com/kavenegar/kavenegar-go v0.0.0-20200629080648-6e28263b7162
 	github.com/kevinburke/go-types v0.0.0-20201208005256-aee49f568a20 // indirect
 	github.com/kevinburke/go.uuid v1.2.0 // indirect
@@ -58,7 +55,6 @@ require (
 	golang.org/x/net v0.0.0-20210903162142-ad29c8ab022f
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.6 // indirect
 	google.golang.org/api v0.56.0
 	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83 // indirect
 )

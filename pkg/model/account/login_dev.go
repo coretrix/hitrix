@@ -1,11 +1,11 @@
 package account
 
 import (
+	"errors"
 	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/view/account"
 	"github.com/coretrix/hitrix/service"
 	"github.com/gin-gonic/gin"
-	"github.com/juju/errors"
 )
 
 type LoginDevForm struct {
@@ -23,7 +23,7 @@ func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
 
 	passwordService, has := service.DI().Password()
 	if !has {
-		return "", "", errors.New("Please load Password service")
+		return "", "", errors.New("please load Password service")
 	}
 
 	devPanelUserEntity := service.DI().App().DevPanel.UserEntity
