@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"errors"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
 
 	"fmt"
 	"reflect"
-	"strconv"
 
 	"github.com/coretrix/hitrix/service/component/app"
 
@@ -78,6 +78,8 @@ func removeDBs(appService *app.App, configService config.IConfig) {
 	newDBName := "t_" + appService.ParallelTestID
 
 	_, err = db.Exec("DROP DATABASE `" + newDBName + "`")
+	defer db.Close()
+
 	if err != nil {
 		panic(err)
 	}
@@ -94,6 +96,8 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 	color.Blue("DB name: %s", newDBName)
 
 	_, err = db.Exec("DROP DATABASE IF EXISTS `" + newDBName + "`; CREATE DATABASE `" + newDBName + "`")
+	defer db.Close()
+
 	if err != nil {
 		panic(err)
 	}
@@ -112,7 +116,8 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 
 				settings := strings.Split(fmt.Sprint(masterConf), ":")
 				dbIndex, _ := strconv.Atoi(settings[1])
-				registry.RegisterRedisSentinel(settings[0], settings[1], dbIndex, sentinelConn, fmt.Sprint(pool))
+
+				registry.RegisterRedisSentinel(settings[0], appService.ParallelTestID, dbIndex, sentinelConn, fmt.Sprint(pool))
 			}
 		}
 	}

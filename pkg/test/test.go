@@ -17,7 +17,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/juju/fslock"
 	"github.com/latolukasz/beeorm"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -261,14 +260,10 @@ func executeAlters(ormService *beeorm.Engine) {
 		ormService.GetRedis().FlushAll()
 	}
 
-	lock := fslock.New(os.TempDir() + "/lock.txt")
-
 	altersSearch := ormService.GetRedisSearchIndexAlters()
 	for _, alter := range altersSearch {
 		alter.Execute()
 	}
-
-	lock.Unlock()
 }
 
 func getRandomString() string {
