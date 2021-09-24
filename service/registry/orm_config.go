@@ -52,7 +52,7 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 			init(registry)
 
 			if appService.IsInTestMode() {
-				overwriteORMConfig(appService, configService, registry, yamlConfig)
+				//overwriteORMConfig(appService, configService, registry, yamlConfig)
 			}
 
 			ormConfig, defferFunc, err = registry.Validate()
