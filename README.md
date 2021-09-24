@@ -856,44 +856,6 @@ You should call `LogError` in case api return you error
 
 You should call `LogSuccess` in case api return you success
 
-#### Trustpilot
-This service provides the necessary SDK to integrate with [Trustpilot](https://developers.trustpilot.com/) 's API and Webhooks.
-
-As of the moment this is committed, Trustpilot does not provide an Official SDK for Golang.
-
-Then, you need the following config:
-```yaml
-trustpilot:
-  apiKey: "api key"
-  apiSecret: "api secret"
-  username: "login username/email"
-  password: "login password"
-  businessUnitID: ""
-```
-
-You can register the service:
-`registry.ServiceDefinitionTrustpilot()`
-
-You can also use the webhook helper `ProductReviewCreatedWebhookDecoder()` 
-    to decode the webhook incoming request's body and hydrate models.  
-Example:
-```go
-package webhook
-
-import (
-	"io/ioutil"
-	"github.com/coretrix/hitrix/service/component/trustpilot"
-)
-
-func HandleTrustpilotProductReviewCreatedEvent(c *gin.Context) {
-    body, _ := ioutil.ReadAll(c.Request.Body)
-    
-    reviews := make([]trustpilot.TrustpilotReview, 0)
-    reviews, _ = trustpilot.ProductReviewCreatedWebhookDecoder(string(body))
-	
-    // use reviews (of type TrustpilotReview)
-}
-```
 #### WebSocket
 This service add support of websockets. It manage the connections and provide you easy way to read and write messages
 

@@ -2,6 +2,7 @@ package account
 
 import (
 	"errors"
+
 	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/view/account"
 	"github.com/coretrix/hitrix/service"

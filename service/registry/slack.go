@@ -2,6 +2,7 @@ package registry
 
 import (
 	"errors"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/slack"

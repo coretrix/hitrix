@@ -5,18 +5,15 @@ import (
 )
 
 const (
-	seedsSetting      = "seeds"
-	trustpilotSetting = "trustpilot-accesstoken"
+	seedsSetting = "seeds"
 )
 
 type HitrixSettings struct {
-	Seeds      string
-	Trustpilot string
+	Seeds string
 }
 
 var HitrixSettingAll = HitrixSettings{
-	Seeds:      seedsSetting,
-	Trustpilot: trustpilotSetting,
+	Seeds: seedsSetting,
 }
 
 type SettingSeedsValue map[string]int
