@@ -167,7 +167,7 @@ func (processor *BackgroundProcessor) runScript(script Script) bool {
 		}()
 
 		app := service.DI().App()
-
+		log.Println("Run script - " + script.Description())
 		script.Run(app.GlobalContext, &exit{s: processor.Server})
 		return valid
 	}()
