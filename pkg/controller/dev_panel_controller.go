@@ -38,7 +38,7 @@ type DevPanelController struct {
 //	c.JSON(200, actions)
 //}
 
-func (controller *DevPanelController) CreateAdminUserAction(c *gin.Context) {
+func (controller *DevPanelController) CreateDevPanelUserAction(c *gin.Context) {
 	passwordService, has := service.DI().Password()
 	if !has {
 		panic("password is not registered")

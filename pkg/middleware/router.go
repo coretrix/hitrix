@@ -34,7 +34,7 @@ func Router(ginEngine *gin.Engine) {
 			devGroup.GET("redis-streams/", devPanel.GetRedisStreams)
 			devGroup.GET("redis-statistics/", devPanel.GetRedisStatistics)
 
-			ginEngine.GET("dev/create-admin/", devPanel.CreateAdminUserAction)
+			ginEngine.GET("dev/create-dev-panel-user/", devPanel.CreateDevPanelUserAction)
 			ginEngine.POST("dev/login/", devPanel.PostLoginDevPanelAction)
 			ginEngine.POST("dev/generate-token/", AuthorizeWithDevRefreshToken(), devPanel.PostGenerateTokenAction)
 		}

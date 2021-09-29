@@ -33,7 +33,7 @@ func main() {
 	).RegisterDIRequestService(
 		registry.ServiceProviderOrmEngineForContext(false),
 	).
-		RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil, nil).Build()
+		RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.Router, nil, nil).Build()
 	defer deferFunc()
 
 	b := &hitrix.BackgroundProcessor{Server: s}

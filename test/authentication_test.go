@@ -23,19 +23,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func createUser(input map[string]interface{}) *entity.AdminUserEntity {
+func createUser(input map[string]interface{}) *entity.DevPanelUserEntity {
 	ormService, _ := service.DI().OrmEngine()
-	adminEntity := &entity.AdminUserEntity{}
+	devPanelUserEntity := &entity.DevPanelUserEntity{}
 	for field, val := range input {
 		switch field {
 		case "Email":
-			adminEntity.Email = val.(string)
+			devPanelUserEntity.Email = val.(string)
 		case "Password":
-			adminEntity.Password = val.(string)
+			devPanelUserEntity.Password = val.(string)
 		}
 	}
-	ormService.Flush(adminEntity)
-	return adminEntity
+	ormService.Flush(devPanelUserEntity)
+	return devPanelUserEntity
 }
 
 func TestGenerateOTP(t *testing.T) {
@@ -250,7 +250,7 @@ func TestAuthenticate(t *testing.T) {
 		})
 
 		authenticationService, _ := service.DI().Authentication()
-		fetchedAdminEntity := &entity.AdminUserEntity{}
+		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		_, _, err := authenticationService.Authenticate(ormService, "test@test.com", "1234", fetchedAdminEntity)
 		assert.Nil(t, err)
 	})
@@ -285,7 +285,7 @@ func TestAuthenticate(t *testing.T) {
 		})
 
 		authenticationService, _ := service.DI().Authentication()
-		fetchedAdminEntity := &entity.AdminUserEntity{}
+		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		_, _, err := authenticationService.AuthenticateByID(ormService, userEntity.GetID(), fetchedAdminEntity)
 		assert.Nil(t, err)
 		assert.Equal(t, fetchedAdminEntity.GetID(), userEntity.GetID())
@@ -318,7 +318,7 @@ func TestAuthenticate(t *testing.T) {
 		})
 
 		authenticationService, _ := service.DI().Authentication()
-		fetchedAdminEntity := &entity.AdminUserEntity{}
+		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		_, _, err := authenticationService.Authenticate(ormService, "test@tesat.com", "1234", fetchedAdminEntity)
 		assert.NotNil(t, err)
 	})
@@ -357,7 +357,7 @@ func TestVerifyAccessToken(t *testing.T) {
 		authenticationService, _ := service.DI().Authentication()
 		token, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
-		fetchedAdminEntity := &entity.AdminUserEntity{}
+		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		payload, err := authenticationService.VerifyAccessToken(ormService, token, fetchedAdminEntity)
 		assert.Nil(t, err)
 		assert.Equal(t, accessKey, payload["jti"])
@@ -393,7 +393,7 @@ func TestVerifyAccessToken(t *testing.T) {
 		authenticationService, _ := service.DI().Authentication()
 		token, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
-		fetchedAdminEntity := &entity.AdminUserEntity{}
+		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		_, err = authenticationService.VerifyAccessToken(ormService, " wef"+token, fetchedAdminEntity)
 		assert.NotNil(t, err)
 	})
@@ -505,7 +505,7 @@ func TestLogoutCurrentSession(t *testing.T) {
 		authenticationService, _ := service.DI().Authentication()
 		accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
-		fetchedAdminEntity := &entity.AdminUserEntity{}
+		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		_, err = authenticationService.VerifyAccessToken(ormService, accessToken, fetchedAdminEntity)
 		assert.Nil(t, err)
 		authenticationService.LogoutCurrentSession(ormService, accessKey)
@@ -550,7 +550,7 @@ func TestLogoutAllSessions(t *testing.T) {
 		authenticationService, _ := service.DI().Authentication()
 		accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
-		fetchedAdminEntity := &entity.AdminUserEntity{}
+		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		_, err = authenticationService.VerifyAccessToken(ormService, accessToken, fetchedAdminEntity)
 		assert.Nil(t, err)
 		authenticationService.LogoutAllSessions(ormService, currentUser.ID)
@@ -595,7 +595,7 @@ func TestLogoutAllSessions(t *testing.T) {
 		assert.Nil(t, err)
 		accessToken2, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey2, 10)
 		assert.Nil(t, err)
-		fetchedAdminEntity := &entity.AdminUserEntity{}
+		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		_, err = authenticationService.VerifyAccessToken(ormService, accessToken1, fetchedAdminEntity)
 		assert.Nil(t, err)
 		_, err = authenticationService.VerifyAccessToken(ormService, accessToken2, fetchedAdminEntity)
@@ -639,7 +639,7 @@ func TestGenerateTokenPair(t *testing.T) {
 	ormService.GetRedis().Set("test_key", "", 10)
 	accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, "test_key", 10)
 	assert.Nil(t, err)
-	fetchedAdminEntity := &entity.AdminUserEntity{}
+	fetchedAdminEntity := &entity.DevPanelUserEntity{}
 	payload, err := authenticationService.VerifyAccessToken(ormService, accessToken, fetchedAdminEntity)
 	assert.Nil(t, err)
 	assert.Equal(t, "test_key", payload["jti"])

@@ -18,13 +18,13 @@ func TestRedisSearch(t *testing.T) {
 	query := &beeorm.RedisSearchQuery{}
 	query.FilterString("Email", "test@coretrix.com")
 
-	newAdminUserEntity := &entity.AdminUserEntity{
+	newDevPanelUserEntity := &entity.DevPanelUserEntity{
 		Email: "test@coretrix.com",
 	}
-	ormService.Flush(newAdminUserEntity)
+	ormService.Flush(newDevPanelUserEntity)
 
-	adminUserEntity := &entity.AdminUserEntity{}
-	found := ormService.RedisSearchOne(adminUserEntity, query)
+	devPanelUserEntity := &entity.DevPanelUserEntity{}
+	found := ormService.RedisSearchOne(devPanelUserEntity, query)
 
 	assert.True(t, found)
 }

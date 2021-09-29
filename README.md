@@ -121,7 +121,7 @@ As you can see in our example we register only Cors middleware
 ### Register [Dev Panel](https://github.com/coretrix/dev-frontend)
 If you want to use our dev panel and to be able to manage alters, error log, redis monitoring, redis stream and so  on you should execute next steps:
 
-#### Create AdminUserEntity
+#### Create DevPanelUserEntity
 ```go
 package entity
 
@@ -129,7 +129,7 @@ import (
 	"github.com/latolukasz/beeorm"
 )
 
-type AdminUserEntity struct {
+type DevPanelUserEntity struct {
 	beeorm.ORM   `orm:"table=admin_users;redisCache"`
 	ID        uint64
 	Email     string `orm:"unique=Email"`
@@ -138,11 +138,11 @@ type AdminUserEntity struct {
 	UserEmailIndex *beeorm.CachedQuery `queryOne:":Email = ?"`
 }
 
-func (e *AdminUserEntity) GetUsername() string {
+func (e *DevPanelUserEntity) GetUsername() string {
 	return e.Email
 }
 
-func (e *AdminUserEntity) GetPassword() string {
+func (e *DevPanelUserEntity) GetPassword() string {
 	return e.Password
 }
 
@@ -156,7 +156,7 @@ import "github.com/latolukasz/beeorm"
 
 func Init(registry *beeorm.Registry) {
 	registry.RegisterEntity(
-		&AdminUserEntity{},
+		&DevPanelUserEntity{},
 	)
 }
 
@@ -165,7 +165,7 @@ func Init(registry *beeorm.Registry) {
 Please execute this alter into your database
 ```sql
 
-create table admin_users
+create table dev_panel_users
 (
     ID       bigint unsigned auto_increment primary key,
     Email    varchar(255) null,
@@ -176,7 +176,7 @@ create table admin_users
 
 ```
 
-After that you can make GET request to http://localhost:9999/dev/create-admin/?username=contact@coretrix.com&password=coretrix
+After that you can make GET request to http://localhost:9999/dev/create-dev-panel-user/?username=contact@coretrix.com&password=coretrix
 This will generate sql query that should be executed into your database to create new user for dev panel
 
 #### Register dev panel when you make new instance of hitrix framework in your `main.go` file
@@ -187,7 +187,7 @@ s, deferFunc := hitrix.New(
 		registry.ServiceProviderErrorLogger(), //register redis error logger
 		//...
 	).
-    RegisterDevPanel(&entity.AdminUserEntity{}, middleware.Router, nil). //register our dev-panel and pass the entity where we save admin users, the router and the third param is used for the redis stream pool if its used
+    RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.Router, nil). //register our dev-panel and pass the entity where we save admin users, the router and the third param is used for the redis stream pool if its used
     Build()
 ```
 
