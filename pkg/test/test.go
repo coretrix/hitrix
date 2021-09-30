@@ -32,6 +32,7 @@ import (
 )
 
 var dbAlters string
+var skipAlters bool
 var parallelTestID string
 
 type Environment struct {
@@ -239,13 +240,17 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 }
 
 func executeAlters(ormService *beeorm.Engine) {
-	if dbAlters == "" {
+	if !skipAlters && dbAlters == "" {
 		for _, alter := range ormService.GetAlters() {
 			dbAlters += alter.SQL
 		}
 
-		_, def := ormService.GetMysql().Query(dbAlters)
-		defer def()
+		if dbAlters == "" {
+			skipAlters = true
+		} else {
+			_, def := ormService.GetMysql().Query(dbAlters)
+			defer def()
+		}
 	} else {
 		err := truncateTables(ormService.GetMysql())
 		if err != nil {
