@@ -120,12 +120,12 @@ func (g *TwilioGateway) SendOTPCallout(otp *OTP) (string, error) {
 func (g *TwilioGateway) SendSMSMessage(message *Message) (string, error) {
 	api := twilio.NewClient(g.SID, g.Token, nil)
 
-	msg, err := api.Messages.SendMessage(g.FromNumber, message.Number, message.Text, nil)
+	_, err := api.Messages.SendMessage(g.FromNumber, message.Number, message.Text, nil)
 	if err != nil {
 		return err.Error(), err
 	}
 
-	return msg.Status.Friendly(), nil
+	return success, nil
 }
 
 func (g *TwilioGateway) SendCalloutMessage(message *Message) (string, error) {
