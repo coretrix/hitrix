@@ -29,6 +29,10 @@ func (t *FakeS3Client) UploadObjectFromBase64(_ *beeorm.Engine, bucket, content,
 	return t.Called(bucket, content, extension).Get(0).(s3.Object)
 }
 
+func (t *FakeS3Client) UploadObjectFromByte(_ *beeorm.Engine, bucket string, byteData []byte, extension string) s3.Object {
+	return t.Called(bucket, byteData, extension).Get(0).(s3.Object)
+}
+
 func (t *FakeS3Client) UploadImageFromFile(_ *beeorm.Engine, bucket, localFile string) s3.Object {
 	return t.Called(bucket, localFile).Get(0).(s3.Object)
 }

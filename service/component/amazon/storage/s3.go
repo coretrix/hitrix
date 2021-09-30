@@ -175,6 +175,10 @@ func (amazonS3 *AmazonS3) UploadObjectFromBase64(ormService *beeorm.Engine, buck
 	return amazonS3.putObject(ormService, bucket, byteData, extension)
 }
 
+func (amazonS3 *AmazonS3) UploadObjectFromByte(ormService *beeorm.Engine, bucket string, byteData []byte, extension string) Object {
+	return amazonS3.putObject(ormService, bucket, byteData, extension)
+}
+
 func (amazonS3 *AmazonS3) UploadImageFromBase64(ormService *beeorm.Engine, bucket, base64image, extension string) Object {
 	byteData, err := base64.StdEncoding.DecodeString(base64image)
 
@@ -294,6 +298,7 @@ type Client interface {
 	GetObjectSignedURL(bucket string, object *Object, expires time.Duration) string
 	UploadObjectFromFile(ormService *beeorm.Engine, bucket, localFile string) Object
 	UploadObjectFromBase64(ormService *beeorm.Engine, bucket, content, extension string) Object
+	UploadObjectFromByte(ormService *beeorm.Engine, bucket string, data []byte, extension string) Object
 	UploadImageFromFile(ormService *beeorm.Engine, bucket, localFile string) Object
 	UploadImageFromBase64(ormService *beeorm.Engine, bucket, image, extension string) Object
 	DeleteObject(bucket string, objects ...*Object) bool
