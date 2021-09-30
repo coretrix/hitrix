@@ -12,8 +12,6 @@ import (
 	"net/http/httptest"
 	"net/textproto"
 	"os"
-	"regexp"
-	"strings"
 	"testing"
 	"time"
 
@@ -34,6 +32,7 @@ import (
 )
 
 var dbAlters string
+var parallelTestID string
 
 type Environment struct {
 	t                *testing.T
@@ -240,26 +239,6 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 }
 
 func executeAlters(ormService *beeorm.Engine) {
-	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
-		if dbAlters != "" {
-			err := truncateTables(ormService.GetMysql())
-			if err != nil {
-				panic(err)
-			}
-		}
-	} else {
-		if dbAlters != "" {
-			left := "CREATE TABLE `"
-			right := "`."
-			rx := regexp.MustCompile(`(?s)` + regexp.QuoteMeta(left) + `(.*?)` + regexp.QuoteMeta(right))
-			matches := rx.FindStringSubmatch(dbAlters)
-			dbAlters = strings.ReplaceAll(dbAlters, matches[1], ormService.GetRegistry().GetMySQLPools()["default"].GetDatabase())
-
-			_, def := ormService.GetMysql().Query(dbAlters)
-			defer def()
-		}
-	}
-
 	if dbAlters == "" {
 		err := dropTables(ormService.GetMysql())
 		if err != nil {
@@ -272,6 +251,11 @@ func executeAlters(ormService *beeorm.Engine) {
 
 		_, def := ormService.GetMysql().Query(dbAlters)
 		defer def()
+	} else {
+		err := truncateTables(ormService.GetMysql())
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
@@ -295,8 +279,11 @@ func getRandomString() string {
 func getParallelID() string {
 	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
 		return "1"
+	} else if parallelTestID != "" {
+		return parallelTestID
 	} else {
-		return getRandomString()
+		parallelTestID = getRandomString()
+		return parallelTestID
 	}
 }
 
