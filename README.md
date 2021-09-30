@@ -1157,7 +1157,7 @@ hitrixRegistry.Crud(),
 This service it gives you ability to build a query and apply different query parameters to the query that should be used in listing pages
 
 ### Validator
-We support 2 types of validators. One of them is related to graphql and the other one is related to rest
+We support 2 types of validators. One of them is related to graphql, the other one is related to rest.
 
 #### Graphql validator
 There are 2 steps that needs to be executed if you want to use this kind of validator
