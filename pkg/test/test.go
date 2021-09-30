@@ -32,7 +32,6 @@ import (
 )
 
 var dbAlters string
-var skipAlters bool
 var parallelTestID string
 
 type Environment struct {
@@ -240,17 +239,18 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 }
 
 func executeAlters(ormService *beeorm.Engine) {
-	if !skipAlters && dbAlters == "" {
+	if dbAlters == "" {
+		err := dropTables(ormService.GetMysql())
+		if err != nil {
+			panic(err)
+		}
+
 		for _, alter := range ormService.GetAlters() {
 			dbAlters += alter.SQL
 		}
 
-		if dbAlters == "" {
-			skipAlters = true
-		} else {
-			_, def := ormService.GetMysql().Query(dbAlters)
-			defer def()
-		}
+		_, def := ormService.GetMysql().Query(dbAlters)
+		defer def()
 	} else {
 		err := truncateTables(ormService.GetMysql())
 		if err != nil {
@@ -287,28 +287,28 @@ func getParallelID() string {
 	}
 }
 
-//func dropTables(dbService *beeorm.DB) error {
-//	var query string
-//	rows, deferF := dbService.Query(
-//		"SELECT CONCAT('DROP TABLE ',table_schema,'.',table_name,';') AS query " +
-//			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "')",
-//	)
-//	defer deferF()
-//
-//	if rows != nil {
-//		var queries string
-//
-//		for rows.Next() {
-//			rows.Scan(&query)
-//			queries += query
-//		}
-//		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
-//
-//		defer def()
-//	}
-//
-//	return nil
-//}
+func dropTables(dbService *beeorm.DB) error {
+	var query string
+	rows, deferF := dbService.Query(
+		"SELECT CONCAT('DROP TABLE ',table_schema,'.',table_name,';') AS query " +
+			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "')",
+	)
+	defer deferF()
+
+	if rows != nil {
+		var queries string
+
+		for rows.Next() {
+			rows.Scan(&query)
+			queries += query
+		}
+		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
+
+		defer def()
+	}
+
+	return nil
+}
 
 func truncateTables(dbService *beeorm.DB) error {
 	var query string
