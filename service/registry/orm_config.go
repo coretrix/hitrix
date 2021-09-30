@@ -3,7 +3,6 @@ package registry
 import (
 	"database/sql"
 	"errors"
-	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -22,6 +21,8 @@ import (
 )
 
 type ORMRegistryInitFunc func(registry *beeorm.Registry)
+
+var sequence int
 
 func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlobal {
 	var defferFunc func()
@@ -59,32 +60,28 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 			return ormConfig, err
 		},
 		Close: func(obj interface{}) error {
-			if appService.IsInTestMode() && os.Getenv("PARALLEL_TESTS") == "true" {
-				removeDBs(appService, configService)
-			}
-
 			defferFunc()
 			return nil
 		},
 	}
 }
 
-func removeDBs(appService *app.App, configService config.IConfig) {
-	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
-	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	newDBName := "t_" + appService.ParallelTestID
-
-	_, err = db.Exec("DROP DATABASE `" + newDBName + "`")
-
-	if err != nil {
-		panic(err)
-	}
-}
+//func removeDBs(appService *app.App, configService config.IConfig) {
+//	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
+//	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
+//	if err != nil {
+//		panic(err)
+//	}
+//	defer db.Close()
+//
+//	newDBName := "t_" + appService.ParallelTestID
+//
+//	_, err = db.Exec("DROP DATABASE `" + newDBName + "`")
+//
+//	if err != nil {
+//		panic(err)
+//	}
+//}
 
 func overwriteORMConfig(appService *app.App, configService config.IConfig, registry *beeorm.Registry, yamlConfig map[string]interface{}) {
 	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
@@ -97,11 +94,7 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 	newDBName := "t_" + appService.ParallelTestID
 	color.Blue("DB name: %s", newDBName)
 
-	if os.Getenv("PARALLEL_TESTS") == "true" {
-		_, err = db.Exec("DROP DATABASE IF EXISTS `" + newDBName + "`; CREATE DATABASE `" + newDBName + "`")
-	} else {
-		_, err = db.Exec("CREATE DATABASE IF NOT EXISTS `" + newDBName + "`")
-	}
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS `" + newDBName + "`")
 
 	if err != nil {
 		panic(err)
@@ -121,7 +114,9 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 
 				settings := strings.Split(fmt.Sprint(masterConf), ":")
 				dbIndex, _ := strconv.Atoi(settings[1])
-				registry.RegisterRedisSentinel(settings[0], appService.ParallelTestID, dbIndex, sentinelConn, fmt.Sprint(pool))
+
+				sequence++
+				registry.RegisterRedisSentinel(settings[0], appService.ParallelTestID+fmt.Sprint(sequence), dbIndex, sentinelConn, fmt.Sprint(pool))
 			}
 		}
 	}
