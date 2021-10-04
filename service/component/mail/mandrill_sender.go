@@ -15,6 +15,10 @@ import (
 
 const (
 	templateCachePrefix = "mandrill_template_"
+
+	// ref: https://github.com/shawnmclean/Mandrill-dotnet/blob/05f26c917264751a903e3bcf83ca7153b5656526/src/Mandrill/Models/EmailMessage.cs#L19
+	mergeLanguageHandlebars = "handlebars"
+	mergeLanguageMailchimp  = "mailchimp"
 )
 
 type Mandrill struct {
@@ -55,9 +59,10 @@ func (s *Mandrill) sendTemplate(ormService *beeorm.Engine, from string, to strin
 	}
 
 	message := gochimp.Message{
-		Subject:     subject,
-		FromEmail:   from,
-		Attachments: attachments,
+		MergeLanguage: mergeLanguageHandlebars,
+		Subject:       subject,
+		FromEmail:     from,
+		Attachments:   attachments,
 		To: []gochimp.Recipient{
 			{Email: to},
 		},
