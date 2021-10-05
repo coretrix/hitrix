@@ -5,10 +5,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/gin-contrib/timeout"
 	"io/ioutil"
 	"runtime/debug"
 	"time"
+
+	"github.com/gin-contrib/timeout"
 
 	"github.com/coretrix/hitrix/service"
 
