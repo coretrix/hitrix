@@ -1,7 +1,7 @@
 version: '3'
 services:
   mysql:
-    image: percona
+    image: mysql:8.0
     volumes:
       - orm_data_mysql:/var/lib/mysql
     ports:

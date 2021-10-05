@@ -103,6 +103,14 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 	registry.RegisterMySQLPool(mysqlConnection[0] + "/" + newDBName)
 
 	for pool, value := range yamlConfig {
+		if _, ok := value.(map[interface{}]interface{})["mysql"]; ok {
+			mysqlConn := strings.Split(configService.MustString("orm."+pool+".mysql"), "/")
+			_, err = db.Exec("CREATE DATABASE IF NOT EXISTS `" + mysqlConn[len(mysqlConn)-1] + "`")
+			if err != nil {
+				panic(err)
+			}
+		}
+
 		if _, ok := value.(map[interface{}]interface{})["sentinel"]; ok {
 			for masterConf, sentinelConnections := range value.(map[interface{}]interface{})["sentinel"].(map[interface{}]interface{}) {
 				sentinelConn := make([]string, 0)
