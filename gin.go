@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/gin-contrib/timeout"
 	"io/ioutil"
 	"runtime/debug"
 	"time"
@@ -17,8 +18,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/gin-contrib/timeout"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -68,7 +67,14 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 	}
 
 	if server != nil {
-		ginEngine.POST("/query", timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server, gqlServerInitHandler))))
+		var queryHandler gin.HandlerFunc
+		if app.IsInLocalMode() {
+			queryHandler = timeout.New(timeout.WithHandler(graphqlHandler(server, gqlServerInitHandler)))
+		} else {
+			queryHandler = timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server, gqlServerInitHandler)))
+		}
+
+		ginEngine.POST("/query", queryHandler)
 		ginEngine.GET("/", playgroundHandler())
 	}
 
