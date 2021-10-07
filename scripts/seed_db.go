@@ -63,15 +63,16 @@ func Seeder(seeds map[string]Seed, ormService *beeorm.Engine) {
 
 }
 func saveNewSeeds(ormService *beeorm.Engine, newSeeds entity.SettingSeedsValue) {
-	var settings = entity.SettingsEntity{
-		Key: entity.HitrixSettingAll.Seeds,
-	}
+	settingsEntity := &entity.SettingsEntity{}
 
-	var hasExecutedSeedsSetting = ormService.Load(&settings)
+	query := &beeorm.RedisSearchQuery{}
+	query.FilterString("Key", entity.HitrixSettingAll.Seeds)
+
+	hasExecutedSeedsSetting:= ormService.RedisSearchOne(settingsEntity, query)
 
 	if hasExecutedSeedsSetting {
 		var oldSeeds entity.SettingSeedsValue
-		if err := json.Unmarshal([]byte(settings.Value), &oldSeeds); err != nil {
+		if err := json.Unmarshal([]byte(settingsEntity.Value), &oldSeeds); err != nil {
 			panic(err.Error())
 		}
 
@@ -79,12 +80,15 @@ func saveNewSeeds(ormService *beeorm.Engine, newSeeds entity.SettingSeedsValue) 
 		for k, v := range newSeeds {
 			oldSeeds[k] = v
 		}
+		newSeeds = oldSeeds
+	}else {
+		settingsEntity.Key = entity.HitrixSettingAll.Seeds
 	}
 
 	str, err := json.Marshal(newSeeds)
 	if err != nil {
 		panic(err.Error())
 	}
-	settings.Value = string(str)
-	ormService.Flush(&settings)
+	settingsEntity.Value = string(str)
+	ormService.Flush(settingsEntity)
 }
