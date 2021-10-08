@@ -38,3 +38,42 @@ func (g *SimpleGenerator) GenerateRandomCode(generator *vcgen.Generator) string 
 
 	return strings.Join(*result, "")
 }
+
+const (
+	lowerCharSet   = "abcdefghijklmnopqrstuvwxyz"
+	upperCharSet   = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	specialCharSet = "!@#$%*-+.?"
+	numberSet      = "0123456789"
+	allCharSet     = lowerCharSet + upperCharSet + specialCharSet + numberSet
+)
+
+func (g *SimpleGenerator) RandomPasswordGenerator(passwordLength int) string {
+	var password strings.Builder
+	max := big.NewInt(int64(len(allCharSet)))
+
+	for i := 0; i < passwordLength; i++ {
+		num, err := rand.Int(rand.Reader, max)
+		if err != nil {
+			panic(err)
+		}
+		password.WriteRune(rune(allCharSet[num.Int64()]))
+	}
+
+	return password.String()
+}
+
+func (g *SimpleGenerator) RandomPINCodeGenerator(codeLength int) string {
+	charSet := lowerCharSet + numberSet
+	var code strings.Builder
+	max := big.NewInt(int64(len(charSet)))
+
+	for i := 0; i < codeLength; i++ {
+		num, err := rand.Int(rand.Reader, max)
+		if err != nil {
+			panic(err)
+		}
+		code.WriteRune(rune(charSet[num.Int64()]))
+	}
+
+	return code.String()
+}
