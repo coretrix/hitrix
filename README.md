@@ -910,10 +910,10 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 }
 
 ```
-This handler initialize the new comming connections and have 2 go routines - one for writing messages and the second one for reading messages
-If you want to send message you should use ```socketRegistryService.Emit```
+This handler initializes the new incoming connections and have 2 goroutines - one for writing messages, and the second one for reading messages
+If you want to send a message you should use ```socketRegistryService.Emit```
 
-If you want to read comming messages you should do it in the function we are passing as second parameter of ```ReadPump``` method
+If you want to read incoming messages you should do it in the function we are passing as second parameter of ```ReadPump``` method
 
 If you want to select certain connection you can do it by the ID and this method ```s, err := socketRegistryService.Sockets.Load(ID)```
 
