@@ -52,6 +52,34 @@ func (c *Checkout) RequestPayment(source interface{}, amount uint64, currency st
 	return response
 }
 
+func (c *Checkout) RequestRefunds(amount uint64, reference string, metadata map[string]string) *payments.RefundsResponse {
+	config, err := checkout.Create(c.secretKey, c.publicKey)
+	if err != nil {
+		panic("failed creating checkout client: " + err.Error())
+	}
+
+	idempotencyKey := checkout.NewIdempotencyKey()
+
+	params := checkout.Params{
+		IdempotencyKey: &idempotencyKey,
+	}
+
+	var client = payments.NewClient(*config)
+
+	request := &payments.RefundsRequest{
+		Amount:    amount,
+		Reference: reference,
+		Metadata:  metadata,
+	}
+
+	response, err := client.Refunds("pay_", request, &params)
+	if err != nil {
+		panic("checkout.com refund error: " + err.Error())
+	}
+
+	return response
+}
+
 func (c *Checkout) CheckWebhookKey(keyCode, key string) bool {
 	if value, found := c.webhookSecrets[keyCode]; found {
 		if value == key {
