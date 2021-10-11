@@ -38,6 +38,14 @@ type DevPanelController struct {
 //	c.JSON(200, actions)
 //}
 
+func (controller *DevPanelController) GetSettingsAction(c *gin.Context) {
+	appService := service.DI().App()
+
+	response.SuccessResponse(c, gin.H{
+		"AppMode": appService.Mode,
+	})
+}
+
 func (controller *DevPanelController) CreateDevPanelUserAction(c *gin.Context) {
 	passwordService, has := service.DI().Password()
 	if !has {

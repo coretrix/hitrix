@@ -20,3 +20,10 @@ func (f *FakeGenerator) GenerateSha256Hash(input string) string {
 func (f *FakeGenerator) GenerateRandomCode(generator *vcgen.Generator) string {
 	return f.Called(generator).String(0)
 }
+
+func (f *FakeGenerator) RandomPasswordGenerator(l int) string {
+	return f.Called(l).String(0)
+}
+func (f *FakeGenerator) RandomPINCodeGenerator(l int) string {
+	return f.Called(l).String(0)
+}

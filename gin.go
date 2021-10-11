@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-contrib/timeout"
 
+	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -20,6 +21,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 type GinInitHandler func(ginEngine *gin.Engine)
@@ -78,7 +80,7 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 		ginEngine.POST("/query", queryHandler)
 		ginEngine.GET("/", playgroundHandler())
 	}
-
+	binding.Validator = helper.NewValidator()
 	return ginEngine
 }
 
