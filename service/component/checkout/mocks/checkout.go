@@ -16,3 +16,7 @@ func (c *FakeCheckoutClient) CheckWebhookKey(keyCode, key string) bool {
 func (c *FakeCheckoutClient) RequestPayment(source interface{}, amount uint64, currency string, reference string, customer *payments.Customer, metadata map[string]string) *payments.Response {
 	return c.Called(source, amount, currency, reference, customer, metadata).Get(0).(*payments.Response)
 }
+
+func (c *FakeCheckoutClient) RequestRefunds(amount uint64, reference string, metadata map[string]string) *payments.RefundsResponse {
+	return c.Called(amount, reference, metadata).Get(0).(*payments.RefundsResponse)
+}
