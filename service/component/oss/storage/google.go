@@ -103,7 +103,12 @@ func (ossStorage *GoogleOSS) GetObjectCachedURL(bucket string, object *oss.Objec
 		bucketByEnv += "-" + ossStorage.environment
 	}
 
-	return fmt.Sprintf("https://%s%s.%s/%s/%s", ossStorage.urlPrefix, ossStorage.environment, ossStorage.domain, bucketByEnv, object.CachedURL)
+	envInUrl := ""
+	if ossStorage.environment != app.ModeProd {
+		envInUrl = ossStorage.environment + "."
+	}
+
+	return fmt.Sprintf("https://%s%s%s/%s/%s", ossStorage.urlPrefix, envInUrl, ossStorage.domain, bucketByEnv, object.CachedURL)
 }
 
 func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket string, object *oss.Object, expires time.Time) string {
