@@ -97,7 +97,7 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 		for i := 0; i < t.NumField(); i++ {
 			hasStruct := false
 			if depth > writeQueryDeepLimit {
-				if *shownError == false {
+				if !*shownError {
 					*shownError = true
 					log.Println("You reached writeQueryDeepLimit constant")
 				}
@@ -124,7 +124,7 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 						hasStruct = true
 
 						if depth+1 > writeQueryDeepLimit {
-							if *shownError == false {
+							if !*shownError {
 								*shownError = true
 								log.Println("You reached writeQueryDeepLimit constant")
 							}
