@@ -68,7 +68,7 @@ func saveNewSeeds(ormService *beeorm.Engine, newSeeds entity.SettingSeedsValue) 
 	query := &beeorm.RedisSearchQuery{}
 	query.FilterString("Key", entity.HitrixSettingAll.Seeds)
 
-	hasExecutedSeedsSetting:= ormService.RedisSearchOne(settingsEntity, query)
+	hasExecutedSeedsSetting := ormService.RedisSearchOne(settingsEntity, query)
 
 	if hasExecutedSeedsSetting {
 		var oldSeeds entity.SettingSeedsValue
@@ -81,7 +81,7 @@ func saveNewSeeds(ormService *beeorm.Engine, newSeeds entity.SettingSeedsValue) 
 			oldSeeds[k] = v
 		}
 		newSeeds = oldSeeds
-	}else {
+	} else {
 		settingsEntity.Key = entity.HitrixSettingAll.Seeds
 	}
 
