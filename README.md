@@ -3,7 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/coretrix/hitrix)](https://goreportcard.com/report/github.com/coretrix/hitrix)
 [![GPL3 license](https://img.shields.io/badge/license-GPL3-brightgreen.svg)](https://opensource.org/licenses/GPL-3.0)
 
-#[Official documentation](https://coretrix.github.io/hitrix/)
+# [Official documentation](https://coretrix.github.io/hitrix/)
 
 ### For Contributors
 Every new feature or change already existing feature should be described into the documentation.
