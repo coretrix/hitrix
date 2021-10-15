@@ -10,10 +10,10 @@ module.exports = {
     ],
     themeConfig: {
         repo: 'https://github.com/coretrix/hitrix',
-        docsRepo: 'https://github.com/coretrix/hitrix/documentation',
+        docsRepo: 'https://github.com/coretrix/hitrix',
         logo: '/logo-favicon-90x90.png',
         editLinks: true,
-        docsDir: 'docs',
+        docsDir: 'docs/docs',
         editLinkText: '',
         lastUpdated: true,
         smoothScroll: true,
