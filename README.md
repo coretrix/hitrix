@@ -81,12 +81,12 @@ func main() {
 	).RegisterDIGlobalService(
 		registry.ServiceProviderErrorLogger(), //register redis error logger
 		registry.ServiceProviderConfigDirectory("../config"), //register config service. As param you should point to the folder of your config file
-		registry.ServiceDefinitionOrmRegistry(entity.Init), //register our ORM and pass function where we set some configurations 
-		registry.ServiceDefinitionOrmEngine(), //register our ORM engine for background processes
+		registry.ServiceProviderOrmRegistry(entity.Init), //register our ORM and pass function where we set some configurations 
+		registry.ServiceProviderOrmEngine(), //register our ORM engine for background processes
 		registry.ServiceProviderJWT(), //register JWT DI service
 		registry.ServiceProviderPassword(), //register pasword DI service
 	).RegisterDIRequestService(
-		registry.ServiceDefinitionOrmEngineForContext(), //register our ORM engine per context used in foreground processes 
+		registry.ServiceProviderOrmEngineForContext(), //register our ORM engine per context used in foreground processes 
 	).Build()
     defer deferFunc()
 
@@ -213,8 +213,8 @@ service.DI().Password() //access JWT
 #### Register new DI global service
 ```go
 
-func ServiceDefinitionMyService() *ServiceDefinition {
-	return &ServiceDefinition{
+func ServiceProviderMyService() *ServiceProvider {
+	return &ServiceProvider{
 		Name:   "my_service",
 		Build: func(ctn di.Container) (interface{}, error) {
 			return &yourService{}, nil
@@ -224,7 +224,7 @@ func ServiceDefinitionMyService() *ServiceDefinition {
 
 ```
 
-And you have to register `ServiceDefinitionMyService()` in your `main.go` file
+And you have to register `ServiceProviderMyService()` in your `main.go` file
 
 
 Now you can access this service in your code using:
@@ -428,7 +428,7 @@ import "github.com/coretrix/hitrix"
 func main() {
 	
     hitrix.New("app_name", "your secret").RegisterDIService(
-        &registry.ServiceDefinition{
+        &registry.ServiceProvider{
             Name:   "my-script",
             
             Script: true, // you need to set true here
@@ -473,13 +473,13 @@ config
 Used to access ORM in background scripts. It is one instance for the whole script
 
 You can register it in that way:
-`registry.ServiceDefinitionOrmEngine()`
+`registry.ServiceProviderOrmEngine()`
 
 #### ORM Engine Context
 Used to access ORM in foreground scripts like API. It is one instance per every request
 
 You can register it in that way:
-`registry.ServiceDefinitionOrmEngineForContext()`
+`registry.ServiceProviderOrmEngineForContext()`
 
 #### Error Logger
 Used to save unhandled errors in error log. It can be used to save custom errors as well.
@@ -501,19 +501,19 @@ slack:
 ```
 
 You can register it in that way:
-`registry.ServiceDefinitionSlackAPI()`
+`registry.ServiceProviderSlackAPI()`
 
 #### JWT
 You can use that service to encode and decode JWT tokens
 
 You can register it in that way:
-`registry.ServiceDefinitionJWT()`
+`registry.ServiceProviderJWT()`
 
 #### Password
 This service it can be used to hash and verify hashed passwords. It's use the secret provided when you make new Hitrix instance
 
 You can register it in that way:
-`registry.ServiceDefinitionPassword()`
+`registry.ServiceProviderPassword()`
 
 #### Amazon S3
 
@@ -522,7 +522,7 @@ This service is used for storing files into amazon s3
 You can register amazon s3 service this way:
 
 ```go
-registry.ServiceDefinitionAmazonS3(map[string]uint64{"products": 1}) // 1 is the bucket ID for database counter
+registry.ServiceProviderAmazonS3(map[string]uint64{"products": 1}) // 1 is the bucket ID for database counter
 ```
 and you should register the entity `S3BucketCounterEntity` into the ORM
 Also, you should put your credentials and other configs in `config/hitrix.yml`
@@ -557,7 +557,7 @@ to register orm service background before this one.
 You can register Uploader service this way:
 
 ```go
-registry.ServiceDefinitionUploader(tusd.Config{...}, datastore.GetAmazonS3Store, locker.GetRedisLocker)
+registry.ServiceProviderUploader(tusd.Config{...}, datastore.GetAmazonS3Store, locker.GetRedisLocker)
 ```
 
 Hitrix also provides REST uploader controller which you can register all handler methods in your
@@ -590,7 +590,7 @@ Stripe payment integration
 You can register Stripe service this way:
 
 ```go
-hitrixRegistry.ServiceDefinitionStripe(),
+registry.ServiceProviderStripe(),
 ```
 
 Config sample:
@@ -608,7 +608,7 @@ This service is used for generating dynamic links, at this moment only Firebase 
 You can register Dynamic link service this way:
 
 ```go
-hitrixRegistry.ServiceDefinitionDynamicLink(),
+registry.ServiceProviderDynamicLink(),
 ```
 
 Config sample:
@@ -659,7 +659,7 @@ This service is used for sending different types of push notifications
 You can register FCM service this way:
 
 ```go
-hitrixRegistry.ServiceDefinitionFCM(),
+registry.ServiceProviderFCM(),
 ```
 
 Config sample:
@@ -1152,7 +1152,7 @@ sms:
 You can register CRUD service this way:
 
 ```go
-hitrixRegistry.Crud(),
+registry.Crud(),
 ```
 This service it gives you ability to build a query and apply different query parameters to the query that should be used in listing pages
 
@@ -1238,8 +1238,8 @@ In your code you can create similar function that makes new instance of your app
 func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema) *test.Ctx {
 	defaultServices := []*service.Definition{
 		registry.ServiceProviderConfigDirectory("../example/config"),
-		registry.ServiceDefinitionOrmRegistry(entity.Init),
-		registry.ServiceDefinitionOrmEngine(),
+		registry.ServiceProviderOrmRegistry(entity.Init),
+		registry.ServiceProviderOrmEngine(),
 	}
 
 	return test.CreateContext(t,
