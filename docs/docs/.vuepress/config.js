@@ -1,5 +1,5 @@
 module.exports = {
-    base: process.env.NODE_ENV === 'production' ? '/docs/' : '/hitrix',
+    base: '/hitrix/',
     title: 'Hitrix - golang framework',
     description: 'Golang Framework for high traffic applications. Designed for speed up development time.',
     head: [
