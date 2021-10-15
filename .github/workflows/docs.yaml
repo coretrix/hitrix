@@ -7,10 +7,6 @@ on:
   # trigger deployment manually
   workflow_dispatch:
 
-defaults:
-  run:
-    working-directory: docs
-
 jobs:
   docs:
     runs-on: ubuntu-latest
@@ -45,7 +41,9 @@ jobs:
 
       # run build script
       - name: Build VuePress site
-        run: yarn docs:build
+        run: |
+          cd docs
+          yarn docs:build
 
       # please check out the docs of the workflow for more details
       # @see https://github.com/crazy-max/ghaction-github-pages
@@ -55,7 +53,7 @@ jobs:
           # deploy to gh-pages branch
           target_branch: gh-pages
           # deploy the default output dir of VuePress
-          build_dir: docs/.vuepress/dist
+          build_dir: docs/docs/.vuepress/dist
         env:
           # @see https://docs.github.com/en/actions/reference/authentication-in-a-workflow#about-the-github_token-secret
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
