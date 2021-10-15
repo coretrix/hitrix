@@ -189,14 +189,14 @@ module.exports = {
             },
             '@vuepress/plugin-back-to-top',
             '@vuepress/plugin-medium-zoom',
-            // [
-            //     'vuepress-plugin-sitemap',
-            //     {hostname: 'https://beeorm.io'}
-            // ],
+            [
+                'vuepress-plugin-sitemap',
+                {hostname: 'https://coretrix.github.io/hitrix'}
+            ],
             // [
             //     '@vuepress/google-analytics',
             //     {
-            //         'ga': 'UA-195751907-1'
+            //         'ga': ''
             //     }
             // ]
         ]
