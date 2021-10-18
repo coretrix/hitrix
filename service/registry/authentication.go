@@ -24,7 +24,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.AuthenticationService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			appService := ctn.Get(service.ConfigService).(*app.App)
+			appService := ctn.Get(service.AppService).(*app.App)
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 			if configService == nil {
 				panic("`config is nil")
