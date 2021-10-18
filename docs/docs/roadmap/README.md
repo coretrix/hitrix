@@ -3,6 +3,7 @@
 ## Planned in next release
 
 * Refactor Authentication service
+* Fix JWT token issue
 
 ## Planned in near feature
 
