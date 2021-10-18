@@ -78,6 +78,7 @@ import (
 	"your-project/graph/generated"
 	"github.com/coretrix/hitrix/pkg/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/coretrix/hitrix/service/component/app"
 )
 
 func main() {
@@ -91,8 +92,9 @@ func main() {
 		registry.ServiceProviderJWT(), //register JWT DI service
 		registry.ServiceProviderPassword(), //register pasword DI service
 	).RegisterDIRequestService(
-		registry.ServiceProviderOrmEngineForContext(), //register our ORM engine per context used in foreground processes 
-	).Build()
+		registry.ServiceProviderOrmEngineForContext(false), //register our ORM engine per context used in foreground processes 
+	).RegisterRedisPools(&app.RedisPools{Persistent: "your pool here"}).
+    Build()
     defer deferFunc()
 
 	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}),  func(ginEngine *gin.Engine) {
@@ -106,7 +108,7 @@ Now I will explain the main.go file line by line
 2. We register some DI services
 
    2.1. Global DI service for error logger. It will be used for error handler as well in case of panic
-   If you register SlackApi error logger also it will send messages to slack channel
+   If you register Slack error logger also it will send messages to slack channel
 
    2.2. Global DI service that loads config file
 
@@ -114,11 +116,12 @@ Now I will explain the main.go file line by line
 
    2.4. Global DI ORM engine used in background processes
 
-   2.5. Request DI ORM engine used in foreground processes
-
    2.6. Global DI JWT service used by dev panel
 
    2.7. Global DI Password service used by dev-panel
+
+   2.8. Request DI ORM engine used in foreground processes
+3. We register redis pools. Those pools are used by different services as `authentication` service, `dev panel` and so on
 4. We run the server on port `9999`, pass graphql resolver and as third param we pass all middlewares we need.   
    As you can see in our example we register only Cors middleware
 
@@ -192,7 +195,7 @@ s, deferFunc := hitrix.New(
 		registry.ServiceProviderErrorLogger(), //register redis error logger
 		//...
 	).
-    RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.Router, nil). //register our dev-panel and pass the entity where we save admin users, the router and the third param is used for the redis stream pool if its used
+    RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.Router). //register our dev-panel and pass the entity where we save admin users, the router and the third param is used for the redis stream pool if its used
     Build()
 ```
 

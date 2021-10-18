@@ -2,6 +2,7 @@ package registry
 
 import (
 	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/authentication"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -23,6 +24,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.AuthenticationService,
 		Build: func(ctn di.Container) (interface{}, error) {
+			appService := ctn.Get(service.ConfigService).(*app.App)
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 			if configService == nil {
 				panic("`config is nil")
@@ -107,11 +109,16 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				panic("error logger service not loaded")
 			}
 
+			if appService.RedisPools.Persistent == "" {
+				panic("redis persistent needs to be set")
+			}
+
 			return authentication.NewAuthenticationService(
 				secret,
 				accessTokenTTL,
 				refreshTokenTTL,
 				otpTTL,
+				appService,
 				smsService,
 				generatorService,
 				errorLoggerService,

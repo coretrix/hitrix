@@ -5,6 +5,8 @@ import (
 	"fmt"
 	mail2 "net/mail"
 
+	"github.com/coretrix/hitrix/service/component/app"
+
 	"github.com/coretrix/hitrix/service/component/uuid"
 
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
@@ -60,6 +62,7 @@ type Authentication struct {
 	otpTTL               int
 	passwordService      password.IPassword
 	errorLoggerService   errorlogger.ErrorLogger
+	appService           *app.App
 	jwtService           *jwt.JWT
 	smsService           sms.ISender
 	mailService          *mail.Sender
@@ -75,6 +78,7 @@ func NewAuthenticationService(
 	accessTokenTTL int,
 	refreshTokenTTL int,
 	otpTTL int,
+	appService *app.App,
 	smsService sms.ISender,
 	generatorService generator.IGenerator,
 	errorLoggerService errorlogger.ErrorLogger,
@@ -93,6 +97,7 @@ func NewAuthenticationService(
 		passwordService:      passwordService,
 		errorLoggerService:   errorLoggerService,
 		jwtService:           jwtService,
+		appService:           appService,
 		smsService:           smsService,
 		clockService:         clockService,
 		generatorService:     generatorService,
@@ -351,7 +356,7 @@ func (t *Authentication) VerifyAccessToken(ormService *beeorm.Engine, accessToke
 
 	accessKey := payload["jti"]
 
-	_, has := ormService.GetRedis().Get(accessKey)
+	_, has := ormService.GetRedis(t.appService.RedisPools.Persistent).Get(accessKey)
 	if !has {
 		return nil, errors.New("access key not found")
 	}
@@ -377,12 +382,12 @@ func (t *Authentication) RefreshToken(ormService *beeorm.Engine, refreshToken st
 
 	//check the access key
 	oldAccessKey := payload["jti"]
-	_, has := ormService.GetRedis().Get(oldAccessKey)
+	_, has := ormService.GetRedis(t.appService.RedisPools.Persistent).Get(oldAccessKey)
 	if !has {
 		return "", "", errors.New("refresh token not valid")
 	}
 
-	ormService.GetRedis().Del(oldAccessKey)
+	ormService.GetRedis(t.appService.RedisPools.Persistent).Del(oldAccessKey)
 
 	newAccessKey := t.generateAndStoreAccessKey(ormService, id, t.accessTokenTTL)
 
@@ -402,7 +407,7 @@ func (t *Authentication) RefreshToken(ormService *beeorm.Engine, refreshToken st
 }
 
 func (t *Authentication) LogoutCurrentSession(ormService *beeorm.Engine, accessKey string) {
-	cacheService := ormService.GetRedis()
+	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
 
 	cacheService.Del(accessKey)
 
@@ -426,7 +431,7 @@ func (t *Authentication) LogoutCurrentSession(ormService *beeorm.Engine, accessK
 
 func (t *Authentication) LogoutAllSessions(ormService *beeorm.Engine, id uint64) {
 	tokenListKey := generateUserTokenListKey(id)
-	cacheService := ormService.GetRedis()
+	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
 
 	tokenList, has := cacheService.Get(tokenListKey)
 	if has && tokenList != "" {
@@ -458,13 +463,13 @@ func (t *Authentication) GenerateTokenPair(id uint64, accessKey string, ttl int)
 
 func (t *Authentication) generateAndStoreAccessKey(ormService *beeorm.Engine, id uint64, ttl int) string {
 	key := generateAccessKey(id, t.uuidService.Generate())
-	ormService.GetRedis().Set(key, "", ttl)
+	ormService.GetRedis(t.appService.RedisPools.Persistent).Set(key, "", ttl)
 	return key
 }
 
 func (t *Authentication) addUserAccessKeyList(ormService *beeorm.Engine, id uint64, accessKey, oldAccessKey string, ttl int) {
 	key := generateUserTokenListKey(id)
-	cacheService := ormService.GetRedis()
+	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
 	res, has := cacheService.Get(key)
 	if !has {
 		cacheService.Set(key, accessKey, ttl)
