@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"github.com/checkout/checkout-sdk-go/payments"
+	"github.com/coretrix/hitrix/service/component/checkout"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -19,4 +20,12 @@ func (c *FakeCheckoutClient) RequestPayment(source interface{}, amount uint64, c
 
 func (c *FakeCheckoutClient) RequestRefunds(amount uint64, reference string, metadata map[string]string) *payments.RefundsResponse {
 	return c.Called(amount, reference, metadata).Get(0).(*payments.RefundsResponse)
+}
+
+func (c *FakeCheckoutClient) GetCustomerInstruments(customerId string) *checkout.CustomerResponse {
+	return c.Called(customerId).Get(0).(*checkout.CustomerResponse)
+}
+
+func (c *FakeCheckoutClient) DeleteCustomerInstrument(instrumentId string) bool {
+	return c.Called(instrumentId).Get(0).(bool)
 }
