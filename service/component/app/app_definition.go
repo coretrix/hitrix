@@ -22,8 +22,13 @@ type IDevPanelUserEntity interface {
 type DevPanel struct {
 	UserEntity IDevPanelUserEntity
 	Router     func(ginEngine *gin.Engine)
-	PoolStream *string
-	PoolSearch *string
+}
+
+type RedisPools struct {
+	Cache      string
+	Persistent string
+	Stream     string
+	Search     string
 }
 
 type App struct {
@@ -34,6 +39,7 @@ type App struct {
 	Flags          *Flags
 	Scripts        []string
 	DevPanel       *DevPanel
+	RedisPools     *RedisPools
 	GlobalContext  context.Context
 	CancelContext  context.CancelFunc
 }
