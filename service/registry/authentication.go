@@ -109,7 +109,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				panic("error logger service not loaded")
 			}
 
-			if appService.RedisPools.Persistent == "" {
+			if appService.RedisPools == nil || appService.RedisPools.Persistent == "" {
 				panic("redis persistent needs to be set")
 			}
 
