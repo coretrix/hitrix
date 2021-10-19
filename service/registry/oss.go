@@ -17,7 +17,7 @@ import (
 
 func ServiceProviderOSS(bucketsMapping map[string]uint64, ossProvider int) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: service.OSSGoogleService,
+		Name: service.OSService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			if len(bucketsMapping) == 0 {
 				panic("buckets mapping not defined")
