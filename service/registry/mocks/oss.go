@@ -9,7 +9,7 @@ import (
 
 func ServiceProviderMockOSS(mock oss.Client) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: service.OSSGoogleService,
+		Name: service.OSService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return mock, nil
 		},
