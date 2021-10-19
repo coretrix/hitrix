@@ -15,7 +15,7 @@ import (
 const ProviderGoogleOSS = 1
 const ProviderAmazonOSS = 2
 
-type Client interface {
+type IProvider interface {
 	GetObjectURL(bucket string, object *Object) (string, error)
 	GetObjectOSSURL(bucket string, object *Object) (string, error)
 	GetObjectCDNURL(bucket string, object *Object) (string, error)

@@ -86,7 +86,7 @@ type DIInterface interface {
 	Password() (password.IPassword, bool)
 	Slack() (slack.Slack, bool)
 	ErrorLogger() (errorlogger.ErrorLogger, bool)
-	OSSGoogle() (oss.Client, bool)
+	OSService() (oss.IProvider, bool)
 	AmazonS3() (s3.Client, bool)
 	SocketRegistry() (*socket.Registry, bool)
 	APILogger() (apilogger.IAPILogger, bool)
@@ -217,10 +217,10 @@ func (d *diContainer) ErrorLogger() (errorlogger.ErrorLogger, bool) {
 	return nil, false
 }
 
-func (d *diContainer) OSSGoogle() (oss.Client, bool) {
+func (d *diContainer) OSService() (oss.IProvider, bool) {
 	v, has := GetServiceOptional(OSService)
 	if has {
-		return v.(oss.Client), true
+		return v.(oss.IProvider), true
 	}
 	return nil, false
 }

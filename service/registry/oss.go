@@ -39,13 +39,13 @@ func ServiceProviderOSS(bucketsMapping map[string]uint64, ossProvider int) *serv
 					configService,
 					clockService,
 					bucketsMapping,
-					ctn.Get(service.AppService).(*app.App).Mode), nil
+					ctn.Get(service.AppService).(*app.App).Mode)
 			} else if ossProvider == oss.ProviderAmazonOSS {
 				return oss.NewAmazonOSS(
 					configService,
 					clockService,
 					bucketsMapping,
-					ctn.Get(service.AppService).(*app.App).Mode), nil
+					ctn.Get(service.AppService).(*app.App).Mode)
 			}
 
 			panic("invalid oss provider")
