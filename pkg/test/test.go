@@ -203,7 +203,7 @@ func CreateContext(t *testing.T, projectName string, defaultServices []*service.
 	return &Environment{t: t, Hitrix: testSpringInstance}
 }
 
-func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, ginInitHandler hitrix.GinInitHandler, defaultGlobalServices []*service.DefinitionGlobal, defaultRequestServices []*service.DefinitionRequest, mockGlobalServices []*service.DefinitionGlobal, mockRequestServices []*service.DefinitionRequest) *Environment {
+func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, ginInitHandler hitrix.GinInitHandler, defaultGlobalServices []*service.DefinitionGlobal, defaultRequestServices []*service.DefinitionRequest, mockGlobalServices []*service.DefinitionGlobal, mockRequestServices []*service.DefinitionRequest, redisPools *app.RedisPools) *Environment {
 	var deferFunc func()
 	gqlServerInitHandler := func(server *handler.Server) {
 		server.AddTransport(transport.MultipartForm{})
@@ -220,7 +220,10 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 	testSpringInstance, deferFunc := hitrix.New(projectName, "").
 		SetParallelTestID(getParallelID()).
 		RegisterDIGlobalService(append(defaultGlobalServices, mockGlobalServices...)...).
-		RegisterDIRequestService(append(defaultRequestServices, mockRequestServices...)...).Build()
+		RegisterDIRequestService(append(defaultRequestServices, mockRequestServices...)...).
+		RegisterRedisPools(
+			redisPools,
+		).Build()
 
 	defer deferFunc()
 	ginTestInstance := hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)

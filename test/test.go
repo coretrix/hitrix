@@ -3,6 +3,8 @@ package main
 import (
 	"testing"
 
+	"github.com/coretrix/hitrix/service/component/app"
+
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/pkg/test"
@@ -29,5 +31,6 @@ func createContextMyApp(t *testing.T, projectName string, resolvers graphql.Exec
 		defaultRequestServices,
 		mockGlobalServices,
 		mockRequestServices,
+		&app.RedisPools{Cache: "default", Persistent: "default"},
 	)
 }
