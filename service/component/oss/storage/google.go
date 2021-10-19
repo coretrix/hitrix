@@ -80,13 +80,18 @@ func (ossStorage *GoogleOSS) GetObjectURL(bucket string, object *oss.Object) str
 		bucketByEnv += "-" + ossStorage.environment
 	}
 
+	envInUrl := ""
+	if ossStorage.environment != app.ModeProd {
+		envInUrl = ossStorage.environment + "."
+	}
+
 	ossBucketObjectAttributes, err := ossStorage.client.Bucket(bucketByEnv).Object(object.StorageKey).Attrs(ossStorage.ctx)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return fmt.Sprintf("https://%s%s.%s/%s/%s", ossStorage.urlPrefix, ossStorage.environment, ossStorage.domain, bucketByEnv, ossBucketObjectAttributes.Name)
+	return fmt.Sprintf("https://%s%s%s/%s/%s", ossStorage.urlPrefix, envInUrl, ossStorage.domain, bucketByEnv, ossBucketObjectAttributes.Name)
 }
 
 func (ossStorage *GoogleOSS) GetObjectCachedURL(bucket string, object *oss.Object) string {
@@ -98,7 +103,12 @@ func (ossStorage *GoogleOSS) GetObjectCachedURL(bucket string, object *oss.Objec
 		bucketByEnv += "-" + ossStorage.environment
 	}
 
-	return fmt.Sprintf("https://%s%s.%s/%s/%s", ossStorage.urlPrefix, ossStorage.environment, ossStorage.domain, bucketByEnv, object.CachedURL)
+	envInUrl := ""
+	if ossStorage.environment != app.ModeProd {
+		envInUrl = ossStorage.environment + "."
+	}
+
+	return fmt.Sprintf("https://%s%s%s/%s/%s", ossStorage.urlPrefix, envInUrl, ossStorage.domain, bucketByEnv, object.CachedURL)
 }
 
 func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket string, object *oss.Object, expires time.Time) string {

@@ -74,14 +74,15 @@ func writeArgumentType(w io.Writer, t reflect.Type, value bool) {
 
 func query(v interface{}) string {
 	var buf bytes.Buffer
-	writeQuery(&buf, reflect.TypeOf(v), false, 0)
+	shownError := false
+	writeQuery(&buf, reflect.TypeOf(v), false, 0, &shownError)
 	return buf.String()
 }
 
-func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint) {
+func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError *bool) {
 	switch t.Kind() {
 	case reflect.Ptr, reflect.Slice:
-		writeQuery(w, t.Elem(), false, depth)
+		writeQuery(w, t.Elem(), false, depth, shownError)
 	case reflect.Struct:
 
 		if reflect.PtrTo(t).Implements(jsonUnmarshaler) {
@@ -96,7 +97,10 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint) {
 		for i := 0; i < t.NumField(); i++ {
 			hasStruct := false
 			if depth > writeQueryDeepLimit {
-				log.Println("You reached writeQueryDeepLimit constant")
+				if !*shownError {
+					*shownError = true
+					log.Println("You reached writeQueryDeepLimit constant")
+				}
 				continue
 			}
 			if i != 0 && !skipComma {
@@ -120,7 +124,10 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint) {
 						hasStruct = true
 
 						if depth+1 > writeQueryDeepLimit {
-							log.Println("You reached writeQueryDeepLimit constant")
+							if !*shownError {
+								*shownError = true
+								log.Println("You reached writeQueryDeepLimit constant")
+							}
 							skipComma = true
 							continue
 						}
@@ -131,9 +138,9 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint) {
 				}
 			}
 			if hasStruct {
-				writeQuery(w, f.Type, inlineField, depth+1)
+				writeQuery(w, f.Type, inlineField, depth+1, shownError)
 			} else {
-				writeQuery(w, f.Type, inlineField, depth)
+				writeQuery(w, f.Type, inlineField, depth, shownError)
 			}
 		}
 		if !inline {

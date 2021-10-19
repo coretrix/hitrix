@@ -3,6 +3,9 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/ddos"
+	dynamiclink "github.com/coretrix/hitrix/service/component/dynamic_link"
+
 	"github.com/coretrix/hitrix/service/component/otp"
 
 	"github.com/coretrix/hitrix/service/component/uuid"
@@ -96,12 +99,14 @@ type DIInterface interface {
 	Checkout() (checkout.ICheckout, bool)
 	Clock() clock.IClock
 	Uploader() (uploader.Uploader, bool)
-	CrudService() *crud.Crud
+	Crud() *crud.Crud
 	Localize() localize.ILocalizer
 	FileExtractor() *fileextractor.FileExtractor
 	Goroutine() goroutine.IGoroutine
 	UUID() uuid.IUUID
 	OTP() otp.IOTP
+	DDOS() ddos.IDDOS
+	DynamicLink() dynamiclink.IGenerator
 }
 
 type diContainer struct {
@@ -264,7 +269,7 @@ func (d *diContainer) Uploader() (uploader.Uploader, bool) {
 	return nil, false
 }
 
-func (d *diContainer) CrudService() *crud.Crud {
+func (d *diContainer) Crud() *crud.Crud {
 	return GetServiceRequired(CrudService).(*crud.Crud)
 }
 
@@ -286,4 +291,12 @@ func (d *diContainer) UUID() uuid.IUUID {
 
 func (d *diContainer) OTP() otp.IOTP {
 	return GetServiceRequired(OTPService).(otp.IOTP)
+}
+
+func (d *diContainer) DDOS() ddos.IDDOS {
+	return GetServiceRequired(DDOSService).(ddos.IDDOS)
+}
+
+func (d *diContainer) DynamicLink() dynamiclink.IGenerator {
+	return GetServiceRequired(DynamicLinkService).(dynamiclink.IGenerator)
 }

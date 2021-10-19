@@ -131,12 +131,12 @@ func (controller *DevPanelController) GetClearCacheAction(c *gin.Context) {
 func (controller *DevPanelController) GetClearRedisStreamsAction(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	devPanel := service.DI().App().DevPanel
-	if devPanel == nil || devPanel.PoolStream == nil {
+	appService := service.DI().App()
+	if appService.DevPanel == nil || appService.RedisPools.Stream == "" {
 		panic("stream pool is not defined")
 	}
 
-	redisStreamsService := ormService.GetRedis(*devPanel.PoolStream)
+	redisStreamsService := ormService.GetRedis(appService.RedisPools.Stream)
 	redisStreamsService.FlushDB()
 
 	c.JSON(200, gin.H{})
@@ -145,12 +145,12 @@ func (controller *DevPanelController) GetClearRedisStreamsAction(c *gin.Context)
 func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	devPanel := service.DI().App().DevPanel
-	if devPanel == nil || devPanel.PoolStream == nil {
+	appService := service.DI().App()
+	if appService.DevPanel == nil || appService.RedisPools.Stream == "" {
 		panic("stream pool is not defined")
 	}
 
-	redisStreamService := ormService.GetRedis(*devPanel.PoolStream)
+	redisStreamService := ormService.GetRedis(appService.RedisPools.Stream)
 
 	name := c.Param("name")
 	if name == "" {
@@ -234,13 +234,13 @@ func (controller *DevPanelController) GetRedisSearchAlters(c *gin.Context) {
 func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	devPanel := service.DI().App().DevPanel
-	if devPanel == nil || devPanel.PoolSearch == nil {
+	appService := service.DI().App()
+	if appService.DevPanel == nil || appService.RedisPools.Search == "" {
 		panic("stream pool is not defined")
 	}
 
-	ormService.GetRedisSearch(*devPanel.PoolSearch).ListIndices()
-	response.SuccessResponse(c, ormService.GetRedisSearch(*devPanel.PoolSearch).ListIndices())
+	ormService.GetRedisSearch(appService.RedisPools.Search).ListIndices()
+	response.SuccessResponse(c, ormService.GetRedisSearch(appService.RedisPools.Search).ListIndices())
 }
 
 func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context) {
@@ -252,12 +252,12 @@ func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context
 		return
 	}
 
-	devPanel := service.DI().App().DevPanel
-	if devPanel == nil || devPanel.PoolSearch == nil {
+	appService := service.DI().App()
+	if appService.DevPanel == nil || appService.RedisPools.Search == "" {
 		panic("stream pool is not defined")
 	}
 
-	ormService.GetRedisSearch(*devPanel.PoolSearch).ForceReindex(indexName)
+	ormService.GetRedisSearch(appService.RedisPools.Search).ForceReindex(indexName)
 	response.SuccessResponse(c, nil)
 }
 
@@ -270,10 +270,10 @@ func (controller *DevPanelController) PostRedisSearchIndexInfo(c *gin.Context) {
 		return
 	}
 
-	devPanel := service.DI().App().DevPanel
-	if devPanel == nil || devPanel.PoolSearch == nil {
+	appService := service.DI().App()
+	if appService.DevPanel == nil || appService.RedisPools.Search == "" {
 		panic("stream pool is not defined")
 	}
 
-	response.SuccessResponse(c, ormService.GetRedisSearch(*devPanel.PoolSearch).Info(indexName))
+	response.SuccessResponse(c, ormService.GetRedisSearch(appService.RedisPools.Search).Info(indexName))
 }

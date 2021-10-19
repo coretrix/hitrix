@@ -6,6 +6,10 @@ import (
 	"github.com/latolukasz/beeorm"
 )
 
+type IDDOS interface {
+	ProtectManyAttempts(redis *beeorm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool
+}
+
 type DDOS struct {
 }
 

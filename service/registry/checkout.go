@@ -18,12 +18,12 @@ func ServiceProviderCheckout() *service.DefinitionGlobal {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 
 			secretKey, ok := configService.String("checkout.secret_key")
-			if ok {
+			if !ok {
 				return nil, errors.New("missing checkout.secret_key key")
 			}
 
 			webhookSecrets, ok := configService.StringMap("checkout.webhook_keys")
-			if ok {
+			if !ok {
 				return nil, errors.New("missing checkout.webhook_keys key")
 			}
 

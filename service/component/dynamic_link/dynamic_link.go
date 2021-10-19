@@ -1,6 +1,6 @@
 package dynamiclink
 
-type Generator interface {
+type IGenerator interface {
 	GenerateDynamicLink(string) (*GenerateResponse, error)
 }
 

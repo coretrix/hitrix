@@ -11,7 +11,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceDefinitionDynamicLink() *service.DefinitionGlobal {
+func ServiceProviderDynamicLink() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.DynamicLinkService,
 		Build: func(ctn di.Container) (interface{}, error) {

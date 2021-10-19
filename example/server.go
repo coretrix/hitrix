@@ -8,6 +8,7 @@ import (
 	model "github.com/coretrix/hitrix/example/model/socket"
 	exampleMiddleware "github.com/coretrix/hitrix/example/rest/middleware"
 	"github.com/coretrix/hitrix/pkg/middleware"
+	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/socket"
 	"github.com/coretrix/hitrix/service/registry"
 	"github.com/gin-gonic/gin"
@@ -32,8 +33,8 @@ func main() {
 		registry.ServiceProviderOTP(),
 	).RegisterDIRequestService(
 		registry.ServiceProviderOrmEngineForContext(false),
-	).
-		RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.Router, nil, nil).Build()
+	).RegisterRedisPools(&app.RedisPools{Persistent: "default", Cache: "default"}).
+		RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.Router).Build()
 	defer deferFunc()
 
 	b := &hitrix.BackgroundProcessor{Server: s}
