@@ -9,6 +9,7 @@ import (
 	exampleMiddleware "github.com/coretrix/hitrix/example/rest/middleware"
 	"github.com/coretrix/hitrix/pkg/middleware"
 	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/coretrix/hitrix/service/component/oss"
 	"github.com/coretrix/hitrix/service/component/socket"
 	"github.com/coretrix/hitrix/service/registry"
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,7 @@ func main() {
 		registry.ServiceProviderConfigDirectory("config"),
 		registry.ServiceProviderOrmRegistry(entity.Init),
 		registry.ServiceProviderOrmEngine(),
-		registry.ServiceProviderOSS(map[string]uint64{"test": 1}),
+		registry.ServiceProviderOSS(map[string]uint64{"test": 1}, oss.ProviderAmazonOSS),
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
 		registry.ServiceProviderSocketRegistry(eventHandlersMap),
