@@ -7,9 +7,9 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderMockOSS(mock oss.Client) *service.DefinitionGlobal {
+func ServiceProviderMockOSS(mock oss.IProvider) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: service.OSSGoogleService,
+		Name: service.OSService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return mock, nil
 		},
