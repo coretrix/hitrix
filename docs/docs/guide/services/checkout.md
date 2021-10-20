@@ -18,6 +18,13 @@ checkout:
   webhook_keys:
     main: somekey
 ```
+
+Access the service:
+```go
+checkoutService := service.DI().Checkout()
+```
+
+
 Using the service:
 ```go
 // Request a payment
