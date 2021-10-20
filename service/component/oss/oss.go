@@ -60,17 +60,29 @@ func loadBucketsConfig(configService config.IConfig, bucketsMapping map[string]u
 	}
 
 	for bucket, envsBucketConfig := range bucketsConfigDefinitions.(map[interface{}]interface{}) {
-		for env, bucketConfig := range envsBucketConfig.(map[interface{}]map[string]string) {
-			name, has := bucketConfig["name"]
+		for env, bucketConfig := range envsBucketConfig.(map[interface{}]interface{}) {
+			bucketConfigMap := map[string]string{}
+
+			for key, value := range bucketConfig.(map[interface{}]interface{}) {
+				bucketConfigMap[key.(string)] = value.(string)
+			}
+
+			name, has := bucketConfigMap["name"]
 
 			if !has {
 				panic("oss: missing bucket name for bucket: " + bucket.(string) + " and env: " + env.(string))
 			}
 
-			cdnUrl, has := bucketConfig["cdn_url"]
+			cdnUrl, has := bucketConfigMap["cdn_url"]
 
 			if !has {
 				cdnUrl = ""
+			}
+
+			_, has = buckets.Configs[bucket.(string)][env.(string)]
+
+			if !has {
+				buckets.Configs[bucket.(string)] = map[string]*BucketConfig{}
 			}
 
 			buckets.Configs[bucket.(string)][env.(string)] = &BucketConfig{
