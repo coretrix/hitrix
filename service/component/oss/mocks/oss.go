@@ -56,3 +56,7 @@ func (t *FakeOSSClient) UploadImageFromBase64(_ *beeorm.Engine, bucket, image, e
 func (t *FakeOSSClient) DeleteObject(_ string, _ *oss.Object) error {
 	return nil
 }
+
+func (t *FakeOSSClient) CreateObjectFromKey(_ *beeorm.Engine, _, _ string) oss.Object {
+	return oss.Object{}
+}
