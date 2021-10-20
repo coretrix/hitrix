@@ -15,7 +15,7 @@ func ShouldBindJSON(c *gin.Context, form interface{}) error {
 	}
 
 	if err := c.ShouldBindBodyWith(form, binding.JSON); err != nil {
-		res := errors.HandleErrors(err, c)
+		res := errors.HandleErrors(err)
 		if res != nil {
 			return res
 		}
@@ -28,7 +28,7 @@ func ShouldBindJSON(c *gin.Context, form interface{}) error {
 
 func ShouldBindQuery(c *gin.Context, form interface{}) error {
 	if err := c.ShouldBindQuery(form); err != nil {
-		res := errors.HandleErrors(err, c)
+		res := errors.HandleErrors(err)
 		if res != nil {
 			return res
 		}

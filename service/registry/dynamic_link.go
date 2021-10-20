@@ -22,7 +22,7 @@ func ServiceProviderDynamicLink() *service.DefinitionGlobal {
 				return nil, errors.New("missing firebase.api_key key")
 			}
 
-			domainUriPrefix, ok := configService.String("firebase.dynamic_link_info.domain_uri_prefix")
+			domainURIPrefix, ok := configService.String("firebase.dynamic_link_info.domain_uri_prefix")
 			if !ok {
 				return nil, errors.New("missing firebase.dynamic_link_info.domain_uri_prefix key")
 			}
@@ -33,9 +33,9 @@ func ServiceProviderDynamicLink() *service.DefinitionGlobal {
 			}
 
 			generator := &firebase.Generator{
-				ApiKey: apiKey,
+				APIKey: apiKey,
 				DynamicLinkInfo: &firebase.DynamicLinkInfo{
-					DomainUriPrefix: domainUriPrefix,
+					DomainURIPrefix: domainURIPrefix,
 					Link:            link,
 				},
 			}

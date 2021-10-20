@@ -14,11 +14,11 @@ func ServiceProviderPDF() *service.DefinitionGlobal {
 		Name: service.PDFService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
-			chromeWebSocketUrl, ok := configService.String("chrome_headless.web_socket_url")
+			chromeWebSocketURL, ok := configService.String("chrome_headless.web_socket_url")
 			if !ok {
 				return nil, errors.New("missing chrome_headless.web_socket_url")
 			}
-			return pdf.NewPDFService(chromeWebSocketUrl), nil
+			return pdf.NewPDFService(chromeWebSocketURL), nil
 		},
 	}
 }
