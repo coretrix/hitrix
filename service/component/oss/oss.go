@@ -27,6 +27,8 @@ type IProvider interface {
 	UploadImageFromFile(ormService *beeorm.Engine, bucket, localFile string) (Object, error)
 	UploadImageFromBase64(ormService *beeorm.Engine, bucket, image, extension string) (Object, error)
 	DeleteObject(bucket string, object *Object) error
+	//TODO Remove
+	CreateObjectFromKey(ormService *beeorm.Engine, bucket, key string) Object
 }
 
 type Object struct {

@@ -196,6 +196,13 @@ func (ossStorage *GoogleOSS) DeleteObject(_ string, _ *Object) error {
 	panic("not implemented")
 }
 
+func (ossStorage *GoogleOSS) CreateObjectFromKey(ormService *beeorm.Engine, bucket, key string) Object {
+	return Object{
+		ID:         getStorageCounter(ormService, ossStorage.buckets, bucket),
+		StorageKey: key,
+	}
+}
+
 func (ossStorage *GoogleOSS) getObjectKey(storageCounter uint64, fileExtension string) string {
 	return strconv.FormatUint(storageCounter, 10) + fileExtension
 }
