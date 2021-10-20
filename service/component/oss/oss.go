@@ -75,11 +75,7 @@ func loadBucketsConfig(configService config.IConfig, bucketsMapping map[string]u
 
 			cdnUrl, has := bucketConfigMap["cdn_url"]
 
-			if !has {
-				cdnUrl = ""
-			}
-
-			_, has = buckets.Configs[bucket.(string)][env.(string)]
+			_, has = buckets.Configs[bucket.(string)]
 
 			if !has {
 				buckets.Configs[bucket.(string)] = map[string]*BucketConfig{}
