@@ -14,3 +14,9 @@ To change the documentation you need to execute next steps:
 3. If you want to change sidebar or navbar you can do it in `/docs/docs/.vuepress/config.js`
 4. Run it on localhost from, folder `/docs` using `yarn docs:dev`
 5. Push your changes
+
+If you create a new service and write documentation for it please follow next template:
+1. service definition - what this service can be used for
+2. register service - how the service should be registered
+3. access service - how the service can be accessed
+4. technical documentation - details about the service, examples and different use cases
