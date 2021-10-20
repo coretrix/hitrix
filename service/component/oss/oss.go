@@ -73,8 +73,6 @@ func loadBucketsConfig(configService config.IConfig, bucketsMapping map[string]u
 				panic("oss: missing bucket name for bucket: " + bucket.(string) + " and env: " + env.(string))
 			}
 
-			cdnUrl, has := bucketConfigMap["cdn_url"]
-
 			_, has = buckets.Configs[bucket.(string)]
 
 			if !has {
@@ -83,7 +81,7 @@ func loadBucketsConfig(configService config.IConfig, bucketsMapping map[string]u
 
 			buckets.Configs[bucket.(string)][env.(string)] = &BucketConfig{
 				Name:   name,
-				CDNURL: cdnUrl,
+				CDNURL: bucketConfigMap["cdn_url"],
 			}
 		}
 	}
