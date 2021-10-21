@@ -11,10 +11,6 @@ require (
 	github.com/AmirSoleimani/VoucherCodeGenerator v0.0.0-20201014193813-0206853dccb9
 	github.com/agnivade/levenshtein v1.1.0 // indirect
 	github.com/aws/aws-sdk-go v1.38.39
-	github.com/aws/aws-sdk-go-v2 v1.9.2
-	github.com/aws/aws-sdk-go-v2/config v1.8.3
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.5.4
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.16.1
 	github.com/checkout/checkout-sdk-go v0.0.19
 	github.com/chromedp/cdproto v0.0.0-20210910012206-68626162910d
 	github.com/chromedp/chromedp v0.7.4
@@ -42,7 +38,6 @@ require (
 	github.com/latolukasz/beeorm v1.2.5
 	github.com/mattbaird/gochimp v0.0.0-20200820164431-f1082bcdf63f
 	github.com/mattn/go-colorable v0.1.11 // indirect
-	github.com/mgechev/revive v1.1.2 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
 	github.com/pariz/gountries v0.0.0-20200430155801-1c6a393df9c7
 	github.com/ryanuber/columnize v2.1.2+incompatible
