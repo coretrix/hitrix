@@ -176,6 +176,10 @@ module.exports = {
                                 text: 'Helper',
                                 link: '/guide/features/helper',
                             },
+                            {
+                                text: 'Goroutine',
+                                link: '/guide/features/goroutine',
+                            },
                         ],
                     },
                 ],
