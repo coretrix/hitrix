@@ -2,8 +2,6 @@ slack:
   token: "your token"
   error_channel: ""
   dev_panel_url: ""
-oss:
-  domain: coretrix.com
 
 stripe:
   key: "api_key"
@@ -17,20 +15,19 @@ checkout:
   webhook_keys:
     main: "some_key"
 
-amazon_s3:
-  endpoint: "https://somestorage.com"
-  access_key_id: ""
-  secret_access_key: ""
-  disable_ssl: false
-  region: us-east-1
-  url_prefix: prefix
-  domain: domain.com
+oss:
+  amazon:
+    endpoint: "https://somestorage.com"
+    access_key_id: ""
+    secret_access_key: ""
+    disable_ssl: false
+    region: us-east-1
   buckets:
-    product:
-      prod: bucket-name
-      local: bucket-name-local
-  public_urls:
-    product: # Available variables are: .Environment, .BucketName, and, .StorageKey
-      prod: "https://somesite.com/{.StorageKey}/"
-      local: "http://127.0.0.1/{.StorageKey}/"
+    some-bucket:
+      prod:
+        name: bucket-name
+        cdn_url: "https://example.com/{Env}/{Bucket}/{StorageKey}"
+      local:
+        name: bucket-name-local
+        cdn_url: "http://127.0.0.1/{Env}/{Bucket}/{StorageKey}"
 orm_debug: false

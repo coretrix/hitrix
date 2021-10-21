@@ -65,21 +65,21 @@ func ServiceProviderAmazonS3(bucketsMapping map[string]uint64) *service.Definiti
 				bucketsConfigDefinitionsMap[k.(string)] = bucketsConfigDefinitionsInnerMap
 			}
 
-			bucketsPublicUrlConfig, ok := configService.Get("amazon_s3.public_urls")
+			bucketsPublicURLConfig, ok := configService.Get("amazon_s3.public_urls")
 			if !ok {
 				return nil, errors.New("missing public_urls")
 			}
 
-			bucketsPublicUrlConfigMap := map[string]map[string]string{}
-			for k, v := range bucketsPublicUrlConfig.(map[interface{}]interface{}) {
+			bucketsPublicURLConfigMap := map[string]map[string]string{}
+			for k, v := range bucketsPublicURLConfig.(map[interface{}]interface{}) {
 
-				bucketsPublicUrlConfigInnerMap := map[string]string{}
+				bucketsPublicURLConfigInnerMap := map[string]string{}
 
 				for k1, v1 := range v.(map[interface{}]interface{}) {
-					bucketsPublicUrlConfigInnerMap[k1.(string)] = v1.(string)
+					bucketsPublicURLConfigInnerMap[k1.(string)] = v1.(string)
 				}
 
-				bucketsPublicUrlConfigMap[k.(string)] = bucketsPublicUrlConfigInnerMap
+				bucketsPublicURLConfigMap[k.(string)] = bucketsPublicURLConfigInnerMap
 			}
 
 			return s3.NewAmazonS3(
@@ -88,7 +88,7 @@ func ServiceProviderAmazonS3(bucketsMapping map[string]uint64) *service.Definiti
 				secretAccessKey,
 				bucketsMapping,
 				bucketsConfigDefinitionsMap,
-				bucketsPublicUrlConfigMap,
+				bucketsPublicURLConfigMap,
 				region,
 				disableSSL,
 				appService.Mode), nil

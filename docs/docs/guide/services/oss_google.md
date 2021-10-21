@@ -3,12 +3,12 @@ This service is used for storage files into google storage
 
 Register the service into your `main.go` file:
 ```go
-registry.OSSGoogle(map[string]uint64{"my-bucket-name": 1})
+registry.OSService(map[string]uint64{"my-bucket-name": 1})
 ```
 
 Access the service:
 ```go
-service.DI().OSSGoogle()
+service.DI().OSService()
 ```
 
 and you should register the entity `OSSBucketCounterEntity` into the ORM

@@ -18,7 +18,7 @@ func ServiceProviderLocalize() *service.DefinitionGlobal {
 			if !ok {
 				return nil, errors.New("missing translation.poeditor.api_key")
 			}
-			projectId, ok := configService.String("translation.poeditor.project_id")
+			projectID, ok := configService.String("translation.poeditor.project_id")
 			if !ok {
 				return nil, errors.New("missing translation.poeditor.project_id")
 			}
@@ -29,7 +29,7 @@ func ServiceProviderLocalize() *service.DefinitionGlobal {
 
 			apiSource := localize.NewPoeditorSource(
 				apiKey,
-				projectId,
+				projectID,
 				language,
 			)
 

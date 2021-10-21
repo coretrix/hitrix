@@ -80,6 +80,10 @@ module.exports = {
                                 link: '/guide/services/clock',
                             },
                             {
+                                text: 'Checkout',
+                                link: '/guide/services/checkout',
+                            },
+                            {
                                 text: 'CRUD',
                                 link: '/guide/services/crud',
                             },

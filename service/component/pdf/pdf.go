@@ -9,21 +9,21 @@ import (
 )
 
 type ServiceInterface interface {
-	HtmlToPdf(html string) []byte
+	HTMLToPdf(html string) []byte
 }
 
 type PDFService struct {
-	chromeWebSocketUrl string
+	chromeWebSocketURL string
 }
 
-func NewPDFService(chromeWebSocketUrl string) *PDFService {
+func NewPDFService(chromeWebSocketURL string) *PDFService {
 	return &PDFService{
-		chromeWebSocketUrl: chromeWebSocketUrl,
+		chromeWebSocketURL: chromeWebSocketURL,
 	}
 }
 
-func (c *PDFService) HtmlToPdf(html string) []byte {
-	allocatorContext, cancel := chromedp.NewRemoteAllocator(context.Background(), c.chromeWebSocketUrl)
+func (c *PDFService) HTMLToPdf(html string) []byte {
+	allocatorContext, cancel := chromedp.NewRemoteAllocator(context.Background(), c.chromeWebSocketURL)
 	defer cancel()
 
 	ctx, cancel := chromedp.NewContext(allocatorContext)

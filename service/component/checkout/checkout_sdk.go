@@ -129,13 +129,13 @@ type CustomerResponse struct {
 	Instruments []Instrument `json:"instruments"`
 }
 
-func (c *Checkout) GetCustomerInstruments(customerId string) *CustomerResponse {
+func (c *Checkout) GetCustomerInstruments(customerID string) *CustomerResponse {
 	config, err := checkout.Create(c.secretKey, nil)
 	if err != nil {
 		panic("failed creating checkout client: " + err.Error())
 	}
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", *config.URI+"/customers/"+customerId, nil)
+	req, _ := http.NewRequest("GET", *config.URI+"/customers/"+customerID, nil)
 	req.Header.Set("Authorization", c.secretKey)
 	resp, _ := client.Do(req)
 
@@ -152,13 +152,13 @@ func (c *Checkout) GetCustomerInstruments(customerId string) *CustomerResponse {
 	return &jres
 }
 
-func (c *Checkout) DeleteCustomerInstrument(instrumentId string) bool {
+func (c *Checkout) DeleteCustomerInstrument(instrumentID string) bool {
 	config, err := checkout.Create(c.secretKey, nil)
 	if err != nil {
 		panic("failed creating checkout client: " + err.Error())
 	}
 	client := &http.Client{}
-	req, _ := http.NewRequest("DELETE", *config.URI+"/instruments/"+instrumentId, nil)
+	req, _ := http.NewRequest("DELETE", *config.URI+"/instruments/"+instrumentID, nil)
 	req.Header.Set("Authorization", c.secretKey)
 	resp, _ := client.Do(req)
 

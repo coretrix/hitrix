@@ -13,34 +13,50 @@ type FakeOSSClient struct {
 	mock.Mock
 }
 
-func (t *FakeOSSClient) GetObjectURL(bucket string, object *oss.Object) string {
-	return t.Called(bucket, object).String(0)
+func (t *FakeOSSClient) GetObjectURL(bucket string, object *oss.Object) (string, error) {
+	return t.Called(bucket, object).Get(0).(string), nil
 }
 
-func (t *FakeOSSClient) GetObjectCachedURL(bucket string, object *oss.Object) string {
-	return t.Called(bucket, object).String(0)
+func (t *FakeOSSClient) GetObjectOSSURL(bucket string, object *oss.Object) (string, error) {
+	return t.Called(bucket, object).Get(0).(string), nil
 }
 
-func (t *FakeOSSClient) GetObjectSignedURL(bucket string, object *oss.Object, expires time.Time) string {
-	return t.Called(bucket, object, expires).String(0)
+func (t *FakeOSSClient) GetObjectCDNURL(bucket string, object *oss.Object) (string, error) {
+	return t.Called(bucket, object).Get(0).(string), nil
 }
 
-func (t *FakeOSSClient) UploadObjectFromFile(_ *beeorm.Engine, bucket, localFile string) oss.Object {
-	return t.Called(bucket, localFile).Get(0).(oss.Object)
-}
-
-func (t *FakeOSSClient) UploadObjectFromBase64(_ *beeorm.Engine, bucket, content, extension string) oss.Object {
-	return t.Called(bucket, content, extension).Get(0).(oss.Object)
-}
-
-func (t *FakeOSSClient) UploadImageFromFile(_ *beeorm.Engine, bucket, localFile string) oss.Object {
-	return t.Called(bucket, localFile).Get(0).(oss.Object)
-}
-
-func (t *FakeOSSClient) UploadImageFromBase64(_ *beeorm.Engine, bucket, image, extension string) oss.Object {
-	return t.Called(bucket, image, extension).Get(0).(oss.Object)
+func (t *FakeOSSClient) GetObjectSignedURL(bucket string, object *oss.Object, expires time.Time) (string, error) {
+	return t.Called(bucket, object, expires).Get(0).(string), nil
 }
 
 func (t *FakeOSSClient) GetObjectBase64Content(bucket string, object *oss.Object) (string, error) {
-	return t.Called(bucket, object).Get(0).(string), t.Called(bucket, object).Get(0).(error)
+	return t.Called(bucket, object).Get(0).(string), nil
+}
+
+func (t *FakeOSSClient) UploadObjectFromFile(_ *beeorm.Engine, bucket, localFile string) (oss.Object, error) {
+	return t.Called(bucket, localFile).Get(0).(oss.Object), nil
+}
+
+func (t *FakeOSSClient) UploadObjectFromBase64(_ *beeorm.Engine, bucket, content, extension string) (oss.Object, error) {
+	return t.Called(bucket, content, extension).Get(0).(oss.Object), nil
+}
+
+func (t *FakeOSSClient) UploadObjectFromByte(_ *beeorm.Engine, bucket string, content []byte, extension string) (oss.Object, error) {
+	return t.Called(bucket, content, extension).Get(0).(oss.Object), nil
+}
+
+func (t *FakeOSSClient) UploadImageFromFile(_ *beeorm.Engine, bucket, localFile string) (oss.Object, error) {
+	return t.Called(bucket, localFile).Get(0).(oss.Object), nil
+}
+
+func (t *FakeOSSClient) UploadImageFromBase64(_ *beeorm.Engine, bucket, image, extension string) (oss.Object, error) {
+	return t.Called(bucket, image, extension).Get(0).(oss.Object), nil
+}
+
+func (t *FakeOSSClient) DeleteObject(_ string, _ *oss.Object) error {
+	return nil
+}
+
+func (t *FakeOSSClient) CreateObjectFromKey(_ *beeorm.Engine, _, _ string) oss.Object {
+	return oss.Object{}
 }
