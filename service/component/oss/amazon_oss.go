@@ -54,13 +54,17 @@ func NewAmazonOSS(configService config.IConfig, clockService clock.IClock, bucke
 		return nil, errors.New("missing region")
 	}
 
-	newSession, _ := session.NewSession(&aws.Config{
+	newSession, err := session.NewSession(&aws.Config{
 		Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
 		Endpoint:         aws.String(endpoint),
 		S3ForcePathStyle: aws.Bool(true),
 		Region:           aws.String(region),
 		DisableSSL:       aws.Bool(disableSSL),
 	})
+
+	if err != nil {
+		return nil, err
+	}
 
 	return &AmazonOSS{
 		client:       s3.New(newSession),

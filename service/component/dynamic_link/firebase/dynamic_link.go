@@ -21,13 +21,13 @@ var ValidSuffixOptionsMap = map[string]*struct{}{
 }
 
 type Generator struct {
-	ApiKey          string           `json:"-"`
+	APIKey          string           `json:"-"`
 	DynamicLinkInfo *DynamicLinkInfo `json:"dynamicLinkInfo"`
 	Suffix          *Suffix          `json:"suffix,omitempty"`
 }
 
 type DynamicLinkInfo struct {
-	DomainUriPrefix   string             `json:"domainUriPrefix"`
+	DomainURIPrefix   string             `json:"domainUriPrefix"`
 	Link              string             `json:"link"`
 	AndroidInfo       *AndroidInfo       `json:"androidInfo,omitempty"`
 	IosInfo           *IosInfo           `json:"iosInfo,omitempty"`
@@ -95,7 +95,7 @@ func (g *Generator) GenerateDynamicLink(hash string) (*dynamiclink.GenerateRespo
 		return &dynamiclink.GenerateResponse{}, err
 	}
 
-	respRaw, err := http.Post(fmt.Sprintf("%s%s", dynamicLinkGenerateURL, g.ApiKey), "application/json", bytes.NewReader(marshaled))
+	respRaw, err := http.Post(fmt.Sprintf("%s%s", dynamicLinkGenerateURL, g.APIKey), "application/json", bytes.NewReader(marshaled))
 	if err != nil {
 		return &dynamiclink.GenerateResponse{}, err
 	}
