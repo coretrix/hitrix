@@ -23,10 +23,12 @@ type Uploader interface {
 	GetCompletedUploadsChan() chan tusd.HookEvent
 	GetTerminatedUploadsChan() chan tusd.HookEvent
 	GetUploadProgressChan() chan tusd.HookEvent
+	GetBucket() string
 }
 
 type TUSDUploader struct {
 	handler *tusd.UnroutedHandler
+	bucket  string
 }
 
 func GetStore(OSSClient interface{}, bucket string) Store {
@@ -41,13 +43,17 @@ func GetStore(OSSClient interface{}, bucket string) Store {
 	panic("OSSClient store not found")
 }
 
-func NewTUSDUploader(c tusd.Config) Uploader {
+func NewTUSDUploader(c tusd.Config, bucket string) Uploader {
 	uploader, err := tusd.NewUnroutedHandler(c)
 	if err != nil {
 		panic(err)
 	}
 
-	return &TUSDUploader{handler: uploader}
+	return &TUSDUploader{handler: uploader, bucket: bucket}
+}
+
+func (u *TUSDUploader) GetBucket() string {
+	return u.bucket
 }
 
 func (u *TUSDUploader) PostFile(w http.ResponseWriter, r *http.Request) {
