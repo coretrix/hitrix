@@ -52,10 +52,8 @@ func (e *CSVExporter) exportToByte(columns []string, rows [][]interface{}) ([]by
 }
 
 func (e *CSVExporter) export(writer *csv.Writer, columns []string, rows [][]interface{}) error {
-	var record []string
-	for _, columnTitle := range columns {
-		record = append(record, columnTitle)
-	}
+	record := make([]string, 0)
+	record = append(record, columns...)
 
 	err := writer.Write(record)
 	if err != nil {

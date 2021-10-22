@@ -16,7 +16,7 @@ type DBSeedScript struct {
 }
 
 func (script *DBSeedScript) Run(_ context.Context, _ hitrix.Exit) {
-	ormService, _ := service.DI().OrmEngine()
+	ormService := service.DI().OrmEngine()
 	Seeder(script.Seeds, ormService)
 }
 

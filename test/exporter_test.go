@@ -21,6 +21,8 @@ func TestExporter(t *testing.T) {
 		Close: def.Close,
 	})
 
+	assert.Nil(t, err)
+
 	service.SetContainer(ioCBuilder.Build())
 
 	exporterService := service.DI().Exporter()
@@ -59,6 +61,7 @@ func TestExporter(t *testing.T) {
 
 	byteSlice, err = exporterService.CSVExportToByte(headers, rows)
 	assert.Nil(t, err)
+	assert.NotNil(t, byteSlice)
 
 	err = os.Remove(csvFilePath)
 	assert.NotNil(t, err)
