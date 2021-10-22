@@ -2,8 +2,9 @@ package hitrix
 
 import (
 	"bytes"
-	"github.com/coretrix/hitrix/service"
 	"io/ioutil"
+
+	"github.com/coretrix/hitrix/service"
 
 	"github.com/gin-gonic/gin"
 )

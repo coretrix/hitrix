@@ -2,6 +2,7 @@ package exporter
 
 import (
 	"bytes"
+
 	"github.com/tealeg/xlsx"
 )
 
