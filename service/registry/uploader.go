@@ -20,7 +20,7 @@ func ServiceProviderUploader(c tusd.Config, getLockerFunc locker.GetLockerFunc) 
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 
-			_, ok := configService.String("oss.uploader.bucket")
+			bucket, ok := configService.String("oss.uploader.bucket")
 
 			if !ok {
 				panic(errors.New("missing uploader bucket"))
@@ -39,7 +39,7 @@ func ServiceProviderUploader(c tusd.Config, getLockerFunc locker.GetLockerFunc) 
 
 			c.StoreComposer = composer
 
-			return uploader.NewTUSDUploader(c), nil
+			return uploader.NewTUSDUploader(c, bucket), nil
 		},
 	}
 }
