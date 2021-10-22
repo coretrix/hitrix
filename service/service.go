@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/exporter"
+
 	"github.com/coretrix/hitrix/service/component/fcm"
 	"github.com/coretrix/hitrix/service/component/pdf"
 
@@ -76,6 +78,7 @@ const (
 	CrudService             = "crud"
 	UUIDService             = "uuid"
 	OTPService              = "otp"
+	ExporterService         = "exporter"
 )
 
 type DIInterface interface {
@@ -110,6 +113,7 @@ type DIInterface interface {
 	DynamicLink() dynamiclink.IGenerator
 	FCM() fcm.FCM
 	PDF() pdf.ServiceInterface
+	Exporter() exporter.IExporter
 }
 
 type diContainer struct {
@@ -118,6 +122,11 @@ type diContainer struct {
 func (d *diContainer) Checkout() checkout.ICheckout {
 	return GetServiceRequired(CheckoutService).(checkout.ICheckout)
 }
+
+func (d *diContainer) Exporter() exporter.IExporter {
+	return GetServiceRequired(ExporterService).(exporter.IExporter)
+}
+
 func (d *diContainer) AmazonS3() s3.Client {
 	return GetServiceRequired(AmazonS3Service).(s3.Client)
 }
