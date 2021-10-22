@@ -81,42 +81,13 @@ const (
 	ExporterService         = "exporter"
 )
 
-type DIInterface interface {
-	App() *app.App
-	Config() config.IConfig
-	OrmConfig() beeorm.ValidatedRegistry
-	OrmEngine() *beeorm.Engine
-	OrmEngineForContext(ctx context.Context) *beeorm.Engine
-	JWT() *jwt.JWT
-	Password() password.IPassword
-	Slack() slack.Slack
-	ErrorLogger() errorlogger.ErrorLogger
-	OSService() oss.IProvider
-	AmazonS3() s3.Client
-	SocketRegistry() *socket.Registry
-	APILogger() apilogger.IAPILogger
-	Authentication() *authentication.Authentication
-	SMS() sms.ISender
-	Generator() generator.IGenerator
-	MailMandrill() mail.Sender
-	Stripe() stripe.IStripe
-	Google() *social.Google
-	Checkout() checkout.ICheckout
-	Clock() clock.IClock
-	Uploader() uploader.Uploader
-	Crud() *crud.Crud
-	Localize() localize.ILocalizer
-	FileExtractor() *fileextractor.FileExtractor
-	UUID() uuid.IUUID
-	OTP() otp.IOTP
-	DDOS() ddos.IDDOS
-	DynamicLink() dynamiclink.IGenerator
-	FCM() fcm.FCM
-	PDF() pdf.ServiceInterface
-	Exporter() exporter.IExporter
+type diContainer struct {
 }
 
-type diContainer struct {
+var dicInstance = &diContainer{}
+
+func DI() *diContainer {
+	return dicInstance
 }
 
 func (d *diContainer) Checkout() checkout.ICheckout {
@@ -133,12 +104,6 @@ func (d *diContainer) AmazonS3() s3.Client {
 
 func (d *diContainer) Stripe() stripe.IStripe {
 	return GetServiceRequired(StripeService).(stripe.IStripe)
-}
-
-var dicInstance = &diContainer{}
-
-func DI() DIInterface {
-	return dicInstance
 }
 
 func (d *diContainer) App() *app.App {
