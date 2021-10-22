@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/coretrix/hitrix/service/component/exporter"
 
 	"github.com/coretrix/hitrix/service/component/ddos"
 	dynamiclink "github.com/coretrix/hitrix/service/component/dynamic_link"
@@ -74,6 +75,7 @@ const (
 	CrudService             = "crud"
 	UUIDService             = "uuid"
 	OTPService              = "otp"
+	ExporterService         = "exporter"
 )
 
 type DIInterface interface {
@@ -107,9 +109,18 @@ type DIInterface interface {
 	OTP() otp.IOTP
 	DDOS() ddos.IDDOS
 	DynamicLink() dynamiclink.IGenerator
+	Exporter() (exporter.IExporter, bool)
 }
 
 type diContainer struct {
+}
+
+func (d *diContainer) Exporter() (exporter.IExporter, bool) {
+	v, has := GetServiceOptional(ExporterService)
+	if has {
+		return v.(exporter.IExporter), true
+	}
+	return nil, false
 }
 
 func (d *diContainer) Checkout() (checkout.ICheckout, bool) {
@@ -119,6 +130,7 @@ func (d *diContainer) Checkout() (checkout.ICheckout, bool) {
 	}
 	return nil, false
 }
+
 func (d *diContainer) AmazonS3() (s3.Client, bool) {
 	v, has := GetServiceOptional(AmazonS3Service)
 	if has {
