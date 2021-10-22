@@ -88,10 +88,7 @@ func (h *Hitrix) preDeploy() {
 		return
 	}
 
-	ormService, has := service.DI().OrmEngine()
-	if !has {
-		return
-	}
+	ormService := service.DI().OrmEngine()
 
 	alters := ormService.GetAlters()
 
@@ -125,10 +122,8 @@ func (h *Hitrix) forceAlters() {
 		return
 	}
 
-	ormService, has := service.DI().OrmEngine()
-	if !has {
-		return
-	}
+	ormService := service.DI().OrmEngine()
+
 	dbService := ormService.GetMysql()
 
 	alters := ormService.GetAlters()

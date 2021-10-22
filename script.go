@@ -158,10 +158,9 @@ func (processor *BackgroundProcessor) runScript(script Script) bool {
 					message = fmt.Sprint(err)
 				}
 
-				errorLogger, has := service.DI().ErrorLogger()
-				if has {
-					errorLogger.LogError(message + "\n" + string(debug.Stack()))
-				}
+				errorLogger := service.DI().ErrorLogger()
+				errorLogger.LogError(message + "\n" + string(debug.Stack()))
+
 				valid = false
 			}
 		}()
@@ -174,12 +173,8 @@ func (processor *BackgroundProcessor) runScript(script Script) bool {
 }
 
 func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
-	ormService, has := service.DI().OrmEngine()
+	ormService := service.DI().OrmEngine()
 	appService := service.DI().App()
-
-	if !has {
-		panic("Orm is not registered")
-	}
 
 	GoroutineWithRestart(func() {
 		asyncConsumer := beeorm.NewBackgroundConsumer(ormService)

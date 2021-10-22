@@ -24,7 +24,7 @@ import (
 )
 
 func createUser(input map[string]interface{}) *entity.DevPanelUserEntity {
-	ormService, _ := service.DI().OrmEngine()
+	ormService := service.DI().OrmEngine()
 	devPanelUserEntity := &entity.DevPanelUserEntity{}
 	for field, val := range input {
 		switch field {
@@ -81,9 +81,9 @@ func TestGenerateOTP(t *testing.T) {
 			},
 			nil,
 		)
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		otpResp, err := authenticationService.GenerateAndSendOTP(ormService, "+989375722346", "IR")
 		assert.Nil(t, err)
 		assert.Equal(t, otpResp.Token, "defjiwqwd")
@@ -113,7 +113,7 @@ func TestGenerateOTPEmail(t *testing.T) {
 		fakeGenerator := &generatorMock.FakeGenerator{}
 		fakeGenerator.On("GenerateRandomRangeNumber", min, max).Return(loginCode)
 		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), to, strconv.Itoa(loginCode))).Return("defjiwqwd")
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
@@ -131,7 +131,7 @@ func TestGenerateOTPEmail(t *testing.T) {
 		)
 
 		fakeMail.On("SendTemplateAsync", to).Return(nil)
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		otpResp, err := authenticationService.GenerateAndSendOTPEmail(ormService, to, template, from, title)
 		assert.Nil(t, err)
 		assert.Equal(t, otpResp.Token, "defjiwqwd")
@@ -168,7 +168,7 @@ func TestVerifyOTP(t *testing.T) {
 			},
 			nil,
 		)
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 
 		err := authenticationService.VerifyOTP("12345", &authentication.GenerateOTP{
 			Mobile:         "989375722346",
@@ -206,7 +206,7 @@ func TestVerifyOTPEmail(t *testing.T) {
 			},
 			nil,
 		)
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 
 		err := authenticationService.VerifyOTPEmail("12345", &authentication.GenerateOTPEmail{
 			Email:          "iman.daneshi@coretrix.com",
@@ -240,16 +240,16 @@ func TestAuthenticate(t *testing.T) {
 			nil,
 		)
 
-		passwordService, _ := service.DI().Password()
+		passwordService := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 
 		createUser(map[string]interface{}{
 			"Email":    "test@test.com",
 			"Password": hashedPassword,
 		})
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		_, _, err := authenticationService.Authenticate(ormService, "test@test.com", "1234", fetchedAdminEntity)
 		assert.Nil(t, err)
@@ -275,16 +275,16 @@ func TestAuthenticate(t *testing.T) {
 			nil,
 		)
 
-		passwordService, _ := service.DI().Password()
+		passwordService := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 
 		userEntity := createUser(map[string]interface{}{
 			"Email":    "test@test.com",
 			"Password": hashedPassword,
 		})
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		_, _, err := authenticationService.AuthenticateByID(ormService, userEntity.GetID(), fetchedAdminEntity)
 		assert.Nil(t, err)
@@ -308,16 +308,16 @@ func TestAuthenticate(t *testing.T) {
 			nil,
 		)
 
-		passwordService, _ := service.DI().Password()
+		passwordService := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 
 		createUser(map[string]interface{}{
 			"Email":    "test@test.com",
 			"Password": hashedPassword,
 		})
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		fetchedAdminEntity := &entity.DevPanelUserEntity{}
 		_, _, err := authenticationService.Authenticate(ormService, "test@tesat.com", "1234", fetchedAdminEntity)
 		assert.NotNil(t, err)
@@ -342,7 +342,7 @@ func TestVerifyAccessToken(t *testing.T) {
 			nil,
 		)
 
-		passwordService, _ := service.DI().Password()
+		passwordService := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
 
 		currentUser := createUser(map[string]interface{}{
@@ -351,10 +351,10 @@ func TestVerifyAccessToken(t *testing.T) {
 		})
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		token, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.DevPanelUserEntity{}
@@ -378,7 +378,7 @@ func TestVerifyAccessToken(t *testing.T) {
 			nil,
 		)
 
-		passwordService, _ := service.DI().Password()
+		passwordService := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
 
 		currentUser := createUser(map[string]interface{}{
@@ -387,10 +387,10 @@ func TestVerifyAccessToken(t *testing.T) {
 		})
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		token, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.DevPanelUserEntity{}
@@ -418,7 +418,7 @@ func TestRefreshToken(t *testing.T) {
 			nil,
 		)
 
-		passwordService, _ := service.DI().Password()
+		passwordService := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
 
 		currentUser := createUser(map[string]interface{}{
@@ -427,10 +427,10 @@ func TestRefreshToken(t *testing.T) {
 		})
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		refresh, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		_, _, err = authenticationService.RefreshToken(ormService, refresh)
@@ -452,7 +452,7 @@ func TestRefreshToken(t *testing.T) {
 			nil,
 		)
 
-		passwordService, _ := service.DI().Password()
+		passwordService := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
 
 		currentUser := createUser(map[string]interface{}{
@@ -461,10 +461,10 @@ func TestRefreshToken(t *testing.T) {
 		})
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		refresh, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		_, _, err = authenticationService.RefreshToken(ormService, "ef"+refresh)
@@ -490,7 +490,7 @@ func TestLogoutCurrentSession(t *testing.T) {
 			nil,
 		)
 
-		passwordService, _ := service.DI().Password()
+		passwordService := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
 
 		currentUser := createUser(map[string]interface{}{
@@ -499,10 +499,10 @@ func TestLogoutCurrentSession(t *testing.T) {
 		})
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.DevPanelUserEntity{}
@@ -532,7 +532,7 @@ func TestLogoutAllSessions(t *testing.T) {
 			nil,
 		)
 
-		passwordService, _ := service.DI().Password()
+		passwordService := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
 
 		currentUser := createUser(map[string]interface{}{
@@ -541,13 +541,13 @@ func TestLogoutAllSessions(t *testing.T) {
 		})
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey, "", 10)
 
 		accessListKey := fmt.Sprintf("USER_KEYS:%d", currentUser.ID)
 		ormService.GetRedis().Set(accessListKey, accessKey, 10)
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
 		assert.Nil(t, err)
 		fetchedAdminEntity := &entity.DevPanelUserEntity{}
@@ -573,7 +573,7 @@ func TestLogoutAllSessions(t *testing.T) {
 			nil,
 		)
 
-		passwordService, _ := service.DI().Password()
+		passwordService := service.DI().Password()
 		hashedPassword, _ := passwordService.HashPassword("1234")
 
 		currentUser := createUser(map[string]interface{}{
@@ -583,14 +583,14 @@ func TestLogoutAllSessions(t *testing.T) {
 
 		accessKey1 := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		accessKey2 := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
-		ormService, _ := service.DI().OrmEngine()
+		ormService := service.DI().OrmEngine()
 		ormService.GetRedis().Set(accessKey1, "", 10)
 		ormService.GetRedis().Set(accessKey2, "", 10)
 
 		accessListKey := fmt.Sprintf("USER_KEYS:%d", currentUser.ID)
 		ormService.GetRedis().Set(accessListKey, accessKey1+";"+accessKey2, 10)
 
-		authenticationService, _ := service.DI().Authentication()
+		authenticationService := service.DI().Authentication()
 		accessToken1, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey1, 10)
 		assert.Nil(t, err)
 		accessToken2, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey2, 10)
@@ -625,7 +625,7 @@ func TestGenerateTokenPair(t *testing.T) {
 		nil,
 	)
 
-	passwordService, _ := service.DI().Password()
+	passwordService := service.DI().Password()
 	hashedPassword, _ := passwordService.HashPassword("1234")
 
 	currentUser := createUser(map[string]interface{}{
@@ -633,9 +633,9 @@ func TestGenerateTokenPair(t *testing.T) {
 		"Password": hashedPassword,
 	})
 
-	authenticationService, _ := service.DI().Authentication()
+	authenticationService := service.DI().Authentication()
 
-	ormService, _ := service.DI().OrmEngine()
+	ormService := service.DI().OrmEngine()
 	ormService.GetRedis().Set("test_key", "", 10)
 	accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, "test_key", 10)
 	assert.Nil(t, err)

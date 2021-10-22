@@ -23,10 +23,7 @@ func TestExporter(t *testing.T) {
 
 	service.SetContainer(ioCBuilder.Build())
 
-	exporterService, has := service.DI().Exporter()
-	if !has {
-		panic("no export services registered")
-	}
+	exporterService := service.DI().Exporter()
 
 	xlsxFilePath := "test_xlsx_exporter.xlsx"
 	csvFilePath := "test_csv_exporter.csv"
