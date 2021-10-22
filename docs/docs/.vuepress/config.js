@@ -147,6 +147,10 @@ module.exports = {
                                 text: 'WebSocket',
                                 link: '/guide/services/websocket',
                             },
+                            {
+                                text: 'Exporter',
+                                link: '/guide/services/exporter',
+                            },
                         ],
                     },
                     {
