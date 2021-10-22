@@ -7,7 +7,7 @@ import (
 )
 
 func Router(ginEngine *gin.Engine) {
-	service.DI().JWT()
+	_ = service.DI().JWT()
 
 	var devPanel *controller.DevPanelController
 	{

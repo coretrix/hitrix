@@ -160,7 +160,6 @@ func (processor *BackgroundProcessor) runScript(script Script) bool {
 
 				errorLogger := service.DI().ErrorLogger()
 				errorLogger.LogError(message + "\n" + string(debug.Stack()))
-
 				valid = false
 			}
 		}()

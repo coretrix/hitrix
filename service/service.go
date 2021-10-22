@@ -5,6 +5,9 @@ import (
 
 	"github.com/coretrix/hitrix/service/component/exporter"
 
+	"github.com/coretrix/hitrix/service/component/fcm"
+	"github.com/coretrix/hitrix/service/component/pdf"
+
 	"github.com/coretrix/hitrix/service/component/ddos"
 	dynamiclink "github.com/coretrix/hitrix/service/component/dynamic_link"
 
@@ -12,7 +15,6 @@ import (
 
 	"github.com/coretrix/hitrix/service/component/uuid"
 
-	"github.com/coretrix/hitrix/service/component/goroutine"
 	"github.com/coretrix/hitrix/service/component/localize"
 
 	"github.com/coretrix/hitrix/service/component/crud"
@@ -105,23 +107,24 @@ type DIInterface interface {
 	Crud() *crud.Crud
 	Localize() localize.ILocalizer
 	FileExtractor() *fileextractor.FileExtractor
-	Goroutine() goroutine.IGoroutine
 	UUID() uuid.IUUID
 	OTP() otp.IOTP
 	DDOS() ddos.IDDOS
 	DynamicLink() dynamiclink.IGenerator
+	FCM() fcm.FCM
+	PDF() pdf.ServiceInterface
 	Exporter() exporter.IExporter
 }
 
 type diContainer struct {
 }
 
-func (d *diContainer) Exporter() exporter.IExporter {
-	return GetServiceRequired(ExporterService).(exporter.IExporter)
-}
-
 func (d *diContainer) Checkout() checkout.ICheckout {
 	return GetServiceRequired(CheckoutService).(checkout.ICheckout)
+}
+
+func (d *diContainer) Exporter() exporter.IExporter {
+	return GetServiceRequired(ExporterService).(exporter.IExporter)
 }
 
 func (d *diContainer) AmazonS3() s3.Client {
@@ -226,10 +229,6 @@ func (d *diContainer) FileExtractor() *fileextractor.FileExtractor {
 	return GetServiceRequired(ExtractorService).(*fileextractor.FileExtractor)
 }
 
-func (d *diContainer) Goroutine() goroutine.IGoroutine {
-	return GetServiceRequired(GoroutineService).(goroutine.IGoroutine)
-}
-
 func (d *diContainer) UUID() uuid.IUUID {
 	return GetServiceRequired(UUIDService).(uuid.IUUID)
 }
@@ -244,4 +243,12 @@ func (d *diContainer) DDOS() ddos.IDDOS {
 
 func (d *diContainer) DynamicLink() dynamiclink.IGenerator {
 	return GetServiceRequired(DynamicLinkService).(dynamiclink.IGenerator)
+}
+
+func (d *diContainer) FCM() fcm.FCM {
+	return GetServiceRequired(FCMService).(fcm.FCM)
+}
+
+func (d *diContainer) PDF() pdf.ServiceInterface {
+	return GetServiceRequired(PDFService).(pdf.ServiceInterface)
 }

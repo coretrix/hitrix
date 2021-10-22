@@ -25,7 +25,8 @@ type ORMAltersScript struct {
 }
 
 func (script *ORMAltersScript) Active() bool {
-	return service.DI().OrmConfig() != nil
+	_ = service.DI().OrmConfig()
+	return true
 }
 
 func (script *ORMAltersScript) Unique() bool {
