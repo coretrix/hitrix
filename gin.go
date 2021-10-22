@@ -72,7 +72,7 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 	if server != nil {
 		var queryHandler gin.HandlerFunc
 		if app.IsInLocalMode() {
-			queryHandler = timeout.New(timeout.WithHandler(graphqlHandler(server, gqlServerInitHandler)))
+			queryHandler = graphqlHandler(server, gqlServerInitHandler)
 		} else {
 			queryHandler = timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server, gqlServerInitHandler)))
 		}
