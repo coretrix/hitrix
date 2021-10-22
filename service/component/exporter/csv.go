@@ -71,6 +71,6 @@ func (e *CSVExporter) export(writer *csv.Writer, columns []string, rows [][]inte
 		}
 		record = make([]string, 0)
 	}
-
+	writer.Flush()
 	return nil
 }
