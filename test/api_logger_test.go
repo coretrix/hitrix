@@ -17,12 +17,9 @@ func TestApiLogger(t *testing.T) {
 		nil,
 	)
 
-	apiLoggerService, has := service.DI().APILogger()
-	if !has {
-		panic("no api logger service registered")
-	}
+	apiLoggerService := service.DI().APILogger()
 
-	ormService, _ := service.DI().OrmEngine()
+	ormService := service.DI().OrmEngine()
 	apiLoggerService.LogStart(ormService, entity.APILogTypeApple, nil)
 	apiLoggerService.LogSuccess(ormService, nil)
 

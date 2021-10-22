@@ -192,11 +192,7 @@ func CreateContext(t *testing.T, projectName string, defaultServices []*service.
 		RegisterDIGlobalService(append(defaultServices, mockServices...)...).Build()
 	defer deferFunc()
 
-	var has bool
-	ormService, has := service.DI().OrmEngine()
-	if !has {
-		panic("ORM is not loaded")
-	}
+	ormService := service.DI().OrmEngine()
 
 	executeAlters(ormService)
 
@@ -228,11 +224,7 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 	defer deferFunc()
 	ginTestInstance := hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)
 
-	var has bool
-	ormService, has := service.DI().OrmEngine()
-	if !has {
-		panic("ORM is not loaded")
-	}
+	ormService := service.DI().OrmEngine()
 
 	executeAlters(ormService)
 
