@@ -17,8 +17,7 @@ func GoroutineWithRestart(fn func()) {
 func routine(fn func(), autoRestart bool) {
 	defer func() {
 		if r := recover(); r != nil {
-			errorLogger := service.DI().ErrorLogger()
-			errorLogger.LogError(r)
+			service.DI().ErrorLogger().LogError(r)
 
 			if autoRestart {
 				time.Sleep(time.Second)
