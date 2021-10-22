@@ -13,10 +13,10 @@ func recovery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if r := recover(); r != nil {
-				errorLogger := service.DI().ErrorLogger()
-				requestBody := c.Request.Context().Value(service.RequestBodyKey).([]byte)
-				c.Request.Body = ioutil.NopCloser(bytes.NewReader(requestBody))
-				errorLogger.LogErrorWithRequest(c, r)
+				c.Request.Body = ioutil.NopCloser(
+					bytes.NewReader(c.Request.Context().Value(service.RequestBodyKey).([]byte)))
+
+				service.DI().ErrorLogger().LogErrorWithRequest(c, r)
 			}
 		}()
 
