@@ -3,6 +3,10 @@ package uploader
 import (
 	"net/http"
 
+	"github.com/coretrix/hitrix/service/component/oss"
+	"github.com/tus/tusd/pkg/gcsstore"
+	"github.com/tus/tusd/pkg/s3store"
+
 	tusd "github.com/tus/tusd/pkg/handler"
 )
 
@@ -23,6 +27,18 @@ type Uploader interface {
 
 type TUSDUploader struct {
 	handler *tusd.UnroutedHandler
+}
+
+func GetStore(OSSClient interface{}, bucket string) Store {
+	if _, ok := OSSClient.(oss.GoogleOSS); ok {
+		return &GoogleStore{store: gcsstore.New(bucket, OSSClient.(gcsstore.GCSAPI))}
+	}
+
+	if _, ok := OSSClient.(oss.AmazonOSS); ok {
+		return &AmazonStore{store: s3store.New(bucket, OSSClient.(s3store.S3API))}
+	}
+
+	panic("OSSClient store not found")
 }
 
 func NewTUSDUploader(c tusd.Config) Uploader {

@@ -3,26 +3,34 @@ package registry
 import (
 	"errors"
 
+	"github.com/coretrix/hitrix/service/component/config"
+	"github.com/coretrix/hitrix/service/component/oss"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/uploader"
-	datastore "github.com/coretrix/hitrix/service/component/uploader/data_store"
 	"github.com/coretrix/hitrix/service/component/uploader/locker"
 
 	"github.com/sarulabs/di"
 	tusd "github.com/tus/tusd/pkg/handler"
 )
 
-func ServiceProviderUploader(c tusd.Config, getStoreFunc datastore.GetStoreFunc, getLockerFunc locker.GetLockerFunc) *service.DefinitionGlobal {
+func ServiceProviderUploader(c tusd.Config, getLockerFunc locker.GetLockerFunc) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.UploaderService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			composer := tusd.NewStoreComposer()
+			configService := ctn.Get(service.ConfigService).(config.IConfig)
 
-			if getStoreFunc == nil {
-				panic(errors.New("missing get data store func"))
+			_, ok := configService.String("oss.uploader.bucket")
+
+			if !ok {
+				panic(errors.New("missing uploader bucket"))
 			}
 
-			store := getStoreFunc(ctn)
+			osService := ctn.Get(service.OSService).(oss.IProvider)
+
+			composer := tusd.NewStoreComposer()
+
+			store := uploader.GetStore(osService.GetClient(), osService.GetUploaderBucketConfig().Name)
 			store.UseIn(composer)
 
 			if getLockerFunc != nil {
@@ -30,6 +38,7 @@ func ServiceProviderUploader(c tusd.Config, getStoreFunc datastore.GetStoreFunc,
 			}
 
 			c.StoreComposer = composer
+
 			return uploader.NewTUSDUploader(c), nil
 		},
 	}

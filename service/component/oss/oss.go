@@ -16,6 +16,7 @@ const ProviderGoogleOSS = 1
 const ProviderAmazonOSS = 2
 
 type IProvider interface {
+	GetClient() interface{}
 	GetObjectURL(bucket string, object *Object) (string, error)
 	GetObjectOSSURL(bucket string, object *Object) (string, error)
 	GetObjectCDNURL(bucket string, object *Object) (string, error)
@@ -29,6 +30,7 @@ type IProvider interface {
 	DeleteObject(bucket string, object *Object) error
 	//TODO Remove
 	CreateObjectFromKey(ormService *beeorm.Engine, bucket, key string) Object
+	GetUploaderBucketConfig() *BucketConfig
 }
 
 type Object struct {

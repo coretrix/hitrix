@@ -38,6 +38,7 @@ require (
 	github.com/latolukasz/beeorm v1.2.5
 	github.com/mattbaird/gochimp v0.0.0-20200820164431-f1082bcdf63f
 	github.com/mattn/go-colorable v0.1.11 // indirect
+	github.com/mgechev/revive v1.1.2 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
 	github.com/pariz/gountries v0.0.0-20200430155801-1c6a393df9c7
 	github.com/ryanuber/columnize v2.1.2+incompatible
@@ -56,6 +57,7 @@ require (
 	golang.org/x/net v0.0.0-20210903162142-ad29c8ab022f
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
 	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/tools v0.1.7 // indirect
 	google.golang.org/api v0.56.0
 	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83 // indirect
 )
