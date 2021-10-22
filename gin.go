@@ -108,13 +108,13 @@ func graphqlHandler(server graphql.ExecutableSchema, gqlServerInitHandler GQLSer
 			message = fmt.Sprint(err)
 		}
 		errorMessage := message + "\n" + string(debug.Stack())
-		errorLogger, has := service.DI().ErrorLogger()
-		if has {
-			ginContext := ctx.Value(service.GinKey).(*gin.Context)
-			requestBody := ctx.Value(service.RequestBodyKey).([]byte)
-			ginContext.Request.Body = ioutil.NopCloser(bytes.NewReader(requestBody))
-			errorLogger.LogErrorWithRequest(ginContext, errors.New(errorMessage))
-		}
+		errorLogger := service.DI().ErrorLogger()
+
+		ginContext := ctx.Value(service.GinKey).(*gin.Context)
+		requestBody := ctx.Value(service.RequestBodyKey).([]byte)
+		ginContext.Request.Body = ioutil.NopCloser(bytes.NewReader(requestBody))
+		errorLogger.LogErrorWithRequest(ginContext, errors.New(errorMessage))
+
 		return errors.New("internal server error")
 	})
 	if gqlServerInitHandler != nil {

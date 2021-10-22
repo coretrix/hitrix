@@ -99,15 +99,9 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				socialServiceMapping[authentication.SocialLoginFacebook] = googleService.(social.IUserData)
 			}
 
-			generatorService, has := service.DI().Generator()
-			if !has {
-				panic("generator service not loaded")
-			}
+			generatorService := service.DI().Generator()
 
-			errorLoggerService, has := service.DI().ErrorLogger()
-			if !has {
-				panic("error logger service not loaded")
-			}
+			errorLoggerService := service.DI().ErrorLogger()
 
 			if appService.RedisPools == nil || appService.RedisPools.Persistent == "" {
 				panic("redis persistent needs to be set")

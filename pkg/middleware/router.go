@@ -7,10 +7,7 @@ import (
 )
 
 func Router(ginEngine *gin.Engine) {
-	_, has := service.DI().JWT()
-	if !has {
-		panic("Please load JWT service")
-	}
+	_ = service.DI().JWT()
 
 	var devPanel *controller.DevPanelController
 	{

@@ -3,6 +3,9 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/fcm"
+	"github.com/coretrix/hitrix/service/component/pdf"
+
 	"github.com/coretrix/hitrix/service/component/ddos"
 	dynamiclink "github.com/coretrix/hitrix/service/component/dynamic_link"
 
@@ -10,7 +13,6 @@ import (
 
 	"github.com/coretrix/hitrix/service/component/uuid"
 
-	"github.com/coretrix/hitrix/service/component/goroutine"
 	"github.com/coretrix/hitrix/service/component/localize"
 
 	"github.com/coretrix/hitrix/service/component/crud"
@@ -79,60 +81,49 @@ const (
 type DIInterface interface {
 	App() *app.App
 	Config() config.IConfig
-	OrmConfig() (beeorm.ValidatedRegistry, bool)
-	OrmEngine() (*beeorm.Engine, bool)
+	OrmConfig() beeorm.ValidatedRegistry
+	OrmEngine() *beeorm.Engine
 	OrmEngineForContext(ctx context.Context) *beeorm.Engine
-	JWT() (*jwt.JWT, bool)
-	Password() (password.IPassword, bool)
-	Slack() (slack.Slack, bool)
-	ErrorLogger() (errorlogger.ErrorLogger, bool)
-	OSService() (oss.IProvider, bool)
-	AmazonS3() (s3.Client, bool)
-	SocketRegistry() (*socket.Registry, bool)
-	APILogger() (apilogger.IAPILogger, bool)
-	Authentication() (*authentication.Authentication, bool)
-	SMS() (sms.ISender, bool)
-	Generator() (generator.IGenerator, bool)
+	JWT() *jwt.JWT
+	Password() password.IPassword
+	Slack() slack.Slack
+	ErrorLogger() errorlogger.ErrorLogger
+	OSService() oss.IProvider
+	AmazonS3() s3.Client
+	SocketRegistry() *socket.Registry
+	APILogger() apilogger.IAPILogger
+	Authentication() *authentication.Authentication
+	SMS() sms.ISender
+	Generator() generator.IGenerator
 	MailMandrill() mail.Sender
-	Stripe() (stripe.IStripe, bool)
+	Stripe() stripe.IStripe
 	Google() *social.Google
-	Checkout() (checkout.ICheckout, bool)
+	Checkout() checkout.ICheckout
 	Clock() clock.IClock
-	Uploader() (uploader.Uploader, bool)
+	Uploader() uploader.Uploader
 	Crud() *crud.Crud
 	Localize() localize.ILocalizer
 	FileExtractor() *fileextractor.FileExtractor
-	Goroutine() goroutine.IGoroutine
 	UUID() uuid.IUUID
 	OTP() otp.IOTP
 	DDOS() ddos.IDDOS
 	DynamicLink() dynamiclink.IGenerator
+	FCM() fcm.FCM
+	PDF() pdf.ServiceInterface
 }
 
 type diContainer struct {
 }
 
-func (d *diContainer) Checkout() (checkout.ICheckout, bool) {
-	v, has := GetServiceOptional(CheckoutService)
-	if has {
-		return v.(checkout.ICheckout), true
-	}
-	return nil, false
+func (d *diContainer) Checkout() checkout.ICheckout {
+	return GetServiceRequired(CheckoutService).(checkout.ICheckout)
 }
-func (d *diContainer) AmazonS3() (s3.Client, bool) {
-	v, has := GetServiceOptional(AmazonS3Service)
-	if has {
-		return v.(s3.Client), true
-	}
-	return nil, false
+func (d *diContainer) AmazonS3() s3.Client {
+	return GetServiceRequired(AmazonS3Service).(s3.Client)
 }
 
-func (d *diContainer) Stripe() (stripe.IStripe, bool) {
-	v, has := GetServiceOptional(StripeService)
-	if has {
-		return v.(stripe.IStripe), true
-	}
-	return nil, false
+func (d *diContainer) Stripe() stripe.IStripe {
+	return GetServiceRequired(StripeService).(stripe.IStripe)
 }
 
 var dicInstance = &diContainer{}
@@ -149,108 +140,60 @@ func (d *diContainer) Config() config.IConfig {
 	return GetServiceRequired(ConfigService).(config.IConfig)
 }
 
-func (d *diContainer) OrmConfig() (beeorm.ValidatedRegistry, bool) {
-	v, has := GetServiceOptional(ORMConfigService)
-	if has {
-		return v.(beeorm.ValidatedRegistry), true
-	}
-	return nil, false
+func (d *diContainer) OrmConfig() beeorm.ValidatedRegistry {
+	return GetServiceRequired(ORMConfigService).(beeorm.ValidatedRegistry)
 }
 
-func (d *diContainer) OrmEngine() (*beeorm.Engine, bool) {
-	v, has := GetServiceOptional(ORMEngineGlobalService)
-	if has {
-		return v.(*beeorm.Engine), true
-	}
-	return nil, false
+func (d *diContainer) OrmEngine() *beeorm.Engine {
+	return GetServiceRequired(ORMEngineGlobalService).(*beeorm.Engine)
 }
 
 func (d *diContainer) OrmEngineForContext(ctx context.Context) *beeorm.Engine {
 	return GetServiceForRequestRequired(ctx, ORMEngineRequestService).(*beeorm.Engine)
 }
 
-func (d *diContainer) JWT() (*jwt.JWT, bool) {
-	v, has := GetServiceOptional(JWTService)
-	if has {
-		return v.(*jwt.JWT), true
-	}
-	return nil, false
+func (d *diContainer) JWT() *jwt.JWT {
+	return GetServiceRequired(JWTService).(*jwt.JWT)
 }
 
-func (d *diContainer) SMS() (sms.ISender, bool) {
-	v, has := GetServiceOptional(SMSService)
-	if has {
-		return v.(sms.ISender), true
-	}
-	return nil, false
+func (d *diContainer) SMS() sms.ISender {
+	return GetServiceRequired(SMSService).(sms.ISender)
 }
 
-func (d *diContainer) Generator() (generator.IGenerator, bool) {
-	v, has := GetServiceOptional(GeneratorService)
-	if has {
-		return v.(generator.IGenerator), true
-	}
-	return nil, false
+func (d *diContainer) Generator() generator.IGenerator {
+	return GetServiceRequired(GeneratorService).(generator.IGenerator)
 }
 
-func (d *diContainer) Password() (password.IPassword, bool) {
-	v, has := GetServiceOptional(PasswordService)
-	if has {
-		return v.(password.IPassword), true
-	}
-	return nil, false
+func (d *diContainer) Password() password.IPassword {
+	return GetServiceRequired(PasswordService).(password.IPassword)
 }
 
-func (d *diContainer) Slack() (slack.Slack, bool) {
-	v, has := GetServiceOptional(SlackService)
-	if has {
-		return v.(slack.Slack), true
-	}
-	return nil, false
+func (d *diContainer) Slack() slack.Slack {
+	return GetServiceRequired(SlackService).(slack.Slack)
 }
 
-func (d *diContainer) ErrorLogger() (errorlogger.ErrorLogger, bool) {
-	v, has := GetServiceOptional(ErrorLoggerService)
-	if has {
-		return v.(errorlogger.ErrorLogger), true
-	}
-	return nil, false
+func (d *diContainer) ErrorLogger() errorlogger.ErrorLogger {
+	return GetServiceRequired(ErrorLoggerService).(errorlogger.ErrorLogger)
 }
 
-func (d *diContainer) OSService() (oss.IProvider, bool) {
-	v, has := GetServiceOptional(OSService)
-	if has {
-		return v.(oss.IProvider), true
-	}
-	return nil, false
+func (d *diContainer) OSService() oss.IProvider {
+	return GetServiceRequired(OSService).(oss.IProvider)
 }
 
-func (d *diContainer) SocketRegistry() (*socket.Registry, bool) {
-	v, has := GetServiceOptional(SocketRegistryService)
-	if has {
-		return v.(*socket.Registry), true
-	}
-	return nil, false
+func (d *diContainer) SocketRegistry() *socket.Registry {
+	return GetServiceRequired(SocketRegistryService).(*socket.Registry)
 }
 
-func (d *diContainer) APILogger() (apilogger.IAPILogger, bool) {
-	v, has := GetServiceOptional(APILoggerService)
-	if has {
-		return v.(apilogger.IAPILogger), true
-	}
-	return nil, false
+func (d *diContainer) APILogger() apilogger.IAPILogger {
+	return GetServiceRequired(APILoggerService).(apilogger.IAPILogger)
 }
 
 func (d *diContainer) Clock() clock.IClock {
 	return GetServiceRequired(ClockService).(clock.IClock)
 }
 
-func (d *diContainer) Authentication() (*authentication.Authentication, bool) {
-	v, has := GetServiceOptional(AuthenticationService)
-	if has {
-		return v.(*authentication.Authentication), true
-	}
-	return nil, false
+func (d *diContainer) Authentication() *authentication.Authentication {
+	return GetServiceRequired(AuthenticationService).(*authentication.Authentication)
 }
 
 func (d *diContainer) MailMandrill() mail.Sender {
@@ -261,12 +204,8 @@ func (d *diContainer) Google() *social.Google {
 	return GetServiceRequired(GoogleService).(*social.Google)
 }
 
-func (d *diContainer) Uploader() (uploader.Uploader, bool) {
-	v, has := GetServiceOptional(UploaderService)
-	if has {
-		return v.(uploader.Uploader), true
-	}
-	return nil, false
+func (d *diContainer) Uploader() uploader.Uploader {
+	return GetServiceRequired(UploaderService).(uploader.Uploader)
 }
 
 func (d *diContainer) Crud() *crud.Crud {
@@ -279,10 +218,6 @@ func (d *diContainer) Localize() localize.ILocalizer {
 
 func (d *diContainer) FileExtractor() *fileextractor.FileExtractor {
 	return GetServiceRequired(ExtractorService).(*fileextractor.FileExtractor)
-}
-
-func (d *diContainer) Goroutine() goroutine.IGoroutine {
-	return GetServiceRequired(GoroutineService).(goroutine.IGoroutine)
 }
 
 func (d *diContainer) UUID() uuid.IUUID {
@@ -299,4 +234,12 @@ func (d *diContainer) DDOS() ddos.IDDOS {
 
 func (d *diContainer) DynamicLink() dynamiclink.IGenerator {
 	return GetServiceRequired(DynamicLinkService).(dynamiclink.IGenerator)
+}
+
+func (d *diContainer) FCM() fcm.FCM {
+	return GetServiceRequired(FCMService).(fcm.FCM)
+}
+
+func (d *diContainer) PDF() pdf.ServiceInterface {
+	return GetServiceRequired(PDFService).(pdf.ServiceInterface)
 }

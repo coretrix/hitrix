@@ -12,13 +12,10 @@ type ReadinessController struct {
 }
 
 func (controller *ReadinessController) GetReadinessAction(c *gin.Context) {
-	ormService, has := service.DI().OrmEngine()
-	if !has {
-		panic("orm is not registered")
-	}
+	ormService := service.DI().OrmEngine()
 
 	var res int8
-	has = ormService.GetMysql().QueryRow(beeorm.NewWhere("SELECT 1"), &res)
+	has := ormService.GetMysql().QueryRow(beeorm.NewWhere("SELECT 1"), &res)
 	if !has || res != 1 {
 		c.JSON(503, gin.H{"error": "mysql do not respond"})
 		return

@@ -47,15 +47,9 @@ func (controller *DevPanelController) GetSettingsAction(c *gin.Context) {
 }
 
 func (controller *DevPanelController) CreateDevPanelUserAction(c *gin.Context) {
-	passwordService, has := service.DI().Password()
-	if !has {
-		panic("password is not registered")
-	}
+	passwordService := service.DI().Password()
 
-	ormService, has := service.DI().OrmEngine()
-	if !has {
-		panic("password is not registered")
-	}
+	ormService := service.DI().OrmEngine()
 
 	form := &accountModel.LoginDevForm{}
 	if err := binding.ShouldBindQuery(c, form); err != nil {

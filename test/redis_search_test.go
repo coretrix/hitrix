@@ -13,7 +13,7 @@ import (
 func TestRedisSearch(t *testing.T) {
 	createContextMyApp(t, "my-app", nil, nil, nil)
 
-	ormService, _ := service.DI().OrmEngine()
+	ormService := service.DI().OrmEngine()
 
 	query := &beeorm.RedisSearchQuery{}
 	query.FilterString("Email", "test@coretrix.com")

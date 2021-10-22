@@ -50,10 +50,6 @@ func HasService(key string) bool {
 	return has
 }
 
-func GetServiceSafe(key string) (service interface{}, has bool, err error) {
-	return getServiceSafe(container, key)
-}
-
 func GetServiceOptional(key string) (service interface{}, has bool) {
 	return getServiceOptional(container, key)
 }

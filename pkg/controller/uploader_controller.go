@@ -13,10 +13,7 @@ type UploaderController struct {
 }
 
 func (controller *UploaderController) PostFileAction(c *gin.Context) {
-	uploaderService, ok := service.DI().Uploader()
-	if !ok {
-		panic("missing uploader service")
-	}
+	uploaderService := service.DI().Uploader()
 
 	appService := service.DI().App()
 	if !appService.IsInLocalMode() {
@@ -46,10 +43,7 @@ func (controller *UploaderController) PostFileAction(c *gin.Context) {
 }
 
 func (controller *UploaderController) GetFileAction(c *gin.Context) {
-	uploaderService, ok := service.DI().Uploader()
-	if !ok {
-		panic("missing uploader service")
-	}
+	uploaderService := service.DI().Uploader()
 
 	appService := service.DI().App()
 	if !appService.IsInLocalMode() {
@@ -60,10 +54,7 @@ func (controller *UploaderController) GetFileAction(c *gin.Context) {
 }
 
 func (controller *UploaderController) HeadFile(c *gin.Context) {
-	uploaderService, ok := service.DI().Uploader()
-	if !ok {
-		panic("missing uploader service")
-	}
+	uploaderService := service.DI().Uploader()
 
 	appService := service.DI().App()
 	if !appService.IsInLocalMode() {
@@ -74,10 +65,7 @@ func (controller *UploaderController) HeadFile(c *gin.Context) {
 }
 
 func (controller *UploaderController) PatchFile(c *gin.Context) {
-	uploaderService, ok := service.DI().Uploader()
-	if !ok {
-		panic("missing uploader service")
-	}
+	uploaderService := service.DI().Uploader()
 
 	appService := service.DI().App()
 	if !appService.IsInLocalMode() {
@@ -88,10 +76,7 @@ func (controller *UploaderController) PatchFile(c *gin.Context) {
 }
 
 func (controller *UploaderController) DeleteFile(c *gin.Context) {
-	uploaderService, ok := service.DI().Uploader()
-	if !ok {
-		panic("missing uploader service")
-	}
+	uploaderService := service.DI().Uploader()
 
 	appService := service.DI().App()
 	if !appService.IsInLocalMode() {

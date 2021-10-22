@@ -3,7 +3,6 @@ package hitrix
 import (
 	"context"
 	"flag"
-	"log"
 	"os"
 
 	"github.com/coretrix/hitrix/service/registry"
@@ -57,12 +56,8 @@ func (r *Registry) Build() (*Hitrix, func()) {
 
 	return h, func() {
 		if r := recover(); r != nil {
-			errorLogger, has := service.DI().ErrorLogger()
-			if has {
-				errorLogger.LogError(r)
-			} else {
-				log.Print(r.(string))
-			}
+			errorLogger := service.DI().ErrorLogger()
+			errorLogger.LogError(r)
 		}
 	}
 }
