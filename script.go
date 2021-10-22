@@ -158,8 +158,8 @@ func (processor *BackgroundProcessor) runScript(script Script) bool {
 					message = fmt.Sprint(err)
 				}
 
-				errorLogger := service.DI().ErrorLogger()
-				errorLogger.LogError(message + "\n" + string(debug.Stack()))
+				service.DI().ErrorLogger().LogError(message + "\n" + string(debug.Stack()))
+
 				valid = false
 			}
 		}()
