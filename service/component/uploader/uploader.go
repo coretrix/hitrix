@@ -3,11 +3,14 @@ package uploader
 import (
 	"net/http"
 
-	"github.com/coretrix/hitrix/service/component/oss"
+	"github.com/aws/aws-sdk-go/service/s3"
+
 	"github.com/tus/tusd/pkg/gcsstore"
 	"github.com/tus/tusd/pkg/s3store"
 
 	tusd "github.com/tus/tusd/pkg/handler"
+
+	"cloud.google.com/go/storage"
 )
 
 type Uploader interface {
@@ -32,11 +35,11 @@ type TUSDUploader struct {
 }
 
 func GetStore(OSSClient interface{}, bucket string) Store {
-	if _, ok := OSSClient.(oss.GoogleOSS); ok {
+	if _, ok := OSSClient.(storage.Client); ok {
 		return &GoogleStore{store: gcsstore.New(bucket, OSSClient.(gcsstore.GCSAPI))}
 	}
 
-	if _, ok := OSSClient.(oss.AmazonOSS); ok {
+	if _, ok := OSSClient.(*s3.S3); ok {
 		return &AmazonStore{store: s3store.New(bucket, OSSClient.(s3store.S3API))}
 	}
 
