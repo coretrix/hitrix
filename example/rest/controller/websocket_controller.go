@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/coretrix/hitrix"
+
 	model "github.com/coretrix/hitrix/example/model/socket"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/socket"
@@ -38,19 +40,13 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 		panic(err)
 	}
 
-	socketRegistryService, has := service.DI().SocketRegistry()
-	if !has {
-		panic("Socket Registry is not registered")
-	}
+	socketRegistryService := service.DI().SocketRegistry()
 
-	errorLoggerService, has := service.DI().ErrorLogger()
-	if !has {
-		panic("Socket Registry is not registered")
-	}
+	errorLogger := service.DI().ErrorLogger()
 
 	connection := &socket.Connection{Send: make(chan []byte, 256), Ws: ws}
 	socketHolder := &socket.Socket{
-		ErrorLogger: errorLoggerService,
+		ErrorLogger: errorLogger,
 		Connection:  connection,
 		ID:          "unique connection hash based on userID, deviceID and timestamp",
 		Namespace:   model.DefaultWebsocketNamespace,
@@ -58,18 +54,16 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 
 	socketRegistryService.Register <- socketHolder
 
-	serviceGoroutine := service.DI().Goroutine()
-
-	serviceGoroutine.Goroutine(func() {
+	hitrix.Goroutine(func() {
 		socketHolder.WritePump()
 	})
 
-	serviceGoroutine.Goroutine(func() {
+	hitrix.Goroutine(func() {
 		socketHolder.ReadPump(socketRegistryService, func(rawData []byte) {
 			dto := &DTOMessage{}
 			err = json.Unmarshal(rawData, dto)
 			if err != nil {
-				errorLoggerService.LogError(err)
+				errorLogger.LogError(err)
 				return
 			}
 			//return back the received message

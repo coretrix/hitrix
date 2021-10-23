@@ -128,7 +128,7 @@ func (g *TwilioGateway) SendSMSMessage(message *Message) (string, error) {
 	return success, nil
 }
 
-func (g *TwilioGateway) SendCalloutMessage(message *Message) (string, error) {
+func (g *TwilioGateway) SendCalloutMessage(_ *Message) (string, error) {
 	// not supported for now
 	return "", nil
 }

@@ -1,8 +1,6 @@
 package registry
 
 import (
-	"errors"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/coretrix/hitrix/service"
@@ -39,10 +37,7 @@ func ServiceProviderOrmEngineForContext(enableGraphQLDataLoader bool) *service.D
 	return &service.DefinitionRequest{
 		Name: "orm_engine_request",
 		Build: func(c *gin.Context) (interface{}, error) {
-			ormConfigService, has := service.DI().OrmConfig()
-			if !has {
-				return nil, errors.New("not registered orm config")
-			}
+			ormConfigService := service.DI().OrmConfig()
 
 			ormEngine := ormConfigService.CreateEngine()
 			if enableGraphQLDataLoader {

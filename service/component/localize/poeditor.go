@@ -10,7 +10,7 @@ import (
 
 type PoeditorSource struct {
 	apiKey    string
-	projectId string
+	projectID string
 	language  string
 }
 
@@ -34,7 +34,7 @@ func (l *PoeditorSource) Pull() (pairs map[string]string, err error) {
 	termList := termListResponse{}
 	params := url.Values{}
 	params.Add("api_token", l.apiKey)
-	params.Add("id", l.projectId)
+	params.Add("id", l.projectID)
 	params.Add("language", l.language)
 	body := strings.NewReader(params.Encode())
 
@@ -83,7 +83,7 @@ func (l *PoeditorSource) Push(terms []string) (err error) {
 	}
 	params := url.Values{}
 	params.Add("api_token", l.apiKey)
-	params.Add("id", l.projectId)
+	params.Add("id", l.projectID)
 	params.Add("language", l.language)
 	params.Add("data", string(b))
 	body := strings.NewReader(params.Encode())
@@ -105,10 +105,10 @@ func (l *PoeditorSource) Push(terms []string) (err error) {
 	return
 }
 
-func NewPoeditorSource(apiKey string, projectId string, language string) *PoeditorSource {
+func NewPoeditorSource(apiKey string, projectID string, language string) *PoeditorSource {
 	return &PoeditorSource{
 		apiKey:    apiKey,
-		projectId: projectId,
+		projectID: projectID,
 		language:  language,
 	}
 }

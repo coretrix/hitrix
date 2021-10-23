@@ -147,6 +147,10 @@ module.exports = {
                                 text: 'WebSocket',
                                 link: '/guide/services/websocket',
                             },
+                            {
+                                text: 'Exporter',
+                                link: '/guide/services/exporter',
+                            },
                         ],
                     },
                     {
@@ -179,6 +183,10 @@ module.exports = {
                             {
                                 text: 'Helper',
                                 link: '/guide/features/helper',
+                            },
+                            {
+                                text: 'Goroutine',
+                                link: '/guide/features/goroutine',
                             },
                         ],
                     },

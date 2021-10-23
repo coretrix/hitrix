@@ -32,7 +32,7 @@ func NewAmazonS3(endpoint string,
 	secretAccessKey string,
 	allowedBuckets map[string]uint64,
 	bucketsConfigDefinitions map[string]map[string]string,
-	bucketsPublicUrlConfigMap map[string]map[string]string,
+	bucketsPublicURLConfigMap map[string]map[string]string,
 	region string,
 	disableSSL bool,
 	environment string) *AmazonS3 {
@@ -52,7 +52,7 @@ func NewAmazonS3(endpoint string,
 		bucketsMapping:           allowedBuckets,
 		bucketsConfigDefinitions: bucketsConfigDefinitions,
 		environment:              environment,
-		bucketsPublicUrls:        bucketsPublicUrlConfigMap,
+		bucketsPublicUrls:        bucketsPublicURLConfigMap,
 	}
 }
 
@@ -65,7 +65,7 @@ func (amazonS3 *AmazonS3) getCounter(ormService *beeorm.Engine, bucket string) u
 		panic("s3 bucket [" + bucket + "] id not found")
 	}
 
-	amazonS3BucketCounterEntity := &entity.S3BucketCounterEntity{}
+	amazonS3BucketCounterEntity := &entity.OSSBucketCounterEntity{}
 
 	locker := ormService.GetRedis().GetLocker()
 	lock, hasLock := locker.Obtain("locker_amazon_s3_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)

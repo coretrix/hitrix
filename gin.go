@@ -72,7 +72,7 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 	if server != nil {
 		var queryHandler gin.HandlerFunc
 		if app.IsInLocalMode() {
-			queryHandler = timeout.New(timeout.WithHandler(graphqlHandler(server, gqlServerInitHandler)))
+			queryHandler = graphqlHandler(server, gqlServerInitHandler)
 		} else {
 			queryHandler = timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server, gqlServerInitHandler)))
 		}
@@ -108,13 +108,13 @@ func graphqlHandler(server graphql.ExecutableSchema, gqlServerInitHandler GQLSer
 			message = fmt.Sprint(err)
 		}
 		errorMessage := message + "\n" + string(debug.Stack())
-		errorLogger, has := service.DI().ErrorLogger()
-		if has {
-			ginContext := ctx.Value(service.GinKey).(*gin.Context)
-			requestBody := ctx.Value(service.RequestBodyKey).([]byte)
-			ginContext.Request.Body = ioutil.NopCloser(bytes.NewReader(requestBody))
-			errorLogger.LogErrorWithRequest(ginContext, errors.New(errorMessage))
-		}
+
+		ginContext := ctx.Value(service.GinKey).(*gin.Context)
+		requestBody := ctx.Value(service.RequestBodyKey).([]byte)
+		ginContext.Request.Body = ioutil.NopCloser(bytes.NewReader(requestBody))
+
+		service.DI().ErrorLogger().LogErrorWithRequest(ginContext, errors.New(errorMessage))
+
 		return errors.New("internal server error")
 	})
 	if gqlServerInitHandler != nil {

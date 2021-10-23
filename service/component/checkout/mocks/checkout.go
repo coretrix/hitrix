@@ -22,10 +22,10 @@ func (c *FakeCheckoutClient) RequestRefunds(amount uint64, reference string, met
 	return c.Called(amount, reference, metadata).Get(0).(*payments.RefundsResponse)
 }
 
-func (c *FakeCheckoutClient) GetCustomerInstruments(customerId string) *checkout.CustomerResponse {
-	return c.Called(customerId).Get(0).(*checkout.CustomerResponse)
+func (c *FakeCheckoutClient) GetCustomerInstruments(customerID string) *checkout.CustomerResponse {
+	return c.Called(customerID).Get(0).(*checkout.CustomerResponse)
 }
 
-func (c *FakeCheckoutClient) DeleteCustomerInstrument(instrumentId string) bool {
-	return c.Called(instrumentId).Get(0).(bool)
+func (c *FakeCheckoutClient) DeleteCustomerInstrument(instrumentID string) bool {
+	return c.Called(instrumentID).Get(0).(bool)
 }

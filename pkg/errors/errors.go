@@ -1,7 +1,6 @@
 package errors
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -37,7 +36,7 @@ func (e *PermissionError) Error() string {
 	return "permission denied"
 }
 
-func HandleErrors(formErrors interface{}, c *gin.Context) error {
+func HandleErrors(formErrors interface{}) error {
 	fErrors, ok := formErrors.(validator.ValidationErrors)
 
 	if !ok {
@@ -52,7 +51,7 @@ func HandleErrors(formErrors interface{}, c *gin.Context) error {
 	return fe
 }
 
-func HandleCustomErrors(formErrors map[string]string, c *gin.Context) error {
+func HandleCustomErrors(formErrors map[string]string) error {
 	var fe FieldErrors = make(map[string]string)
 	for field, msg := range formErrors {
 		fe[field] = msg

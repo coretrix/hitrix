@@ -15,8 +15,8 @@ type DBSeedScript struct {
 	Seeds map[string]Seed
 }
 
-func (script *DBSeedScript) Run(ctx context.Context, _ hitrix.Exit) {
-	ormService, _ := service.DI().OrmEngine()
+func (script *DBSeedScript) Run(_ context.Context, _ hitrix.Exit) {
+	ormService := service.DI().OrmEngine()
 	Seeder(script.Seeds, ormService)
 }
 

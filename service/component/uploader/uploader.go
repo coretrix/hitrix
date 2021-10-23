@@ -3,7 +3,14 @@ package uploader
 import (
 	"net/http"
 
+	"github.com/aws/aws-sdk-go/service/s3"
+
+	"github.com/tus/tusd/pkg/gcsstore"
+	"github.com/tus/tusd/pkg/s3store"
+
 	tusd "github.com/tus/tusd/pkg/handler"
+
+	"cloud.google.com/go/storage"
 )
 
 type Uploader interface {
@@ -19,19 +26,37 @@ type Uploader interface {
 	GetCompletedUploadsChan() chan tusd.HookEvent
 	GetTerminatedUploadsChan() chan tusd.HookEvent
 	GetUploadProgressChan() chan tusd.HookEvent
+	GetBucket() string
 }
 
 type TUSDUploader struct {
 	handler *tusd.UnroutedHandler
+	bucket  string
 }
 
-func NewTUSDUploader(c tusd.Config) Uploader {
+func GetStore(OSSClient interface{}, bucket string) Store {
+	if _, ok := OSSClient.(storage.Client); ok {
+		return &GoogleStore{store: gcsstore.New(bucket, OSSClient.(gcsstore.GCSAPI))}
+	}
+
+	if _, ok := OSSClient.(*s3.S3); ok {
+		return &AmazonStore{store: s3store.New(bucket, OSSClient.(s3store.S3API))}
+	}
+
+	panic("OSSClient store not found")
+}
+
+func NewTUSDUploader(c tusd.Config, bucket string) Uploader {
 	uploader, err := tusd.NewUnroutedHandler(c)
 	if err != nil {
 		panic(err)
 	}
 
-	return &TUSDUploader{handler: uploader}
+	return &TUSDUploader{handler: uploader, bucket: bucket}
+}
+
+func (u *TUSDUploader) GetBucket() string {
+	return u.bucket
 }
 
 func (u *TUSDUploader) PostFile(w http.ResponseWriter, r *http.Request) {

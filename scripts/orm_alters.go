@@ -25,8 +25,8 @@ type ORMAltersScript struct {
 }
 
 func (script *ORMAltersScript) Active() bool {
-	_, has := service.DI().OrmConfig()
-	return has
+	_ = service.DI().OrmConfig()
+	return true
 }
 
 func (script *ORMAltersScript) Unique() bool {
@@ -38,7 +38,7 @@ func (script *ORMAltersScript) Description() string {
 }
 
 func (script *ORMAltersScript) Run(_ context.Context, exit hitrix.Exit) {
-	ormEngine, _ := service.DI().OrmEngine()
+	ormEngine := service.DI().OrmEngine()
 	alters := ormEngine.GetAlters()
 	for _, alter := range alters {
 		if alter.Safe {

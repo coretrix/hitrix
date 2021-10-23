@@ -20,11 +20,12 @@ import (
 )
 
 type AmazonOSS struct {
-	client       *s3.S3
-	clockService clock.IClock
-	ctx          context.Context
-	env          string
-	buckets      *Buckets
+	client         *s3.S3
+	clockService   clock.IClock
+	ctx            context.Context
+	env            string
+	buckets        *Buckets
+	uploaderBucket string
 }
 
 func NewAmazonOSS(configService config.IConfig, clockService clock.IClock, bucketsMapping map[string]uint64, env string) (*AmazonOSS, error) {
@@ -54,7 +55,7 @@ func NewAmazonOSS(configService config.IConfig, clockService clock.IClock, bucke
 		return nil, errors.New("missing region")
 	}
 
-	newSession, _ := session.NewSession(&aws.Config{
+	newSession, err := session.NewSession(&aws.Config{
 		Credentials:      credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
 		Endpoint:         aws.String(endpoint),
 		S3ForcePathStyle: aws.Bool(true),
@@ -62,12 +63,19 @@ func NewAmazonOSS(configService config.IConfig, clockService clock.IClock, bucke
 		DisableSSL:       aws.Bool(disableSSL),
 	})
 
+	if err != nil {
+		return nil, err
+	}
+
+	bucket, _ := configService.String("oss.uploader.bucket")
+
 	return &AmazonOSS{
-		client:       s3.New(newSession),
-		clockService: clockService,
-		ctx:          context.Background(),
-		env:          env,
-		buckets:      loadBucketsConfig(configService, bucketsMapping),
+		client:         s3.New(newSession),
+		clockService:   clockService,
+		ctx:            context.Background(),
+		env:            env,
+		buckets:        loadBucketsConfig(configService, bucketsMapping),
+		uploaderBucket: bucket,
 	}, nil
 }
 
@@ -76,6 +84,10 @@ type CachedObjectURLTemplate struct {
 	BucketName  string
 	StorageKey  string
 	CounterID   string
+}
+
+func (ossStorage *AmazonOSS) GetClient() interface{} {
+	return ossStorage.client
 }
 
 func (ossStorage *AmazonOSS) GetObjectURL(bucket string, object *Object) (string, error) {
@@ -201,7 +213,6 @@ func (ossStorage *AmazonOSS) CreateObjectFromKey(ormService *beeorm.Engine, buck
 	}
 }
 
-func (ossStorage *AmazonOSS) GetClient() interface{} {
-	//TODO remove
-	return ossStorage.client
+func (ossStorage *AmazonOSS) GetUploaderBucketConfig() *BucketConfig {
+	return getBucketEnvConfig(ossStorage.buckets, ossStorage.uploaderBucket, ossStorage.env)
 }

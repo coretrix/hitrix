@@ -1,7 +1,6 @@
 package hitrix
 
 import (
-	"log"
 	"time"
 
 	"github.com/coretrix/hitrix/service"
@@ -18,12 +17,7 @@ func GoroutineWithRestart(fn func()) {
 func routine(fn func(), autoRestart bool) {
 	defer func() {
 		if r := recover(); r != nil {
-			errorLogger, has := service.DI().ErrorLogger()
-			if has {
-				errorLogger.LogError(r)
-			} else {
-				log.Println(r.(string))
-			}
+			service.DI().ErrorLogger().LogError(r)
 
 			if autoRestart {
 				time.Sleep(time.Second)

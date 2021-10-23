@@ -13,6 +13,10 @@ type FakeOSSClient struct {
 	mock.Mock
 }
 
+func (t *FakeOSSClient) GetClient() interface{} {
+	return nil
+}
+
 func (t *FakeOSSClient) GetObjectURL(bucket string, object *oss.Object) (string, error) {
 	return t.Called(bucket, object).Get(0).(string), nil
 }
@@ -59,4 +63,8 @@ func (t *FakeOSSClient) DeleteObject(_ string, _ *oss.Object) error {
 
 func (t *FakeOSSClient) CreateObjectFromKey(_ *beeorm.Engine, _, _ string) oss.Object {
 	return oss.Object{}
+}
+
+func (t *FakeOSSClient) GetUploaderBucketConfig() *oss.BucketConfig {
+	return &oss.BucketConfig{}
 }
