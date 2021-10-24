@@ -1,10 +1,15 @@
 package checkout
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+
+	"github.com/checkout/checkout-sdk-go/instruments"
+	"github.com/checkout/checkout-sdk-go/tokens"
 
 	"github.com/checkout/checkout-sdk-go"
 	"github.com/checkout/checkout-sdk-go/payments"
@@ -92,66 +97,6 @@ func (c *Checkout) CheckWebhookKey(keyCode, key string) bool {
 	return false
 }
 
-type Instrument struct {
-	ID            string `json:"id"`
-	Type          string `json:"type"`
-	Fingerprint   string `json:"fingerprint"`
-	ExpiryMonth   int    `json:"expiry_month"`
-	ExpiryYear    int    `json:"expiry_year"`
-	Name          string `json:"name"`
-	Scheme        string `json:"scheme"`
-	Last4         string `json:"last4"`
-	Bin           string `json:"bin"`
-	CardType      string `json:"card_type"`
-	CardCategory  string `json:"card_category"`
-	Issuer        string `json:"issuer"`
-	IssuerCountry string `json:"issuer_country"`
-	ProductID     string `json:"product_id"`
-	ProductType   string `json:"product_type"`
-	AccountHolder struct {
-		BillingAddress struct {
-			AddressLine1 string `json:"address_line1"`
-			AddressLine2 string `json:"address_line2"`
-			City         string `json:"city"`
-			State        string `json:"state"`
-			Zip          string `json:"zip"`
-			Country      string `json:"country"`
-		} `json:"billing_address"`
-		Phone struct {
-			CountryCode string `json:"country_code"`
-			Number      string `json:"number"`
-		} `json:"phone"`
-	} `json:"account_holder"`
-}
-
-type CustomerResponse struct {
-	ID          string       `json:"id"`
-	Instruments []Instrument `json:"instruments"`
-}
-
-func (c *Checkout) GetCustomerInstruments(customerID string) *CustomerResponse {
-	config, err := checkout.Create(c.secretKey, nil)
-	if err != nil {
-		panic("failed creating checkout client: " + err.Error())
-	}
-	client := &http.Client{}
-	req, _ := http.NewRequest("GET", *config.URI+"/customers/"+customerID, nil)
-	req.Header.Set("Authorization", c.secretKey)
-	resp, _ := client.Do(req)
-
-	if resp.StatusCode != 200 {
-		panic(fmt.Sprintf("error calling customer api checkout : %s", resp.Body))
-	}
-
-	decoder := json.NewDecoder(resp.Body)
-	var jres CustomerResponse
-	err = decoder.Decode(&jres)
-	if err != nil {
-		panic(fmt.Sprintf("failed parsing json from customer api checkout : %s", err.Error()))
-	}
-	return &jres
-}
-
 func (c *Checkout) DeleteCustomerInstrument(instrumentID string) bool {
 	config, err := checkout.Create(c.secretKey, nil)
 	if err != nil {
@@ -171,4 +116,79 @@ func (c *Checkout) DeleteCustomerInstrument(instrumentID string) bool {
 	}
 
 	return true
+}
+
+func (c *Checkout) GetCustomer(idOrEmail string) (bool, *CustomerResponse) {
+	config, err := checkout.Create(c.secretKey, c.publicKey)
+	if err != nil {
+		panic("failed creating checkout client: " + err.Error())
+	}
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", *config.URI+"/customers/"+idOrEmail, nil)
+	req.Header.Set("Authorization", c.secretKey)
+	req.Header.Set("Content-Type", "application/json")
+	resp, _ := client.Do(req)
+
+	if resp.StatusCode == 404 {
+		return false, nil
+	} else if resp.StatusCode == 200 {
+		res := &CustomerResponse{}
+		err := json.NewDecoder(resp.Body).Decode(res)
+		if err != nil {
+			panic(err)
+		}
+		return true, res
+	}
+	data, _ := ioutil.ReadAll(resp.Body)
+	panic(fmt.Sprintf("wrong status checkout get customer code: %d, body %s", resp.StatusCode, string(data)))
+}
+
+func (c *Checkout) SaveGetClient(customerData *SaveCustomerRequest) (created bool, customer *CustomerResponse) {
+	exists, customerRes := c.GetCustomer(customerData.Email)
+	if exists {
+		return false, customerRes
+	}
+	config, err := checkout.Create(c.secretKey, c.publicKey)
+	if err != nil {
+		panic("failed creating checkout client: " + err.Error())
+	}
+	client := &http.Client{}
+	jsonReq, _ := json.Marshal(customerData)
+	req, _ := http.NewRequest("POST", *config.URI+"/customers/", bytes.NewBuffer(jsonReq))
+	req.Header.Set("Authorization", c.secretKey)
+	req.Header.Set("Content-Type", "application/json")
+	resp, _ := client.Do(req)
+
+	if resp.StatusCode == 201 {
+		_, customerRes := c.GetCustomer(customerData.Email)
+		return true, customerRes
+	}
+	data, _ := ioutil.ReadAll(resp.Body)
+	panic(fmt.Sprintf("wrong status checkout create customer code: %d, body %s", resp.StatusCode, string(data)))
+}
+
+func (c *Checkout) CreateToken(request *tokens.Request) (string, error) {
+	config, err := checkout.Create(c.secretKey, c.publicKey)
+	if err != nil {
+		panic("failed creating checkout client: " + err.Error())
+	}
+	token := tokens.NewClient(*config)
+	resp, err := token.Request(request)
+	if err != nil {
+		return "", err
+	}
+	return resp.Created.Token, nil
+}
+
+func (c *Checkout) CreateInstrument(request *instruments.Request) (*instruments.Response, error) {
+	config, err := checkout.Create(c.secretKey, c.publicKey)
+	if err != nil {
+		panic("failed creating checkout client: " + err.Error())
+	}
+	client := instruments.NewClient(*config)
+	res, err := client.Create(request)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
