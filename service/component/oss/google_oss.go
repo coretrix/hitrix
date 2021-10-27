@@ -22,13 +22,14 @@ import (
 )
 
 type GoogleOSS struct {
-	client       *storage.Client
-	clockService clock.IClock
-	ctx          context.Context
-	env          string
-	buckets      *Buckets
-	accessID     string
-	privateKey   []byte
+	client         *storage.Client
+	clockService   clock.IClock
+	ctx            context.Context
+	env            string
+	buckets        *Buckets
+	uploaderBucket string
+	accessID       string
+	privateKey     []byte
 }
 
 func NewGoogleOSS(configService config.IConfig, clockService clock.IClock, bucketsMapping map[string]uint64, env string) (*GoogleOSS, error) {
@@ -54,15 +55,22 @@ func NewGoogleOSS(configService config.IConfig, clockService clock.IClock, bucke
 
 	jwtConfig, _ := google.JWTConfigFromJSON(jwtCredentialsJSONString)
 
+	bucket, _ := configService.String("oss.uploader.bucket")
+
 	return &GoogleOSS{
-		client:       client,
-		clockService: clockService,
-		ctx:          ctx,
-		env:          env,
-		buckets:      loadBucketsConfig(configService, bucketsMapping),
-		accessID:     jwtConfig.Email,
-		privateKey:   jwtConfig.PrivateKey,
+		client:         client,
+		clockService:   clockService,
+		ctx:            ctx,
+		env:            env,
+		buckets:        loadBucketsConfig(configService, bucketsMapping),
+		uploaderBucket: bucket,
+		accessID:       jwtConfig.Email,
+		privateKey:     jwtConfig.PrivateKey,
 	}, nil
+}
+
+func (ossStorage *GoogleOSS) GetClient() interface{} {
+	return ossStorage.client
 }
 
 func (ossStorage *GoogleOSS) GetObjectURL(bucket string, object *Object) (string, error) {
@@ -215,4 +223,8 @@ func (ossStorage *GoogleOSS) setObjectContentType(writer *storage.Writer, extens
 	if extension == ".svg" && writer.ObjectAttrs.ContentType == "" {
 		writer.ObjectAttrs.ContentType = "image/svg+xml"
 	}
+}
+
+func (ossStorage *GoogleOSS) GetUploaderBucketConfig() *BucketConfig {
+	return getBucketEnvConfig(ossStorage.buckets, ossStorage.uploaderBucket, ossStorage.env)
 }

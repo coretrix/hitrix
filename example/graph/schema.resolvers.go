@@ -11,11 +11,11 @@ import (
 	"github.com/coretrix/hitrix/example/graph/model"
 )
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+func (r *mutationResolver) CreateTodo(_ context.Context, _ model.NewTodo) (*model.Todo, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+func (r *queryResolver) Todos(_ context.Context) ([]*model.Todo, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/icza/gox/timex"
 )
 
@@ -71,7 +70,7 @@ func TruncateTime(in time.Time) time.Time {
 	return time.Date(in.Year(), in.Month(), in.Day(), 0, 0, 0, 0, in.Location())
 }
 
-func ValidateAndParseTimeRange(startsAt, endsAt, fromName, toName string, startsAtGTENow bool, c *gin.Context) (*time.Time, *time.Time, error) {
+func ValidateAndParseTimeRange(startsAt, endsAt, fromName string, startsAtGTENow bool) (*time.Time, *time.Time, error) {
 	var from *time.Time
 	var to *time.Time
 

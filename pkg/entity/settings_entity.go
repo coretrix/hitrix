@@ -23,4 +23,5 @@ type SettingsEntity struct {
 	ID         uint64
 	Key        string `orm:"required;unique=Settings_Key;searchable;"`
 	Value      string `orm:"required;length=max;"`
+	Editable   bool
 }

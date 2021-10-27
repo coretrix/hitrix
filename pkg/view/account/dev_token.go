@@ -57,10 +57,7 @@ func GenerateDevTokenAndRefreshToken(ormService *beeorm.Engine, userID uint64) (
 }
 
 func generateTokenValue(secret string, id interface{}, expire int64) (string, error) {
-	jwtToken, has := service.DI().JWT()
-	if !has {
-		panic("Please load JWT service")
-	}
+	jwtService := service.DI().JWT()
 
 	app := service.DI().App()
 
@@ -75,7 +72,7 @@ func generateTokenValue(secret string, id interface{}, expire int64) (string, er
 		"user": fmt.Sprintf("%v", id),
 	}
 
-	jwtValue, err := jwtToken.EncodeJWT(secret, headers, payload)
+	jwtValue, err := jwtService.EncodeJWT(secret, headers, payload)
 
 	return jwtValue, err
 }
@@ -125,10 +122,7 @@ func verifyDevUser(c *gin.Context, userID uint64, token string) error {
 }
 
 func isValid(token, tokenSecret string, tokenExpire int64) (uint64, error) {
-	jwtService, has := service.DI().JWT()
-	if !has {
-		panic("Please load JWT service")
-	}
+	jwtService := service.DI().JWT()
 
 	err := jwtService.VerifyJWT(tokenSecret, token, tokenExpire)
 

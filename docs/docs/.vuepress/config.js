@@ -80,6 +80,10 @@ module.exports = {
                                 link: '/guide/services/clock',
                             },
                             {
+                                text: 'Checkout',
+                                link: '/guide/services/checkout',
+                            },
+                            {
                                 text: 'CRUD',
                                 link: '/guide/services/crud',
                             },
@@ -143,6 +147,10 @@ module.exports = {
                                 text: 'WebSocket',
                                 link: '/guide/services/websocket',
                             },
+                            {
+                                text: 'Exporter',
+                                link: '/guide/services/exporter',
+                            },
                         ],
                     },
                     {
@@ -175,6 +183,10 @@ module.exports = {
                             {
                                 text: 'Helper',
                                 link: '/guide/features/helper',
+                            },
+                            {
+                                text: 'Goroutine',
+                                link: '/guide/features/goroutine',
                             },
                         ],
                     },

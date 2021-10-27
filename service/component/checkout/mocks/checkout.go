@@ -1,7 +1,9 @@
 package mocks
 
 import (
+	"github.com/checkout/checkout-sdk-go/instruments"
 	"github.com/checkout/checkout-sdk-go/payments"
+	"github.com/checkout/checkout-sdk-go/tokens"
 	"github.com/coretrix/hitrix/service/component/checkout"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,10 +24,22 @@ func (c *FakeCheckoutClient) RequestRefunds(amount uint64, reference string, met
 	return c.Called(amount, reference, metadata).Get(0).(*payments.RefundsResponse)
 }
 
-func (c *FakeCheckoutClient) GetCustomerInstruments(customerId string) *checkout.CustomerResponse {
-	return c.Called(customerId).Get(0).(*checkout.CustomerResponse)
+func (c *FakeCheckoutClient) DeleteCustomerInstrument(instrumentID string) bool {
+	return c.Called(instrumentID).Get(0).(bool)
 }
 
-func (c *FakeCheckoutClient) DeleteCustomerInstrument(instrumentId string) bool {
-	return c.Called(instrumentId).Get(0).(bool)
+func (c *FakeCheckoutClient) GetCustomer(idOrEmail string) (bool, *checkout.CustomerResponse) {
+	return c.Called(idOrEmail).Get(0).(bool), c.Called(idOrEmail).Get(1).(*checkout.CustomerResponse)
+}
+
+func (c *FakeCheckoutClient) SaveGetClient(customerData *checkout.SaveCustomerRequest) (created bool, customer *checkout.CustomerResponse) {
+	return c.Called(customerData).Get(0).(bool), c.Called(customerData).Get(1).(*checkout.CustomerResponse)
+}
+
+func (c *FakeCheckoutClient) CreateToken(request *tokens.Request) (string, error) {
+	return c.Called(request).Get(0).(string), c.Called(request).Error(1)
+}
+
+func (c *FakeCheckoutClient) CreateInstrument(request *instruments.Request) (*instruments.Response, error) {
+	return c.Called(request).Get(0).(*instruments.Response), c.Called(request).Error(1)
 }

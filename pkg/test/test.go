@@ -52,8 +52,8 @@ func (env *Environment) HandleQuery(query interface{}, variables map[string]inte
 }
 
 func (env *Environment) HandleMutationMultiPart(query string, variables map[string]interface{},
-	files map[string]string, variablesMap map[string]interface{}, headers map[string]string, model interface{}) (*graphqlParser.Errors, json.RawMessage) {
-	return env.handleMultiPart(query, variables, files, variablesMap, headers, model)
+	files map[string]string, variablesMap map[string]interface{}, headers map[string]string) (*graphqlParser.Errors, json.RawMessage) {
+	return env.handleMultiPart(query, variables, files, variablesMap, headers)
 }
 
 func (env *Environment) HandleMutation(mutation interface{}, variables map[string]interface{}, headers map[string]string) *graphqlParser.Errors {
@@ -97,7 +97,7 @@ func (env *Environment) handle(buff bytes.Buffer, v interface{}, headers map[str
 	return nil
 }
 func (env *Environment) handleMultiPart(query string, variables interface{},
-	files map[string]string, variablesMap map[string]interface{}, headers map[string]string, model interface{}) (*graphqlParser.Errors, json.RawMessage) {
+	files map[string]string, variablesMap map[string]interface{}, headers map[string]string) (*graphqlParser.Errors, json.RawMessage) {
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
@@ -192,11 +192,7 @@ func CreateContext(t *testing.T, projectName string, defaultServices []*service.
 		RegisterDIGlobalService(append(defaultServices, mockServices...)...).Build()
 	defer deferFunc()
 
-	var has bool
-	ormService, has := service.DI().OrmEngine()
-	if !has {
-		panic("ORM is not loaded")
-	}
+	ormService := service.DI().OrmEngine()
 
 	executeAlters(ormService)
 
@@ -228,11 +224,7 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 	defer deferFunc()
 	ginTestInstance := hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)
 
-	var has bool
-	ormService, has := service.DI().OrmEngine()
-	if !has {
-		panic("ORM is not loaded")
-	}
+	ormService := service.DI().OrmEngine()
 
 	executeAlters(ormService)
 

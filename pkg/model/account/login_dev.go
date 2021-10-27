@@ -22,10 +22,7 @@ func (l *LoginDevForm) Login(c *gin.Context) (string, string, error) {
 
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	passwordService, has := service.DI().Password()
-	if !has {
-		return "", "", errors.New("please load Password service")
-	}
+	passwordService := service.DI().Password()
 
 	devPanelUserEntity := service.DI().App().DevPanel.UserEntity
 	ok := ormService.CachedSearchOne(devPanelUserEntity, "UserEmailIndex", l.Username)

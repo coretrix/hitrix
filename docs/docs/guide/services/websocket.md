@@ -28,10 +28,7 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 		panic("Socket Registry is not registered")
 	}
 
-	errorLoggerService, has := service.DI().ErrorLogger()
-	if !has {
-		panic("Socket Registry is not registered")
-	}
+	errorLoggerService := service.DI().ErrorLogger()
 
 	connection := &socket.Connection{Send: make(chan []byte, 256), Ws: ws}
 	socketHolder := &socket.Socket{
