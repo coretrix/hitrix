@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/setting"
+
 	"github.com/coretrix/hitrix/service/component/exporter"
 
 	"github.com/coretrix/hitrix/service/component/fcm"
@@ -79,6 +81,7 @@ const (
 	UUIDService             = "uuid"
 	OTPService              = "otp"
 	ExporterService         = "exporter"
+	SettingService          = "setting"
 )
 
 type diContainer struct {
@@ -164,6 +167,10 @@ func (d *diContainer) APILogger() apilogger.IAPILogger {
 
 func (d *diContainer) Clock() clock.IClock {
 	return GetServiceRequired(ClockService).(clock.IClock)
+}
+
+func (d *diContainer) Setting() setting.ServiceSettingInterface {
+	return GetServiceRequired(SettingService).(setting.ServiceSettingInterface)
 }
 
 func (d *diContainer) Authentication() *authentication.Authentication {
