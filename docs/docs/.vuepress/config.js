@@ -3,7 +3,7 @@ module.exports = {
     title: 'Hitrix - golang framework',
     description: 'Golang Framework for high traffic applications. Designed for speed up development time.',
     head: [
-        ['link', { rel: "shortcut icon", href: "logo-favicon.png"}],
+        ['link', {rel: "shortcut icon", href: "logo-favicon.png"}],
         ['meta', {name: 'theme-color', content: '#D7A318'}],
         ['meta', {name: 'apple-mobile-web-app-capable', content: 'yes'}],
         ['meta', {name: 'apple-mobile-web-app-status-bar-style', content: 'black'}]
@@ -136,6 +136,9 @@ module.exports = {
                                 link: '/guide/services/sms',
                             },
                             {
+                                text: 'Setting',
+                                link: '/guide/services/setting',
+                            }, {
                                 text: 'Stripe',
                                 link: '/guide/services/stripe',
                             },
