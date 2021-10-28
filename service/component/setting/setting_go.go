@@ -1,10 +1,11 @@
 package setting
 
 import (
-	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/latolukasz/beeorm"
 	"strconv"
 	"strings"
+
+	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/latolukasz/beeorm"
 )
 
 type serviceSetting struct {

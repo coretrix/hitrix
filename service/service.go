@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/coretrix/hitrix/service/component/setting"
 
 	"github.com/coretrix/hitrix/service/component/exporter"
