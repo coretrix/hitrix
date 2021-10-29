@@ -20,8 +20,8 @@ func (c *FakeCheckoutClient) RequestPayment(source interface{}, amount uint64, c
 	return c.Called(source, amount, currency, reference, customer, metadata).Get(0).(*payments.Response)
 }
 
-func (c *FakeCheckoutClient) RequestRefunds(amount uint64, reference string, metadata map[string]string) *payments.RefundsResponse {
-	return c.Called(amount, reference, metadata).Get(0).(*payments.RefundsResponse)
+func (c *FakeCheckoutClient) RequestRefunds(amount uint64, paymentID, reference string, metadata map[string]string) *payments.RefundsResponse {
+	return c.Called(amount, paymentID, reference, metadata).Get(0).(*payments.RefundsResponse)
 }
 
 func (c *FakeCheckoutClient) DeleteCustomerInstrument(instrumentID string) bool {
