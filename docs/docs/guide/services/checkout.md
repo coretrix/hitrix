@@ -41,7 +41,7 @@ checkoutService.RequestPayment(
 )
       
 // Request a refund
-checkoutService.RequestRefunds(1000, "Order-1000", map[string]string{"OrderId": "Order-1000", "RefundsID": "Order-1000"})
+checkoutService.RequestRefunds(1000, "PaymentId", "Order-1000", map[string]string{"OrderId": "Order-1000", "RefundsID": "Order-1000"})
       
 // Validating incoming webhook
 checkoutService.CheckWebhookKey("main", "value of Authorization header")
