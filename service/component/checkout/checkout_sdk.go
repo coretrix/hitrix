@@ -60,7 +60,7 @@ func (c *Checkout) RequestPayment(source interface{}, amount uint64, currency st
 	return response
 }
 
-func (c *Checkout) RequestRefunds(amount uint64, reference string, metadata map[string]string) *payments.RefundsResponse {
+func (c *Checkout) RequestRefunds(amount uint64, paymentID, reference string, metadata map[string]string) *payments.RefundsResponse {
 	config, err := checkout.Create(c.secretKey, c.publicKey)
 	if err != nil {
 		panic("failed creating checkout client: " + err.Error())
@@ -80,7 +80,7 @@ func (c *Checkout) RequestRefunds(amount uint64, reference string, metadata map[
 		Metadata:  metadata,
 	}
 
-	response, err := client.Refunds("pay_", request, &params)
+	response, err := client.Refunds(paymentID, request, &params)
 	if err != nil {
 		panic("checkout.com refund error: " + err.Error())
 	}
