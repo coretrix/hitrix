@@ -60,6 +60,39 @@ func (t *Twilio) SendOTP(phone *Phone, _ string) (string, string, error) {
 	return request, response, nil
 }
 
+func (t *Twilio) Call(phone *Phone, _ string, customMessage string) (string, string, error) {
+	createVerificationParams := &openapi.CreateVerificationParams{}
+
+	createVerificationParams.SetChannel("call")
+	createVerificationParams.SetTo(phone.Number)
+	if customMessage != "" {
+		createVerificationParams.SetCustomMessage(customMessage)
+	}
+	createVerificationParams.SetTo(phone.Number)
+
+	request, jsonError := t.toJSON(createVerificationParams)
+
+	if jsonError != nil {
+		return "", "", jsonError
+	}
+
+	verifyV2Verification, err := t.Client.VerifyV2.CreateVerification(t.VerificationSID, createVerificationParams)
+
+	response, jsonError := t.toJSON(verifyV2Verification)
+
+	if jsonError != nil {
+		return request, "", jsonError
+	}
+
+	if err != nil {
+		return request, response, err
+	}
+
+	//TODO check error codes
+
+	return request, response, nil
+}
+
 func (t *Twilio) VerifyOTP(phone *Phone, code string) (string, string, bool, bool, error) {
 	createVerificationCheckParams := &openapi.CreateVerificationCheckParams{}
 

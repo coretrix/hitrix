@@ -13,7 +13,7 @@ type serviceSetting struct {
 }
 
 func NewSettingService() ServiceSettingInterface {
-	return &serviceSetting{}
+	return &serviceSetting{cache: map[string]*entity.SettingsEntity{}}
 }
 
 func (s *serviceSetting) Get(ormService *beeorm.Engine, key string) (*entity.SettingsEntity, bool) {
