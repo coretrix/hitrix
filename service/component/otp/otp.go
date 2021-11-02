@@ -15,7 +15,8 @@ import (
 
 type IOTP interface {
 	SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error)
-	VerifySMS(ormService *beeorm.Engine, phone *Phone, code string) (bool, bool, error)
+	VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (bool, bool, error)
+	Call(ormService *beeorm.Engine, phone *Phone, customMessage string) (string, error)
 }
 
 type OTP struct {
@@ -84,7 +85,43 @@ func (o *OTP) SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error) {
 	return code, err
 }
 
-func (o *OTP) VerifySMS(ormService *beeorm.Engine, phone *Phone, code string) (bool, bool, error) {
+func (o *OTP) Call(ormService *beeorm.Engine, phone *Phone, customMessage string) (string, error) {
+	var code string
+	var err error
+
+	for priority, gateway := range o.GatewayPriority {
+		code = gateway.GetCode()
+
+		otpTrackerEntity := &entity.OTPTrackerEntity{
+			Type:              entity.OTPTrackerTypeCallout,
+			To:                phone.Number,
+			Code:              code,
+			GatewayName:       gateway.GetName(),
+			GatewayPriority:   uint8(priority),
+			GatewaySendStatus: entity.OTPTrackerGatewaySendStatusNew,
+			SentAt:            time.Now(), //TODO ClockService
+		}
+
+		otpTrackerEntity.GatewaySendRequest, otpTrackerEntity.GatewaySendResponse, err = gateway.Call(phone, code, customMessage)
+
+		if err != nil {
+			otpTrackerEntity.GatewaySendStatus = entity.OTPTrackerGatewaySendStatusGatewayError
+		} else {
+			otpTrackerEntity.GatewaySendStatus = entity.OTPTrackerGatewaySendStatusSent
+		}
+
+		ormService.Flush(otpTrackerEntity)
+
+		if err == nil {
+			ormService.GetRedis().Set(o.getRedisKey(phone), otpTrackerEntity.ID, helper.Hour)
+			break
+		}
+	}
+
+	return code, err
+}
+
+func (o *OTP) VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (bool, bool, error) {
 	otpTrackerEntity, err := o.getOTPTrackerEntity(ormService, phone)
 
 	if err != nil {
