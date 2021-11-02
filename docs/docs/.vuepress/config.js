@@ -120,6 +120,10 @@ module.exports = {
                                 link: '/guide/services/jwt',
                             },
                             {
+                                text: 'OTP',
+                                link: '/guide/services/otp',
+                            },
+                            {
                                 text: 'Password',
                                 link: '/guide/services/password',
                             },
