@@ -158,6 +158,10 @@ module.exports = {
                                 text: 'Exporter',
                                 link: '/guide/services/exporter',
                             },
+                            {
+                                text: 'Feature flags',
+                                link: '/guide/services/feature_flag',
+                            },
                         ],
                     },
                     {

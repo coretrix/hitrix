@@ -7,7 +7,7 @@ import (
 
 func Init(registry *beeorm.Registry) {
 	registry.RegisterEntity(
-		&DevPanelUserEntity{}, &APILogEntity{}, &entity.SmsTrackerEntity{}, &entity.OTPTrackerEntity{},
+		&DevPanelUserEntity{}, &APILogEntity{}, &entity.SmsTrackerEntity{}, &entity.OTPTrackerEntity{}, &entity.FeatureFlagEntity{},
 	)
 
 	registry.RegisterEnumStruct("entity.APILogTypeAll", APILogTypeAll)

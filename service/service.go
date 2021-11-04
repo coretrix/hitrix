@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	featureflag "github.com/coretrix/hitrix/service/component/feature_flag"
+
 	"github.com/coretrix/hitrix/service/component/setting"
 
 	"github.com/coretrix/hitrix/service/component/exporter"
@@ -82,6 +84,7 @@ const (
 	OTPService              = "otp"
 	ExporterService         = "exporter"
 	SettingService          = "setting"
+	FeatureFlagService      = "feature_flag"
 )
 
 type diContainer struct {
@@ -223,4 +226,8 @@ func (d *diContainer) FCM() fcm.FCM {
 
 func (d *diContainer) PDF() pdf.ServiceInterface {
 	return GetServiceRequired(PDFService).(pdf.ServiceInterface)
+}
+
+func (d *diContainer) FeatureFlag() featureflag.ServiceFeatureFlagInterface {
+	return GetServiceRequired(FeatureFlagService).(featureflag.ServiceFeatureFlagInterface)
 }
