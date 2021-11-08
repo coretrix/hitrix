@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/coretrix/hitrix/service/component/app"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/fatih/color"
 
@@ -67,13 +69,25 @@ func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
 			if !has {
 				panic(fmt.Sprintf("unknown script %s", code))
 			}
-			defScript := def.(Script)
+			defScript := def.(app.IScript)
 			defScript.Run(ctx, &exit{s: h})
 			return
 		}
 	}
 	panic(fmt.Sprintf("unknown script %s", code))
 }
+
+//func (h *Hitrix) startupOnBuild() {
+//	if service.HasService(service.FeatureFlagService) {
+//		ormService := service.DI().OrmEngine()
+//		clockService := service.DI().Clock()
+//
+//		Goroutine(func() {
+//			featureFlagService := service.DI().FeatureFlag()
+//			featureFlagService.Sync(ormService, clockService)
+//		})
+//	}
+//}
 
 func (h *Hitrix) preDeploy() {
 	app := service.DI().App()

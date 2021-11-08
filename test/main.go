@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/coretrix/hitrix/service/component/app"
+
 	"github.com/coretrix/hitrix/service/registry"
 
 	"github.com/coretrix/hitrix/service"
@@ -17,7 +19,7 @@ type testScript struct {
 	unique      bool
 }
 
-func (script *testScript) Run(_ context.Context, _ hitrix.Exit) {
+func (script *testScript) Run(_ context.Context, _ app.IExit) {
 }
 
 func (script *testScript) Unique() bool {

@@ -3,10 +3,11 @@ package scripts
 import (
 	"context"
 
+	"github.com/coretrix/hitrix/service/component/app"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/sarulabs/di"
 
-	"github.com/coretrix/hitrix"
 	"github.com/fatih/color"
 )
 
@@ -37,7 +38,7 @@ func (script *ORMAltersScript) Description() string {
 	return "show all MySQL schema changes"
 }
 
-func (script *ORMAltersScript) Run(_ context.Context, exit hitrix.Exit) {
+func (script *ORMAltersScript) Run(_ context.Context, exit app.IExit) {
 	ormEngine := service.DI().OrmEngine()
 	alters := ormEngine.GetAlters()
 	for _, alter := range alters {

@@ -1,13 +1,14 @@
 package hitrix
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
 	"runtime/debug"
 	"strings"
 	"time"
+
+	"github.com/coretrix/hitrix/service/component/app"
 
 	"github.com/latolukasz/beeorm"
 
@@ -16,20 +17,8 @@ import (
 	"github.com/ryanuber/columnize"
 )
 
-type Script interface {
-	Description() string
-	Run(ctx context.Context, exit Exit)
-	Unique() bool
-}
-
 type BackgroundProcessor struct {
 	Server *Hitrix
-}
-
-type Exit interface {
-	Valid()
-	Error()
-	Custom(exitCode int)
 }
 
 type exit struct {
@@ -48,41 +37,21 @@ func (e *exit) Error() {
 	e.Custom(1)
 }
 
-type ScriptInfinity interface {
-	Infinity() bool
-}
-
-type ScriptInterval interface {
-	Interval() time.Duration
-}
-
-type ScriptIntervalOptional interface {
-	IntervalActive() bool
-}
-
-type ScriptIntermediate interface {
-	IsIntermediate() bool
-}
-
-type ScriptOptional interface {
-	Active() bool
-}
-
-func (processor *BackgroundProcessor) RunScript(script Script) {
-	options, isOptional := script.(ScriptOptional)
+func (processor *BackgroundProcessor) RunScript(s app.IScript) {
+	options, isOptional := s.(app.Optional)
 
 	if isOptional {
 		if !options.Active() {
-			log.Print("Script not active. Exiting.")
+			log.Print("IScript not active. Exiting.")
 			return
 		}
 	}
-	interval, isInterval := script.(ScriptInterval)
-	_, isInfinity := script.(ScriptInfinity)
+	interval, isInterval := s.(app.Interval)
+	_, isInfinity := s.(app.Infinity)
 
 	go func() {
 		for {
-			valid := processor.runScript(script)
+			valid := processor.runScript(s)
 			if isInfinity {
 				select {}
 			}
@@ -110,13 +79,13 @@ func listScrips() {
 			"NAME | OPTIONS | DESCRIPTION ",
 		}
 		for _, defCode := range scripts {
-			def := service.GetServiceRequired(defCode).(Script)
+			def := service.GetServiceRequired(defCode).(app.IScript)
 			options := make([]string, 0)
-			interval, is := def.(ScriptInterval)
+			interval, is := def.(app.Interval)
 			if is {
 				options = append(options, "interval")
 				duration := "every " + interval.Interval().String()
-				_, is := def.(ScriptIntervalOptional)
+				_, is := def.(app.IntervalOptional)
 				if is {
 					duration += " with condition"
 				}
@@ -126,7 +95,7 @@ func listScrips() {
 			if def.Unique() {
 				options = append(options, "unique")
 			}
-			optional, is := def.(ScriptOptional)
+			optional, is := def.(app.Optional)
 			if is {
 				options = append(options, "optional")
 				if optional.Active() {
@@ -135,7 +104,7 @@ func listScrips() {
 					options = append(options, "inactive")
 				}
 			}
-			intermediate, is := def.(ScriptIntermediate)
+			intermediate, is := def.(app.Intermediate)
 			if is && intermediate.IsIntermediate() {
 				options = append(options, "intermediate")
 			}
@@ -145,7 +114,7 @@ func listScrips() {
 	}
 }
 
-func (processor *BackgroundProcessor) runScript(script Script) bool {
+func (processor *BackgroundProcessor) runScript(s app.IScript) bool {
 	return func() bool {
 		valid := true
 		defer func() {
@@ -165,8 +134,8 @@ func (processor *BackgroundProcessor) runScript(script Script) bool {
 		}()
 
 		app := service.DI().App()
-		log.Println("Run script - " + script.Description())
-		script.Run(app.GlobalContext, &exit{s: processor.Server})
+		log.Println("Run script - " + s.Description())
+		s.Run(app.GlobalContext, &exit{s: processor.Server})
 		return valid
 	}()
 }

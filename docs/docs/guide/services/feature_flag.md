@@ -52,3 +52,17 @@ func Login(ctx context.Context) error {
 	return nil
 }
 ```
+
+There are 2 methods that will help you to run all cron jobs that are related to the feature flag
+
+```go
+for _, featureScript := range service.DI().FeatureFlag().GetScriptsSingleInstance(service.DI().OrmEngine()) {
+			go b.RunScript(featureScript)
+		}
+```
+and
+```go
+for _, featureScript := range service.DI().FeatureFlag().GetScriptsMultiInstance(service.DI().OrmEngine()) {
+			go b.RunScript(featureScript)
+		}
+```

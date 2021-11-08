@@ -4,7 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/coretrix/hitrix"
+	"github.com/coretrix/hitrix/service/component/app"
+
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -15,7 +16,7 @@ type DBSeedScript struct {
 	Seeds map[string]Seed
 }
 
-func (script *DBSeedScript) Run(_ context.Context, _ hitrix.Exit) {
+func (script *DBSeedScript) Run(_ context.Context, _ app.IExit) {
 	ormService := service.DI().OrmEngine()
 	Seeder(script.Seeds, ormService)
 }

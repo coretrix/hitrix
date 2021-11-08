@@ -53,6 +53,7 @@ func (r *Registry) Build() (*Hitrix, func()) {
 	if scriptToRun != "" {
 		h.runDynamicScrips(globalContext, scriptToRun)
 	}
+	//h.startupOnBuild()
 
 	return h, func() {
 		if r := recover(); r != nil {

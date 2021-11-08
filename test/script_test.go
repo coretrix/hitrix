@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/coretrix/hitrix/service/component/app"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/coretrix/hitrix/service"
@@ -15,7 +17,7 @@ type testScript2 struct {
 	RunCounter int
 }
 
-func (script *testScript2) Run(_ context.Context, _ hitrix.Exit) {
+func (script *testScript2) Run(_ context.Context, _ app.IExit) {
 	script.RunCounter++
 }
 
