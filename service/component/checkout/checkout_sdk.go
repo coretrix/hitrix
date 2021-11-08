@@ -192,3 +192,16 @@ func (c *Checkout) CreateInstrument(request *instruments.Request) (*instruments.
 	}
 	return res, nil
 }
+
+func (c *Checkout) GetInstrument(sourceID string) (*instruments.Response, error) {
+	config, err := checkout.Create(c.secretKey, c.publicKey)
+	if err != nil {
+		panic("failed creating checkout client: " + err.Error())
+	}
+	client := instruments.NewClient(*config)
+	res, err := client.Get(sourceID)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}

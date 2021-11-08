@@ -43,3 +43,7 @@ func (c *FakeCheckoutClient) CreateToken(request *tokens.Request) (string, error
 func (c *FakeCheckoutClient) CreateInstrument(request *instruments.Request) (*instruments.Response, error) {
 	return c.Called(request).Get(0).(*instruments.Response), c.Called(request).Error(1)
 }
+
+func (c *FakeCheckoutClient) GetInstrument(sourceID string) (*instruments.Response, error) {
+	return c.Called(sourceID).Get(0).(*instruments.Response), c.Called(sourceID).Error(1)
+}

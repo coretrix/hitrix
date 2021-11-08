@@ -15,4 +15,5 @@ type ICheckout interface {
 	SaveGetClient(customerData *SaveCustomerRequest) (created bool, customer *CustomerResponse)
 	CreateToken(request *tokens.Request) (string, error)
 	CreateInstrument(request *instruments.Request) (*instruments.Response, error)
+	GetInstrument(sourceID string) (*instruments.Response, error)
 }
