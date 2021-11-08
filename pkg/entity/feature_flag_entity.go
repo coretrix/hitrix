@@ -9,8 +9,8 @@ import (
 type FeatureFlagEntity struct {
 	beeorm.ORM `orm:"table=feature_flags;redisCache;redisSearch=search_pool"`
 	ID         uint64
-	Name       string `orm:"length=100;required;unique=Name;searchable"`
-	IsActive   bool
+	Name       string     `orm:"length=100;required;unique=Name;searchable"`
+	IsActive   bool       `orm:"searchable"`
 	UpdatedAt  *time.Time `orm:"time=true"`
 	CreatedAt  time.Time  `orm:"time=true"`
 }
