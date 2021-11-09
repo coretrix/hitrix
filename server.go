@@ -44,9 +44,9 @@ func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, gi
 	}()
 	h.await()
 
-	app := service.DI().App()
-	defer app.CancelContext()
-	if err := srv.Shutdown(app.GlobalContext); err != nil {
+	appService := service.DI().App()
+	defer appService.CancelContext()
+	if err := srv.Shutdown(appService.GlobalContext); err != nil {
 		log.Println("Server forced to shutdown")
 	}
 }
@@ -77,26 +77,26 @@ func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
 	panic(fmt.Sprintf("unknown script %s", code))
 }
 
-//func (h *Hitrix) startupOnBuild() {
-//	if service.HasService(service.FeatureFlagService) {
-//		ormService := service.DI().OrmEngine()
-//		clockService := service.DI().Clock()
-//
-//		Goroutine(func() {
-//			featureFlagService := service.DI().FeatureFlag()
-//			featureFlagService.Sync(ormService, clockService)
-//		})
-//	}
-//}
+func (h *Hitrix) startupOnBuild() {
+	if service.HasService(service.FeatureFlagService) {
+		ormService := service.DI().OrmEngine()
+		clockService := service.DI().Clock()
+
+		Goroutine(func() {
+			featureFlagService := service.DI().FeatureFlag()
+			featureFlagService.Sync(ormService, clockService)
+		})
+	}
+}
 
 func (h *Hitrix) preDeploy() {
-	app := service.DI().App()
+	appService := service.DI().App()
 
-	if app.IsInTestMode() {
+	if appService.IsInTestMode() {
 		return
 	}
 
-	preDeployFlag := app.Flags.Bool("pre-deploy")
+	preDeployFlag := appService.Flags.Bool("pre-deploy")
 
 	if !preDeployFlag {
 		return
@@ -124,13 +124,13 @@ func (h *Hitrix) preDeploy() {
 }
 
 func (h *Hitrix) forceAlters() {
-	app := service.DI().App()
+	appService := service.DI().App()
 
-	if !app.IsInLocalMode() {
+	if !appService.IsInLocalMode() {
 		return
 	}
 
-	forceAltersFlag := app.Flags.Bool("force-alters")
+	forceAltersFlag := appService.Flags.Bool("force-alters")
 
 	if !forceAltersFlag {
 		return
@@ -163,17 +163,17 @@ func (h *Hitrix) forceAlters() {
 func (h *Hitrix) await() {
 	termChan := make(chan os.Signal, 1)
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
-	app := service.DI().App()
+	appService := service.DI().App()
 
 	select {
 	case code := <-h.exit:
-		app.CancelContext()
+		appService.CancelContext()
 		os.Exit(code)
 	case <-h.done:
-		app.CancelContext()
+		appService.CancelContext()
 	case <-termChan:
 		log.Println("TERMINATING")
-		app.CancelContext()
+		appService.CancelContext()
 		time.Sleep(time.Millisecond * 300)
 		log.Println("TERMINATED")
 	}

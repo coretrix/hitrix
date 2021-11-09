@@ -42,7 +42,7 @@ func (s *serviceFeatureFlag) IsActive(ormService *beeorm.Engine, name string) bo
 		return false
 	}
 
-	return featureFlagEntity.IsActive
+	return featureFlagEntity.Enabled && featureFlagEntity.Registered
 }
 
 func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *beeorm.Engine, name string) error {
@@ -54,7 +54,7 @@ func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *beeorm.Engine, name s
 	return nil
 }
 
-func (s *serviceFeatureFlag) Activate(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlag) Enable(ormService *beeorm.Engine, name string) error {
 	if name == "" {
 		panic("name cannot be empty")
 	}
@@ -67,13 +67,13 @@ func (s *serviceFeatureFlag) Activate(ormService *beeorm.Engine, name string) er
 		return errors.New("feature cannot be found")
 	}
 
-	featureFlagEntity.IsActive = true
+	featureFlagEntity.Enabled = true
 	ormService.Flush(featureFlagEntity)
 
 	return nil
 }
 
-func (s *serviceFeatureFlag) DeActivate(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlag) Disable(ormService *beeorm.Engine, name string) error {
 	if name == "" {
 		panic("name cannot be empty")
 	}
@@ -86,58 +86,16 @@ func (s *serviceFeatureFlag) DeActivate(ormService *beeorm.Engine, name string) 
 		return errors.New("feature cannot be found")
 	}
 
-	featureFlagEntity.IsActive = false
+	featureFlagEntity.Enabled = false
 	ormService.Flush(featureFlagEntity)
 
 	return nil
-}
-
-func (s *serviceFeatureFlag) Create(ormService *beeorm.Engine, clockService clock.IClock, name string, isActive bool) error {
-	if name == "" {
-		panic("name cannot be empty")
-	}
-
-	featureFlagEntity := &entity.FeatureFlagEntity{
-		Name:      name,
-		IsActive:  isActive,
-		UpdatedAt: nil,
-		CreatedAt: clockService.Now(),
-	}
-
-	ormService.Flush(featureFlagEntity)
-
-	return nil
-}
-
-func (s *serviceFeatureFlag) Delete(ormService *beeorm.Engine, name string) error {
-	if name == "" {
-		panic("name cannot be empty")
-	}
-
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterString("Name", name)
-	featureFlagEntity := &entity.FeatureFlagEntity{}
-	found := ormService.RedisSearchOne(featureFlagEntity, query)
-	if !found {
-		return errors.New("feature cannot be found")
-	}
-
-	ormService.Delete(featureFlagEntity)
-
-	return nil
-}
-
-func (s *serviceFeatureFlag) GetAll(ormService *beeorm.Engine, pager *beeorm.Pager) []*entity.FeatureFlagEntity {
-	query := beeorm.NewRedisSearchQuery()
-	var featureFlagEntities []*entity.FeatureFlagEntity
-	ormService.RedisSearch(&featureFlagEntities, query, pager)
-
-	return featureFlagEntities
 }
 
 func (s *serviceFeatureFlag) getAllActive(ormService *beeorm.Engine, pager *beeorm.Pager) []IFeatureFlag {
 	query := beeorm.NewRedisSearchQuery()
-	query.FilterBool("IsActive", true)
+	query.FilterBool("Registered", true)
+	query.FilterBool("Enabled", true)
 
 	var featureFlagEntities []*entity.FeatureFlagEntity
 	ormService.RedisSearch(&featureFlagEntities, query, pager)
@@ -190,18 +148,30 @@ func (s *serviceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.
 
 	var featureFlagEntities []*entity.FeatureFlagEntity
 	ormService.RedisSearch(&featureFlagEntities, query, beeorm.NewPager(1, 1000))
+	flusher := ormService.NewFlusher()
 
-	dbFeatureFlags := map[string]struct{}{}
+	dbFeatureFlags := map[string]*entity.FeatureFlagEntity{}
+
 	for _, featureFlagEntity := range featureFlagEntities {
-		dbFeatureFlags[featureFlagEntity.Name] = struct{}{}
+		dbFeatureFlags[featureFlagEntity.Name] = featureFlagEntity
 	}
 
 	for _, registeredFeatureFlag := range s.featureFlags {
 		if _, ok := dbFeatureFlags[registeredFeatureFlag.GetName()]; !ok {
-			err := s.Create(ormService, clockService, registeredFeatureFlag.GetName(), false)
-			if err != nil {
-				s.errorLoggerService.LogError(err)
+			featureFlagEntity := &entity.FeatureFlagEntity{
+				Name:       registeredFeatureFlag.GetName(),
+				Registered: true,
+				Enabled:    false,
+				UpdatedAt:  nil,
+				CreatedAt:  clockService.Now(),
 			}
+
+			flusher.Track(featureFlagEntity)
+		} else if !dbFeatureFlags[registeredFeatureFlag.GetName()].Registered {
+			dbFeatureFlags[registeredFeatureFlag.GetName()].Registered = true
+			flusher.Track(dbFeatureFlags[registeredFeatureFlag.GetName()])
 		}
 	}
+
+	flusher.Flush()
 }

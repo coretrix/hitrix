@@ -11,6 +11,11 @@ Access the service:
 service.DI().FeatureFlag()
 ```
 
+At start of the service hitrix is syncing the feature_flag table with the registered features.
+Automatically make inserts and updates if it's needed. The service never remove from the table!
+
+Also you are able to activate and deactivate the features using our dev panel
+
 # Use case
 
 In case you want to enable/disable the whole resolver you can do it in that way

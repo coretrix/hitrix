@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/latolukasz/beeorm"
+
 	"github.com/coretrix/hitrix/pkg/binding"
 
 	"github.com/coretrix/hitrix/pkg/errors"
@@ -270,4 +273,82 @@ func (controller *DevPanelController) PostRedisSearchIndexInfo(c *gin.Context) {
 	}
 
 	response.SuccessResponse(c, ormService.GetRedisSearch(appService.RedisPools.Search).Info(indexName))
+}
+
+func (controller *DevPanelController) GetFeatureFlags(c *gin.Context) {
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
+
+	query := beeorm.NewRedisSearchQuery()
+	var featureFlagEntities []*entity.FeatureFlagEntity
+	ormService.RedisSearch(&featureFlagEntities, query, beeorm.NewPager(1, 1000))
+
+	type feature struct {
+		Name       string
+		Registered bool
+		Enabled    bool
+	}
+
+	result := make([]*feature, len(featureFlagEntities))
+
+	for i, featureFlagEntity := range featureFlagEntities {
+		result[i] = &feature{
+			Name:       featureFlagEntity.Name,
+			Registered: featureFlagEntity.Registered,
+			Enabled:    featureFlagEntity.Enabled,
+		}
+	}
+
+	response.SuccessResponse(c, result)
+}
+
+func (controller *DevPanelController) PostEnableFeatureFlag(c *gin.Context) {
+	name := c.Param("name")
+	if name == "" {
+		response.ErrorResponseGlobal(c, "name is required", nil)
+		return
+	}
+
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
+
+	query := beeorm.NewRedisSearchQuery()
+	query.FilterString("Name", name)
+
+	featureFlagEntity := &entity.FeatureFlagEntity{}
+	found := ormService.RedisSearchOne(featureFlagEntity, query)
+
+	if !found {
+		response.ErrorResponseGlobal(c, "feature is missing", nil)
+		return
+	}
+
+	featureFlagEntity.Enabled = true
+	ormService.Flush(featureFlagEntity)
+
+	response.SuccessResponse(c, nil)
+}
+
+func (controller *DevPanelController) PostDisableFeatureFlag(c *gin.Context) {
+	name := c.Param("name")
+	if name == "" {
+		response.ErrorResponseGlobal(c, "name is required", nil)
+		return
+	}
+
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
+
+	query := beeorm.NewRedisSearchQuery()
+	query.FilterString("Name", name)
+
+	featureFlagEntity := &entity.FeatureFlagEntity{}
+	found := ormService.RedisSearchOne(featureFlagEntity, query)
+
+	if !found {
+		response.ErrorResponseGlobal(c, "feature is missing", nil)
+		return
+	}
+
+	featureFlagEntity.Enabled = false
+	ormService.Flush(featureFlagEntity)
+
+	response.SuccessResponse(c, nil)
 }

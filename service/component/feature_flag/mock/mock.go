@@ -23,22 +23,12 @@ func (s *FakeServiceFeatureFlag) FailIfIsNotActive(_ *beeorm.Engine, name string
 	return called.Error(0)
 }
 
-func (s *FakeServiceFeatureFlag) Activate(_ *beeorm.Engine, name string) error {
+func (s *FakeServiceFeatureFlag) Enable(_ *beeorm.Engine, name string) error {
 	called := s.Called(name)
 	return called.Error(0)
 }
 
-func (s *FakeServiceFeatureFlag) DeActivate(_ *beeorm.Engine, name string) error {
-	called := s.Called(name)
-	return called.Error(0)
-}
-
-func (s *FakeServiceFeatureFlag) Create(_ *beeorm.Engine, _ clock.IClock, name string, isActive bool) error {
-	called := s.Called(name, isActive)
-	return called.Error(0)
-}
-
-func (s *FakeServiceFeatureFlag) Delete(_ *beeorm.Engine, name string) error {
+func (s *FakeServiceFeatureFlag) Disable(_ *beeorm.Engine, name string) error {
 	called := s.Called(name)
 	return called.Error(0)
 }
