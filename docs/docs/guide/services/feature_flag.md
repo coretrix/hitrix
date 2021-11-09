@@ -10,6 +10,7 @@ Access the service:
 ```go
 service.DI().FeatureFlag()
 ```
+Please have in your mind that you need to register FeatureFlagEntity
 
 At start of the service hitrix is syncing the feature_flag table with the registered features.
 Automatically make inserts and updates if it's needed. The service never remove from the table!
