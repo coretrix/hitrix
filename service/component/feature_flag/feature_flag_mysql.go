@@ -169,7 +169,18 @@ func (s *serviceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.
 			flusher.Track(featureFlagEntity)
 		} else if !dbFeatureFlags[registeredFeatureFlag.GetName()].Registered {
 			dbFeatureFlags[registeredFeatureFlag.GetName()].Registered = true
+			dbFeatureFlags[registeredFeatureFlag.GetName()].UpdatedAt = clockService.NowPointer()
+
 			flusher.Track(dbFeatureFlags[registeredFeatureFlag.GetName()])
+		}
+	}
+
+	for name, dbFeatureFlag := range dbFeatureFlags {
+		if _, ok := s.featureFlags[name]; !ok {
+			dbFeatureFlag.Registered = false
+			dbFeatureFlag.UpdatedAt = clockService.NowPointer()
+
+			flusher.Track(dbFeatureFlag)
 		}
 	}
 
