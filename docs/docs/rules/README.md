@@ -6,13 +6,21 @@ If you run your binary with argument `--force-alters` the program will check for
 `make web-api param=--force-alters`
 
 ## Domains
-Naming convention for our backend domains are:
+#### Naming convention for our backend domains are:
 
-`[binary name (without -api suffix)].[env].[domain]`
+`[binary name].[env].[project].[domain]`
 
-For example for our binary called `web-api` the domain will be `web.dev.domain.com` or `web.demo.domain.com`
+For prod we are skipping `[env]`
+For example for our binary called `web-api` the domain will be `web-api.dev.lys.domain.com` or `web-api.demo.lys.domain.com`
 
-##Crons (scripts)
+#### Naming convention for our frontend domains are:
+
+`[binary name without suffix api].[env].[project].[domain]`
+
+For prod we are skipping [env]
+For example for `web.dev.lys.domain.com` or `web.demo.lys.domain.com`
+
+## Crons (scripts)
 What is the differences between `single-instance-cron` and `multi-instance-cron`
 - `single-instance-cron` is for crons that cannot scale. Imagine you read something from db every 10min and you update something. If you have more than one instance it's gonna conflict. That's why we gonna create only one pod for it
 - `multi-instance-cron`  for crons that can scale. Imagine you read from queue. You can have as much consumers as you want. That`s why we gonna have more pod instances for it
