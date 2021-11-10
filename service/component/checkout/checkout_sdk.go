@@ -33,7 +33,7 @@ func NewCheckout(secretKey string, publicKey *string, environment string, webhoo
 	}
 }
 
-func (c *Checkout) RequestPayment(source interface{}, amount uint64, currency string, reference string, customer *payments.Customer, metadata map[string]string) *payments.Response {
+func (c *Checkout) RequestPayment(request *payments.Request) *payments.Response {
 	config, err := checkout.Create(c.secretKey, c.publicKey)
 	idempotencyKey := checkout.NewIdempotencyKey()
 	params := checkout.Params{
@@ -43,14 +43,6 @@ func (c *Checkout) RequestPayment(source interface{}, amount uint64, currency st
 		panic("failed creating checkout client: " + err.Error())
 	}
 	var client = payments.NewClient(*config)
-	var request = &payments.Request{
-		Amount:    amount,
-		Source:    source,
-		Currency:  currency,
-		Reference: reference,
-		Customer:  customer,
-		Metadata:  metadata,
-	}
 	response, err := client.Request(request, &params)
 
 	if err != nil {
@@ -204,4 +196,19 @@ func (c *Checkout) GetInstrument(sourceID string) (*instruments.Response, error)
 		return nil, err
 	}
 	return res, nil
+}
+
+func (c *Checkout) GetPaymentDetail(paymentID string) (*payments.PaymentResponse, error) {
+	config, err := checkout.Create(c.secretKey, c.publicKey)
+	if err != nil {
+		return nil, err
+	}
+	var client = payments.NewClient(*config)
+	response, err := client.Get(paymentID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return response, nil
 }

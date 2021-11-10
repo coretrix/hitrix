@@ -16,8 +16,8 @@ func (c *FakeCheckoutClient) CheckWebhookKey(keyCode, key string) bool {
 	return c.Called(keyCode, key).Get(0).(bool)
 }
 
-func (c *FakeCheckoutClient) RequestPayment(source interface{}, amount uint64, currency string, reference string, customer *payments.Customer, metadata map[string]string) *payments.Response {
-	return c.Called(source, amount, currency, reference, customer, metadata).Get(0).(*payments.Response)
+func (c *FakeCheckoutClient) RequestPayment(request *payments.Request) *payments.Response {
+	return c.Called(request).Get(0).(*payments.Response)
 }
 
 func (c *FakeCheckoutClient) RequestRefunds(amount uint64, paymentID, reference string, metadata map[string]string) *payments.RefundsResponse {
@@ -46,4 +46,8 @@ func (c *FakeCheckoutClient) CreateInstrument(request *instruments.Request) (*in
 
 func (c *FakeCheckoutClient) GetInstrument(sourceID string) (*instruments.Response, error) {
 	return c.Called(sourceID).Get(0).(*instruments.Response), c.Called(sourceID).Error(1)
+}
+
+func (c *FakeCheckoutClient) GetPaymentDetail(paymentID string) (*payments.PaymentResponse, error) {
+	return c.Called(paymentID).Get(0).(*payments.PaymentResponse), c.Called(paymentID).Error(1)
 }
