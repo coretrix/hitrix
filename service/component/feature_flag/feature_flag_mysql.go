@@ -129,7 +129,7 @@ func (s *serviceFeatureFlag) GetScriptsMultiInstance(ormService *beeorm.Engine) 
 
 	allScripts := make([]app.IScript, 0)
 	for _, featureFlag := range activeFeatureFlags {
-		allScripts = append(allScripts, featureFlag.ScriptsSingleInstance()...)
+		allScripts = append(allScripts, featureFlag.ScriptsMultiInstance()...)
 	}
 
 	return allScripts
