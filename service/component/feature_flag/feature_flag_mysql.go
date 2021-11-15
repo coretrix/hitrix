@@ -24,7 +24,9 @@ type serviceFeatureFlag struct {
 }
 
 func NewFeatureFlagService(errorLoggerService errorlogger.ErrorLogger) ServiceFeatureFlagInterface {
+	featureFlags := make(map[string]IFeatureFlag)
 	return &serviceFeatureFlag{
+		featureFlags:       featureFlags,
 		errorLoggerService: errorLoggerService,
 	}
 }
@@ -136,7 +138,7 @@ func (s *serviceFeatureFlag) GetScriptsMultiInstance(ormService *beeorm.Engine) 
 }
 
 func (s *serviceFeatureFlag) Register(featureFlags ...IFeatureFlag) {
-	s.featureFlags = map[string]IFeatureFlag{}
+	s.featureFlags = make(map[string]IFeatureFlag)
 
 	for _, featureFlag := range featureFlags {
 		s.featureFlags[featureFlag.GetName()] = featureFlag
@@ -150,7 +152,7 @@ func (s *serviceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.
 	ormService.RedisSearch(&featureFlagEntities, query, beeorm.NewPager(1, 1000))
 	flusher := ormService.NewFlusher()
 
-	dbFeatureFlags := map[string]*entity.FeatureFlagEntity{}
+	dbFeatureFlags := make(map[string]*entity.FeatureFlagEntity)
 
 	for _, featureFlagEntity := range featureFlagEntities {
 		dbFeatureFlags[featureFlagEntity.Name] = featureFlagEntity
