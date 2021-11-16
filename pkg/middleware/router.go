@@ -37,8 +37,8 @@ func Router(ginEngine *gin.Engine) {
 			ginEngine.POST("dev/generate-token/", AuthorizeWithDevRefreshToken(), devPanel.PostGenerateTokenAction)
 
 			devGroup.GET("feature-flag/list/", devPanel.GetFeatureFlags)
-			devGroup.POST("feature-flag/enable/", devPanel.PostEnableFeatureFlag)
-			devGroup.POST("feature-flag/disable/", devPanel.PostDisableFeatureFlag)
+			devGroup.POST("feature-flag/enable/:name/", devPanel.PostEnableFeatureFlag)
+			devGroup.POST("feature-flag/disable/:name/", devPanel.PostDisableFeatureFlag)
 		}
 	}
 
