@@ -42,7 +42,7 @@ type CustomerResponse struct {
 	Email    string        `json:"email"`
 	Default  string        `json:"default"`
 	Name     string        `json:"name"`
-	Phone    CustomerPhone `json:"phone"`
+	Phone    CustomerPhone `json:"phone,omitempty"`
 	Metadata struct {
 		CouponCode string `json:"coupon_code"`
 		PartnerID  int    `json:"partner_id"`
