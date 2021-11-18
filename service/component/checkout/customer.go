@@ -53,6 +53,6 @@ type CustomerResponse struct {
 type SaveCustomerRequest struct {
 	Email    string            `json:"email"`
 	Name     string            `json:"name"`
-	Phone    CustomerPhone     `json:"phone"`
+	Phone    CustomerPhone     `json:"phone,omitempty"`
 	Metadata map[string]string `json:"metadata"`
 }
