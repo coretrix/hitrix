@@ -95,7 +95,7 @@ func CallXML(ctx context.Context,
 
 	r, err := http.NewRequest(method, url, b)
 	if err != nil {
-		return nil, nil, 0, errors.New("error while creating request")
+		return nil, nil, 0, err
 	}
 
 	for i := range headers {
@@ -111,7 +111,7 @@ func CallXML(ctx context.Context,
 
 	resp, err := http.DefaultClient.Do(r.WithContext(nCtx))
 	if err != nil {
-		return nil, nil, 0, errors.New("error in return response")
+		return nil, nil, 0, err
 	}
 
 	data, err := ioutil.ReadAll(resp.Body)
@@ -121,7 +121,7 @@ func CallXML(ctx context.Context,
 	}()
 
 	if err != nil {
-		return nil, nil, resp.StatusCode, errors.New("error in reading response")
+		return nil, nil, resp.StatusCode, err
 	}
 	return data, resp.Header, resp.StatusCode, nil
 }
