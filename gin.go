@@ -74,7 +74,13 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 		if app.IsInLocalMode() {
 			queryHandler = graphqlHandler(server, gqlServerInitHandler)
 		} else {
-			queryHandler = timeout.New(timeout.WithTimeout(10*time.Second), timeout.WithHandler(graphqlHandler(server, gqlServerInitHandler)))
+			queryHandler = timeout.New(
+				timeout.WithTimeout(10*time.Second),
+				timeout.WithHandler(graphqlHandler(server, gqlServerInitHandler)),
+				timeout.WithResponse(func(c *gin.Context) {
+					service.DI().ErrorLogger().LogErrorWithRequest(c, "TIMEOUT ERROR")
+				}),
+			)
 		}
 
 		ginEngine.POST("/query", queryHandler)
