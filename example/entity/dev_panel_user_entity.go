@@ -22,3 +22,7 @@ func (e *DevPanelUserEntity) GetUsername() string {
 func (e *DevPanelUserEntity) GetPassword() string {
 	return e.Password
 }
+
+func (user *DevPanelUserEntity) CanAuthenticate() bool {
+	return true
+}

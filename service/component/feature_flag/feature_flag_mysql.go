@@ -2,6 +2,7 @@ package featureflag
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/coretrix/hitrix/service/component/app"
 
@@ -50,7 +51,7 @@ func (s *serviceFeatureFlag) IsActive(ormService *beeorm.Engine, name string) bo
 func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *beeorm.Engine, name string) error {
 	isActive := s.IsActive(ormService, name)
 	if !isActive {
-		return errors.New("feature is not active")
+		return fmt.Errorf("feature (%s) is not active", name)
 	}
 
 	return nil

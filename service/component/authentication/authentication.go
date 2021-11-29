@@ -44,14 +44,21 @@ const (
 	SocialLoginFacebook = "facebook"
 )
 
+type AuthenticatableEntity interface {
+	beeorm.Entity
+	CanAuthenticate() bool
+}
+
 type OTPProviderEntity interface {
 	beeorm.Entity
+	AuthenticatableEntity
 	GetPhoneFieldName() string
 	GetEmailFieldName() string
 }
 
 type AuthProviderEntity interface {
 	beeorm.Entity
+	AuthenticatableEntity
 	GetUniqueFieldName() string
 	GetPassword() string
 }
@@ -289,6 +296,9 @@ func (t *Authentication) AuthenticateOTP(ormService *beeorm.Engine, phone string
 		return "", "", errors.New("invalid credentials")
 	}
 
+	if !entity.CanAuthenticate() {
+		return "", "", errors.New("cannot authenticate this entity")
+	}
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
@@ -300,6 +310,9 @@ func (t *Authentication) AuthenticateOTPEmail(ormService *beeorm.Engine, email s
 		return "", "", errors.New("invalid credentials")
 	}
 
+	if !entity.CanAuthenticate() {
+		return "", "", errors.New("cannot authenticate this entity")
+	}
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
@@ -315,6 +328,9 @@ func (t *Authentication) Authenticate(ormService *beeorm.Engine, uniqueValue str
 		return "", "", errors.New("invalid user/pass")
 	}
 
+	if !entity.CanAuthenticate() {
+		return "", "", errors.New("cannot authenticate this entity")
+	}
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
@@ -322,6 +338,9 @@ func (t *Authentication) AuthenticateByID(ormService *beeorm.Engine, id uint64, 
 	exists := ormService.LoadByID(id, entity)
 	if !exists {
 		return "", "", errors.New("id_does_not_exists")
+	}
+	if !entity.CanAuthenticate() {
+		return "", "", errors.New("cannot authenticate this entity")
 	}
 	return t.generateUserTokens(ormService, entity.GetID())
 }
