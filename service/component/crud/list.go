@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -98,11 +99,14 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 
 mainLoop:
 	for field, value := range request.Filter {
-		intValue, ok := value.(int64)
+		jsonIntValue, ok := value.(json.Number)
 		if ok {
-			if helper.StringInArray(field, numberFilters...) {
-				selectedNumberFilters[field] = intValue
-				continue mainLoop
+			jsonInt, err := jsonIntValue.Int64()
+			if err == nil {
+				if helper.StringInArray(field, numberFilters...) {
+					selectedNumberFilters[field] = jsonInt
+					continue mainLoop
+				}
 			}
 		}
 
