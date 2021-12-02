@@ -142,6 +142,9 @@ func (s *serviceFeatureFlag) Register(featureFlags ...IFeatureFlag) {
 	s.featureFlags = make(map[string]IFeatureFlag)
 
 	for _, featureFlag := range featureFlags {
+		if _, has := s.featureFlags[featureFlag.GetName()]; has {
+			panic("feature flag with name '" + featureFlag.GetName() + "' already exists")
+		}
 		s.featureFlags[featureFlag.GetName()] = featureFlag
 	}
 }
@@ -173,7 +176,17 @@ func (s *serviceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.
 				CreatedAt:  clockService.Now(),
 			}
 
-			flusher.Track(featureFlagEntity)
+			err := ormService.FlushWithCheck(featureFlagEntity)
+
+			if err != nil {
+				if duplicateKeyError, ok := err.(*beeorm.DuplicatedKeyError); ok {
+					if duplicateKeyError.Index != "Name" {
+						panic(err)
+					}
+				} else {
+					panic(err)
+				}
+			}
 		} else if !dbFeatureFlags[registeredFeatureFlag.GetName()].Registered {
 			dbFeatureFlags[registeredFeatureFlag.GetName()].Registered = true
 			dbFeatureFlags[registeredFeatureFlag.GetName()].UpdatedAt = clockService.NowPointer()
