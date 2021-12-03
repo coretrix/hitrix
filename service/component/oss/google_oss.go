@@ -32,7 +32,7 @@ type GoogleOSS struct {
 	privateKey     []byte
 }
 
-func NewGoogleOSS(configService config.IConfig, clockService clock.IClock, bucketsMapping map[string]uint64, env string) (*GoogleOSS, error) {
+func NewGoogleOSS(configService config.IConfig, clockService clock.IClock, bucketsMapping map[string]*Bucket, env string) (*GoogleOSS, error) {
 	ctx := context.Background()
 
 	if !helper.ExistsInDir(".oss.json", configService.GetFolderPath()) {
@@ -136,44 +136,47 @@ func (ossStorage *GoogleOSS) GetObjectBase64Content(bucket string, object *Objec
 	return base64.StdEncoding.EncodeToString(content), nil
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *beeorm.Engine, bucket, localFile string) (Object, error) {
+func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *beeorm.Engine, bucket, path, localFile string) (Object, error) {
 	fileContent, ext, err := readContentFile(localFile)
 
 	if err != nil {
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, fileContent, ext)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, path, fileContent, ext)
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromBase64(ormService *beeorm.Engine, bucket, base64content, extension string) (Object, error) {
+func (ossStorage *GoogleOSS) UploadObjectFromBase64(ormService *beeorm.Engine, bucket, path, base64content, extension string) (Object, error) {
 	byteData, err := base64.StdEncoding.DecodeString(base64content)
 
 	if err != nil {
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, byteData, extension)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, path, byteData, extension)
 }
 
-func (ossStorage *GoogleOSS) UploadImageFromBase64(ormService *beeorm.Engine, bucket, base64image, extension string) (Object, error) {
+func (ossStorage *GoogleOSS) UploadImageFromBase64(ormService *beeorm.Engine, bucket, path, base64image, extension string) (Object, error) {
 	byteData, err := base64.StdEncoding.DecodeString(base64image)
 
 	if err != nil {
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, byteData, extension)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, path, byteData, extension)
 }
 
-func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *beeorm.Engine, bucket, localFile string) (Object, error) {
-	return ossStorage.UploadObjectFromFile(ormService, bucket, localFile)
+func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *beeorm.Engine, bucket, path, localFile string) (Object, error) {
+	return ossStorage.UploadObjectFromFile(ormService, bucket, path, localFile)
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromByte(ormService *beeorm.Engine, bucket string, objectContent []byte, extension string) (Object, error) {
+func (ossStorage *GoogleOSS) UploadObjectFromByte(ormService *beeorm.Engine, bucket, path string, objectContent []byte, extension string) (Object, error) {
+	bucketExists(ossStorage.buckets, bucket)
+	pathExists(ossStorage.buckets, bucket, path)
+
 	storageCounter := getStorageCounter(ormService, ossStorage.buckets, bucket)
 
-	objectKey := ossStorage.getObjectKey(storageCounter, extension)
+	objectKey := ossStorage.getObjectKey(path, storageCounter, extension)
 
 	bucketName := getBucketName(ossStorage.buckets, bucket, ossStorage.env)
 
@@ -211,8 +214,12 @@ func (ossStorage *GoogleOSS) CreateObjectFromKey(ormService *beeorm.Engine, buck
 	}
 }
 
-func (ossStorage *GoogleOSS) getObjectKey(storageCounter uint64, fileExtension string) string {
-	return strconv.FormatUint(storageCounter, 10) + fileExtension
+func (ossStorage *GoogleOSS) getObjectKey(path string, storageCounter uint64, fileExtension string) string {
+	if path != "" {
+		return path + "/" + strconv.FormatUint(storageCounter, 10) + fileExtension
+	} else {
+		return strconv.FormatUint(storageCounter, 10) + fileExtension
+	}
 }
 
 //TODO Remove

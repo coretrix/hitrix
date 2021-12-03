@@ -15,7 +15,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderOSS(bucketsMapping map[string]uint64, ossProvider int) *service.DefinitionGlobal {
+func ServiceProviderOSS(bucketsMapping map[string]*oss.Bucket, ossProvider int) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.OSService,
 		Build: func(ctn di.Container) (interface{}, error) {

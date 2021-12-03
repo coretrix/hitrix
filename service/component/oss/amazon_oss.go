@@ -28,7 +28,7 @@ type AmazonOSS struct {
 	uploaderBucket string
 }
 
-func NewAmazonOSS(configService config.IConfig, clockService clock.IClock, bucketsMapping map[string]uint64, env string) (*AmazonOSS, error) {
+func NewAmazonOSS(configService config.IConfig, clockService clock.IClock, bucketsMapping map[string]*Bucket, env string) (*AmazonOSS, error) {
 	disableSSL := false
 
 	if val, ok := configService.Bool("oss.amazon.disable_ssl"); ok && val {
@@ -135,10 +135,13 @@ func (ossStorage *AmazonOSS) GetObjectBase64Content(_ string, _ *Object) (string
 	panic("not implemented")
 }
 
-func (ossStorage *AmazonOSS) UploadObjectFromByte(ormService *beeorm.Engine, bucket string, objectContent []byte, extension string) (Object, error) {
+func (ossStorage *AmazonOSS) UploadObjectFromByte(ormService *beeorm.Engine, bucket, path string, objectContent []byte, extension string) (Object, error) {
+	bucketExists(ossStorage.buckets, bucket)
+	pathExists(ossStorage.buckets, bucket, path)
+
 	storageCounter := getStorageCounter(ormService, ossStorage.buckets, bucket)
 
-	objectKey := ossStorage.getObjectKey(storageCounter, extension)
+	objectKey := ossStorage.getObjectKey(path, storageCounter, extension)
 
 	_, err := ossStorage.client.PutObject(&s3.PutObjectInput{
 		Body:   bytes.NewReader(objectContent),
@@ -156,38 +159,38 @@ func (ossStorage *AmazonOSS) UploadObjectFromByte(ormService *beeorm.Engine, buc
 	}, nil
 }
 
-func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *beeorm.Engine, bucket, localFile string) (Object, error) {
+func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *beeorm.Engine, bucket, path, localFile string) (Object, error) {
 	fileContent, ext, err := readContentFile(localFile)
 
 	if err != nil {
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, fileContent, ext)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, path, fileContent, ext)
 }
 
-func (ossStorage *AmazonOSS) UploadObjectFromBase64(ormService *beeorm.Engine, bucket, content, extension string) (Object, error) {
+func (ossStorage *AmazonOSS) UploadObjectFromBase64(ormService *beeorm.Engine, bucket, path, content, extension string) (Object, error) {
 	byteData, err := base64.StdEncoding.DecodeString(content)
 
 	if err != nil {
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, byteData, extension)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, path, byteData, extension)
 }
 
-func (ossStorage *AmazonOSS) UploadImageFromFile(ormService *beeorm.Engine, bucket, localFile string) (Object, error) {
-	return ossStorage.UploadObjectFromFile(ormService, bucket, localFile)
+func (ossStorage *AmazonOSS) UploadImageFromFile(ormService *beeorm.Engine, bucket, path, localFile string) (Object, error) {
+	return ossStorage.UploadObjectFromFile(ormService, bucket, path, localFile)
 }
 
-func (ossStorage *AmazonOSS) UploadImageFromBase64(ormService *beeorm.Engine, bucket, image, extension string) (Object, error) {
+func (ossStorage *AmazonOSS) UploadImageFromBase64(ormService *beeorm.Engine, bucket, path, image, extension string) (Object, error) {
 	byteData, err := base64.StdEncoding.DecodeString(image)
 
 	if err != nil {
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, byteData, extension)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, path, byteData, extension)
 }
 
 func (ossStorage *AmazonOSS) DeleteObject(bucket string, object *Object) error {
@@ -201,8 +204,12 @@ func (ossStorage *AmazonOSS) DeleteObject(bucket string, object *Object) error {
 	return err
 }
 
-func (ossStorage *AmazonOSS) getObjectKey(storageCounter uint64, fileExtension string) string {
-	return strconv.FormatUint(storageCounter, 10) + fileExtension
+func (ossStorage *AmazonOSS) getObjectKey(path string, storageCounter uint64, fileExtension string) string {
+	if path != "" {
+		return path + "/" + strconv.FormatUint(storageCounter, 10) + fileExtension
+	} else {
+		return strconv.FormatUint(storageCounter, 10) + fileExtension
+	}
 }
 
 func (ossStorage *AmazonOSS) CreateObjectFromKey(ormService *beeorm.Engine, bucket, key string) Object {

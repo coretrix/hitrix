@@ -22,11 +22,11 @@ type IProvider interface {
 	GetObjectCDNURL(bucket string, object *Object) (string, error)
 	GetObjectSignedURL(bucket string, object *Object, expires time.Time) (string, error)
 	GetObjectBase64Content(bucket string, object *Object) (string, error)
-	UploadObjectFromFile(ormService *beeorm.Engine, bucket, localFile string) (Object, error)
-	UploadObjectFromBase64(ormService *beeorm.Engine, bucket, content, extension string) (Object, error)
-	UploadObjectFromByte(ormService *beeorm.Engine, bucket string, content []byte, extension string) (Object, error)
-	UploadImageFromFile(ormService *beeorm.Engine, bucket, localFile string) (Object, error)
-	UploadImageFromBase64(ormService *beeorm.Engine, bucket, image, extension string) (Object, error)
+	UploadObjectFromFile(ormService *beeorm.Engine, bucket, path, localFile string) (Object, error)
+	UploadObjectFromBase64(ormService *beeorm.Engine, bucket, path, content, extension string) (Object, error)
+	UploadObjectFromByte(ormService *beeorm.Engine, bucket, path string, content []byte, extension string) (Object, error)
+	UploadImageFromFile(ormService *beeorm.Engine, bucket, path, localFile string) (Object, error)
+	UploadImageFromBase64(ormService *beeorm.Engine, bucket, path, image, extension string) (Object, error)
 	DeleteObject(bucket string, object *Object) error
 	//TODO Remove
 	CreateObjectFromKey(ormService *beeorm.Engine, bucket, key string) Object
@@ -39,8 +39,13 @@ type Object struct {
 	Data       interface{}
 }
 
+type Bucket struct {
+	ID    uint64
+	Paths []string
+}
+
 type Buckets struct {
-	Mapping map[string]uint64
+	Mapping map[string]*Bucket
 	Configs map[string]map[string]*BucketConfig
 }
 
@@ -49,7 +54,7 @@ type BucketConfig struct {
 	CDNURL string
 }
 
-func loadBucketsConfig(configService config.IConfig, bucketsMapping map[string]uint64) *Buckets {
+func loadBucketsConfig(configService config.IConfig, bucketsMapping map[string]*Bucket) *Buckets {
 	bucketsConfigDefinitions, ok := configService.Get("oss.buckets")
 
 	if !ok {
@@ -124,7 +129,7 @@ func getObjectCDNURL(buckets *Buckets, bucket, env, storageKey string) string {
 func getStorageCounter(ormService *beeorm.Engine, buckets *Buckets, bucket string) uint64 {
 	bucketExists(buckets, bucket)
 
-	bucketID := buckets.Mapping[bucket]
+	bucketID := buckets.Mapping[bucket].ID
 
 	ossBucketCounterEntity := &entity.OSSBucketCounterEntity{}
 
@@ -161,6 +166,26 @@ func bucketExists(buckets *Buckets, bucket string) {
 
 	if !has {
 		panic("bucket [" + bucket + "] not found")
+	}
+}
+
+func pathExists(buckets *Buckets, bucketName, path string) {
+	bucket, has := buckets.Mapping[bucketName]
+
+	if !has {
+		panic("bucket [" + bucketName + "] not found")
+	}
+
+	pathExists := false
+	for _, p := range bucket.Paths {
+		if p == path {
+			pathExists = true
+			break
+		}
+	}
+
+	if !pathExists {
+		panic("path [" + path + "] not found")
 	}
 }
 
