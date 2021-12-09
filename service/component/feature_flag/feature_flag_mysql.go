@@ -150,10 +150,23 @@ func (s *serviceFeatureFlag) Register(featureFlags ...IFeatureFlag) {
 }
 
 func (s *serviceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.IClock) {
-	query := beeorm.NewRedisSearchQuery()
-
 	var featureFlagEntities []*entity.FeatureFlagEntity
-	ormService.RedisSearch(&featureFlagEntities, query, beeorm.NewPager(1, 1000))
+	var lastID uint64
+	for {
+		var rows []*entity.FeatureFlagEntity
+		pager := beeorm.NewPager(1, 1000)
+		ormService.Search(beeorm.NewWhere("ID > ? ORDER BY ID ASC", lastID), pager, &rows)
+		if len(rows) == 0 {
+			break
+		}
+
+		lastID = rows[len(rows)-1].ID
+		featureFlagEntities = append(featureFlagEntities, rows...)
+
+		if len(rows) < pager.PageSize {
+			break
+		}
+	}
 	flusher := ormService.NewFlusher()
 
 	dbFeatureFlags := make(map[string]*entity.FeatureFlagEntity)
