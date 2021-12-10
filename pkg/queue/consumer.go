@@ -3,6 +3,7 @@ package queue
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/coretrix/hitrix"
 
@@ -47,12 +48,19 @@ func NewConsumerRunner(ctx context.Context, ormService *beeorm.Engine) *Consumer
 func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix *string, prefetchCount int) {
 	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 
-	eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
-		log.Printf("running %s with %d events", consumer.GetQueueName(), len(events))
-		if err := consumer.Consume(events); err != nil {
-			panic(err)
+	for {
+		started := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+			log.Printf("running %s with %d events", consumer.GetQueueName(), len(events))
+			if err := consumer.Consume(events); err != nil {
+				panic(err)
+			}
+		})
+		if started {
+			break
 		}
-	})
+		log.Printf("failed to start %s. Sleeping for 90 seconds", consumer.GetQueueName())
+		time.Sleep(time.Second * 90)
+	}
 }
 
 func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *string, prefetchCount int) {
