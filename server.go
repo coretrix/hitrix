@@ -163,6 +163,44 @@ func (h *Hitrix) forceAlters() {
 func (h *Hitrix) await() {
 	termChan := make(chan os.Signal, 1)
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
+	termChan2 := make(chan os.Signal, 1)
+	signal.Notify(termChan2,
+		syscall.SIGALRM,
+		syscall.SIGBUS,
+		syscall.SIGCHLD,
+		syscall.SIGCLD,
+		syscall.SIGCONT,
+		syscall.SIGFPE,
+		syscall.SIGHUP,
+		syscall.SIGILL,
+		syscall.SIGINT,
+		syscall.SIGIO,
+		syscall.SIGIOT,
+		syscall.SIGKILL,
+		syscall.SIGPIPE,
+		syscall.SIGPOLL,
+		syscall.SIGPROF,
+		syscall.SIGPWR,
+		syscall.SIGQUIT,
+		syscall.SIGSEGV,
+		syscall.SIGSTKFLT,
+		syscall.SIGSTOP,
+		syscall.SIGSYS,
+		syscall.SIGTERM,
+		syscall.SIGTRAP,
+		syscall.SIGTSTP,
+		syscall.SIGTTIN,
+		syscall.SIGTTOU,
+		syscall.SIGUNUSED,
+		syscall.SIGURG,
+		syscall.SIGUSR1,
+		syscall.SIGUSR2,
+		syscall.SIGVTALRM,
+		syscall.SIGWINCH,
+		syscall.SIGXCPU,
+		syscall.SIGXFSZ,
+	)
+
 	appService := service.DI().App()
 
 	select {
@@ -171,6 +209,8 @@ func (h *Hitrix) await() {
 		os.Exit(code)
 	case <-h.done:
 		appService.CancelContext()
+	case ssss := <-termChan2:
+		log.Print("Signal: ", ssss.String())
 	case <-termChan:
 		log.Println("TERMINATING")
 		appService.CancelContext()
