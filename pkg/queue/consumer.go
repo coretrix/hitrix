@@ -49,6 +49,8 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 
 	for {
+		log.Printf("Starting %s", consumer.GetQueueName())
+
 		started := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 			log.Printf("running %s with %d events", consumer.GetQueueName(), len(events))
 			if err := consumer.Consume(events); err != nil {
