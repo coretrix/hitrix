@@ -82,10 +82,8 @@ func (h *Hitrix) startupOnBuild() {
 		ormService := service.DI().OrmEngine()
 		clockService := service.DI().Clock()
 
-		Goroutine(func() {
-			featureFlagService := service.DI().FeatureFlag()
-			featureFlagService.Sync(ormService, clockService)
-		})
+		featureFlagService := service.DI().FeatureFlag()
+		featureFlagService.Sync(ormService, clockService)
 	}
 }
 
