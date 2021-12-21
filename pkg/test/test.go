@@ -268,7 +268,7 @@ func getRandomString() string {
 	rand.Seed(time.Now().UnixNano())
 	b := make([]byte, 10)
 	rand.Read(b)
-	return fmt.Sprintf("%x%d", b, os.Getpid())[:10]
+	return fmt.Sprintf("%x%d", b, os.Getpid())[:5]
 }
 
 func getParallelID() string {
