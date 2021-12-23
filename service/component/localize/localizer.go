@@ -92,6 +92,10 @@ func (l *SimpleLocalizer) SaveBucketToFile(bucket string, path string) {
 }
 
 func (l *SimpleLocalizer) PushBucketToSource(bucket string) (err error) {
+	if l.source == nil {
+		return errors.New("there is no defined sourced")
+	}
+
 	terms := l.getBucketTermsWithoutPrefix(bucket)
 	err = l.source.Push(terms)
 	if err != nil {
@@ -103,6 +107,10 @@ func (l *SimpleLocalizer) PushBucketToSource(bucket string) (err error) {
 }
 
 func (l *SimpleLocalizer) PullBucketFromSource(bucket string, append bool) (err error) {
+	if l.source == nil {
+		return errors.New("there is no defined sourced")
+	}
+
 	terms, err := l.source.Pull()
 	if err != nil {
 		log.Fatal(err)
@@ -165,7 +173,7 @@ func (l *SimpleLocalizer) removeKeyPrefix(bucket string, key string) string {
 	return strings.Replace(key, bucket+separator, "", 1)
 }
 
-func NewSimpleLocalizer(source *PoeditorSource) *SimpleLocalizer {
+func NewSimpleLocalizer(source Source) *SimpleLocalizer {
 	return &SimpleLocalizer{
 		source: source,
 	}

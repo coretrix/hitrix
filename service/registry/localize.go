@@ -14,24 +14,28 @@ func ServiceProviderLocalize() *service.DefinitionGlobal {
 		Name: service.LocalizeService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
-			apiKey, ok := configService.String("translation.poeditor.api_key")
-			if !ok {
-				return nil, errors.New("missing translation.poeditor.api_key")
-			}
-			projectID, ok := configService.String("translation.poeditor.project_id")
-			if !ok {
-				return nil, errors.New("missing translation.poeditor.project_id")
-			}
-			language, ok := configService.String("translation.poeditor.language")
-			if !ok {
-				return nil, errors.New("missing translation.poeditor.language")
-			}
+			var apiSource localize.Source
 
-			apiSource := localize.NewPoeditorSource(
-				apiKey,
-				projectID,
-				language,
-			)
+			if _, ok := configService.StringMap("translation.poeditor"); ok {
+				apiKey, ok := configService.String("translation.poeditor.api_key")
+				if !ok {
+					return nil, errors.New("missing translation.poeditor.api_key")
+				}
+				projectID, ok := configService.String("translation.poeditor.project_id")
+				if !ok {
+					return nil, errors.New("missing translation.poeditor.project_id")
+				}
+				language, ok := configService.String("translation.poeditor.language")
+				if !ok {
+					return nil, errors.New("missing translation.poeditor.language")
+				}
+
+				apiSource = localize.NewPoeditorSource(
+					apiKey,
+					projectID,
+					language,
+				)
+			}
 
 			return localize.NewSimpleLocalizer(apiSource), nil
 		},
