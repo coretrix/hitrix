@@ -51,8 +51,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Create database
-        run: |
-          mysql -uroot -h127.0.0.1 --port=9004 -proot -e 'CREATE DATABASE IF NOT EXISTS hitrix;'
+        run: mysql -uroot -h127.0.0.1 --port=9004 -proot -e 'CREATE DATABASE IF NOT EXISTS hitrix;'
 
       - name: Run unit tests with coverage.
         run: |
