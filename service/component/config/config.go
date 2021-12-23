@@ -67,9 +67,13 @@ type Config struct {
 }
 
 func NewConfig(appName, mode, localConfigFolder string) (*Config, error) {
-	configFolder, hasConfigFolder := os.LookupEnv("APP_CONFIG_FOLDER")
+	var configFolder string
+
+	appFolder, hasConfigFolder := os.LookupEnv("APP_FOLDER")
 	if !hasConfigFolder {
 		configFolder = localConfigFolder
+	} else {
+		configFolder = appFolder + "/config"
 	}
 
 	err := loadEnvConfig(mode, configFolder)

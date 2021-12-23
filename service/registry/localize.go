@@ -2,6 +2,8 @@ package registry
 
 import (
 	"errors"
+	"log"
+	"os"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -9,7 +11,7 @@ import (
 	"github.com/sarulabs/di"
 )
 
-func ServiceProviderLocalize() *service.DefinitionGlobal {
+func ServiceProviderLocalize(projectNameEnvVar string) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.LocalizeService,
 		Build: func(ctn di.Container) (interface{}, error) {
@@ -37,7 +39,16 @@ func ServiceProviderLocalize() *service.DefinitionGlobal {
 				)
 			}
 
-			return localize.NewSimpleLocalizer(apiSource), nil
+			var path string
+			if projectNameEnvVar != "" {
+				path = configService.GetFolderPath() + "/../locale/" + os.Getenv(projectNameEnvVar)
+			} else {
+				path = configService.GetFolderPath() + "/../locale"
+			}
+
+			log.Println("Loading locale files from " + path)
+
+			return localize.NewSimpleLocalizer(apiSource, path), nil
 		},
 	}
 }

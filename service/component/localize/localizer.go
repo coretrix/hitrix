@@ -173,8 +173,25 @@ func (l *SimpleLocalizer) removeKeyPrefix(bucket string, key string) string {
 	return strings.Replace(key, bucket+separator, "", 1)
 }
 
-func NewSimpleLocalizer(source Source) *SimpleLocalizer {
-	return &SimpleLocalizer{
+func NewSimpleLocalizer(source Source, localePath string) *SimpleLocalizer {
+	localizerService := &SimpleLocalizer{
 		source: source,
 	}
+
+	files, err := ioutil.ReadDir(localePath)
+	if err != nil {
+		panic(err)
+	}
+
+	shouldAppend := false
+	for _, file := range files {
+		if !strings.HasSuffix(file.Name(), ".json") {
+			continue
+		}
+
+		localizerService.LoadBucketFromFile(strings.TrimSuffix(file.Name(), ".json"), localePath+"/"+file.Name(), shouldAppend)
+		shouldAppend = true
+	}
+
+	return localizerService
 }
