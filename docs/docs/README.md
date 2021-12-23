@@ -318,6 +318,6 @@ service.DI().App().IsInMode("my_mode")
 
 ### Environment variables
 
-#### APP_CONFIG_FOLDER environment variable
-There are another important environment variable called `APP_CONFIG_FOLDER`
-You can set path to your config folder for your demo, prod or any other environment
+#### APP_FOLDER environment variable
+There are another important environment variable called `environment`
+You can set path to your app folder for your demo, prod or any other environment

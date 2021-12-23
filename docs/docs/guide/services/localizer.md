@@ -17,7 +17,7 @@ translation:
 Register the service into your `main.go` file:
 
 ```go
-registry.ServiceProviderLocalizer()
+registry.ServiceProviderLocalizer("") //for param you can provide env var as key(not as value!) in case you want to have sub folder in locale folder 
 ```
 
 Access the service:
