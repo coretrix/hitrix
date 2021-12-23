@@ -52,7 +52,6 @@ jobs:
 
       - name: Create database
         run: |
-          sudo apt-get install -y -f mysql-client
           mysql -uroot -h127.0.0.1 --port=9004 -proot -e 'CREATE DATABASE IF NOT EXISTS hitrix;'
 
       - name: Run unit tests with coverage.
