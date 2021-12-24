@@ -17,7 +17,7 @@ const (
 )
 
 type ILocalizer interface {
-	T(bucket string, key string) (string, error)
+	T(bucket string, key string) string
 	LoadBucketFromFile(bucket string, path string, append bool)
 	LoadBucketFromMap(bucket string, pairs map[string]string, append bool)
 	SaveBucketToFile(bucket string, path string)
