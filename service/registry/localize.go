@@ -2,6 +2,7 @@ package registry
 
 import (
 	"errors"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"log"
 	"os"
 
@@ -48,7 +49,7 @@ func ServiceProviderLocalize(projectNameEnvVar string) *service.DefinitionGlobal
 
 			log.Println("Loading locale files from " + path)
 
-			return localize.NewSimpleLocalizer(apiSource, path), nil
+			return localize.NewSimpleLocalizer(ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger), apiSource, path), nil
 		},
 	}
 }

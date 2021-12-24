@@ -3,6 +3,7 @@ package localize
 import (
 	"encoding/json"
 	"errors"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,7 +17,7 @@ const (
 )
 
 type ILocalizer interface {
-	Localize(bucket string, key string) (string, error)
+	T(bucket string, key string) (string, error)
 	LoadBucketFromFile(bucket string, path string, append bool)
 	LoadBucketFromMap(bucket string, pairs map[string]string, append bool)
 	SaveBucketToFile(bucket string, path string)
@@ -25,22 +26,24 @@ type ILocalizer interface {
 }
 
 type SimpleLocalizer struct {
-	lock   sync.RWMutex
-	pairs  map[string]string
-	source Source
+	lock        sync.RWMutex
+	pairs       map[string]string
+	source      Source
+	errorLogger errorlogger.ErrorLogger
 }
 
-func (l *SimpleLocalizer) Localize(bucket string, key string) (string, error) {
+func (l *SimpleLocalizer) T(bucket string, key string) string {
 	if bucket == "" {
-		return "", errors.New("localization bucket not provided")
+		panic("localization bucket not provided")
 	}
 	l.lock.RLock()
 	defer l.lock.RUnlock()
 	if val, ok := l.pairs[l.genKey(bucket, key)]; ok {
-		return val, nil
+		return val
 	}
 
-	return "", errors.New("translation not found")
+	l.errorLogger.LogError("missing translations for key " + l.genKey(bucket, key))
+	return key
 }
 
 func (l *SimpleLocalizer) LoadBucketFromMap(bucket string, pairs map[string]string, append bool) {
@@ -173,9 +176,10 @@ func (l *SimpleLocalizer) removeKeyPrefix(bucket string, key string) string {
 	return strings.Replace(key, bucket+separator, "", 1)
 }
 
-func NewSimpleLocalizer(source Source, localePath string) *SimpleLocalizer {
+func NewSimpleLocalizer(errorLogger errorlogger.ErrorLogger, source Source, localePath string) *SimpleLocalizer {
 	localizerService := &SimpleLocalizer{
-		source: source,
+		source:      source,
+		errorLogger: errorLogger,
 	}
 
 	files, err := ioutil.ReadDir(localePath)
