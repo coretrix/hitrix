@@ -33,13 +33,6 @@ jobs:
         ports:
           - 9002:6379
 
-      mysql:
-        image: percona:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 9004:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=5s --health-retries=3
     steps:
 
       - name: Set up Go
@@ -50,8 +43,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Create database
-        run: mysql -uroot -h127.0.0.1 --port=9004 -proot -e 'CREATE DATABASE IF NOT EXISTS hitrix;'
+      - name: Set up MySQL
+        run: |
+          sudo /etc/init.d/mysql start --port=9004
+          mysql -e 'CREATE DATABASE hitrix;' -uroot -proot
 
       - name: Run unit tests with coverage.
         run: |
