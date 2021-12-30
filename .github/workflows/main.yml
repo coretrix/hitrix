@@ -45,7 +45,8 @@ jobs:
 
       - name: Set up MySQL
         run: |
-          sudo /etc/init.d/mysql start --port=9004
+          sudo echo "port=9004" >> /etc/my.cnf
+          sudo /etc/init.d/mysql start
           mysql -e 'CREATE DATABASE hitrix;' -uroot -proot
 
       - name: Run unit tests with coverage.
