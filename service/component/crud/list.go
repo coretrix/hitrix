@@ -144,7 +144,6 @@ mainLoop:
 			s := reflect.ValueOf(value)
 
 			if helper.StringInArray(field, rangeNumberFilters...) {
-				// TODO check type (int or float and also validate all fields are in the same type)
 				if s.Len() != 2 {
 					continue mainLoop
 				}
@@ -159,7 +158,6 @@ mainLoop:
 				}
 
 				for i := 0; i < s.Len(); i++ {
-					// TODO check type (int or float and also validate all fields are in the same type)
 					int64Value, _ := strconv.ParseInt(fmt.Sprintf("%v", s.Index(i)), 10, 64)
 					selectedArrayNumberFilters[field] = append(selectedArrayNumberFilters[field], int64Value)
 				}
