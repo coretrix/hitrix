@@ -3,13 +3,14 @@ package localize
 import (
 	"encoding/json"
 	"errors"
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 )
 
 const (
