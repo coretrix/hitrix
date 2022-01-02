@@ -2,9 +2,10 @@ package registry
 
 import (
 	"errors"
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"log"
 	"os"
+
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
