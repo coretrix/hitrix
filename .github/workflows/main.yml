@@ -9,10 +9,12 @@ jobs:
   check:
     name: Quality & security checks
     runs-on: ubuntu-latest
+    env:
+      DB_PORT: 9004
     steps:
       - name: Set up MySQL
         run: |
-          sudo bash -c 'echo -e "[mysqld]\nport=9004\n[client]\nport=9004" >> /etc/my.cnf'
+#          sudo bash -c 'echo -e "[mysqld]\nport=9004\n[client]\nport=9004" >> /etc/my.cnf'
           sudo /etc/init.d/mysql start
           mysql -e 'CREATE DATABASE hitrix;' -uroot -proot
 
