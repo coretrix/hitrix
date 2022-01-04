@@ -6,24 +6,6 @@ on:
   pull_request:
 
 jobs:
-  check:
-    name: Quality & security checks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Go
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.17
-
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Lint Go Code
-        run: |
-          export GOPATH=$(go env GOPATH)
-          go mod tidy
-          make check
-
   test:
     name: Test & coverage
     runs-on: ubuntu-latest
@@ -34,7 +16,6 @@ jobs:
           - 9002:6379
 
     steps:
-
       - name: Set up MySQL
         run: |
           sudo bash -c 'echo -e "[mysqld]\nport=9004\n" >> /etc/mysql/my.cnf'
@@ -48,6 +29,12 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@v2
+
+      - name: Lint Go Code
+        run: |
+          export GOPATH=$(go env GOPATH)
+          go mod tidy
+          make check
 
       - name: Run unit tests with coverage.
         run: |
