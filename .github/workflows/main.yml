@@ -10,11 +10,6 @@ jobs:
     name: Quality & security checks
     runs-on: ubuntu-latest
     steps:
-      - name: Set up MySQL
-        run: |
-          sudo /etc/init.d/mysql start
-          mysql -e 'CREATE DATABASE hitrix;' -uroot -proot
-
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
@@ -39,6 +34,11 @@ jobs:
           - 9002:6379
 
     steps:
+
+      - name: Set up MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+          mysql -e 'CREATE DATABASE hitrix;' -uroot -proot
 
       - name: Set up Go
         uses: actions/setup-go@v1
