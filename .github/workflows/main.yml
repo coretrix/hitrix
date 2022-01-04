@@ -45,7 +45,7 @@ jobs:
 
       - name: Set up MySQL
         run: |
-          sudo bash -c 'echo -e "[mysqld]\nport=9004" > /etc/my.cnf'
+          sudo bash -c 'echo -e "[mysqld]\nport=9004\n[client]\nport=9004" > /etc/my.cnf'
           sudo /etc/init.d/mysql start
           mysql -e 'CREATE DATABASE hitrix;' -uroot -proot
 
