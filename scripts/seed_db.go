@@ -2,7 +2,8 @@ package scripts
 
 import (
 	"context"
-	"encoding/json"
+	"log"
+	"os"
 
 	"github.com/coretrix/hitrix/service/component/app"
 
@@ -13,12 +14,13 @@ import (
 )
 
 type DBSeedScript struct {
-	Seeds map[string]Seed
+	SeedsPerProject map[string][]Seed
 }
 
 func (script *DBSeedScript) Run(_ context.Context, _ app.IExit) {
 	ormService := service.DI().OrmEngine()
-	Seeder(script.Seeds, ormService)
+	appService := service.DI().App()
+	Seeder(script.SeedsPerProject, ormService, appService)
 }
 
 func (script *DBSeedScript) Unique() bool {
@@ -31,65 +33,44 @@ func (script *DBSeedScript) Description() string {
 
 type Seed interface {
 	Execute(*beeorm.Engine)
-	Version() int
+	Environments() []string
+	Name() string
 }
 
-func Seeder(seeds map[string]Seed, ormService *beeorm.Engine) {
-
-	var setting entity.SettingsEntity
-
-	whereStmt := beeorm.NewWhere("`Key` = ?", entity.HitrixSettingAll.Seeds)
-	var hasExecutedSeedsSetting = ormService.SearchOne(whereStmt, &setting)
-
-	var executedSeeds entity.SettingSeedsValue
-	if hasExecutedSeedsSetting {
-		if err := json.Unmarshal([]byte(setting.Value), &executedSeeds); err != nil {
-			panic(err.Error())
+func Seeder(seedsPerProject map[string][]Seed, ormService *beeorm.Engine, appService *app.App) {
+	for project, seeds := range seedsPerProject {
+		if project != os.Getenv("PROJECT_NAME") {
+			continue
 		}
-	}
 
-	var newSeeds entity.SettingSeedsValue = make(entity.SettingSeedsValue)
+		for _, seed := range seeds {
+			supportCurrentEnv := false
+			for _, env := range seed.Environments() {
+				if env == appService.Mode {
+					supportCurrentEnv = true
+					break
+				}
+			}
 
-	for k, seed := range seeds {
-		_, hasExecutedSeed := executedSeeds[k]
-		if !hasExecutedSeedsSetting || !hasExecutedSeed ||
-			(hasExecutedSeed && executedSeeds[k] < seed.Version()) {
+			if !supportCurrentEnv {
+				continue
+			}
+
+			seederEntity := &entity.SeederEntity{}
+
+			whereStmt := beeorm.NewWhere("`Name` = ?", seed.Name())
+			found := ormService.SearchOne(whereStmt, seederEntity)
+			if found {
+				continue
+			}
+
 			seed.Execute(ormService)
-			newSeeds[k] = seed.Version()
+
+			seederEntity.Name = seed.Name()
+			seederEntity.CreatedAt = service.DI().Clock().Now()
+			ormService.Flush(seederEntity)
+
+			log.Println("Seeder " + seed.Name() + " has been executed")
 		}
 	}
-	if len(newSeeds) > 0 {
-		saveNewSeeds(ormService, newSeeds)
-	}
-
-}
-func saveNewSeeds(ormService *beeorm.Engine, newSeeds entity.SettingSeedsValue) {
-	settingsEntity := &entity.SettingsEntity{}
-
-	query := &beeorm.RedisSearchQuery{}
-	query.FilterString("Key", entity.HitrixSettingAll.Seeds)
-
-	hasExecutedSeedsSetting := ormService.RedisSearchOne(settingsEntity, query)
-
-	if hasExecutedSeedsSetting {
-		var oldSeeds entity.SettingSeedsValue
-		if err := json.Unmarshal([]byte(settingsEntity.Value), &oldSeeds); err != nil {
-			panic(err.Error())
-		}
-
-		// overwrite old with newSeeds
-		for k, v := range newSeeds {
-			oldSeeds[k] = v
-		}
-		newSeeds = oldSeeds
-	} else {
-		settingsEntity.Key = entity.HitrixSettingAll.Seeds
-	}
-
-	str, err := json.Marshal(newSeeds)
-	if err != nil {
-		panic(err.Error())
-	}
-	settingsEntity.Value = string(str)
-	ormService.Flush(settingsEntity)
 }
