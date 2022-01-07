@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/coretrix/hitrix/pkg/helper"
@@ -116,7 +117,9 @@ func (s *Sinch) VerifyOTP(phone *Phone, code string) (string, string, bool, bool
 		return request, string(responseBody), false, false, err
 	}
 
-	if respCode != http.StatusOK {
+	if respCode != http.StatusOK && strings.Contains(string(responseBody), "Invalid identity or code") {
+		return request, string(responseBody), false, false, nil
+	} else if respCode != http.StatusOK {
 		return request, string(responseBody), false, false, fmt.Errorf("expected status code 200, but got %v", respCode)
 	}
 
