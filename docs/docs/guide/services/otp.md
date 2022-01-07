@@ -7,6 +7,14 @@ Register the service into your `main.go` file:
 registry.ServiceProviderOTP()
 ```
 
+Supported OTP providers:
+1. Twilio
+2. Sinch
+
+You can register OTP providers in 2 ways:
+1. Provide setting in DB for key: `otp_sms_provider` with value either of `Twilio` or `Sinch`. You can pass both providers as well separated by comma - `Twilio,Sinch`.
+2. Call `registry.ServiceProviderOTP(otp.SMSOTPProviderTwilio, otp.SMSOTPProviderSinch)` with 1 or more parameters for force provider.
+
 Access the service:
 ```go
 service.DI().OTP()

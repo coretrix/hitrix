@@ -3,15 +3,14 @@ package sms
 import "github.com/dongri/phonenumber"
 
 const (
-	Sinch  = "sinch"
-	Twilio = "twilio"
+	Sinch     = "sinch"
+	Twilio    = "twilio"
+	Kavenegar = "kavenegar"
 
 	success = "sent successfully"
 	failure = "sent unsuccessfully"
 
 	timeoutInSeconds = 5
-
-	Kavenegar = "kavenegar"
 )
 
 type Gateway interface {
