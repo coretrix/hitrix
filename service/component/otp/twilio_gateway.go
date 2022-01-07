@@ -8,6 +8,8 @@ import (
 	openapi "github.com/twilio/twilio-go/rest/verify/v2"
 )
 
+const SMSOTPProviderTwilio = "Twilio"
+
 type Twilio struct {
 	Client          *twilio.RestClient
 	VerificationSID string
@@ -24,7 +26,7 @@ func NewTwilioSMSOTPProvider(accountSid, authToken, verificationSid string) *Twi
 }
 
 func (t *Twilio) GetName() string {
-	return "Twilio"
+	return SMSOTPProviderTwilio
 }
 
 func (t *Twilio) GetCode() string {
