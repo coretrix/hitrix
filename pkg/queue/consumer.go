@@ -5,6 +5,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/coretrix/hitrix/service"
+
 	"github.com/coretrix/hitrix"
 
 	"github.com/latolukasz/beeorm"
@@ -47,12 +49,13 @@ func NewConsumerRunner(ctx context.Context, ormService *beeorm.Engine) *Consumer
 
 func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix *string, prefetchCount int) {
 	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
+	var attempts uint8
 
 	for {
+		attempts++
 		log.Printf("Starting %s", consumer.GetQueueName())
 
 		started := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
-			log.Printf("running %s with %d events", consumer.GetQueueName(), len(events))
 			if err := consumer.Consume(events); err != nil {
 				panic(err)
 			}
@@ -60,8 +63,13 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 		if started {
 			break
 		}
+
+		if attempts == 9 {
+			service.DI().ErrorLogger().LogError("failed to start stream consumer: " + consumer.GetQueueName())
+			break
+		}
 		log.Printf("failed to start %s. Sleeping for 90 seconds", consumer.GetQueueName())
-		time.Sleep(time.Second * 90)
+		time.Sleep(time.Second * 92)
 	}
 }
 
