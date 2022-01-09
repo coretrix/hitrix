@@ -71,7 +71,7 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 
 	if server != nil {
 		var queryHandler gin.HandlerFunc
-		if app.IsInLocalMode() {
+		if app.IsInLocalMode() || app.IsInTestMode() {
 			queryHandler = graphqlHandler(server, gqlServerInitHandler)
 		} else {
 			queryHandler = timeout.New(
