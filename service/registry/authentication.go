@@ -16,6 +16,7 @@ import (
 
 const (
 	DefaultOTPTTLInSeconds          = 300
+	DefaultOTPLength                = 5
 	DefaultAccessTokenTTLInSeconds  = 24 * 60 * 60
 	DefaultRefreshTokenTTLInSeconds = 365 * 24 * 60 * 60
 )
@@ -38,6 +39,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 			accessTokenTTL := DefaultAccessTokenTTLInSeconds
 			refreshTokenTTL := DefaultRefreshTokenTTLInSeconds
 			otpTTL := DefaultOTPTTLInSeconds
+			otpLength := DefaultOTPLength
 
 			accessTokenTTLConfig, ok := configService.Int("authentication.access_token_ttl")
 			if ok && accessTokenTTLConfig > 0 {
@@ -52,6 +54,11 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 			otpTTLConfig, ok := configService.Int("authentication.otp_ttl")
 			if ok && refreshTokenTTLConfig > 0 {
 				otpTTL = otpTTLConfig
+			}
+
+			otpLengthConfig, ok := configService.Int("authentication.otp_length")
+			if ok && otpLengthConfig > 0 {
+				otpLength = otpLengthConfig
 			}
 
 			passwordService := ctn.Get(service.PasswordService).(password.IPassword)
@@ -108,6 +115,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				accessTokenTTL,
 				refreshTokenTTL,
 				otpTTL,
+				otpLength,
 				appService,
 				smsService,
 				service.DI().Generator(),

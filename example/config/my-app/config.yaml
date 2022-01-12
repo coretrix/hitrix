@@ -9,6 +9,7 @@ orm:
 authentication:
   secret: "a-deep-dark-secret"
   support_otp: true
+  otp_length: 5
 cors:
   - http://localhost:9001 # This is the default port of https://github.com/coretrix/dev-frontend repository
   - http://localhost:63342 # websocket test

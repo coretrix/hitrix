@@ -96,4 +96,5 @@ authentication:
   auth_redis: default #optional , default is the default redis
   support_otp: true # if you want to support otp flow in your app
   otp_ttl: 120 #optional ,set it when you want to use otp, It is the ttl of otp code , default is 60 seconds
+  otp_length: 5 #optional, set if you want to customize the length of otp (i.e. Email OTP)
 ```
