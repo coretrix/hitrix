@@ -3,33 +3,24 @@ package authentication
 import (
 	"errors"
 	"fmt"
+	"math"
 	mail2 "net/mail"
-
-	"github.com/coretrix/hitrix/service/component/app"
-
-	"github.com/coretrix/hitrix/service/component/uuid"
-
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
-
-	"github.com/coretrix/hitrix/service/component/mail"
-	"github.com/coretrix/hitrix/service/component/social"
-
-	"github.com/coretrix/hitrix/service/component/clock"
-
-	"github.com/coretrix/hitrix/service/component/generator"
-
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/coretrix/hitrix/service/component/sms"
-
-	"github.com/dongri/phonenumber"
-
-	"github.com/go-redis/redis/v8"
-
+	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/coretrix/hitrix/service/component/clock"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+	"github.com/coretrix/hitrix/service/component/generator"
 	"github.com/coretrix/hitrix/service/component/jwt"
+	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/password"
+	"github.com/coretrix/hitrix/service/component/sms"
+	"github.com/coretrix/hitrix/service/component/social"
+	"github.com/coretrix/hitrix/service/component/uuid"
+	"github.com/dongri/phonenumber"
+	"github.com/go-redis/redis/v8"
 	"github.com/latolukasz/beeorm"
 )
 
@@ -67,6 +58,7 @@ type Authentication struct {
 	accessTokenTTL       int
 	refreshTokenTTL      int
 	otpTTL               int
+	otpLength            int
 	passwordService      password.IPassword
 	errorLoggerService   errorlogger.ErrorLogger
 	appService           *app.App
@@ -85,6 +77,7 @@ func NewAuthenticationService(
 	accessTokenTTL int,
 	refreshTokenTTL int,
 	otpTTL int,
+	otpLength int,
 	appService *app.App,
 	smsService sms.ISender,
 	generatorService generator.IGenerator,
@@ -101,6 +94,7 @@ func NewAuthenticationService(
 		accessTokenTTL:       accessTokenTTL,
 		refreshTokenTTL:      refreshTokenTTL,
 		otpTTL:               otpTTL,
+		otpLength:            otpLength,
 		passwordService:      passwordService,
 		errorLoggerService:   errorLoggerService,
 		jwtService:           jwtService,
@@ -181,7 +175,17 @@ func (t *Authentication) GenerateAndSendOTP(ormService *beeorm.Engine, mobile st
 		return nil, errors.New("phone number not valid")
 	}
 
-	code := t.generatorService.GenerateRandomRangeNumber(10000, 99999)
+	var code int64
+	if t.otpLength == 0 {
+		code = t.generatorService.GenerateRandomRangeNumber(10000, 99999)
+	} else {
+		// example, if t.otpLength = 5 (the default)
+		// min = 10 ^ (5-1) 	==> min = 10 ^ 4 		==> min = 10000
+		// max = (10 ^ 5) - 1   ==> max = 100000 - 1	==> max = 99999
+		min := int64(math.Pow(10, float64(t.otpLength-1)))
+		max := int64(math.Pow(10, float64(t.otpLength))) - 1
+		code = t.generatorService.GenerateRandomRangeNumber(min, max)
+	}
 
 	err := t.smsService.SendOTPSMS(ormService, t.errorLoggerService, &sms.OTP{
 		OTP: fmt.Sprint(code),
@@ -214,7 +218,18 @@ func (t *Authentication) GenerateAndSendOTPEmail(ormService *beeorm.Engine, emai
 		return nil, errors.New("mail address not valid")
 	}
 
-	code := t.generatorService.GenerateRandomRangeNumber(10000, 99999)
+	var code int64
+	if t.otpLength == 0 {
+		code = t.generatorService.GenerateRandomRangeNumber(10000, 99999)
+	} else {
+		// example, if t.otpLength = 5 (the default)
+		// min = 10 ^ (5-1) 	==> min = 10 ^ 4 		==> min = 10000
+		// max = (10 ^ 5) - 1   ==> max = 100000 - 1	==> max = 99999
+		min := int64(math.Pow(10, float64(t.otpLength-1)))
+		max := int64(math.Pow(10, float64(t.otpLength))) - 1
+		code = t.generatorService.GenerateRandomRangeNumber(min, max)
+	}
+
 	if t.mailService == nil {
 		panic("mail service is not registered")
 	}
