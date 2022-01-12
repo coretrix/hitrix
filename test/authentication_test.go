@@ -6,8 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dongri/phonenumber"
-
 	mocks2 "github.com/coretrix/hitrix/service/component/mail/mocks"
 
 	"github.com/coretrix/hitrix/service/component/authentication"
@@ -16,7 +14,6 @@ import (
 	"github.com/coretrix/hitrix/service"
 	clockMock "github.com/coretrix/hitrix/service/component/clock/mocks"
 	generatorMock "github.com/coretrix/hitrix/service/component/generator/mocks"
-	"github.com/coretrix/hitrix/service/component/sms"
 	smsMock "github.com/coretrix/hitrix/service/component/sms/mocks"
 	"github.com/coretrix/hitrix/service/registry"
 	"github.com/coretrix/hitrix/service/registry/mocks"
@@ -36,61 +33,6 @@ func createUser(input map[string]interface{}) *entity.DevPanelUserEntity {
 	}
 	ormService.Flush(devPanelUserEntity)
 	return devPanelUserEntity
-}
-
-func TestGenerateOTP(t *testing.T) {
-	t.Run("generate token", func(t *testing.T) {
-		mobile := "989375722346"
-		fakeSMS := &smsMock.FakeSMSSender{}
-		expectOTP := &sms.OTP{
-			OTP: "12345",
-			Phone: &sms.Phone{
-				Number:  mobile,
-				ISO3166: phonenumber.GetISO3166ByNumber(mobile, false),
-			},
-			Provider: &sms.Provider{
-				Primary:   sms.Kavenegar,
-				Secondary: sms.Twilio,
-			},
-			Template: "ICE-STORM",
-		}
-		fakeSMS.On("SendOTPSMS", expectOTP).Return(nil)
-
-		fakeClock := &clockMock.FakeSysClock{}
-		now := time.Unix(1, 0)
-		fakeClock.On("Now").Return(now)
-
-		otpTTL := time.Duration(registry.DefaultOTPTTLInSeconds) * time.Second
-
-		var min int64 = 10000
-		var max int64 = 99999
-		fakeGenerator := &generatorMock.FakeGenerator{}
-		fakeGenerator.On("GenerateRandomRangeNumber", min, max).Return(12345)
-		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), "989375722346", "12345")).Return("defjiwqwd")
-
-		createContextMyApp(t, "my-app", nil,
-			[]*service.DefinitionGlobal{
-				registry.ServiceProviderErrorLogger(),
-				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
-				registry.ServiceProviderUUID(),
-				mocks.ServiceProviderMockSMS(fakeSMS),
-				mocks.ServiceProviderMockGenerator(fakeGenerator),
-				mocks.ServiceProviderMockClock(fakeClock),
-				registry.ServiceProviderAuthentication(),
-			},
-			nil,
-		)
-		ormService := service.DI().OrmEngine()
-
-		authenticationService := service.DI().Authentication()
-		otpResp, err := authenticationService.GenerateAndSendOTP(ormService, "+989375722346", "IR")
-		assert.Nil(t, err)
-		assert.Equal(t, otpResp.Token, "defjiwqwd")
-		assert.Equal(t, otpResp.Mobile, "989375722346")
-		fakeGenerator.AssertExpectations(t)
-		fakeSMS.AssertExpectations(t)
-	})
 }
 
 func TestGenerateOTPEmail(t *testing.T) {
@@ -142,45 +84,6 @@ func TestGenerateOTPEmail(t *testing.T) {
 	})
 }
 
-func TestVerifyOTP(t *testing.T) {
-	t.Run("verify otp", func(t *testing.T) {
-		fakeSMS := &smsMock.FakeSMSSender{}
-
-		fakeClock := &clockMock.FakeSysClock{}
-		now := time.Unix(1, 0)
-		fakeClock.On("Now").Return(now)
-
-		otpTTL := time.Duration(registry.DefaultOTPTTLInSeconds) * time.Second
-
-		fakeGenerator := &generatorMock.FakeGenerator{}
-		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), "989375722346", "12345")).Return("defjiwqwd")
-
-		createContextMyApp(t, "my-app", nil,
-			[]*service.DefinitionGlobal{
-				registry.ServiceProviderErrorLogger(),
-				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
-				registry.ServiceProviderUUID(),
-				mocks.ServiceProviderMockSMS(fakeSMS),
-				mocks.ServiceProviderMockGenerator(fakeGenerator),
-				mocks.ServiceProviderMockClock(fakeClock),
-				registry.ServiceProviderAuthentication(),
-			},
-			nil,
-		)
-		authenticationService := service.DI().Authentication()
-
-		err := authenticationService.VerifyOTP("12345", &authentication.GenerateOTP{
-			Mobile:         "989375722346",
-			ExpirationTime: strconv.FormatInt(fakeClock.Now().Add(otpTTL).Unix(), 10),
-			Token:          "defjiwqwd",
-		})
-		assert.Nil(t, err)
-
-		fakeGenerator.AssertExpectations(t)
-		fakeSMS.AssertExpectations(t)
-	})
-}
 func TestVerifyOTPEmail(t *testing.T) {
 	t.Run("verify otp email", func(t *testing.T) {
 		fakeEmail := &mocks2.Sender{}
