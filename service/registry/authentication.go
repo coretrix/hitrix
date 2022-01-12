@@ -9,7 +9,6 @@ import (
 	"github.com/coretrix/hitrix/service/component/jwt"
 	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/password"
-	"github.com/coretrix/hitrix/service/component/sms"
 	"github.com/coretrix/hitrix/service/component/social"
 	"github.com/sarulabs/di"
 )
@@ -65,17 +64,6 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 			jwtService := ctn.Get(service.JWTService).(*jwt.JWT)
 			clockService := ctn.Get(service.ClockService).(clock.IClock)
 
-			supportOTPConfig, ok := configService.Bool("authentication.support_otp")
-
-			var smsService sms.ISender
-			if ok && supportOTPConfig {
-				var has bool
-				smsService, has = ctn.Get(service.SMSService).(sms.ISender)
-				if !has {
-					panic("sms service not loaded")
-				}
-			}
-
 			var mailService *mail.Sender
 			mailServiceHitrix, err := ctn.SafeGet(service.MailMandrillService)
 
@@ -117,7 +105,6 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				otpTTL,
 				otpLength,
 				appService,
-				smsService,
 				service.DI().Generator(),
 				service.DI().ErrorLogger(),
 				clockService,
