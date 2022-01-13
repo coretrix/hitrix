@@ -15,7 +15,7 @@ type FakeServiceFeatureFlag struct {
 
 func (s *FakeServiceFeatureFlag) IsActive(_ *beeorm.Engine, name string) bool {
 	called := s.Called(name)
-	return called.Bool(1)
+	return called.Bool(0)
 }
 
 func (s *FakeServiceFeatureFlag) FailIfIsNotActive(_ *beeorm.Engine, name string) error {
