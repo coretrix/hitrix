@@ -12,6 +12,8 @@ type ServiceInterface interface {
 	HTMLToPdf(html string) []byte
 }
 
+//TODO
+//nolint
 type PDFService struct {
 	chromeWebSocketURL string
 }

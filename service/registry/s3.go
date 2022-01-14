@@ -73,7 +73,6 @@ func ServiceProviderAmazonS3(bucketsMapping map[string]uint64) *service.Definiti
 
 			bucketsPublicURLConfigMap := map[string]map[string]string{}
 			for k, v := range bucketsPublicURLConfig.(map[interface{}]interface{}) {
-
 				bucketsPublicURLConfigInnerMap := map[string]string{}
 
 				for k1, v1 := range v.(map[interface{}]interface{}) {

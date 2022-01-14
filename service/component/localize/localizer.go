@@ -89,6 +89,8 @@ func (l *SimpleLocalizer) SaveBucketToFile(bucket string, path string) {
 	}
 	tempPairs := l.getBucketPairsWithoutPrefix(bucket)
 	jsonBytes, _ := json.MarshalIndent(tempPairs, "", " ")
+	//TODO
+	//nolint
 	err = ioutil.WriteFile(path, jsonBytes, 0644)
 	if err != nil {
 		panic(err)

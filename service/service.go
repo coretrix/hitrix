@@ -77,147 +77,147 @@ const (
 	FeatureFlagService      = "feature_flag"
 )
 
-type diContainer struct {
+type DIContainer struct {
 }
 
-var dicInstance = &diContainer{}
+var dicInstance = &DIContainer{}
 
-func DI() *diContainer {
+func DI() *DIContainer {
 	return dicInstance
 }
 
-func (d *diContainer) Checkout() checkout.ICheckout {
+func (d *DIContainer) Checkout() checkout.ICheckout {
 	return GetServiceRequired(CheckoutService).(checkout.ICheckout)
 }
 
-func (d *diContainer) Exporter() exporter.IExporter {
+func (d *DIContainer) Exporter() exporter.IExporter {
 	return GetServiceRequired(ExporterService).(exporter.IExporter)
 }
 
-func (d *diContainer) AmazonS3() s3.Client {
+func (d *DIContainer) AmazonS3() s3.Client {
 	return GetServiceRequired(AmazonS3Service).(s3.Client)
 }
 
-func (d *diContainer) Stripe() stripe.IStripe {
+func (d *DIContainer) Stripe() stripe.IStripe {
 	return GetServiceRequired(StripeService).(stripe.IStripe)
 }
 
-func (d *diContainer) App() *app.App {
+func (d *DIContainer) App() *app.App {
 	return GetServiceRequired(AppService).(*app.App)
 }
 
-func (d *diContainer) Config() config.IConfig {
+func (d *DIContainer) Config() config.IConfig {
 	return GetServiceRequired(ConfigService).(config.IConfig)
 }
 
-func (d *diContainer) OrmConfig() beeorm.ValidatedRegistry {
+func (d *DIContainer) OrmConfig() beeorm.ValidatedRegistry {
 	return GetServiceRequired(ORMConfigService).(beeorm.ValidatedRegistry)
 }
 
-func (d *diContainer) OrmEngine() *beeorm.Engine {
+func (d *DIContainer) OrmEngine() *beeorm.Engine {
 	return GetServiceRequired(ORMEngineGlobalService).(*beeorm.Engine)
 }
 
-func (d *diContainer) OrmEngineForContext(ctx context.Context) *beeorm.Engine {
+func (d *DIContainer) OrmEngineForContext(ctx context.Context) *beeorm.Engine {
 	return GetServiceForRequestRequired(ctx, ORMEngineRequestService).(*beeorm.Engine)
 }
 
-func (d *diContainer) JWT() *jwt.JWT {
+func (d *DIContainer) JWT() *jwt.JWT {
 	return GetServiceRequired(JWTService).(*jwt.JWT)
 }
 
-func (d *diContainer) SMS() sms.ISender {
+func (d *DIContainer) SMS() sms.ISender {
 	return GetServiceRequired(SMSService).(sms.ISender)
 }
 
-func (d *diContainer) Generator() generator.IGenerator {
+func (d *DIContainer) Generator() generator.IGenerator {
 	return GetServiceRequired(GeneratorService).(generator.IGenerator)
 }
 
-func (d *diContainer) Password() password.IPassword {
+func (d *DIContainer) Password() password.IPassword {
 	return GetServiceRequired(PasswordService).(password.IPassword)
 }
 
-func (d *diContainer) Slack() slack.Slack {
+func (d *DIContainer) Slack() slack.Slack {
 	return GetServiceRequired(SlackService).(slack.Slack)
 }
 
-func (d *diContainer) ErrorLogger() errorlogger.ErrorLogger {
+func (d *DIContainer) ErrorLogger() errorlogger.ErrorLogger {
 	return GetServiceRequired(ErrorLoggerService).(errorlogger.ErrorLogger)
 }
 
-func (d *diContainer) OSService() oss.IProvider {
+func (d *DIContainer) OSService() oss.IProvider {
 	return GetServiceRequired(OSService).(oss.IProvider)
 }
 
-func (d *diContainer) SocketRegistry() *socket.Registry {
+func (d *DIContainer) SocketRegistry() *socket.Registry {
 	return GetServiceRequired(SocketRegistryService).(*socket.Registry)
 }
 
-func (d *diContainer) APILogger() apilogger.IAPILogger {
+func (d *DIContainer) APILogger() apilogger.IAPILogger {
 	return GetServiceRequired(APILoggerService).(apilogger.IAPILogger)
 }
 
-func (d *diContainer) Clock() clock.IClock {
+func (d *DIContainer) Clock() clock.IClock {
 	return GetServiceRequired(ClockService).(clock.IClock)
 }
 
-func (d *diContainer) Setting() setting.ServiceSettingInterface {
+func (d *DIContainer) Setting() setting.ServiceSettingInterface {
 	return GetServiceRequired(SettingService).(setting.ServiceSettingInterface)
 }
 
-func (d *diContainer) Authentication() *authentication.Authentication {
+func (d *DIContainer) Authentication() *authentication.Authentication {
 	return GetServiceRequired(AuthenticationService).(*authentication.Authentication)
 }
 
-func (d *diContainer) MailMandrill() mail.Sender {
+func (d *DIContainer) MailMandrill() mail.Sender {
 	return GetServiceRequired(MailMandrillService).(mail.Sender)
 }
 
-func (d *diContainer) Google() *social.Google {
+func (d *DIContainer) Google() *social.Google {
 	return GetServiceRequired(GoogleService).(*social.Google)
 }
 
-func (d *diContainer) Uploader() uploader.Uploader {
+func (d *DIContainer) Uploader() uploader.Uploader {
 	return GetServiceRequired(UploaderService).(uploader.Uploader)
 }
 
-func (d *diContainer) Crud() *crud.Crud {
+func (d *DIContainer) Crud() *crud.Crud {
 	return GetServiceRequired(CrudService).(*crud.Crud)
 }
 
-func (d *diContainer) Localize() localize.ILocalizer {
+func (d *DIContainer) Localize() localize.ILocalizer {
 	return GetServiceRequired(LocalizeService).(localize.ILocalizer)
 }
 
-func (d *diContainer) FileExtractor() *fileextractor.FileExtractor {
+func (d *DIContainer) FileExtractor() *fileextractor.FileExtractor {
 	return GetServiceRequired(ExtractorService).(*fileextractor.FileExtractor)
 }
 
-func (d *diContainer) UUID() uuid.IUUID {
+func (d *DIContainer) UUID() uuid.IUUID {
 	return GetServiceRequired(UUIDService).(uuid.IUUID)
 }
 
-func (d *diContainer) OTP() otp.IOTP {
+func (d *DIContainer) OTP() otp.IOTP {
 	return GetServiceRequired(OTPService).(otp.IOTP)
 }
 
-func (d *diContainer) DDOS() ddos.IDDOS {
+func (d *DIContainer) DDOS() ddos.IDDOS {
 	return GetServiceRequired(DDOSService).(ddos.IDDOS)
 }
 
-func (d *diContainer) DynamicLink() dynamiclink.IGenerator {
+func (d *DIContainer) DynamicLink() dynamiclink.IGenerator {
 	return GetServiceRequired(DynamicLinkService).(dynamiclink.IGenerator)
 }
 
-func (d *diContainer) FCM() fcm.FCM {
+func (d *DIContainer) FCM() fcm.FCM {
 	return GetServiceRequired(FCMService).(fcm.FCM)
 }
 
-func (d *diContainer) PDF() pdf.ServiceInterface {
+func (d *DIContainer) PDF() pdf.ServiceInterface {
 	return GetServiceRequired(PDFService).(pdf.ServiceInterface)
 }
 
-func (d *diContainer) FeatureFlag() featureflag.ServiceFeatureFlagInterface {
+func (d *DIContainer) FeatureFlag() featureflag.ServiceFeatureFlagInterface {
 	return GetServiceRequired(FeatureFlagService).(featureflag.ServiceFeatureFlagInterface)
 }

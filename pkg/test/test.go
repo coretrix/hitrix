@@ -264,6 +264,8 @@ func executeAlters(ormService *beeorm.Engine) {
 func getRandomString() string {
 	rand.Seed(time.Now().UnixNano())
 	b := make([]byte, 10)
+	//TODO
+	//nolint
 	rand.Read(b)
 	return fmt.Sprintf("%x%d", b, os.Getpid())[:5]
 }
@@ -314,7 +316,6 @@ func truncateTables(dbService *beeorm.DB) error {
 		var queries string
 
 		for rows.Next() {
-
 			rows.Scan(&query)
 			queries += query
 		}

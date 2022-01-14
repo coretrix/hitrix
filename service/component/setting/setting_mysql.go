@@ -36,6 +36,7 @@ func (s *serviceSetting) Get(ormService *beeorm.Engine, key string) (*entity.Set
 
 	return settingEntity, true
 }
+
 func (s *serviceSetting) GetString(ormService *beeorm.Engine, key string) (string, bool) {
 	setting, found := s.Get(ormService, key)
 	if found {
@@ -44,6 +45,7 @@ func (s *serviceSetting) GetString(ormService *beeorm.Engine, key string) (strin
 
 	return "", false
 }
+
 func (s *serviceSetting) GetInt(ormService *beeorm.Engine, key string) (int, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
@@ -56,6 +58,7 @@ func (s *serviceSetting) GetInt(ormService *beeorm.Engine, key string) (int, boo
 
 	return int(i), true
 }
+
 func (s *serviceSetting) GetUint(ormService *beeorm.Engine, key string) (uint, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
@@ -68,6 +71,7 @@ func (s *serviceSetting) GetUint(ormService *beeorm.Engine, key string) (uint, b
 
 	return uint(i), true
 }
+
 func (s *serviceSetting) GetInt64(ormService *beeorm.Engine, key string) (int64, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
@@ -80,6 +84,7 @@ func (s *serviceSetting) GetInt64(ormService *beeorm.Engine, key string) (int64,
 
 	return i, true
 }
+
 func (s *serviceSetting) GetUint64(ormService *beeorm.Engine, key string) (uint64, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
@@ -92,6 +97,7 @@ func (s *serviceSetting) GetUint64(ormService *beeorm.Engine, key string) (uint6
 
 	return i, true
 }
+
 func (s *serviceSetting) GetFloat64(ormService *beeorm.Engine, key string) (float64, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
@@ -103,8 +109,8 @@ func (s *serviceSetting) GetFloat64(ormService *beeorm.Engine, key string) (floa
 	}
 
 	return i, true
-
 }
+
 func (s *serviceSetting) GetBool(ormService *beeorm.Engine, key string) (bool, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
