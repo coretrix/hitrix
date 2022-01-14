@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"runtime/debug"
 	"strings"
 	"time"
 
@@ -127,7 +126,7 @@ func (processor *BackgroundProcessor) runScript(s app.IScript) bool {
 					message = fmt.Sprint(err)
 				}
 
-				service.DI().ErrorLogger().LogError(message + "\n" + string(debug.Stack()))
+				service.DI().ErrorLogger().LogError(message)
 
 				valid = false
 			}
