@@ -1,8 +1,9 @@
 package mocks
 
 import (
-	"github.com/coretrix/hitrix/service/component/social"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/coretrix/hitrix/service/component/social"
 )
 
 type Google struct {

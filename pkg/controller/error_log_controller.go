@@ -6,12 +6,11 @@ import (
 	"strings"
 	"time"
 
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+	"github.com/gin-gonic/gin"
 
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/service"
-
-	"github.com/gin-gonic/gin"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 )
 
 type ErrorLogController struct {

@@ -1,9 +1,10 @@
 package registry
 
 import (
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	fileextractor "github.com/coretrix/hitrix/service/component/file_extractor"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderExtractor() *service.DefinitionGlobal {

@@ -12,9 +12,10 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/coretrix/hitrix/example/graph/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
+
+	"github.com/coretrix/hitrix/example/graph/model"
 )
 
 // region    ************************** generated!.gotpl **************************

@@ -15,20 +15,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/latolukasz/beeorm"
-
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	graphqlParser "github.com/coretrix/hitrix/pkg/test/graphql-parser"
+	"github.com/gin-gonic/gin"
 	"github.com/h2non/filetype"
-
-	"github.com/coretrix/hitrix/service"
-	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix"
-
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/gin-gonic/gin"
+	graphqlParser "github.com/coretrix/hitrix/pkg/test/graphql-parser"
+	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
 )
 
 var dbAlters string

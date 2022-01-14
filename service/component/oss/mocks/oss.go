@@ -3,10 +3,10 @@ package mocks
 import (
 	"time"
 
-	"github.com/coretrix/hitrix/service/component/oss"
-
 	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/coretrix/hitrix/service/component/oss"
 )
 
 type FakeOSSClient struct {

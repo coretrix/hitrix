@@ -3,12 +3,13 @@ package registry
 import (
 	"errors"
 
+	"github.com/latolukasz/beeorm"
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/config"
-	"github.com/latolukasz/beeorm"
-	"github.com/sarulabs/di"
 )
 
 // ServiceProviderAmazonS3 Be sure that you registered entity S3BucketCounterEntity

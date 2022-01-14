@@ -3,10 +3,11 @@ package account
 import (
 	"errors"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/view/account"
 	"github.com/coretrix/hitrix/service"
-	"github.com/gin-gonic/gin"
 )
 
 type LoginDevForm struct {

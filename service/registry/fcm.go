@@ -1,10 +1,11 @@
 package registry
 
 import (
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/fcm"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderFCM() *service.DefinitionGlobal {

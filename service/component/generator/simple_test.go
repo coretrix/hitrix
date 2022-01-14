@@ -3,8 +3,9 @@ package generator_test
 import (
 	"testing"
 
-	"github.com/coretrix/hitrix/service/component/generator"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/coretrix/hitrix/service/component/generator"
 )
 
 func TestGenerateRandomRangeNumber(t *testing.T) {

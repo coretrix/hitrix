@@ -3,11 +3,12 @@ package registry
 import (
 	"errors"
 
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/config"
 	stripe2 "github.com/coretrix/hitrix/service/component/stripe"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderStripe() *service.DefinitionGlobal {

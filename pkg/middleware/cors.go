@@ -3,10 +3,10 @@ package middleware
 import (
 	"time"
 
-	"github.com/coretrix/hitrix/service"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	"github.com/coretrix/hitrix/service"
 )
 
 func Cors(ginEngine *gin.Engine) {

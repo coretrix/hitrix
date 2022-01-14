@@ -3,8 +3,9 @@ package response
 import (
 	"net/http"
 
-	"github.com/coretrix/hitrix/pkg/errors"
 	"github.com/gin-gonic/gin"
+
+	"github.com/coretrix/hitrix/pkg/errors"
 )
 
 type Error struct {

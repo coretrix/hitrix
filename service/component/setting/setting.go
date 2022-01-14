@@ -1,8 +1,9 @@
 package setting
 
 import (
-	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/latolukasz/beeorm"
+
+	"github.com/coretrix/hitrix/pkg/entity"
 )
 
 type ServiceSettingInterface interface {

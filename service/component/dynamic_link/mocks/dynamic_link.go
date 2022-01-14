@@ -1,8 +1,9 @@
 package mocks
 
 import (
-	dynamiclink "github.com/coretrix/hitrix/service/component/dynamic_link"
 	"github.com/stretchr/testify/mock"
+
+	dynamiclink "github.com/coretrix/hitrix/service/component/dynamic_link"
 )
 
 type FakeDynamicLinksGenerator struct {

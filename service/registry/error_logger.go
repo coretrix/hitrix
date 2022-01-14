@@ -1,12 +1,13 @@
 package registry
 
 import (
+	"github.com/latolukasz/beeorm"
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/coretrix/hitrix/service/component/slack"
-	"github.com/latolukasz/beeorm"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderErrorLogger() *service.DefinitionGlobal {

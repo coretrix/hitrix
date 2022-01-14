@@ -4,14 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/coretrix/hitrix/service/component/app"
-
-	"github.com/coretrix/hitrix/service/registry"
-
-	"github.com/coretrix/hitrix/service"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix"
+	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/coretrix/hitrix/service/registry"
 )
 
 type testScript struct {

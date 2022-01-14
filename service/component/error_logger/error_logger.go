@@ -2,28 +2,25 @@ package errorlogger
 
 import (
 	"bytes"
-	"io/ioutil"
-	"math"
-	"net/http/httputil"
-
-	"github.com/coretrix/hitrix/service/component/slack"
-	slackgo "github.com/slack-go/slack"
-
-	"github.com/coretrix/hitrix/service/component/app"
-
-	//nolint
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"math"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"runtime"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
+	slackgo "github.com/slack-go/slack"
+
+	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/coretrix/hitrix/service/component/slack"
 )
 
 const GroupError = "error"

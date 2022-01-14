@@ -5,12 +5,11 @@ import (
 	"errors"
 	"time"
 
-	"github.com/coretrix/hitrix/pkg/entity"
-
-	"github.com/xorcare/pointer"
-
 	"github.com/latolukasz/beeorm"
 	"github.com/mattbaird/gochimp"
+	"github.com/xorcare/pointer"
+
+	"github.com/coretrix/hitrix/pkg/entity"
 )
 
 const (

@@ -3,10 +3,11 @@ package main
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/registry"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestApiLogger(t *testing.T) {

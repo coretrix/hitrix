@@ -5,12 +5,12 @@ import (
 	"log"
 	"os"
 
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/coretrix/hitrix/service/component/localize"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderLocalize(projectNameEnvVar string) *service.DefinitionGlobal {

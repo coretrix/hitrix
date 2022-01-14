@@ -8,19 +8,18 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/gin-contrib/timeout"
-
-	"github.com/coretrix/hitrix/pkg/helper"
-	"github.com/coretrix/hitrix/service"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+
+	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/coretrix/hitrix/service"
 )
 
 type GinInitHandler func(ginEngine *gin.Engine)

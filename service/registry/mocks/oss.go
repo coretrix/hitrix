@@ -1,10 +1,10 @@
 package mocks
 
 import (
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/oss"
-
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderMockOSS(mock oss.IProvider) *service.DefinitionGlobal {

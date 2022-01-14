@@ -8,17 +8,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/coretrix/hitrix/service/component/clock"
-
-	"github.com/coretrix/hitrix/pkg/helper"
-	"github.com/coretrix/hitrix/service/component/config"
-
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/option"
-
 	"cloud.google.com/go/storage"
 	"github.com/latolukasz/beeorm"
 	"golang.org/x/net/context"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
+
+	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/coretrix/hitrix/service/component/clock"
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 type GoogleOSS struct {
@@ -217,9 +215,9 @@ func (ossStorage *GoogleOSS) CreateObjectFromKey(ormService *beeorm.Engine, buck
 func (ossStorage *GoogleOSS) getObjectKey(path string, storageCounter uint64, fileExtension string) string {
 	if path != "" {
 		return path + "/" + strconv.FormatUint(storageCounter, 10) + fileExtension
-	} else {
-		return strconv.FormatUint(storageCounter, 10) + fileExtension
 	}
+
+	return strconv.FormatUint(storageCounter, 10) + fileExtension
 }
 
 //TODO Remove

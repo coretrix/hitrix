@@ -7,13 +7,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coretrix/hitrix/service/component/app"
-
 	"github.com/latolukasz/beeorm"
+	"github.com/ryanuber/columnize"
 
 	"github.com/coretrix/hitrix/service"
-
-	"github.com/ryanuber/columnize"
+	"github.com/coretrix/hitrix/service/component/app"
 )
 
 type BackgroundProcessor struct {

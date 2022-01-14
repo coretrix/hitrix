@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/latolukasz/beeorm"
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/otp"
-	"github.com/latolukasz/beeorm"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderOTP(forceProviders ...string) *service.DefinitionGlobal {

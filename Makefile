@@ -9,12 +9,12 @@ cover: ## Run tests with coverage and creates cover.out profile
 	@${GOPATH}/bin/go-acc ./... --output=resources/cover/cover.out --covermode=atomic
 
 format: ## Format go code with goimports
-	@go get -d golang.org/x/tools/cmd/goimports
-	@${GOPATH}/bin/goimports -l -w .
+	@go install github.com/rinchsan/gosimports/cmd/gosimports@latest
+	@find . -name \*.go -exec gosimports -local github.com/coretrix/hitrix/ -w {} \;
 
 format-check: ## Check if the code is formatted
-	@go get -d golang.org/x/tools/cmd/goimports
-	@for i in $$(${GOPATH}/bin/goimports -l .); do echo "[ERROR] Code is not formatted run 'make format'" && exit 1; done
+	@go install -v golang.org/x/tools/cmd/goimports@latest
+	@for i in $$(goimports -l .); do echo "Code is not formatted run 'make format'" && exit 1; done
 
 check: format-check cyclo ## Linting and static analysis
 	@if grep -r --include='*.go' -E "fmt.Print|spew.Dump" *; then \
@@ -22,8 +22,8 @@ check: format-check cyclo ## Linting and static analysis
 		exit 1; \
 	fi
 
-	@go install honnef.co/go/tools/cmd/staticcheck@latest;
-	@${GOPATH}/bin/staticcheck ./...;
+	@go install github.com/mgechev/revive@latest
+	@revive -config revive.toml -formatter friendly ./...
 
 cyclo: ## Cyclomatic complexities analysis
 	@go install github.com/fzipp/gocyclo/cmd/gocyclo@latest

@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/coretrix/hitrix/service"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/coretrix/hitrix/service"
 )
 
 type UploaderController struct {

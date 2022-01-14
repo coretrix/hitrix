@@ -5,11 +5,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/coretrix/hitrix/service"
+	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix"
-
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/hitrix/service"
 )
 
 type ConsumerOneByModulo interface {

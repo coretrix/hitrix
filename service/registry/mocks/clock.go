@@ -1,9 +1,10 @@
 package mocks
 
 import (
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/clock"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderMockClock(mock clock.IClock) *service.DefinitionGlobal {

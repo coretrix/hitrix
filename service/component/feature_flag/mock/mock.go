@@ -1,12 +1,13 @@
 package mock
 
 import (
+	"github.com/latolukasz/beeorm"
+	"github.com/stretchr/testify/mock"
+
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/clock"
 	featureflag "github.com/coretrix/hitrix/service/component/feature_flag"
-	"github.com/latolukasz/beeorm"
-	"github.com/stretchr/testify/mock"
 )
 
 type FakeServiceFeatureFlag struct {

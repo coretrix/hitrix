@@ -1,8 +1,9 @@
 package entity
 
 import (
-	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/latolukasz/beeorm"
+
+	"github.com/coretrix/hitrix/pkg/entity"
 )
 
 func Init(registry *beeorm.Registry) {

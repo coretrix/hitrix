@@ -3,11 +3,12 @@ package registry
 import (
 	"errors"
 
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/sms"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderSMS(entity sms.LogEntity) *service.DefinitionGlobal {

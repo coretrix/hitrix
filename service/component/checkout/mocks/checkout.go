@@ -4,8 +4,9 @@ import (
 	"github.com/checkout/checkout-sdk-go/instruments"
 	"github.com/checkout/checkout-sdk-go/payments"
 	"github.com/checkout/checkout-sdk-go/tokens"
-	"github.com/coretrix/hitrix/service/component/checkout"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/coretrix/hitrix/service/component/checkout"
 )
 
 type FakeCheckoutClient struct {

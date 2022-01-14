@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/coretrix/hitrix"
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 
+	"github.com/coretrix/hitrix"
 	model "github.com/coretrix/hitrix/example/model/socket"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/socket"
-
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 )
 
 var upGrader = websocket.Upgrader{

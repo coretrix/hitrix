@@ -9,6 +9,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-redis/redis/v8"
+	"github.com/latolukasz/beeorm"
+
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/clock"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
@@ -18,8 +21,6 @@ import (
 	"github.com/coretrix/hitrix/service/component/password"
 	"github.com/coretrix/hitrix/service/component/social"
 	"github.com/coretrix/hitrix/service/component/uuid"
-	"github.com/go-redis/redis/v8"
-	"github.com/latolukasz/beeorm"
 )
 
 const (

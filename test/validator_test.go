@@ -3,8 +3,9 @@ package main
 import (
 	"testing"
 
-	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/coretrix/hitrix/pkg/helper"
 )
 
 func TestBasicValidation(t *testing.T) {

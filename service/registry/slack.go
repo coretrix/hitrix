@@ -3,10 +3,11 @@ package registry
 import (
 	"errors"
 
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/slack"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderSlack() *service.DefinitionGlobal {

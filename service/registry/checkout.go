@@ -3,12 +3,13 @@ package registry
 import (
 	"errors"
 
+	"github.com/sarulabs/di"
+	"github.com/xorcare/pointer"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/checkout"
 	"github.com/coretrix/hitrix/service/component/config"
-	"github.com/sarulabs/di"
-	"github.com/xorcare/pointer"
 )
 
 func ServiceProviderCheckout() *service.DefinitionGlobal {

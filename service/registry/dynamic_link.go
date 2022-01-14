@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/dynamic_link/firebase"
-
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderDynamicLink() *service.DefinitionGlobal {

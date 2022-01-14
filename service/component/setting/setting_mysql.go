@@ -4,8 +4,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/latolukasz/beeorm"
+
+	"github.com/coretrix/hitrix/pkg/entity"
 )
 
 type serviceSetting struct {

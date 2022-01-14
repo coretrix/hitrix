@@ -3,10 +3,10 @@ package mocks
 import (
 	"time"
 
-	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
-
 	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/mock"
+
+	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 )
 
 type FakeS3Client struct {

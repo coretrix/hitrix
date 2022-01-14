@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"io/ioutil"
 
-	"github.com/coretrix/hitrix/service"
-
 	"github.com/gin-gonic/gin"
+
+	"github.com/coretrix/hitrix/service"
 )
 
 func recovery() gin.HandlerFunc {

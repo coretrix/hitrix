@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coretrix/hitrix/pkg/helper"
-
 	"github.com/kevinburke/twilio-go"
+
+	"github.com/coretrix/hitrix/pkg/helper"
 )
 
 type TwilioGateway struct {

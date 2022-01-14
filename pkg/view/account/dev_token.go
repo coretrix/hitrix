@@ -1,7 +1,6 @@
 package account
 
 import (
-	// #nosec
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/json"
@@ -11,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coretrix/hitrix/service"
-
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
+
+	"github.com/coretrix/hitrix/service"
 )
 
 const LoggedDevPanelUserEntity = "logged_dev_panel_user_entity"

@@ -4,13 +4,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/latolukasz/beeorm"
+	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
-
-	"github.com/sarulabs/di"
+	"github.com/coretrix/hitrix/service/component/mail"
 )
 
 // MailMandrill Be sure that you registered entity MailTrackerEntity

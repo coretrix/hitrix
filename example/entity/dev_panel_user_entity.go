@@ -11,18 +11,18 @@ type DevPanelUserEntity struct {
 	Password   string
 }
 
-func (e *DevPanelUserEntity) GetUniqueFieldName() string {
+func (u *DevPanelUserEntity) GetUniqueFieldName() string {
 	return "Email"
 }
 
-func (e *DevPanelUserEntity) GetUsername() string {
-	return e.Email
+func (u *DevPanelUserEntity) GetUsername() string {
+	return u.Email
 }
 
-func (e *DevPanelUserEntity) GetPassword() string {
-	return e.Password
+func (u *DevPanelUserEntity) GetPassword() string {
+	return u.Password
 }
 
-func (user *DevPanelUserEntity) CanAuthenticate() bool {
+func (u *DevPanelUserEntity) CanAuthenticate() bool {
 	return true
 }

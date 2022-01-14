@@ -1,9 +1,8 @@
 package mocks
 
 import (
-	"github.com/stripe/stripe-go/v72"
-
 	"github.com/stretchr/testify/mock"
+	"github.com/stripe/stripe-go/v72"
 )
 
 type FakeStripeClient struct {

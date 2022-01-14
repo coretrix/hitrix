@@ -3,10 +3,11 @@ package registry
 import (
 	"errors"
 
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
 	pdf "github.com/coretrix/hitrix/service/component/pdf"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderPDF() *service.DefinitionGlobal {

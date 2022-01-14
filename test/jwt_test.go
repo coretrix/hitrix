@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	jwt2 "github.com/coretrix/hitrix/service/component/jwt"
-
 	"github.com/stretchr/testify/assert"
+
+	jwt2 "github.com/coretrix/hitrix/service/component/jwt"
 )
 
 func TestJWTCreation(t *testing.T) {

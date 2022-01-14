@@ -4,10 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/coretrix/hitrix/service"
-	"github.com/coretrix/hitrix/service/registry"
 	"github.com/sarulabs/di"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/registry"
 )
 
 func TestExporter(t *testing.T) {

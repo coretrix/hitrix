@@ -4,13 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/coretrix/hitrix/service/component/app"
-
 	"github.com/stretchr/testify/assert"
 
-	"github.com/coretrix/hitrix/service"
-
 	"github.com/coretrix/hitrix"
+	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
 )
 
 type testScript2 struct {

@@ -5,13 +5,13 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/coretrix/hitrix/pkg/errors"
-
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	vEn "github.com/go-playground/validator/v10/translations/en"
 	"github.com/pariz/gountries"
+
+	"github.com/coretrix/hitrix/pkg/errors"
 )
 
 var (

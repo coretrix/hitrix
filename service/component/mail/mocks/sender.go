@@ -1,9 +1,10 @@
 package mocks
 
 import (
-	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/coretrix/hitrix/service/component/mail"
 )
 
 type Sender struct {

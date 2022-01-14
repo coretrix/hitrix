@@ -5,14 +5,12 @@ import (
 	"flag"
 	"os"
 
-	"github.com/coretrix/hitrix/service/registry"
+	"github.com/gin-gonic/gin"
+	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
-
-	"github.com/gin-gonic/gin"
-
-	"github.com/sarulabs/di"
+	"github.com/coretrix/hitrix/service/registry"
 )
 
 type Registry struct {

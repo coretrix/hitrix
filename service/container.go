@@ -5,10 +5,9 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service/component/app"
-
-	"github.com/sarulabs/di"
 )
 
 type key int

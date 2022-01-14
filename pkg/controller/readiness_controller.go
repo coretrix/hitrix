@@ -1,11 +1,11 @@
 package controller
 
 import (
-	"github.com/coretrix/hitrix/pkg/helper"
-	"github.com/coretrix/hitrix/service"
-
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
+
+	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/coretrix/hitrix/service"
 )
 
 type ReadinessController struct {

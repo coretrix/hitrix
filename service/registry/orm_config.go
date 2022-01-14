@@ -3,21 +3,18 @@ package registry
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/fatih/color"
-
-	"fmt"
-
-	"github.com/coretrix/hitrix/service/component/app"
-
-	"github.com/coretrix/hitrix/service"
-	"github.com/coretrix/hitrix/service/component/config"
+	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 type ORMRegistryInitFunc func(registry *beeorm.Registry)

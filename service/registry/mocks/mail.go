@@ -1,9 +1,10 @@
 package mocks
 
 import (
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/mail"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderMockMail(mock mail.Sender) *service.DefinitionGlobal {

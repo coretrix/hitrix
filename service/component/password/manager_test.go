@@ -3,8 +3,9 @@ package password_test
 import (
 	"testing"
 
-	"github.com/coretrix/hitrix/service/component/password"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/coretrix/hitrix/service/component/password"
 )
 
 func TestHashPasswordTrue(t *testing.T) {

@@ -1,9 +1,10 @@
 package mock
 
 import (
-	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/mock"
+
+	"github.com/coretrix/hitrix/pkg/entity"
 )
 
 type FakeServiceSetting struct {

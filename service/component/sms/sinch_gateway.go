@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/coretrix/hitrix/pkg/helper"
-
 	"github.com/coretrix/hitrix/service/component/clock"
 )
 
@@ -133,14 +132,14 @@ func (g *SinchGateway) getSinchHeaders() map[string]string {
 	}
 }
 
-func (g *SinchGateway) SendVerificationSMS(otp *OTP) (string, error) {
+func (g *SinchGateway) SendVerificationSMS(_ *OTP) (string, error) {
 	panic("not implemented.")
 }
 
-func (g *SinchGateway) SendVerificationCallout(otp *OTP) (string, error) {
+func (g *SinchGateway) SendVerificationCallout(_ *OTP) (string, error) {
 	panic("not implemented.")
 }
 
-func (g *SinchGateway) VerifyCode(opt *OTP) (string, error) {
+func (g *SinchGateway) VerifyCode(_ *OTP) (string, error) {
 	panic("not implemented.")
 }

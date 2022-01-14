@@ -8,15 +8,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/coretrix/hitrix/service/component/clock"
-
-	"github.com/coretrix/hitrix/service/component/config"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/latolukasz/beeorm"
+
+	"github.com/coretrix/hitrix/service/component/clock"
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 type AmazonOSS struct {
@@ -207,9 +206,9 @@ func (ossStorage *AmazonOSS) DeleteObject(bucket string, object *Object) error {
 func (ossStorage *AmazonOSS) getObjectKey(path string, storageCounter uint64, fileExtension string) string {
 	if path != "" {
 		return path + "/" + strconv.FormatUint(storageCounter, 10) + fileExtension
-	} else {
-		return strconv.FormatUint(storageCounter, 10) + fileExtension
 	}
+
+	return strconv.FormatUint(storageCounter, 10) + fileExtension
 }
 
 func (ossStorage *AmazonOSS) CreateObjectFromKey(ormService *beeorm.Engine, bucket, key string) Object {

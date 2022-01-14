@@ -3,15 +3,14 @@ package registry
 import (
 	"errors"
 
-	"github.com/coretrix/hitrix/service/component/config"
-	"github.com/coretrix/hitrix/service/component/oss"
-
-	"github.com/coretrix/hitrix/service"
-	"github.com/coretrix/hitrix/service/component/uploader"
-	"github.com/coretrix/hitrix/service/component/uploader/locker"
-
 	"github.com/sarulabs/di"
 	tusd "github.com/tus/tusd/pkg/handler"
+
+	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/config"
+	"github.com/coretrix/hitrix/service/component/oss"
+	"github.com/coretrix/hitrix/service/component/uploader"
+	"github.com/coretrix/hitrix/service/component/uploader/locker"
 )
 
 func ServiceProviderUploader(c tusd.Config, getLockerFunc locker.GetLockerFunc) *service.DefinitionGlobal {

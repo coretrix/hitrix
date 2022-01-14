@@ -3,49 +3,39 @@ package service
 import (
 	"context"
 
-	featureflag "github.com/coretrix/hitrix/service/component/feature_flag"
-
-	"github.com/coretrix/hitrix/service/component/setting"
-
-	"github.com/coretrix/hitrix/service/component/exporter"
-
-	"github.com/coretrix/hitrix/service/component/fcm"
-	"github.com/coretrix/hitrix/service/component/pdf"
-
-	"github.com/coretrix/hitrix/service/component/ddos"
-	dynamiclink "github.com/coretrix/hitrix/service/component/dynamic_link"
-
-	"github.com/coretrix/hitrix/service/component/otp"
-
-	"github.com/coretrix/hitrix/service/component/uuid"
-
-	"github.com/coretrix/hitrix/service/component/localize"
-
-	"github.com/coretrix/hitrix/service/component/crud"
-
-	"github.com/coretrix/hitrix/service/component/checkout"
+	"github.com/latolukasz/beeorm"
 
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 	apilogger "github.com/coretrix/hitrix/service/component/api_logger"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/authentication"
+	"github.com/coretrix/hitrix/service/component/checkout"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
+	"github.com/coretrix/hitrix/service/component/crud"
+	"github.com/coretrix/hitrix/service/component/ddos"
+	dynamiclink "github.com/coretrix/hitrix/service/component/dynamic_link"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+	"github.com/coretrix/hitrix/service/component/exporter"
+	"github.com/coretrix/hitrix/service/component/fcm"
+	featureflag "github.com/coretrix/hitrix/service/component/feature_flag"
 	fileextractor "github.com/coretrix/hitrix/service/component/file_extractor"
 	"github.com/coretrix/hitrix/service/component/generator"
 	"github.com/coretrix/hitrix/service/component/jwt"
+	"github.com/coretrix/hitrix/service/component/localize"
 	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/oss"
+	"github.com/coretrix/hitrix/service/component/otp"
 	"github.com/coretrix/hitrix/service/component/password"
+	"github.com/coretrix/hitrix/service/component/pdf"
+	"github.com/coretrix/hitrix/service/component/setting"
 	"github.com/coretrix/hitrix/service/component/slack"
 	"github.com/coretrix/hitrix/service/component/sms"
 	"github.com/coretrix/hitrix/service/component/social"
 	"github.com/coretrix/hitrix/service/component/socket"
 	"github.com/coretrix/hitrix/service/component/stripe"
 	"github.com/coretrix/hitrix/service/component/uploader"
-
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/hitrix/service/component/uuid"
 )
 
 const (

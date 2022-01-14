@@ -1,9 +1,10 @@
 package middleware
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/coretrix/hitrix/pkg/controller"
 	"github.com/coretrix/hitrix/service"
-	"github.com/gin-gonic/gin"
 )
 
 func Router(ginEngine *gin.Engine) {

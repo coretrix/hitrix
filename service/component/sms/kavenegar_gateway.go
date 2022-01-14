@@ -60,14 +60,14 @@ func (g *KavenegarGateway) SendCalloutMessage(message *Message) (string, error) 
 	return tts.StatusText, nil
 }
 
-func (g *KavenegarGateway) SendVerificationSMS(otp *OTP) (string, error) {
+func (g *KavenegarGateway) SendVerificationSMS(_ *OTP) (string, error) {
 	panic("not implemented.")
 }
 
-func (g *KavenegarGateway) SendVerificationCallout(otp *OTP) (string, error) {
+func (g *KavenegarGateway) SendVerificationCallout(_ *OTP) (string, error) {
 	panic("not implemented.")
 }
 
-func (g *KavenegarGateway) VerifyCode(opt *OTP) (string, error) {
+func (g *KavenegarGateway) VerifyCode(_ *OTP) (string, error) {
 	panic("not implemented.")
 }

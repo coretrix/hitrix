@@ -3,12 +3,12 @@ package main
 import (
 	"testing"
 
-	"github.com/coretrix/hitrix/service/component/app"
-
 	"github.com/99designs/gqlgen/graphql"
+
 	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/pkg/test"
 	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/registry"
 )
 

@@ -3,12 +3,11 @@ package scripts
 import (
 	"context"
 
-	"github.com/coretrix/hitrix/service/component/app"
-
-	"github.com/coretrix/hitrix/service"
+	"github.com/fatih/color"
 	"github.com/sarulabs/di"
 
-	"github.com/fatih/color"
+	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
 )
 
 func ORMAlters() *service.DefinitionGlobal {

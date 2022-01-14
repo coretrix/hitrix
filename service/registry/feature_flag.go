@@ -3,11 +3,12 @@ package registry
 import (
 	"errors"
 
+	"github.com/latolukasz/beeorm"
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	featureflag "github.com/coretrix/hitrix/service/component/feature_flag"
-	"github.com/latolukasz/beeorm"
-	"github.com/sarulabs/di"
 )
 
 type FeatureFlagRegistryInitFunc func(flagInterface featureflag.ServiceFeatureFlagInterface)

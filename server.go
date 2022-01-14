@@ -10,12 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/coretrix/hitrix/service/component/app"
-
-	"github.com/coretrix/hitrix/service"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/fatih/color"
 
-	"github.com/99designs/gqlgen/graphql"
+	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
 )
 
 type Hitrix struct {

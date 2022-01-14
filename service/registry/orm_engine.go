@@ -2,11 +2,11 @@ package registry
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/latolukasz/beeorm"
+	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
-	"github.com/latolukasz/beeorm"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderOrmEngine() *service.DefinitionGlobal {

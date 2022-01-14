@@ -1,9 +1,10 @@
 package featureflag
 
 import (
+	"github.com/latolukasz/beeorm"
+
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/clock"
-	"github.com/latolukasz/beeorm"
 )
 
 type ServiceFeatureFlagInterface interface {

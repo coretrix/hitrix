@@ -1,9 +1,10 @@
 package registry
 
 import (
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/generator"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderGenerator() *service.DefinitionGlobal {

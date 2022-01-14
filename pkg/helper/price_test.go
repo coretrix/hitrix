@@ -3,9 +3,9 @@ package helper_test
 import (
 	"testing"
 
-	"github.com/coretrix/hitrix/pkg/helper"
-
 	"github.com/stretchr/testify/assert"
+
+	"github.com/coretrix/hitrix/pkg/helper"
 )
 
 func TestNewPrice(t *testing.T) {

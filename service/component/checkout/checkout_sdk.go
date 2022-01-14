@@ -8,11 +8,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/checkout/checkout-sdk-go/instruments"
-	"github.com/checkout/checkout-sdk-go/tokens"
-
 	"github.com/checkout/checkout-sdk-go"
+	"github.com/checkout/checkout-sdk-go/instruments"
 	"github.com/checkout/checkout-sdk-go/payments"
+	"github.com/checkout/checkout-sdk-go/tokens"
 )
 
 type Checkout struct {

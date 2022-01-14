@@ -1,10 +1,11 @@
 package registry
 
 import (
+	"github.com/sarulabs/di"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/goroutine"
 	"github.com/coretrix/hitrix/service/component/socket"
-	"github.com/sarulabs/di"
 )
 
 func ServiceProviderSocketRegistry(eventHandlersMap socket.NamespaceEventHandlerMap) *service.DefinitionGlobal {

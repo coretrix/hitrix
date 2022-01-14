@@ -6,10 +6,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/gookit/config"
 	"github.com/gookit/config/yaml"
 	"github.com/joho/godotenv"
-
-	"github.com/gookit/config"
 )
 
 type IConfig interface {

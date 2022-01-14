@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/coretrix/hitrix"
 	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/example/graph"
@@ -12,7 +14,6 @@ import (
 	"github.com/coretrix/hitrix/service/component/oss"
 	"github.com/coretrix/hitrix/service/component/socket"
 	"github.com/coretrix/hitrix/service/registry"
-	"github.com/gin-gonic/gin"
 )
 
 var eventHandlersMap = socket.NamespaceEventHandlerMap{

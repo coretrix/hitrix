@@ -3,14 +3,11 @@ package uploader
 import (
 	"net/http"
 
-	"github.com/aws/aws-sdk-go/service/s3"
-
-	"github.com/tus/tusd/pkg/gcsstore"
-	"github.com/tus/tusd/pkg/s3store"
-
-	tusd "github.com/tus/tusd/pkg/handler"
-
 	"cloud.google.com/go/storage"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/tus/tusd/pkg/gcsstore"
+	tusd "github.com/tus/tusd/pkg/handler"
+	"github.com/tus/tusd/pkg/s3store"
 )
 
 type Uploader interface {

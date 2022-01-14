@@ -6,18 +6,17 @@ import (
 	"testing"
 	"time"
 
-	mocks2 "github.com/coretrix/hitrix/service/component/mail/mocks"
-
-	"github.com/coretrix/hitrix/service/component/authentication"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/authentication"
 	clockMock "github.com/coretrix/hitrix/service/component/clock/mocks"
 	generatorMock "github.com/coretrix/hitrix/service/component/generator/mocks"
+	mocks2 "github.com/coretrix/hitrix/service/component/mail/mocks"
 	smsMock "github.com/coretrix/hitrix/service/component/sms/mocks"
 	"github.com/coretrix/hitrix/service/registry"
 	"github.com/coretrix/hitrix/service/registry/mocks"
-	"github.com/stretchr/testify/assert"
 )
 
 func createUser(input map[string]interface{}) *entity.DevPanelUserEntity {

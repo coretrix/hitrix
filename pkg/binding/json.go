@@ -3,10 +3,10 @@ package binding
 import (
 	"fmt"
 
-	"github.com/coretrix/hitrix/pkg/errors"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+
+	"github.com/coretrix/hitrix/pkg/errors"
 )
 
 func ShouldBindJSON(c *gin.Context, form interface{}) error {

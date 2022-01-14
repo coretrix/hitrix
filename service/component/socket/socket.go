@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"time"
 
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/gorilla/websocket"
+
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 )
 
 type Connection struct {

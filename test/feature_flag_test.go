@@ -3,13 +3,12 @@ package main
 import (
 	"testing"
 
-	"github.com/coretrix/hitrix/service/component/app"
-
-	featureflag "github.com/coretrix/hitrix/service/component/feature_flag"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
+	featureflag "github.com/coretrix/hitrix/service/component/feature_flag"
 	"github.com/coretrix/hitrix/service/registry"
-	"github.com/stretchr/testify/assert"
 )
 
 func initFeatures(flagInterface featureflag.ServiceFeatureFlagInterface) {

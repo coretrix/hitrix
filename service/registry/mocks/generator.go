@@ -1,8 +1,9 @@
 package mocks
 
 import (
-	"github.com/coretrix/hitrix/service"
 	"github.com/sarulabs/di"
+
+	"github.com/coretrix/hitrix/service"
 )
 
 func ServiceProviderMockGenerator(mock interface{}) *service.DefinitionGlobal {

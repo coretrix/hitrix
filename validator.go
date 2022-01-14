@@ -4,10 +4,10 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/coretrix/hitrix/pkg/helper"
-
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/gqlerror"
+
+	"github.com/coretrix/hitrix/pkg/helper"
 )
 
 func ValidateDirective() func(ctx context.Context, obj interface{}, next graphql.Resolver, rules string) (interface{}, error) {

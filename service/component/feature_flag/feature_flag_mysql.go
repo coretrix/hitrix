@@ -4,13 +4,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/coretrix/hitrix/service/component/app"
-
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/clock"
-	"github.com/latolukasz/beeorm"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 )
 
 type IFeatureFlag interface {

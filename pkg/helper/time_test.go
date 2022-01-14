@@ -4,11 +4,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/coretrix/hitrix/pkg/helper"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGetTimeDifference(t *testing.T) {

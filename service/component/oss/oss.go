@@ -7,9 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/latolukasz/beeorm"
+
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/config"
-	"github.com/latolukasz/beeorm"
 )
 
 const ProviderGoogleOSS = 1
