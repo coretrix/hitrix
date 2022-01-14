@@ -22,8 +22,10 @@ check: format-check cyclo ## Linting and static analysis
 		exit 1; \
 	fi
 
-	@go install github.com/mgechev/revive@latest
-	@revive -config revive.toml -formatter friendly ./...
+	@if test ! -e ./bin/golangci-lint; then \
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.43.0; \
+	fi
+	@./bin/golangci-lint run --timeout 180s -E gosec -E stylecheck -E revive -E goimports -E whitespace
 
 cyclo: ## Cyclomatic complexities analysis
 	@go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
