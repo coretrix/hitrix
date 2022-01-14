@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"runtime/debug"
 	"time"
 
 	"github.com/gin-contrib/timeout"
@@ -113,13 +112,12 @@ func graphqlHandler(server graphql.ExecutableSchema, gqlServerInitHandler GQLSer
 		} else {
 			message = fmt.Sprint(err)
 		}
-		errorMessage := message + "\n" + string(debug.Stack())
 
 		ginContext := ctx.Value(service.GinKey).(*gin.Context)
 		requestBody := ctx.Value(service.RequestBodyKey).([]byte)
 		ginContext.Request.Body = ioutil.NopCloser(bytes.NewReader(requestBody))
 
-		service.DI().ErrorLogger().LogErrorWithRequest(ginContext, errors.New(errorMessage))
+		service.DI().ErrorLogger().LogErrorWithRequest(ginContext, errors.New(message))
 
 		return errors.New("internal server error")
 	})
