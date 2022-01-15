@@ -38,17 +38,16 @@ type ConsumerMany interface {
 }
 
 type ConsumerRunner struct {
-	ctx        context.Context
-	ormService *beeorm.Engine
+	ctx context.Context
 }
 
-func NewConsumerRunner(ctx context.Context, ormService *beeorm.Engine) *ConsumerRunner {
-	return &ConsumerRunner{ctx: ctx, ormService: ormService}
+func NewConsumerRunner(ctx context.Context) *ConsumerRunner {
+	return &ConsumerRunner{ctx: ctx}
 }
 
 func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix *string, prefetchCount int) {
-	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 	ormService := service.DI().OrmEngine().Clone()
+	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 
 	var attempts uint8
 
@@ -75,8 +74,9 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 }
 
 func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *string, prefetchCount int) {
-	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 	ormService := service.DI().OrmEngine().Clone()
+
+	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 
 	eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 		for _, event := range events {
@@ -95,7 +95,7 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 		hitrix.GoroutineWithRestart(func() {
 			ormService := service.DI().OrmEngine().Clone()
 
-			eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
+			eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
 			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 				for _, event := range events {
 					if err := consumer.Consume(ormService, event); err != nil {
@@ -114,7 +114,7 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 		hitrix.GoroutineWithRestart(func() {
 			ormService := service.DI().OrmEngine().Clone()
-			eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
+			eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
 			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 				if err := consumer.Consume(ormService, events); err != nil {
 					panic(err)
