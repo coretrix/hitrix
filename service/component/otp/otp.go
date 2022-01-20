@@ -1,10 +1,11 @@
 package otp
 
 import (
-	//nolint
+	// nolint
 	"crypto/md5"
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -22,8 +23,9 @@ type IOTP interface {
 }
 
 type OTP struct {
-	GatewayPriority []IOTPSMSGateway
-	GatewayName     map[string]IOTPSMSGateway
+	GatewayPriority         []IOTPSMSGateway
+	GatewayName             map[string]IOTPSMSGateway
+	GatewayPhonePrefixRegex map[*regexp.Regexp]IOTPSMSGateway
 }
 
 type Phone struct {
@@ -33,19 +35,39 @@ type Phone struct {
 
 func NewOTP(gateways ...IOTPSMSGateway) *OTP {
 	otp := &OTP{
-		GatewayPriority: make([]IOTPSMSGateway, len(gateways)),
-		GatewayName:     map[string]IOTPSMSGateway{},
+		GatewayPriority:         make([]IOTPSMSGateway, 0),
+		GatewayName:             map[string]IOTPSMSGateway{},
+		GatewayPhonePrefixRegex: map[*regexp.Regexp]IOTPSMSGateway{},
 	}
 
-	for i, gateway := range gateways {
+	for _, gateway := range gateways {
 		_, has := otp.GatewayName[gateway.GetName()]
 
 		if has {
 			panic("OTPProviders duplicated for name: " + gateway.GetName())
 		}
 
-		otp.GatewayPriority[i] = gateway
 		otp.GatewayName[gateway.GetName()] = gateway
+
+		phonePrefixes := gateway.GetPhonePrefixes()
+		if phonePrefixes == nil {
+			otp.GatewayPriority = append(otp.GatewayPriority, gateway)
+		} else {
+			regex := "^"
+			for i, phonePrefix := range phonePrefixes {
+				regex += "(\\" + phonePrefix + ")"
+				if i < len(phonePrefixes)-1 {
+					regex += "|"
+				}
+			}
+
+			compiledRegex, err := regexp.Compile(regex)
+			if err != nil {
+				panic(err)
+			}
+
+			otp.GatewayPhonePrefixRegex[compiledRegex] = gateway
+		}
 	}
 
 	return otp
@@ -55,7 +77,19 @@ func (o *OTP) SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error) {
 	var code string
 	var err error
 
-	for priority, gateway := range o.GatewayPriority {
+	gatewayPriority := make([]IOTPSMSGateway, 0)
+
+	for regex, gateway := range o.GatewayPhonePrefixRegex {
+		if regex.MatchString(phone.Number) {
+			gatewayPriority = append(gatewayPriority, gateway)
+		}
+	}
+
+	if len(gatewayPriority) == 0 {
+		gatewayPriority = o.GatewayPriority
+	}
+
+	for priority, gateway := range gatewayPriority {
 		code = gateway.GetCode()
 
 		otpTrackerEntity := &entity.OTPTrackerEntity{
@@ -135,7 +169,7 @@ func (o *OTP) VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (b
 	var otpRequestValid bool
 	var otpCodeValid bool
 
-	otpTrackerEntity.GatewayVerifyRequest, otpTrackerEntity.GatewayVerifyResponse, otpRequestValid, otpCodeValid, err = gateway.VerifyOTP(phone, code)
+	otpTrackerEntity.GatewayVerifyRequest, otpTrackerEntity.GatewayVerifyResponse, otpRequestValid, otpCodeValid, err = gateway.VerifyOTP(phone, code, otpTrackerEntity.Code)
 
 	//TODO add error to tracker
 	if err != nil {

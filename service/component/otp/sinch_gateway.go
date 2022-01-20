@@ -36,6 +36,10 @@ func (s *Sinch) GetCode() string {
 	return ""
 }
 
+func (s *Sinch) GetPhonePrefixes() []string {
+	return nil
+}
+
 func (s *Sinch) SendOTP(phone *Phone, _ string) (string, string, error) {
 	body := &struct {
 		Identity *struct {
@@ -85,7 +89,7 @@ func (s *Sinch) Call(_ *Phone, _ string, _ string) (string, string, error) {
 	return "", "", nil
 }
 
-func (s *Sinch) VerifyOTP(phone *Phone, code string) (string, string, bool, bool, error) {
+func (s *Sinch) VerifyOTP(phone *Phone, code, _ string) (string, string, bool, bool, error) {
 	body := &struct {
 		Method string `json:"method"`
 		SMS    *struct {
