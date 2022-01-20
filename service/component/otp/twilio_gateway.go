@@ -33,6 +33,10 @@ func (t *Twilio) GetCode() string {
 	return ""
 }
 
+func (t *Twilio) GetPhonePrefixes() []string {
+	return nil
+}
+
 func (t *Twilio) SendOTP(phone *Phone, _ string) (string, string, error) {
 	createVerificationParams := &openapi.CreateVerificationParams{}
 
@@ -95,7 +99,7 @@ func (t *Twilio) Call(phone *Phone, _ string, customMessage string) (string, str
 	return request, response, nil
 }
 
-func (t *Twilio) VerifyOTP(phone *Phone, code string) (string, string, bool, bool, error) {
+func (t *Twilio) VerifyOTP(phone *Phone, code, _ string) (string, string, bool, bool, error) {
 	createVerificationCheckParams := &openapi.CreateVerificationCheckParams{}
 
 	createVerificationCheckParams.SetTo(phone.Number)
