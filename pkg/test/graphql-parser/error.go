@@ -2,6 +2,7 @@ package graphqlparser
 
 type Errors []struct {
 	Message   string
+	Path      []string
 	Locations []struct {
 		Line   int
 		Column int
