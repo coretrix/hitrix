@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	"github.com/anton-shumanski/clockwork"
 	"github.com/latolukasz/beeorm"
 
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
@@ -51,6 +52,7 @@ const (
 	ORMConfigService        = "orm_config"
 	ORMEngineGlobalService  = "orm_engine_global"
 	ORMEngineRequestService = "orm_engine_request"
+	ClockWorkRequestService = "clockwork_request"
 	OSService               = "oss"
 	PasswordService         = "password"
 	SlackService            = "slack"
@@ -120,6 +122,10 @@ func (d *DIContainer) OrmEngine() *beeorm.Engine {
 
 func (d *DIContainer) OrmEngineForContext(ctx context.Context) *beeorm.Engine {
 	return GetServiceForRequestRequired(ctx, ORMEngineRequestService).(*beeorm.Engine)
+}
+
+func (d *DIContainer) ClockWorkForContext(ctx context.Context) *clockwork.Clockwork {
+	return GetServiceForRequestRequired(ctx, ClockWorkRequestService).(*clockwork.Clockwork)
 }
 
 func (d *DIContainer) JWT() *jwt.JWT {
