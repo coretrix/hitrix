@@ -19,7 +19,7 @@ registry.ServiceProviderClockWorkForContext()
 
 Access the service:
 ```go
-service.DI().ClockWorkForContext(ctx).GetLoggerDataSource().LogDebugString("key", "test")
+service.DI().ClockWorkForContext(ctx).GetLoggerDataSource()
 ```
 
 There are 2 steps that also needs to be done:
@@ -41,4 +41,9 @@ There are 2 steps that also needs to be done:
 
 	var clockwork *hitrixController.ClockworkController
 	ginEngine.GET("/__clockwork/:id", clockwork.GetIndexAction)
+```
+
+You also are able to send your own data to clockwork and use it as a logger to debug easily. You can do it in that way anywhere in your code:
+```go
+	service.DI().ClockWorkForContext(ctx).GetLoggerDataSource().LogDebugString("key", "test")
 ```

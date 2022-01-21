@@ -162,6 +162,10 @@ module.exports = {
                                 text: 'Feature flags',
                                 link: '/guide/services/feature_flag',
                             },
+                            {
+                                text: 'ClockWork',
+                                link: '/guide/services/clockwork',
+                            },
                         ],
                     },
                     {
