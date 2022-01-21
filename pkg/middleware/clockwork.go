@@ -61,6 +61,9 @@ func (h *clockWorkHandler) Handle(log map[string]interface{}) {
 		milliseconds := float32(microseconds) / float32(1000)
 		query := fmt.Sprint(log["query"])
 		h.DatabaseDataSource.LogQuery("clickhouse", query, milliseconds, nil)
+	} else if log["source"] == "local_cache" {
+		query := fmt.Sprint(log["query"])
+		h.DatabaseDataSource.LogQuery("local_cache", query, 0, nil)
 	}
 }
 
