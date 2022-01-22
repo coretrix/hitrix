@@ -9,7 +9,7 @@ require (
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.14.0
 	github.com/AmirSoleimani/VoucherCodeGenerator v0.0.0-20201014193813-0206853dccb9
-	github.com/anton-shumanski/clockwork v0.0.3
+	github.com/anton-shumanski/clockwork v0.0.6
 	github.com/aws/aws-sdk-go v1.38.39
 	github.com/checkout/checkout-sdk-go v0.0.19
 	github.com/chromedp/cdproto v0.0.0-20210910012206-68626162910d
@@ -58,3 +58,6 @@ require (
 	google.golang.org/api v0.56.0
 	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83 // indirect
 )
+
+replace github.com/anton-shumanski/clockwork => "/Users/shumanski/GolandProjects/clockwork"
+

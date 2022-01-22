@@ -14,8 +14,9 @@ import (
 )
 
 type clockWorkHandler struct {
-	DatabaseDataSource dataSource.QueryLoggerDataSourceInterface
-	RedisDataSource    dataSource.CacheLoggerDataSourceInterface
+	DatabaseDataSource   dataSource.QueryLoggerDataSourceInterface
+	RedisDataSource      dataSource.CacheLoggerDataSourceInterface
+	LocalCacheDataSource dataSource.UserDataSourceInterface
 }
 
 func (h *clockWorkHandler) Handle(log map[string]interface{}) {
@@ -25,21 +26,17 @@ func (h *clockWorkHandler) Handle(log map[string]interface{}) {
 		query := log["query"].(string)
 		h.DatabaseDataSource.LogQuery("mysql", query, milliseconds, nil)
 	} else if log["source"] == "redis" {
-		misses, hasMisses := log["misses"]
+		_, hasMisses := log["miss"]
 		operation := log["operation"].(string)
 		if strings.Contains(operation, "profiler_store.") {
 			return
 		}
 
-		missesInt := 0
-		if hasMisses {
-			missesInt = misses.(int)
-		}
 		microseconds := log["microseconds"].(int64)
 		milliseconds := float32(microseconds) / float32(1000)
 
-		if missesInt == 1 {
-			h.RedisDataSource.LogCacheMiss(log["pool"].(string), operation, log["query"].(string), "", missesInt, milliseconds, 0)
+		if hasMisses {
+			h.RedisDataSource.LogCacheMiss(log["pool"].(string), operation, log["query"].(string), "", 1, milliseconds, 0)
 		} else {
 			h.RedisDataSource.LogCache(log["pool"].(string), dataSource.CacheHit, operation, log["query"].(string), "", milliseconds, 0)
 		}
@@ -62,8 +59,7 @@ func (h *clockWorkHandler) Handle(log map[string]interface{}) {
 		query := fmt.Sprint(log["query"])
 		h.DatabaseDataSource.LogQuery("clickhouse", query, milliseconds, nil)
 	} else if log["source"] == "local_cache" {
-		query := fmt.Sprint(log["query"])
-		h.DatabaseDataSource.LogQuery("local_cache", query, 0, nil)
+		h.LocalCacheDataSource.LogTable(map[string]interface{}{"Operation": log["operation"], "Query": log["query"]}, "Queries", nil)
 	}
 }
 
@@ -93,7 +89,13 @@ func Clockwork(ginEngine *gin.Engine) {
 		var requestDataSource dataSource.RequestLoggerDataSourceInterface = &dataSource.RequestResponseDataSource{}
 		profilerService.SetRequestDataSource(requestDataSource)
 
-		clockWorkHandler := clockWorkHandler{DatabaseDataSource: databaseDataSource, RedisDataSource: redisDataSource}
+		var localCacheDataSource dataSource.UserDataSourceInterface = new(dataSource.UserDataDataSource)
+		profilerService.AddDataSource(localCacheDataSource)
+
+		localCacheDataSource.SetShowAs("table")
+		localCacheDataSource.SetTitle("Local Cache")
+
+		clockWorkHandler := clockWorkHandler{DatabaseDataSource: databaseDataSource, RedisDataSource: redisDataSource, LocalCacheDataSource: localCacheDataSource}
 		ormService.RegisterQueryLogger(&clockWorkHandler, true, true, true)
 
 		profilerKey := c.Request.Header.Get("CoreTrix")
