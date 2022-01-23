@@ -59,5 +59,3 @@ require (
 	google.golang.org/genproto v0.0.0-20210903162649-d08c68adba83 // indirect
 )
 
-replace github.com/anton-shumanski/clockwork => "/Users/shumanski/GolandProjects/clockwork"
-
