@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
@@ -219,7 +220,7 @@ func (controller *DevPanelController) GetRedisSearchAlters(c *gin.Context) {
 		if force != "" {
 			alter.Execute()
 		} else {
-			result[i] = alter.Query
+			result[i] = alter.Query + " (" + strings.Join(alter.Changes, ", ") + ")"
 		}
 	}
 
