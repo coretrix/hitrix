@@ -1,7 +1,8 @@
 slack:
-  token: "your token"
   error_channel: ""
   dev_panel_url: ""
+  bot_tokens:
+    errors: "your token"
 
 stripe:
   key: "api_key"

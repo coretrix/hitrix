@@ -7,7 +7,7 @@ import (
 type Slack interface {
 	GetDevPanelURL() string
 	GetErrorChannel() string
-	SendToChannel(channelName, message string, opt ...slack.MsgOption) error
+	SendToChannel(botName, channelName, message string, opt ...slack.MsgOption) error
 }
 
 //TODO refactor

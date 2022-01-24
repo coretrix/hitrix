@@ -16,15 +16,15 @@ func ServiceProviderSlack() *service.DefinitionGlobal {
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 
-			token, ok := configService.String("slack.token")
+			botTokens, ok := configService.Get("slack.bot_tokens")
 			if !ok {
-				return nil, errors.New("missing slack.token")
+				return nil, errors.New("missing slack.bot_tokens")
 			}
 
 			errorChannel, _ := configService.String("slack.error_channel")
 			devPanelURL, _ := configService.String("slack.dev_panel_url")
 
-			return slack.NewSlackGo(token, errorChannel, devPanelURL), nil
+			return slack.NewSlackGo(botTokens.(map[string]string), errorChannel, devPanelURL), nil
 		},
 	}
 }
