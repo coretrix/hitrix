@@ -113,6 +113,7 @@ func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
 
 	if (e.slackService != nil && !e.appService.IsInLocalMode() && !e.appService.IsInTestMode()) && logg == float64(int64(logg)) {
 		_ = e.slackService.SendToChannel(
+			"errors",
 			e.slackService.GetErrorChannel(),
 			value.Message,
 			slackgo.MsgOptionAttachments(
