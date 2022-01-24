@@ -138,6 +138,10 @@ func madaSMSOTPProviderBuilder(configService config.IConfig, generatorService ge
 	if !ok {
 		return nil, errors.New("missing sms.mada.url")
 	}
+	sourceName, ok := configService.String("sms.mada.source_name")
+	if !ok {
+		return nil, errors.New("missing sms.mada.source_name")
+	}
 
 	var otpLength int
 	otpLengthConfig, ok := configService.Int("authentication.otp_length")
@@ -145,5 +149,5 @@ func madaSMSOTPProviderBuilder(configService config.IConfig, generatorService ge
 		otpLength = otpLengthConfig
 	}
 
-	return otp.NewMadaSMSOTPProvider(username, password, url, otpLength, phonePrefixes, generatorService), nil
+	return otp.NewMadaSMSOTPProvider(username, password, url, sourceName, otpLength, phonePrefixes, generatorService), nil
 }
