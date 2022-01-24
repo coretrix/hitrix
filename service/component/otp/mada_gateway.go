@@ -2,12 +2,14 @@ package otp
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/coretrix/hitrix/service/component/generator"
@@ -19,16 +21,18 @@ type Mada struct {
 	username         string
 	password         string
 	url              string
+	sourceName       string
 	otpLength        int
 	phonePrefixes    []string
 	generatorService generator.IGenerator
 }
 
-func NewMadaSMSOTPProvider(username, password, url string, otpLength int, phonePrefixes []string, generatorService generator.IGenerator) *Mada {
+func NewMadaSMSOTPProvider(username, password, url, sourceName string, otpLength int, phonePrefixes []string, generatorService generator.IGenerator) *Mada {
 	return &Mada{
 		username:         username,
 		password:         password,
 		url:              url,
+		sourceName:       sourceName,
 		otpLength:        otpLength,
 		phonePrefixes:    phonePrefixes,
 		generatorService: generatorService,
@@ -70,25 +74,26 @@ func (m *Mada) VerifyOTP(_ *Phone, code, generatedCode string) (string, string, 
 }
 
 func (m *Mada) soapCall(recipientPhoneNumber, otp string) (string, string, error) {
-	v := soapRQ{
+	v := &soapRQ{
 		XMLNsXSI:     "http://www.w3.org/2001/XMLSchema-instance",
 		XMLNsXSD:     "http://www.w3.org/2001/XMLSchema",
 		XMLNsSoapEnv: "http://schemas.xmlsoap.org/soap/envelope/",
-		Body: soapBody{
-			SOS: sos{
+		XMLNsSOS:     "http://www.openmindnetworks.com/SoS",
+		Body: &soapBody{
+			SOS: &sos{
 				SoapEnv: "http://schemas.xmlsoap.org/soap/encoding/",
-				SMRequest: smRequest{
-					Source: source{
+				SMRequest: &smRequest{
+					Source: &source{
 						TON:  "5",
 						NPI:  "1",
-						ADDR: "Riverstream",
+						ADDR: m.sourceName,
 					},
-					Destination: destination{
+					Destination: &destination{
 						TON:  "1",
 						NPI:  "1",
-						ADDR: recipientPhoneNumber,
+						ADDR: strings.TrimPrefix(recipientPhoneNumber, "+"),
 					},
-					ShortMessage: shortMessage{
+					ShortMessage: &shortMessage{
 						StringData: otp,
 					},
 					RegisteredDelivery: "1",
@@ -107,14 +112,13 @@ func (m *Mada) soapCall(recipientPhoneNumber, otp string) (string, string, error
 		Timeout: timeout,
 	}
 
-	req, err := http.NewRequest("POST", fmt.Sprintf("https://%s:%s@%s", m.username, m.password, m.url), bytes.NewBuffer(payload))
+	req, err := http.NewRequest("POST", fmt.Sprintf("http://%s", m.url), bytes.NewBuffer(payload))
 	if err != nil {
 		return string(payload), "", err
 	}
 
-	req.Header.Set("Accept", "text/xml, multipart/related")
-	req.Header.Set("SOAPAction", "http://schemas.xmlsoap.org/soap/envelope/")
-	req.Header.Set("Content-Type", "text/xml; charset=utf-8")
+	req.Header.Set("Content-Type", "text/xml")
+	req.Header.Set("Authorization", "Basic "+basicAuth(m.username, m.password))
 
 	response, err := client.Do(req)
 	if err != nil {
@@ -127,7 +131,21 @@ func (m *Mada) soapCall(recipientPhoneNumber, otp string) (string, string, error
 		return string(payload), string(bodyBytes), err
 	}
 
+	resp := &soapResp{}
+	if err := xml.Unmarshal(bodyBytes, resp); err != nil {
+		return string(payload), string(bodyBytes), err
+	}
+
+	if resp.Body.SOS.SMResponse.CommandStatus != "0" {
+		return string(payload), string(bodyBytes), fmt.Errorf("expected status code 0, but got %s", resp.Body.SOS.SMResponse.CommandStatus)
+	}
+
 	return string(payload), string(bodyBytes), nil
+}
+
+func basicAuth(username, password string) string {
+	auth := username + ":" + password
+	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
 
 type soapRQ struct {
@@ -135,8 +153,9 @@ type soapRQ struct {
 	XMLNsXSI     string   `xml:"xmlns:xsi,attr"`
 	XMLNsXSD     string   `xml:"xmlns:xsd,attr"`
 	XMLNsSoapEnv string   `xml:"xmlns:soapenv,attr"`
-	Header       soapHeader
-	Body         soapBody
+	XMLNsSOS     string   `xml:"xmlns:sos,attr"`
+	Header       *soapHeader
+	Body         *soapBody
 }
 
 type soapHeader struct {
@@ -145,20 +164,20 @@ type soapHeader struct {
 
 type soapBody struct {
 	XMLName xml.Name `xml:"soapenv:Body"`
-	SOS     sos
+	SOS     *sos
 }
 
 type sos struct {
 	XMLName   xml.Name `xml:"sos:SubmitSM"`
 	SoapEnv   string   `xml:"soapenv:encodingStyle,attr"`
-	SMRequest smRequest
+	SMRequest *smRequest
 }
 
 type smRequest struct {
 	XMLName            xml.Name `xml:"smRequest"`
-	Source             source
-	Destination        destination
-	ShortMessage       shortMessage
+	Source             *source
+	Destination        *destination
+	ShortMessage       *shortMessage
 	RegisteredDelivery string `xml:"registeredDelivery"`
 }
 
@@ -179,4 +198,24 @@ type destination struct {
 type shortMessage struct {
 	XMLName    xml.Name `xml:"shortMessage"`
 	StringData string   `xml:"stringData"`
+}
+
+type soapResp struct {
+	XMLName xml.Name `xml:"Envelope"`
+	Body    *soapRespBody
+}
+
+type soapRespBody struct {
+	XMLName xml.Name `xml:"Body"`
+	SOS     *sosResp
+}
+
+type sosResp struct {
+	XMLName    xml.Name `xml:"SubmitSMResponse"`
+	SMResponse *smResponse
+}
+
+type smResponse struct {
+	XMLName       xml.Name `xml:"smResponse"`
+	CommandStatus string   `xml:"commandStatus"`
 }
