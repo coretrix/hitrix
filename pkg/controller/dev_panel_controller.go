@@ -257,6 +257,21 @@ func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context
 	response.SuccessResponse(c, nil)
 }
 
+func (controller *DevPanelController) PostRedisSearchForceReindexAll(c *gin.Context) {
+	ormService := service.DI().OrmEngineForContext(c.Request.Context())
+
+	appService := service.DI().App()
+	if appService.DevPanel == nil || appService.RedisPools.Search == "" {
+		panic("stream pool is not defined")
+	}
+
+	indexes := ormService.GetRedisSearch(appService.RedisPools.Search).ListIndices()
+	for _, index := range indexes {
+		ormService.GetRedisSearch(appService.RedisPools.Search).ForceReindex(index)
+	}
+	response.SuccessResponse(c, nil)
+}
+
 func (controller *DevPanelController) PostRedisSearchIndexInfo(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
