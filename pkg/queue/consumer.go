@@ -56,10 +56,15 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 		log.Printf("Starting %s", consumer.GetQueueName())
 
 		started := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+			log.Printf("We have %d new dirty events in %s", len(events), consumer.GetQueueName())
+
 			if err := consumer.Consume(ormService, events); err != nil {
 				panic(err)
 			}
+
+			log.Printf("We consumed %d dirty events in %s", len(events), consumer.GetQueueName())
 		})
+
 		if started {
 			break
 		}
@@ -79,12 +84,16 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 
 	eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+		log.Printf("We have %d new dirty events in %s", len(events), consumer.GetQueueName())
+
 		for _, event := range events {
 			if err := consumer.Consume(ormService, event); err != nil {
 				panic(err)
 			}
 			event.Ack()
 		}
+
+		log.Printf("We consumed %d dirty events in %s", len(events), consumer.GetQueueName())
 	})
 }
 
@@ -97,12 +106,16 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
 			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+				log.Printf("We have %d new dirty events in %s", len(events), consumer.GetGroupName(currentModulo, groupNameSuffix))
+
 				for _, event := range events {
 					if err := consumer.Consume(ormService, event); err != nil {
 						panic(err)
 					}
 					event.Ack()
 				}
+
+				log.Printf("We consumed %d dirty events in %s", len(events), consumer.GetGroupName(currentModulo, groupNameSuffix))
 			})
 		})
 	}
@@ -116,9 +129,13 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 			ormService := service.DI().OrmEngine().Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
 			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+				log.Printf("We have %d new dirty events in %s", len(events), consumer.GetGroupName(currentModulo, groupNameSuffix))
+
 				if err := consumer.Consume(ormService, events); err != nil {
 					panic(err)
 				}
+
+				log.Printf("We consumed %d dirty events in %s", len(events), consumer.GetGroupName(currentModulo, groupNameSuffix))
 			})
 		})
 	}
