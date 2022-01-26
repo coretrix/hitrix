@@ -48,22 +48,30 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 
 	go func() {
 		for {
+			log.Println("Run script - " + s.Description())
+
 			valid := processor.runScript(s)
 
-			if !valid {
-				log.Print("Error in last run. Sleep 10s")
+			if valid {
+				log.Println("Successfully executed script - " + s.Description())
+			} else {
+				log.Println("Failed script - " + s.Description())
 				time.Sleep(time.Second * 10)
 				continue
 			}
 
 			if isInfinity {
+				log.Println("Infinity - " + s.Description())
 				select {}
 			}
 
 			if !isInterval {
+				log.Println("Finished - " + s.Description())
 				processor.Server.done <- true
 				break
 			}
+
+			log.Println("Sleep for " + fmt.Sprint(interval.Interval()) + " seconds - " + s.Description())
 
 			time.Sleep(interval.Interval())
 		}
@@ -133,15 +141,8 @@ func (processor *BackgroundProcessor) runScript(s app.IScript) bool {
 		}()
 
 		appService := service.DI().App()
-		log.Println("Run script - " + s.Description())
 
 		s.Run(appService.GlobalContext, &exit{s: processor.Server})
-
-		if valid {
-			log.Println("Successfully finished script - " + s.Description())
-		} else {
-			log.Println("Failed script - " + s.Description())
-		}
 
 		return valid
 	}()
