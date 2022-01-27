@@ -2,12 +2,11 @@ package controller
 
 import (
 	"fmt"
-	"sort"
-	"strings"
-
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
 	"github.com/latolukasz/beeorm/tools"
+	"sort"
+	"strings"
 
 	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -213,14 +212,17 @@ func (controller *DevPanelController) GetRedisSearchAlters(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	altersSearch := ormService.GetRedisSearchIndexAlters()
-	result := make([]string, len(altersSearch))
+	result := make([]map[string]string, len(altersSearch))
 
 	force := c.Query("force")
 	for i, alter := range altersSearch {
 		if force != "" {
 			alter.Execute()
 		} else {
-			result[i] = alter.Query + " (" + strings.Join(alter.Changes, ", ") + ")"
+			result[i] = map[string]string{
+				"Query":   alter.Query,
+				"Changes": strings.Join(alter.Changes, " | "),
+			}
 		}
 	}
 
