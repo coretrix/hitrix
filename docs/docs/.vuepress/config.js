@@ -166,6 +166,10 @@ module.exports = {
                                 text: 'ClockWork',
                                 link: '/guide/services/clockwork',
                             },
+                            {
+                                text: 'Template',
+                                link: '/guide/services/template',
+                            },
                         ],
                     },
                     {

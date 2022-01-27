@@ -35,6 +35,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/social"
 	"github.com/coretrix/hitrix/service/component/socket"
 	"github.com/coretrix/hitrix/service/component/stripe"
+	"github.com/coretrix/hitrix/service/component/template"
 	"github.com/coretrix/hitrix/service/component/uploader"
 	"github.com/coretrix/hitrix/service/component/uuid"
 )
@@ -77,6 +78,7 @@ const (
 	ExporterService         = "exporter"
 	SettingService          = "setting"
 	FeatureFlagService      = "feature_flag"
+	TemplateService         = "template"
 )
 
 type DIContainer struct {
@@ -226,4 +228,8 @@ func (d *DIContainer) PDF() pdf.ServiceInterface {
 
 func (d *DIContainer) FeatureFlag() featureflag.ServiceFeatureFlagInterface {
 	return GetServiceRequired(FeatureFlagService).(featureflag.ServiceFeatureFlagInterface)
+}
+
+func (d *DIContainer) Template() template.ITemplateInterface {
+	return GetServiceRequired(TemplateService).(template.ITemplateInterface)
 }

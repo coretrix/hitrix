@@ -2,11 +2,12 @@ package controller
 
 import (
 	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
 	"github.com/latolukasz/beeorm/tools"
-	"sort"
-	"strings"
 
 	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/entity"
