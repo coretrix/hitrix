@@ -51,3 +51,16 @@ func ShouldBindUri(c *gin.Context, form interface{}) error {
 
 	return nil
 }
+
+func ShouldBind(c *gin.Context, form interface{}) error {
+	if err := c.ShouldBind(form); err != nil {
+		res := errors.HandleErrors(err)
+		if res != nil {
+			return res
+		}
+
+		return err
+	}
+
+	return nil
+}
