@@ -38,3 +38,16 @@ func ShouldBindQuery(c *gin.Context, form interface{}) error {
 
 	return nil
 }
+
+func ShouldBindUri(c *gin.Context, form interface{}) error {
+	if err := c.ShouldBindUri(form); err != nil {
+		res := errors.HandleErrors(err)
+		if res != nil {
+			return res
+		}
+
+		return err
+	}
+
+	return nil
+}
