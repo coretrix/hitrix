@@ -170,6 +170,10 @@ module.exports = {
                                 text: 'Template',
                                 link: '/guide/services/template',
                             },
+                            {
+                                text: 'Gql',
+                                link: '/guide/services/gql',
+                            },
                         ],
                     },
                     {
