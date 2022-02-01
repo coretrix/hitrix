@@ -22,6 +22,7 @@ import (
 	featureflag "github.com/coretrix/hitrix/service/component/feature_flag"
 	fileextractor "github.com/coretrix/hitrix/service/component/file_extractor"
 	"github.com/coretrix/hitrix/service/component/generator"
+	"github.com/coretrix/hitrix/service/component/gql"
 	"github.com/coretrix/hitrix/service/component/jwt"
 	"github.com/coretrix/hitrix/service/component/localize"
 	"github.com/coretrix/hitrix/service/component/mail"
@@ -79,6 +80,7 @@ const (
 	SettingService          = "setting"
 	FeatureFlagService      = "feature_flag"
 	TemplateService         = "template"
+	GQLService              = "gql"
 )
 
 type DIContainer struct {
@@ -232,4 +234,8 @@ func (d *DIContainer) FeatureFlag() featureflag.ServiceFeatureFlagInterface {
 
 func (d *DIContainer) Template() template.ITemplateInterface {
 	return GetServiceRequired(TemplateService).(template.ITemplateInterface)
+}
+
+func (d *DIContainer) Gql() gql.IGQLInterface {
+	return GetServiceRequired(GQLService).(gql.IGQLInterface)
 }
