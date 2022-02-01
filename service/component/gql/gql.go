@@ -35,14 +35,20 @@ func (t gqlService) GraphqlErr(cxt context.Context, msg string, args ...interfac
 	return t.setError(cxt, msg, args)
 }
 
-func (t gqlService) setError(cxt context.Context, msg string, args ...interface{}) *gqlerror.Error {
+func (t gqlService) setError(cxt context.Context, msg string, args []interface{}) *gqlerror.Error {
 	err := &gqlerror.Error{}
 
+	var message string
 	if t.localizeService != nil && cxt.Value(Language) != nil {
-		translatedMessage := t.localizeService.T(cxt.Value(Language).(string), msg)
-		err.Message = fmt.Sprintf(translatedMessage, args...)
+		message = t.localizeService.T(cxt.Value(Language).(string), msg)
 	} else {
-		err.Message = fmt.Sprintf(msg, args...)
+		message = msg
+	}
+
+	if len(args) > 0 {
+		err.Message = fmt.Sprintf(message, args...)
+	} else {
+		err.Message = message
 	}
 
 	err.Extensions = map[string]interface{}{
