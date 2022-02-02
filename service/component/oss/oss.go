@@ -72,6 +72,14 @@ func loadBucketsConfig(configService config.IConfig, bucketsMapping map[string]*
 			bucketConfigMap := map[string]string{}
 
 			for key, value := range bucketConfig.(map[interface{}]interface{}) {
+				if key == nil {
+					panic("oss: config key is null")
+				}
+
+				if value == nil {
+					panic("oss: config value for " + key.(string) + " is null")
+				}
+
 				bucketConfigMap[key.(string)] = value.(string)
 			}
 
