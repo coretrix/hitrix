@@ -20,6 +20,34 @@ For example for our binary called `web-api` the domain will be `web-api.dev.lys.
 For prod we are skipping [env]
 For example for `web.dev.lys.domain.com` or `web.demo.lys.domain.com`
 
+#### Naming convention for our REST endpoints domains are:
+
+`[noun]/[noun].../[action]/?params`
+
+Always use `-` as separator. 
+Endpoint name is not tied to package name.
+
+`POST` - CREATE entity actions, SEARCH entity actions
+
+`PATCH` - UPDATE entity actions
+
+`GET` - GET entity actions
+
+`DELETE` - DELETE entity actions
+
+`PUT` - not used
+
+Examples:
+
+`GET /profile/payment-info/cards/get/` - gets cards information
+
+`PATCH /profile/payment-info/cards/update/` - updates card information
+
+`POST /profile/payment-info/cards/create/` - creates card
+
+`DELETE /profile/payment-info/cards/delete/` - deletes card
+
+
 ## Crons (scripts)
 What is the differences between `single-instance-cron` and `multi-instance-cron`
 - `single-instance-cron` is for crons that cannot scale. Imagine you read something from db every 10min and you update something. If you have more than one instance it's gonna conflict. That's why we gonna create only one pod for it
