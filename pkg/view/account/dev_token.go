@@ -1,7 +1,7 @@
 package account
 
 import (
-	//nolint
+	// #nosec
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/json"

@@ -110,6 +110,7 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 			skipComma = false
 			f := t.Field(i)
 			value, ok := f.Tag.Lookup("graphql")
+			fieldName, hasJSON := f.Tag.Lookup("json")
 			inlineField := f.Anonymous && !ok
 			if !inlineField {
 				if ok {
@@ -134,7 +135,11 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 					}
 					// nolint
 					//io.WriteString(w, ident.ParseMixedCaps(f.Name).ToLowerCamelCase())
-					io.WriteString(w, f.Name)
+					if hasJSON && fieldName != "-" {
+						io.WriteString(w, fieldName)
+					} else {
+						io.WriteString(w, f.Name)
+					}
 				}
 			}
 			if hasStruct {
