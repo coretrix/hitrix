@@ -1,5 +1,6 @@
 # ClockWork
-Provides you information about all queries executed by ORM in the current request. Also gives you ability to set your own log data.
+This service provides you information about all queries executed by ORM and performance metrics for every api request. Also gives you ability to set your own log data.
+All the information it will be visible into your chrome inspector.
 
 It requires installation of Clockwork Chrome extension [ClockWork extension](https://chrome.google.com/webstore/detail/clockwork/dmggabnehkmmfmdffgajcflpdjlnoemp)
 
