@@ -30,7 +30,7 @@ func (s *serviceSetting) Get(ormService *beeorm.Engine, key string) (*entity.Set
 		return nil, false
 	}
 
-	if !settingEntity.Editable {
+	if !settingEntity.Editable && !settingEntity.Deletable {
 		s.cache[key] = settingEntity
 	}
 

@@ -6,8 +6,9 @@ import (
 
 type SettingsEntity struct {
 	beeorm.ORM `orm:"table=settings;redisCache;redisSearch=search_pool;"`
-	ID         uint64
-	Key        string `orm:"required;unique=Settings_Key;searchable;"`
+	ID         uint64 `orm:"sortable"`
+	Key        string `orm:"required;unique=Settings_Key;sortable;searchable;"`
 	Value      string `orm:"required;length=max;"`
 	Editable   bool
+	Deletable  bool
 }
