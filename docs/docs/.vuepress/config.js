@@ -213,6 +213,15 @@ module.exports = {
                             },
                         ],
                     },
+                    {
+                        text: 'GraphQL',
+                        children: [
+                            {
+                                text: 'Dataloaders',
+                                link: '/guide/graphql/dataloaders',
+                            },
+                        ],
+                    },
                 ],
             },
         ],
