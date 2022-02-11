@@ -131,3 +131,17 @@ func GetTimeDifferenceHuman(startDate, endDate time.Time) string {
 func GetTimestamp(t *time.Time) int64 {
 	return t.UnixNano() / int64(time.Millisecond)
 }
+
+func GetFirstDayOfNextMonth() time.Time {
+	year, month, _ := time.Now().Date()
+	firstDay := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Now().Location())
+	if month == 12 {
+		firstDay = time.Date(year+1, 1, 1, 0, 0, 0, 0, time.Now().Location())
+	}
+	return firstDay
+}
+
+func GetLastDayOfThisMonth() time.Time {
+	year, month, _ := time.Now().Date()
+	return time.Date(year, month+1, 0, 23, 59, 59, 0, time.Now().Location())
+}
