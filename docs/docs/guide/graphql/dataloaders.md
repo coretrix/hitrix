@@ -23,7 +23,7 @@ func NewLoaders(ctx context.Context) *Loaders {
     return &Loaders{
         VariantsByProductID: LoaderNameLoader{
         maxBatch: 1000,
-        wait:     20 * time.Millisecond,
+        wait:     5 * time.Millisecond,
         fetch: func(ids []uint64) ([][]*entity.SomeModel, []error) {
                 //Some code here
 				return someModelSlice, errors
