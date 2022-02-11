@@ -16,7 +16,8 @@ package dataloaders
 go generate ./api/<binary>/graphql/dataloaders/...
 ```
 4. Implement loaders
-Go generate will create gen.go file that contains loaders skeleton.
+
+go generate will create gen.go file that contains loaders skeleton.
 ```
 func NewLoaders(ctx context.Context) *Loaders {
     return &Loaders{
