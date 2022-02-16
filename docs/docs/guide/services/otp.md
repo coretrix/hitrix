@@ -25,7 +25,7 @@ Access the service:
 ```go
 service.DI().OTP()
 ```
-# Use case
+## Use case
 You can send OTP to user phone using SMS  or call like this:
 ```go
 package auth
