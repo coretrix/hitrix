@@ -14,6 +14,7 @@ import (
 )
 
 type clockWorkHandler struct {
+	ormService           *beeorm.Engine
 	DatabaseDataSource   dataSource.QueryLoggerDataSourceInterface
 	RedisDataSource      dataSource.CacheLoggerDataSourceInterface
 	LocalCacheDataSource dataSource.UserDataSourceInterface
@@ -59,7 +60,15 @@ func (h *clockWorkHandler) Handle(log map[string]interface{}) {
 		query := fmt.Sprint(log["query"])
 		h.DatabaseDataSource.LogQuery("clickhouse", query, milliseconds, nil)
 	} else if log["source"] == "local_cache" {
-		h.LocalCacheDataSource.LogTable(map[string]interface{}{"Operation": log["operation"], "Query": log["query"]}, "Queries", nil)
+		query := strings.Split(log["query"].(string), " ")
+		key := strings.Split(query[0], ":")
+		tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(key[0])
+
+		h.LocalCacheDataSource.LogTable(
+			map[string]interface{}{
+				"Operation": log["operation"],
+				"Query":     tableSchema.GetTableName() + ":" + key[1] + " " + query[1],
+			}, "Queries", nil)
 	}
 }
 
