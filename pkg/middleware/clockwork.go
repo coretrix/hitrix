@@ -61,13 +61,13 @@ func (h *clockWorkHandler) Handle(log map[string]interface{}) {
 		h.DatabaseDataSource.LogQuery("clickhouse", query, milliseconds, nil)
 	} else if log["source"] == "local_cache" {
 		query := strings.Split(log["query"].(string), " ")
-		key := strings.Split(query[0], ":")
+		key := strings.Split(query[2], ":")
 		tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(key[0])
 
 		h.LocalCacheDataSource.LogTable(
 			map[string]interface{}{
 				"Operation": log["operation"],
-				"Query":     tableSchema.GetTableName() + ":" + key[1] + " " + query[1],
+				"Query":     tableSchema.GetTableName() + ":" + key[1] + " " + query[3],
 			}, "Queries", nil)
 	}
 }
@@ -104,7 +104,7 @@ func Clockwork(ginEngine *gin.Engine) {
 		localCacheDataSource.SetShowAs("table")
 		localCacheDataSource.SetTitle("Local Cache")
 
-		clockWorkHandler := clockWorkHandler{DatabaseDataSource: databaseDataSource, RedisDataSource: redisDataSource, LocalCacheDataSource: localCacheDataSource}
+		clockWorkHandler := clockWorkHandler{ormService: ormService, DatabaseDataSource: databaseDataSource, RedisDataSource: redisDataSource, LocalCacheDataSource: localCacheDataSource}
 		ormService.RegisterQueryLogger(&clockWorkHandler, true, true, true)
 
 		profilerKey := c.Request.Header.Get("CoreTrix")

@@ -2,7 +2,6 @@ package errorlogger
 
 import (
 	"bytes"
-	// #nosec
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
