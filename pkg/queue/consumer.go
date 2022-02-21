@@ -2,15 +2,24 @@ package queue
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/jpillora/backoff"
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix"
 	"github.com/coretrix/hitrix/service"
+)
+
+const (
+	maxBackoffAttempts = 200
+	minBackoffDuration = 200 * time.Millisecond
+	maxBackoffDuration = 30 * time.Second
+	backoffFactor      = 2
 )
 
 type ConsumerOneByModulo interface {
@@ -48,55 +57,106 @@ func NewConsumerRunner(ctx context.Context) *ConsumerRunner {
 }
 
 func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix *string, prefetchCount int) {
+	queueName := consumer.GetQueueName()
+
+	log.Printf("RunConsumerMany initialized (%s)", queueName)
+
 	ormService := service.DI().OrmEngine().Clone()
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 
-	var attempts uint8
+	b := &backoff.Backoff{
+		Min:    minBackoffDuration,
+		Max:    maxBackoffDuration,
+		Factor: backoffFactor,
+	}
 
+	totalAttempts := 0
 	for {
-		attempts++
-		log.Printf("Starting %s", consumer.GetQueueName())
+		totalAttempts++
 
-		started := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
-			log.Printf("We have %d new dirty events in %s", len(events), consumer.GetQueueName())
+		// eventsConsumer.Consume should block and not return anything
+		// if it returns true => this consumer is exited with no errors, but still not consuming
+		// if it returns false => this consumer is exited with error "could not obtain lock", so we should retry using exponential backoff
+		if started := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+			log.Printf("We have %d new dirty events in %s", len(events), queueName)
 
 			if err := consumer.Consume(ormService, events); err != nil {
 				panic(err)
 			}
 
-			log.Printf("We consumed %d dirty events in %s", len(events), consumer.GetQueueName())
-		})
+			log.Printf("We consumed %d dirty events in %s", len(events), queueName)
+		}); !started {
+			if totalAttempts > maxBackoffAttempts {
+				service.DI().ErrorLogger().LogError(
+					fmt.Sprintf("RunConsumerMany failed to start consumer after %d attempts (%s)", maxBackoffAttempts, queueName),
+				)
+				b.Reset()
+				break
+			}
 
-		if started {
+			log.Printf("RunConsumerMany failed to start (%s) - retrying...", queueName)
+			b.Duration()
+			continue
+		} else {
+			b.Reset()
 			break
 		}
-
-		if attempts == 9 {
-			service.DI().ErrorLogger().LogError("failed to start stream consumer: " + consumer.GetQueueName())
-			break
-		}
-		log.Printf("failed to start %s. Sleeping for 90 seconds", consumer.GetQueueName())
-		time.Sleep(time.Second * 92)
 	}
+
+	log.Printf("RunConsumerMany exited (%s)", queueName)
 }
 
 func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *string, prefetchCount int) {
-	ormService := service.DI().OrmEngine().Clone()
+	queueName := consumer.GetQueueName()
 
+	log.Printf("RunConsumerOne initialized (%s)", queueName)
+
+	ormService := service.DI().OrmEngine().Clone()
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 
-	eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
-		log.Printf("We have %d new dirty events in %s", len(events), consumer.GetQueueName())
+	b := &backoff.Backoff{
+		Min:    minBackoffDuration,
+		Max:    maxBackoffDuration,
+		Factor: backoffFactor,
+	}
 
-		for _, event := range events {
-			if err := consumer.Consume(ormService, event); err != nil {
-				panic(err)
+	totalAttempts := 0
+	for {
+		totalAttempts++
+
+		// eventsConsumer.Consume should block and not return anything
+		// if it returns true => this consumer is exited with no errors, but still not consuming
+		// if it returns false => this consumer is exited with error "could not obtain lock", so we should retry using exponential backoff
+		if started := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+			log.Printf("We have %d new dirty events in %s", len(events), queueName)
+
+			for _, event := range events {
+				if err := consumer.Consume(ormService, event); err != nil {
+					panic(err)
+				}
+				event.Ack()
 			}
-			event.Ack()
-		}
 
-		log.Printf("We consumed %d dirty events in %s", len(events), consumer.GetQueueName())
-	})
+			log.Printf("We consumed %d dirty events in %s", len(events), queueName)
+		}); !started {
+			if totalAttempts > maxBackoffAttempts {
+				service.DI().ErrorLogger().LogError(
+					fmt.Sprintf("RunConsumerOne failed to start consumer after %d attempts (%s)", maxBackoffAttempts, queueName),
+				)
+				b.Reset()
+				break
+			}
+
+			log.Printf("RunConsumerOne failed to start (%s) - retrying...", queueName)
+			b.Duration()
+			continue
+		} else {
+			b.Reset()
+			break
+		}
+	}
+
+	log.Printf("RunConsumerOne exited (%s)", queueName)
 }
 
 func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, groupNameSuffix *string, prefetchCount int) {
@@ -118,41 +178,68 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 		innerWG.Add(1)
 
 		hitrix.GoroutineWithRestart(func() {
-			queueName := consumer.GetQueueName(moduloID)
-			consumerGroupName := consumer.GetGroupName(moduloID, groupNameSuffix)
+			currentModulo := moduloID
 
-			log.Printf("RunConsumerOneByModulo started goroutine %d (%s)", moduloID, queueName)
+			queueName := consumer.GetQueueName(currentModulo)
+			consumerGroupName := consumer.GetGroupName(currentModulo, groupNameSuffix)
+
+			log.Printf("RunConsumerOneByModulo started goroutine %d (%s)", currentModulo, queueName)
 
 			ormService := service.DI().OrmEngine().Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
 
-			log.Printf("RunConsumerOneByModulo is ready to consume events (%s)", queueName)
-
 			innerWG.Done()
 			outerWG.Done()
 
-			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
-				log.Printf("We have %d new dirty events in %s", len(events), consumerGroupName)
+			b := &backoff.Backoff{
+				Min:    minBackoffDuration,
+				Max:    maxBackoffDuration,
+				Factor: backoffFactor,
+			}
 
-				for _, event := range events {
-					if err := consumer.Consume(ormService, event); err != nil {
-						panic(err)
+			totalAttempts := 0
+			for {
+				totalAttempts++
+
+				// eventsConsumer.Consume should block and not return anything
+				// if it returns true => this consumer is exited with no errors, but still not consuming
+				// if it returns false => this consumer is exited with error "could not obtain lock", so we should retry using exponential backoff
+				if started := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+					log.Printf("We have %d new dirty events in %s", len(events), consumerGroupName)
+
+					for _, event := range events {
+						if err := consumer.Consume(ormService, event); err != nil {
+							panic(err)
+						}
+						event.Ack()
 					}
-					event.Ack()
+
+					log.Printf("We consumed %d dirty events in %s", len(events), consumerGroupName)
+				}); !started {
+					if totalAttempts > maxBackoffAttempts {
+						service.DI().ErrorLogger().LogError(
+							fmt.Sprintf("RunConsumerOneByModulo failed to start consumer after %d attempts (%s)", maxBackoffAttempts, queueName),
+						)
+						b.Reset()
+						break
+					}
+
+					log.Printf("RunConsumerOneByModulo failed to start for goroutine %d (%s) - retrying...", currentModulo, queueName)
+					b.Duration()
+					continue
+				} else {
+					b.Reset()
+					break
 				}
+			}
 
-				log.Printf("We consumed %d dirty events in %s", len(events), consumerGroupName)
-			})
-
-			log.Printf("RunConsumerOneByModulo exited unexpectedly for goroutine %d (%s)", moduloID, queueName)
+			log.Printf("RunConsumerOneByModulo exited for goroutine %d (%s)", currentModulo, queueName)
 		})
 
 		innerWG.Wait()
 	}
 
 	outerWG.Wait()
-
-	log.Printf("RunConsumerOneByModulo exited (%s)", baseQueueName)
 }
 
 func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, groupNameSuffix *string, prefetchCount int) {
@@ -174,36 +261,63 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 		innerWG.Add(1)
 
 		hitrix.GoroutineWithRestart(func() {
-			queueName := consumer.GetQueueName(moduloID)
-			consumerGroupName := consumer.GetGroupName(moduloID, groupNameSuffix)
+			currentModulo := moduloID
 
-			log.Printf("RunConsumerManyByModulo started goroutine %d (%s)", moduloID, queueName)
+			queueName := consumer.GetQueueName(currentModulo)
+			consumerGroupName := consumer.GetGroupName(currentModulo, groupNameSuffix)
+
+			log.Printf("RunConsumerManyByModulo started goroutine %d (%s)", currentModulo, queueName)
 
 			ormService := service.DI().OrmEngine().Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
 
-			log.Printf("RunConsumerManyByModulo is ready to consume events (%s)", queueName)
-
 			innerWG.Done()
 			outerWG.Done()
 
-			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
-				log.Printf("We have %d new dirty events in %s", len(events), consumerGroupName)
+			b := &backoff.Backoff{
+				Min:    minBackoffDuration,
+				Max:    maxBackoffDuration,
+				Factor: backoffFactor,
+			}
 
-				if err := consumer.Consume(ormService, events); err != nil {
-					panic(err)
+			totalAttempts := 0
+			for {
+				totalAttempts++
+
+				// eventsConsumer.Consume should block and not return anything
+				// if it returns true => this consumer is exited with no errors, but still not consuming
+				// if it returns false => this consumer is exited with error "could not obtain lock", so we should retry using exponential backoff
+				if started := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+					log.Printf("We have %d new dirty events in %s", len(events), consumerGroupName)
+
+					if err := consumer.Consume(ormService, events); err != nil {
+						panic(err)
+					}
+
+					log.Printf("We consumed %d dirty events in %s", len(events), consumerGroupName)
+				}); !started {
+					if totalAttempts > maxBackoffAttempts {
+						service.DI().ErrorLogger().LogError(
+							fmt.Sprintf("RunConsumerManyByModulo failed to start consumer after %d attempts (%s)", maxBackoffAttempts, queueName),
+						)
+						b.Reset()
+						break
+					}
+
+					log.Printf("RunConsumerManyByModulo failed to start for goroutine %d (%s) - retrying...", currentModulo, queueName)
+					b.Duration()
+					continue
+				} else {
+					b.Reset()
+					break
 				}
+			}
 
-				log.Printf("We consumed %d dirty events in %s", len(events), consumerGroupName)
-			})
-
-			log.Printf("RunConsumerManyByModulo exited unexpectedly for goroutine %d (%s)", moduloID, queueName)
+			log.Printf("RunConsumerManyByModulo exited for goroutine %d (%s)", currentModulo, queueName)
 		})
 
 		innerWG.Wait()
 	}
 
 	outerWG.Wait()
-
-	log.Printf("RunConsumerManyByModulo exited (%s)", baseQueueName)
 }
