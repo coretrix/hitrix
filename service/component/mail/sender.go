@@ -15,6 +15,8 @@ type Sender interface {
 
 type Message struct {
 	From         string
+	FromName     string
+	ReplyTo      string
 	To           string
 	Subject      string
 	TemplateName string
