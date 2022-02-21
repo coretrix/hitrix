@@ -3,6 +3,8 @@ package queue
 import (
 	"context"
 	"log"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/latolukasz/beeorm"
@@ -98,22 +100,39 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 }
 
 func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, groupNameSuffix *string, prefetchCount int) {
-	log.Printf("RunConsumerOneByModulo initialized (%s)", consumer.GetQueueName(consumer.GetMaxModulo()))
+	maxModulo := consumer.GetMaxModulo()
 
-	for moduloID := 1; moduloID <= consumer.GetMaxModulo(); moduloID++ {
-		currentModulo := moduloID
+	baseQueueName := ""
+	queueNameParts := strings.Split(consumer.GetQueueName(maxModulo), "_")
+	if len(queueNameParts) > 0 {
+		baseQueueName = queueNameParts[0]
+	}
+
+	log.Printf("RunConsumerOneByModulo initialized (%s)", baseQueueName)
+
+	outerWG := sync.WaitGroup{}
+	outerWG.Add(maxModulo)
+
+	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
+		innerWG := sync.WaitGroup{}
+		innerWG.Add(1)
 
 		hitrix.GoroutineWithRestart(func() {
-			log.Printf("RunConsumerOneByModulo started goroutine %d (%s)", moduloID, consumer.GetQueueName(moduloID))
+			queueName := consumer.GetQueueName(moduloID)
+			consumerGroupName := consumer.GetGroupName(moduloID, groupNameSuffix)
+
+			log.Printf("RunConsumerOneByModulo started goroutine %d (%s)", moduloID, queueName)
 
 			ormService := service.DI().OrmEngine().Clone()
+			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
 
-			eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
+			log.Printf("RunConsumerOneByModulo is ready to consume events (%s)", queueName)
 
-			log.Printf("RunConsumerOneByModulo is ready to consume events (%s)", consumer.GetQueueName(moduloID))
+			innerWG.Done()
+			outerWG.Done()
 
 			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
-				log.Printf("We have %d new dirty events in %s", len(events), consumer.GetGroupName(currentModulo, groupNameSuffix))
+				log.Printf("We have %d new dirty events in %s", len(events), consumerGroupName)
 
 				for _, event := range events {
 					if err := consumer.Consume(ormService, event); err != nil {
@@ -122,32 +141,69 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 					event.Ack()
 				}
 
-				log.Printf("We consumed %d dirty events in %s", len(events), consumer.GetGroupName(currentModulo, groupNameSuffix))
+				log.Printf("We consumed %d dirty events in %s", len(events), consumerGroupName)
 			})
 
-			log.Printf("RunConsumerOneByModulo exited unexpectedly for goroutine %d (%s)", moduloID, consumer.GetQueueName(moduloID))
+			log.Printf("RunConsumerOneByModulo exited unexpectedly for goroutine %d (%s)", moduloID, queueName)
 		})
+
+		innerWG.Wait()
 	}
 
-	log.Printf("RunConsumerOneByModulo exited (%s)", consumer.GetQueueName(consumer.GetMaxModulo()))
+	outerWG.Wait()
+
+	log.Printf("RunConsumerOneByModulo exited (%s)", baseQueueName)
 }
 
 func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, groupNameSuffix *string, prefetchCount int) {
-	for moduloID := 1; moduloID <= consumer.GetMaxModulo(); moduloID++ {
-		currentModulo := moduloID
+	maxModulo := consumer.GetMaxModulo()
+
+	baseQueueName := ""
+	queueNameParts := strings.Split(consumer.GetQueueName(maxModulo), "_")
+	if len(queueNameParts) > 0 {
+		baseQueueName = queueNameParts[0]
+	}
+
+	log.Printf("RunConsumerManyByModulo initialized (%s)", baseQueueName)
+
+	outerWG := sync.WaitGroup{}
+	outerWG.Add(maxModulo)
+
+	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
+		innerWG := sync.WaitGroup{}
+		innerWG.Add(1)
 
 		hitrix.GoroutineWithRestart(func() {
+			queueName := consumer.GetQueueName(moduloID)
+			consumerGroupName := consumer.GetGroupName(moduloID, groupNameSuffix)
+
+			log.Printf("RunConsumerManyByModulo started goroutine %d (%s)", moduloID, queueName)
+
 			ormService := service.DI().OrmEngine().Clone()
-			eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
+			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
+
+			log.Printf("RunConsumerManyByModulo is ready to consume events (%s)", queueName)
+
+			innerWG.Done()
+			outerWG.Done()
+
 			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
-				log.Printf("We have %d new dirty events in %s", len(events), consumer.GetGroupName(currentModulo, groupNameSuffix))
+				log.Printf("We have %d new dirty events in %s", len(events), consumerGroupName)
 
 				if err := consumer.Consume(ormService, events); err != nil {
 					panic(err)
 				}
 
-				log.Printf("We consumed %d dirty events in %s", len(events), consumer.GetGroupName(currentModulo, groupNameSuffix))
+				log.Printf("We consumed %d dirty events in %s", len(events), consumerGroupName)
 			})
+
+			log.Printf("RunConsumerManyByModulo exited unexpectedly for goroutine %d (%s)", moduloID, queueName)
 		})
+
+		innerWG.Wait()
 	}
+
+	outerWG.Wait()
+
+	log.Printf("RunConsumerManyByModulo exited (%s)", baseQueueName)
 }
