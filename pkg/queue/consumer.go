@@ -98,13 +98,20 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 }
 
 func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, groupNameSuffix *string, prefetchCount int) {
+	log.Printf("RunConsumerOneByModulo initialized (%s)", consumer.GetQueueName(consumer.GetMaxModulo()))
+
 	for moduloID := 1; moduloID <= consumer.GetMaxModulo(); moduloID++ {
 		currentModulo := moduloID
 
 		hitrix.GoroutineWithRestart(func() {
+			log.Printf("RunConsumerOneByModulo started goroutine %d (%s)", moduloID, consumer.GetQueueName(moduloID))
+
 			ormService := service.DI().OrmEngine().Clone()
 
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(currentModulo, groupNameSuffix))
+
+			log.Printf("RunConsumerOneByModulo is ready to consume events (%s)", consumer.GetQueueName(moduloID))
+
 			eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 				log.Printf("We have %d new dirty events in %s", len(events), consumer.GetGroupName(currentModulo, groupNameSuffix))
 
@@ -117,8 +124,12 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 				log.Printf("We consumed %d dirty events in %s", len(events), consumer.GetGroupName(currentModulo, groupNameSuffix))
 			})
+
+			log.Printf("RunConsumerOneByModulo exited unexpectedly for goroutine %d (%s)", moduloID, consumer.GetQueueName(moduloID))
 		})
 	}
+
+	log.Printf("RunConsumerOneByModulo exited (%s)", consumer.GetQueueName(consumer.GetMaxModulo()))
 }
 
 func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, groupNameSuffix *string, prefetchCount int) {
