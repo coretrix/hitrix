@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+
+	"github.com/coretrix/hitrix/service"
 )
 
 type Elorus struct {
@@ -12,7 +14,7 @@ type Elorus struct {
 	url            string
 	token          string
 	organizationID string
-	isDemo         bool
+	environment    string
 }
 
 type CreateContactRequest struct {
@@ -34,13 +36,13 @@ type ElorusResponse struct {
 	ID string `json:"id"`
 }
 
-func NewElorus(url string, token string, organizationID string, isDemo bool) *Elorus {
+func NewElorus(url string, token string, organizationID string, environment string) *Elorus {
 	return &Elorus{
 		ctx:            context.Background(),
 		url:            url,
 		token:          token,
 		organizationID: organizationID,
-		isDemo:         isDemo,
+		environment:    environment,
 	}
 }
 
@@ -56,7 +58,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*ElorusResponse, 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
-	if e.isDemo {
+	if !service.DI().App().IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
 
