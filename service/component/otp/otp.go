@@ -1,7 +1,7 @@
 package otp
 
 import (
-	// #nosec
+	//nolint
 	"crypto/md5"
 	"errors"
 	"fmt"
