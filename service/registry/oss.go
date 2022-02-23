@@ -1,6 +1,8 @@
 package registry
 
 import (
+	"errors"
+	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -13,13 +15,13 @@ func ServiceProviderOSS(newFunc oss.NewProviderFunc, publicNamespaces, privateNa
 	return &service.DefinitionGlobal{
 		Name: service.OSService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			//ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
+			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
 
-			//entities := ormConfig.GetEntities()
-			//
-			//if _, ok := entities["entity.OSSBucketCounterEntity"]; !ok {
-			//	return nil, errors.New("you should register OSSBucketCounterEntity")
-			//}
+			entities := ormConfig.GetEntities()
+
+			if _, ok := entities["entity.OSSBucketCounterEntity"]; !ok {
+				return nil, errors.New("you should register OSSBucketCounterEntity")
+			}
 
 			return newFunc(
 				ctn.Get(service.ConfigService).(config.IConfig),

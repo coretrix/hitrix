@@ -158,6 +158,10 @@ func loadBucketsConfig(configService config.IConfig, publicNamespaces, privateNa
 		buckets[bucketConfig.Type] = bucketConfig
 	}
 
+	if len(buckets) == 0 {
+		panic("missing buckets configuration")
+	}
+
 	return buckets
 }
 
