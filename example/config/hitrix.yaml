@@ -24,11 +24,11 @@ oss:
     disable_ssl: false
     region: us-east-1
   buckets:
-    some-bucket:
-      prod:
-        name: bucket-name
-        cdn_url: "https://example.com/{Env}/{Bucket}/{StorageKey}"
-      local:
-        name: bucket-name-local
-        cdn_url: "http://127.0.0.1/{Env}/{Bucket}/{StorageKey}"
+    public:
+      name: bucket-name
+      cdn_url: "https://example.com/{Bucket}/{StorageKey}"
+      ACL: public-read
+    private:
+      name: bucket-name-private
+      cdn_url: "http://127.0.0.1/{Bucket}/{StorageKey}"
 orm_debug: false
