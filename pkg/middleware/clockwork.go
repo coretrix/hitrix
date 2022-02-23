@@ -1,11 +1,14 @@
 package middleware
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"strings"
 	"time"
 
+	"github.com/anton-shumanski/clockwork"
 	dataSource "github.com/anton-shumanski/clockwork/data-source"
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
@@ -14,52 +17,76 @@ import (
 )
 
 type clockWorkHandler struct {
+	ormService           *beeorm.Engine
 	DatabaseDataSource   dataSource.QueryLoggerDataSourceInterface
 	RedisDataSource      dataSource.CacheLoggerDataSourceInterface
 	LocalCacheDataSource dataSource.UserDataSourceInterface
 }
 
-func (h *clockWorkHandler) Handle(log map[string]interface{}) {
-	if log["source"] == "mysql" {
-		microseconds := log["microseconds"].(int64)
+func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
+	if logData["source"] == "mysql" {
+		microseconds := logData["microseconds"].(int64)
 		milliseconds := float32(microseconds) / float32(1000)
-		query := log["query"].(string)
+		query := logData["query"].(string)
 		h.DatabaseDataSource.LogQuery("mysql", query, milliseconds, nil)
-	} else if log["source"] == "redis" {
-		_, hasMisses := log["miss"]
-		operation := log["operation"].(string)
+	} else if logData["source"] == "redis" {
+		_, hasMisses := logData["miss"]
+		operation := logData["operation"].(string)
 		if strings.Contains(operation, "profiler_store.") {
 			return
 		}
 
-		microseconds := log["microseconds"].(int64)
+		microseconds := logData["microseconds"].(int64)
 		milliseconds := float32(microseconds) / float32(1000)
 
 		if hasMisses {
-			h.RedisDataSource.LogCacheMiss(log["pool"].(string), operation, log["query"].(string), "", 1, milliseconds, 0)
+			h.RedisDataSource.LogCacheMiss(logData["pool"].(string), operation, logData["query"].(string), "", 1, milliseconds, 0)
 		} else {
-			h.RedisDataSource.LogCache(log["pool"].(string), dataSource.CacheHit, operation, log["query"].(string), "", milliseconds, 0)
+			h.RedisDataSource.LogCache(logData["pool"].(string), dataSource.CacheHit, operation, logData["query"].(string), "", milliseconds, 0)
 		}
-	} else if log["source"] == "elastic" {
-		microseconds := log["microseconds"].(int64)
+	} else if logData["source"] == "elastic" {
+		microseconds := logData["microseconds"].(int64)
 		milliseconds := float32(microseconds) / float32(1000)
 
-		microsecondsQueryTime := log["query_time"].(int64)
+		microsecondsQueryTime := logData["query_time"].(int64)
 		millisecondsQueryTime := float32(microsecondsQueryTime) / float32(1000)
 
-		query := log["post"]
-		if sort, ok := log["sort"]; ok {
+		query := logData["post"]
+		if sort, ok := logData["sort"]; ok {
 			query = fmt.Sprint(query, fmt.Sprintf(" SORT: %s", sort))
 		}
 		query = fmt.Sprint(query, fmt.Sprintf(" QUERY TIME:%.3f ms", millisecondsQueryTime))
 		h.DatabaseDataSource.LogQuery("elastic", query.(string), milliseconds, nil)
-	} else if log["source"] == "clickhouse" {
-		microseconds := log["microseconds"].(int64)
+	} else if logData["source"] == "clickhouse" {
+		microseconds := logData["microseconds"].(int64)
 		milliseconds := float32(microseconds) / float32(1000)
-		query := fmt.Sprint(log["query"])
+		query := fmt.Sprint(logData["query"])
 		h.DatabaseDataSource.LogQuery("clickhouse", query, milliseconds, nil)
-	} else if log["source"] == "local_cache" {
-		h.LocalCacheDataSource.LogTable(map[string]interface{}{"Operation": log["operation"], "Query": log["query"]}, "Queries", nil)
+	} else if logData["source"] == "local_cache" {
+		originalQuery := logData["query"].(string)
+
+		queryParts := strings.Split(originalQuery, "[")
+		if len(queryParts) != 2 {
+			h.LocalCacheDataSource.LogTable(
+				map[string]interface{}{
+					"Operation": logData["operation"],
+					"Query":     originalQuery,
+				}, "Queries", nil)
+
+			return
+		}
+
+		//firstPart := strings.Join(strings.Fields(queryParts[0]), " ")
+		//firstPartArray := strings.Split(firstPart, " ")
+		//
+		//key := strings.Split(firstPartArray[1], ":")
+		//tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(key[0])
+		//
+		//h.LocalCacheDataSource.LogTable(
+		//	map[string]interface{}{
+		//		"Operation": logData["operation"],
+		//		"Query":     tableSchema.GetTableName() + ":" + key[1],
+		//	}, "Queries", nil)
 	}
 }
 
@@ -95,7 +122,7 @@ func Clockwork(ginEngine *gin.Engine) {
 		localCacheDataSource.SetShowAs("table")
 		localCacheDataSource.SetTitle("Local Cache")
 
-		clockWorkHandler := clockWorkHandler{DatabaseDataSource: databaseDataSource, RedisDataSource: redisDataSource, LocalCacheDataSource: localCacheDataSource}
+		clockWorkHandler := clockWorkHandler{ormService: ormService, DatabaseDataSource: databaseDataSource, RedisDataSource: redisDataSource, LocalCacheDataSource: localCacheDataSource}
 		ormService.RegisterQueryLogger(&clockWorkHandler, true, true, true)
 
 		profilerKey := c.Request.Header.Get("CoreTrix")
@@ -110,9 +137,12 @@ func Clockwork(ginEngine *gin.Engine) {
 		c.Writer.Header().Set("X-Clockwork-Id", profilerService.GetUniqueId())
 		c.Writer.Header().Set("X-Clockwork-Version", "5.1.0")
 
+		setController(c, profilerService)
+
 		c.Next()
 
-		profilerService.GetRequestDataSource().SetMiddleware(c.HandlerNames())
+		middlewares := c.HandlerNames()
+		profilerService.GetRequestDataSource().SetMiddleware(middlewares)
 		profilerService.GetRequestDataSource().SetResponseTime(time.Now())
 		profilerService.GetRequestDataSource().EndMemoryUsage()
 
@@ -120,6 +150,52 @@ func Clockwork(ginEngine *gin.Engine) {
 
 		profilerService.SaveData()
 	})
+}
+
+func setController(c *gin.Context, profilerService *clockwork.Clockwork) {
+	b, err := c.GetRawData()
+	if err != nil {
+		panic(err)
+	}
+
+	bodyMap := map[string]interface{}{}
+	err = json.Unmarshal(b, &bodyMap)
+	if err != nil {
+		panic(err)
+	}
+
+	var queryType string
+	var resolverName string
+
+	operationName, okOperationName := bodyMap["operationName"]
+	queryValue, okQuery := bodyMap["query"]
+	mutationValue, okMutation := bodyMap["mutation"]
+
+	if okOperationName && (okQuery || okMutation) {
+		if okQuery {
+			queryType = "query"
+
+			if operationName != nil {
+				resolverName = operationName.(string)
+			} else {
+				resolverName = strings.TrimLeft(queryValue.(string), "{")
+				resolverName = resolverName[:strings.IndexByte(resolverName, '{')]
+			}
+		} else if okMutation {
+			queryType = "mutation"
+
+			if operationName != nil {
+				resolverName = operationName.(string)
+			} else {
+				resolverName = strings.TrimLeft(mutationValue.(string), "{")
+				resolverName = resolverName[:strings.IndexByte(resolverName, '{')]
+			}
+		}
+	}
+
+	profilerService.GetRequestDataSource().SetController(queryType, resolverName)
+
+	c.Request.Body = ioutil.NopCloser(bytes.NewReader(b))
 }
 
 type ormDataProvider struct {
