@@ -28,13 +28,7 @@ func main() {
 		registry.ServiceProviderConfigDirectory("config"),
 		registry.ServiceProviderOrmRegistry(entity.Init),
 		registry.ServiceProviderOrmEngine(),
-		registry.ServiceProviderOSS(map[string]*oss.Bucket{
-			"main_public": {
-				ID: 1,
-				Paths: []string{
-					"product",
-				},
-			}}, oss.ProviderAmazonOSS),
+		registry.ServiceProviderOSS(oss.NewAmazonOSS, []oss.Namespace{"product"}, nil),
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
 		registry.ServiceProviderSocketRegistry(eventHandlersMap),
