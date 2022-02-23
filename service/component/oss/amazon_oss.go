@@ -137,11 +137,17 @@ func (ossStorage *AmazonOSS) UploadObjectFromByte(ormService *beeorm.Engine, buc
 
 	objectKey := ossStorage.getObjectKey(namespace, storageCounter, extension)
 
-	_, err := ossStorage.client.PutObject(&s3.PutObjectInput{
+	putObjectInput := &s3.PutObjectInput{
 		Body:   bytes.NewReader(objectContent),
 		Bucket: aws.String(bucketConfig.Name),
 		Key:    aws.String(objectKey),
-	})
+	}
+
+	if bucketConfig.ACL != "" {
+		putObjectInput.ACL = aws.String(bucketConfig.ACL)
+	}
+
+	_, err := ossStorage.client.PutObject(putObjectInput)
 
 	if err != nil {
 		return Object{}, err

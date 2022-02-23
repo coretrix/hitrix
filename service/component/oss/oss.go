@@ -32,8 +32,8 @@ func (n Namespace) String() string {
 }
 
 const (
-	bucketPublicDBID  = 1
-	bucketPrivateDBID = 2
+	bucketPublicStorageCounterDatabaseID  = 1
+	bucketPrivateStorageCounterDatabaseID = 2
 )
 
 type NewProviderFunc func(configService config.IConfig, clockService clock.IClock, publicNamespaces, privateNamespaces []Namespace) (IProvider, error)
@@ -68,6 +68,7 @@ type BucketConfig struct {
 	Name                     string
 	CDNURL                   string
 	Namespaces               map[Namespace]Namespace
+	ACL                      string
 }
 
 func (b *BucketConfig) validateNamespace(namespace Namespace) {
@@ -87,86 +88,87 @@ func loadBucketsConfig(configService config.IConfig, publicNamespaces, privateNa
 
 	buckets := map[Bucket]*BucketConfig{}
 
-	bucketsConfig := bucketsConfigDefinitions.(map[string]map[string]interface{})
+	bucketsConfigs := bucketsConfigDefinitions.(map[interface{}]interface{})
 
-	publicBucketConfig, hasPublicBucketConfig := bucketsConfig[BucketPublic.String()]
-	privateBucketConfig, hasPrivateBucketConfig := bucketsConfig[BucketPrivate.String()]
-
-	if !hasPublicBucketConfig && !hasPrivateBucketConfig {
-		panic("oss: invalid bucket configuration. no buckets defined")
-	}
-
-	if hasPublicBucketConfig {
-		bucketName, has := publicBucketConfig["name"]
-		if !has || bucketName == nil {
-			panic("oss: missing bucket name for public bucket")
-		}
-
-		if publicNamespaces == nil {
-			panic("oss: missing namespaces for public bucket")
-		}
+	for bucket, bucketConfigsI := range bucketsConfigs {
+		bucketConfigs := bucketConfigsI.(map[interface{}]interface{})
 
 		bucketConfig := &BucketConfig{
-			StorageCounterDatabaseID: bucketPublicDBID,
-			Name:                     bucketName.(string),
-			Namespaces:               map[Namespace]Namespace{},
+			Type:       Bucket(bucket.(string)),
+			Namespaces: map[Namespace]Namespace{},
 		}
 
-		for _, publicNamespace := range publicNamespaces {
-			bucketConfig.Namespaces[publicNamespace] = publicNamespace
+		if bucketConfig.Type == BucketPublic {
+			bucketConfig.StorageCounterDatabaseID = bucketPublicStorageCounterDatabaseID
+
+			if publicNamespaces == nil {
+				panic("oss: missing namespaces for public bucket")
+			}
+
+			for _, publicNamespace := range publicNamespaces {
+				bucketConfig.Namespaces[publicNamespace] = publicNamespace
+			}
 		}
 
-		bucketCDNURL, has := publicBucketConfig["cdn_url"]
+		if bucketConfig.Type == BucketPrivate {
+			bucketConfig.StorageCounterDatabaseID = bucketPrivateStorageCounterDatabaseID
 
-		if has && bucketCDNURL != nil {
-			bucketConfig.CDNURL = bucketCDNURL.(string)
+			if privateNamespaces == nil {
+				panic("oss: missing namespaces for private bucket")
+			}
+
+			for _, privateNamespace := range privateNamespaces {
+				bucketConfig.Namespaces[privateNamespace] = privateNamespace
+			}
 		}
 
-		buckets[BucketPublic] = bucketConfig
-	}
+		for keyI, valueI := range bucketConfigs {
+			key := keyI.(string)
+			if key == "name" {
+				if valueI == nil {
+					panic("value is nil for key name for bucket: " + bucketConfig.Type)
+				}
 
-	if hasPrivateBucketConfig {
-		bucketName, has := privateBucketConfig["name"]
-		if !has || bucketName == nil {
-			panic("oss: missing bucket name for private bucket")
+				bucketConfig.Name = valueI.(string)
+
+				continue
+			}
+
+			if key == "cdn_url" {
+				if valueI != nil {
+					bucketConfig.CDNURL = valueI.(string)
+				}
+
+				continue
+			}
+
+			if key == "ACL" {
+				if valueI == nil {
+					panic("value is nil for key ACL for bucket: " + bucketConfig.Type)
+				}
+
+				bucketConfig.ACL = valueI.(string)
+
+				continue
+			}
+
+			panic("invalid key " + key + " for bucket: " + bucketConfig.Type.String())
 		}
 
-		if privateNamespaces == nil {
-			panic("oss: missing namespaces for private bucket")
-		}
-
-		bucketConfig := &BucketConfig{
-			StorageCounterDatabaseID: bucketPrivateDBID,
-			Name:                     bucketName.(string),
-			Namespaces:               map[Namespace]Namespace{},
-		}
-
-		for _, privateNamespace := range privateNamespaces {
-			bucketConfig.Namespaces[privateNamespace] = privateNamespace
-		}
-
-		bucketCDNURL, has := privateBucketConfig["cdn_url"]
-
-		if has && bucketCDNURL != nil {
-			bucketConfig.CDNURL = bucketCDNURL.(string)
-		}
-
-		buckets[BucketPrivate] = bucketConfig
+		buckets[bucketConfig.Type] = bucketConfig
 	}
 
 	return buckets
 }
 
 func getObjectCDNURL(bucketConfig *BucketConfig, storageKey string) string {
-	cdnURL := bucketConfig.CDNURL
-
-	if cdnURL == "" {
+	if bucketConfig.CDNURL == "" {
 		return ""
 	}
 
 	replacer := strings.NewReplacer("{StorageKey}", storageKey, "{Bucket}", bucketConfig.Name)
 
-	return replacer.Replace(cdnURL)
+	return replacer.Replace(bucketConfig.CDNURL)
 }
 
 func getStorageCounter(ormService *beeorm.Engine, bucketConfig *BucketConfig) uint64 {
@@ -219,5 +221,6 @@ func getBucketConfig(bucketConfig *BucketConfig) *BucketConfig {
 		Name:                     bucketConfig.Name,
 		CDNURL:                   bucketConfig.CDNURL,
 		Namespaces:               bucketConfig.Namespaces,
+		ACL:                      bucketConfig.ACL,
 	}
 }
