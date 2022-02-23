@@ -2,6 +2,7 @@ package registry
 
 import (
 	"errors"
+
 	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
