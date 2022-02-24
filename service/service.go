@@ -16,6 +16,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/crud"
 	"github.com/coretrix/hitrix/service/component/ddos"
 	dynamiclink "github.com/coretrix/hitrix/service/component/dynamic_link"
+	"github.com/coretrix/hitrix/service/component/elorus"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/coretrix/hitrix/service/component/exporter"
 	"github.com/coretrix/hitrix/service/component/fcm"
@@ -81,6 +82,7 @@ const (
 	FeatureFlagService      = "feature_flag"
 	TemplateService         = "template"
 	GQLService              = "gql"
+	ElorusService           = "elorus"
 )
 
 type DIContainer struct {
@@ -238,4 +240,8 @@ func (d *DIContainer) Template() template.ITemplateInterface {
 
 func (d *DIContainer) Gql() gql.IGQLInterface {
 	return GetServiceRequired(GQLService).(gql.IGQLInterface)
+}
+
+func (d *DIContainer) Elorus() elorus.IProvider {
+	return GetServiceRequired(ElorusService).(elorus.IProvider)
 }
