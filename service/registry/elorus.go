@@ -27,14 +27,14 @@ func ServiceProviderElorus() *service.DefinitionGlobal {
 				return nil, errors.New("missing elorus.token key")
 			}
 
-			organizationId, ok := configService.String("elorus.organization_id")
+			organizationID, ok := configService.String("elorus.organization_id")
 			if !ok {
 				return nil, errors.New("missing elorus.organization_id key")
 			}
 
 			appService := ctn.Get(service.AppService).(*app.App)
 
-			return elorus.NewElorus(url, token, organizationId, appService.Mode), nil
+			return elorus.NewElorus(url, token, organizationID, appService.Mode), nil
 		},
 	}
 }
