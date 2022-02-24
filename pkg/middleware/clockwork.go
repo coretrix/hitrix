@@ -65,28 +65,63 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 	} else if logData["source"] == "local_cache" {
 		originalQuery := logData["query"].(string)
 
-		queryParts := strings.Split(originalQuery, "[")
-		if len(queryParts) != 2 {
+		queryParts := strings.Fields(originalQuery)
+
+		operator := queryParts[0]
+
+		queries := strings.TrimSpace(strings.TrimPrefix(originalQuery, operator))
+
+		var q string
+
+		switch operator {
+		case "MGET":
+			originalKeys := strings.Split(queries, " ")
+
+			for _, originalKey := range originalKeys {
+				originalKeyArray := strings.Split(originalKey, ":")
+				tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
+
+				q += tableSchema.GetTableName() + ":" + originalKeyArray[1] + " "
+			}
+		case "MSET":
+			keyValues := strings.Split(queries, " ")
+			for _, keyValue := range keyValues {
+				tableAndIDPair := strings.Split(keyValue, ":")
+				if len(tableAndIDPair) == 2 {
+					tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(tableAndIDPair[0])
+					q += tableSchema.GetTableName() + ":" + tableAndIDPair[1] + " "
+				}
+			}
+		case "GET":
+			originalKeyArray := strings.Split(queries, ":")
+			tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
+
+			q += tableSchema.GetTableName() + ":" + originalKeyArray[1]
+
+		case "SET":
+			keyValue := strings.Split(queries, " ")
+			originalKeyArray := strings.Split(keyValue[0], ":")
+			tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
+
+			q += tableSchema.GetTableName() + ":" + originalKeyArray[1] + " "
+		default:
 			h.LocalCacheDataSource.LogTable(
 				map[string]interface{}{
 					"Operation": logData["operation"],
 					"Query":     originalQuery,
-				}, "Queries", nil)
-
+				}, "Queries",
+				nil,
+			)
 			return
 		}
 
-		//firstPart := strings.Join(strings.Fields(queryParts[0]), " ")
-		//firstPartArray := strings.Split(firstPart, " ")
-		//
-		//key := strings.Split(firstPartArray[1], ":")
-		//tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(key[0])
-		//
-		//h.LocalCacheDataSource.LogTable(
-		//	map[string]interface{}{
-		//		"Operation": logData["operation"],
-		//		"Query":     tableSchema.GetTableName() + ":" + key[1],
-		//	}, "Queries", nil)
+		h.LocalCacheDataSource.LogTable(
+			map[string]interface{}{
+				"Operation": logData["operation"],
+				"Query":     q,
+			}, "Queries",
+			nil,
+		)
 	}
 }
 
@@ -122,22 +157,28 @@ func Clockwork(ginEngine *gin.Engine) {
 		localCacheDataSource.SetShowAs("table")
 		localCacheDataSource.SetTitle("Local Cache")
 
-		clockWorkHandler := clockWorkHandler{ormService: ormService, DatabaseDataSource: databaseDataSource, RedisDataSource: redisDataSource, LocalCacheDataSource: localCacheDataSource}
-		ormService.RegisterQueryLogger(&clockWorkHandler, true, true, true)
-
-		profilerKey := c.Request.Header.Get("CoreTrix")
-
-		if profilerKey != password {
+		if profilerKey := c.Request.Header.Get("CoreTrix"); profilerKey != password {
 			return
 		}
+
+		if resolverName := setController(c, profilerService); resolverName == "IntrospectionQuery" || resolverName == "" {
+			return
+		}
+
+		clockWorkHandler := clockWorkHandler{
+			ormService:           ormService,
+			DatabaseDataSource:   databaseDataSource,
+			RedisDataSource:      redisDataSource,
+			LocalCacheDataSource: localCacheDataSource,
+		}
+
+		ormService.RegisterQueryLogger(&clockWorkHandler, true, true, true)
 
 		profilerService.GetRequestDataSource().SetStartTime(time.Now())
 		profilerService.GetRequestDataSource().StartMemoryUsage()
 
 		c.Writer.Header().Set("X-Clockwork-Id", profilerService.GetUniqueId())
 		c.Writer.Header().Set("X-Clockwork-Version", "5.1.0")
-
-		setController(c, profilerService)
 
 		c.Next()
 
@@ -152,10 +193,14 @@ func Clockwork(ginEngine *gin.Engine) {
 	})
 }
 
-func setController(c *gin.Context, profilerService *clockwork.Clockwork) {
+func setController(c *gin.Context, profilerService *clockwork.Clockwork) string {
 	b, err := c.GetRawData()
 	if err != nil {
 		panic(err)
+	}
+
+	if len(b) == 0 {
+		return ""
 	}
 
 	bodyMap := map[string]interface{}{}
@@ -196,6 +241,8 @@ func setController(c *gin.Context, profilerService *clockwork.Clockwork) {
 	profilerService.GetRequestDataSource().SetController(queryType, resolverName)
 
 	c.Request.Body = ioutil.NopCloser(bytes.NewReader(b))
+
+	return resolverName
 }
 
 type ormDataProvider struct {
