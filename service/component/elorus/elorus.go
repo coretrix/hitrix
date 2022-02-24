@@ -36,6 +36,7 @@ type CreateInvoiceRequest struct {
 	ClientDisplayName string `json:"client_display_name"`
 	ClientVatNumber   string `json:"client_vat_number"`
 	ClientEmail       string `json:"client_email"`
+	Number            string `json:"number"`
 	Items             []struct {
 		Product                      string   `json:"product"`
 		Title                        string   `json:"title"`
@@ -50,7 +51,7 @@ type CreateInvoiceRequest struct {
 	} `json:"items"`
 }
 
-type ElorusResponse struct {
+type Response struct {
 	ID string `json:"id"`
 }
 
@@ -64,7 +65,7 @@ func NewElorus(url string, token string, organizationID string, environment stri
 	}
 }
 
-func (e *Elorus) CreateContact(request *CreateContactRequest) (*ElorusResponse, error) {
+func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error) {
 	client := &http.Client{}
 
 	jsonReq, _ := json.Marshal(request)
@@ -85,7 +86,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*ElorusResponse, 
 		return nil, err
 	}
 
-	response := new(ElorusResponse)
+	response := new(Response)
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		return nil, err
@@ -93,7 +94,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*ElorusResponse, 
 	return response, nil
 }
 
-func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*ElorusResponse, error) {
+func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error) {
 	client := &http.Client{}
 
 	jsonReq, _ := json.Marshal(request)
@@ -114,7 +115,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*ElorusResponse, 
 		return nil, err
 	}
 
-	response := new(ElorusResponse)
+	response := new(Response)
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		return nil, err
