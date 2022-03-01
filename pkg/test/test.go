@@ -284,7 +284,7 @@ func getParallelID() string {
 func dropTables(dbService *beeorm.DB) error {
 	var query string
 	rows, deferF := dbService.Query(
-		"SELECT CONCAT('DROP TABLE ',table_schema,'.',table_name,';') AS query " +
+		"SELECT CONCAT('DROP TABLE IF EXISTS ',table_schema,'.',table_name,';') AS query " +
 			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "')",
 	)
 	defer deferF()
