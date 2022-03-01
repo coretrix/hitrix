@@ -25,7 +25,7 @@ elorusService := service.DI().Elorus()
 
 Using the service:
 ```go
-// Request too create contact
+// Request to create contact
 elorusService.CreateContact(
     elorus.CreateContactRequest{
         FirstName: "name",
@@ -49,7 +49,7 @@ elorusService.CreateContact(
     },
 )
       
-// Request too create invoice
+// Request to create invoice
 elorusService.CreateInvoice(
 	elorus.CreateInvoiceRequest{
         Date:              time.Now().Format("2006-01-02"),
@@ -74,6 +74,22 @@ elorusService.CreateInvoice(
             UnitTotal: "500",
             Taxes:       []string{"2416104549958812800"},
         }},
+    }
+)     
+
+// Request to get invoice list
+elorusService.GetInvoiceList(
+	elorus.GetInvoiceListRequest{
+        Client:            contactId,
+        Page: "1",
+        PageSize:"10",
+    }
+)
+
+// Request to get invoice list
+elorusService.DownloadInvoice(
+	elorus.DownloadInvoiceRequest{
+        ID:            "id",
     }
 )
 ```

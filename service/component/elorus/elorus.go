@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -55,6 +57,10 @@ type GetInvoiceListRequest struct {
 	Client   string `json:"client"`
 	Page     string `json:"page"`
 	PageSize string `json:"page_size"`
+}
+
+type DownloadInvoiceRequest struct {
+	ID string `json:"id"`
 }
 
 type InvoiceListResponse struct {
@@ -178,4 +184,26 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 		return nil, err
 	}
 	return response, nil
+}
+
+func (e *Elorus) DownloadInvoice(request *DownloadInvoiceRequest) (*io.ReadCloser, error) {
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", fmt.Sprintf(e.url+"/invoices/%s/pdf", request.ID), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Token "+e.token)
+	req.Header.Set("X-Elorus-Organization", e.organizationID)
+	if e.environment != "prod" {
+		req.Header.Set("X-Elorus-Demo", "true")
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	return &resp.Body, nil
 }
