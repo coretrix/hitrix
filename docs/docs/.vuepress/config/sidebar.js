@@ -27,12 +27,8 @@ module.exports = [
                         link: '/guide/services/orm_engine_context',
                     },
                     {
-                        text: 'Amazon S3',
-                        link: '/guide/services/amazon_s3',
-                    },
-                    {
-                        text: 'OSS - Google',
-                        link: '/guide/services/oss_google',
+                        text: 'OSS',
+                        link: '/guide/services/oss',
                     },
                     {
                         text: 'API Logger',
