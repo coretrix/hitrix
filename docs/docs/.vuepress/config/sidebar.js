@@ -63,6 +63,10 @@ module.exports = [
                         link: '/guide/services/dynamic_link',
                     },
                     {
+                        text: 'Elorus',
+                        link: '/guide/services/elorus',
+                    },
+                    {
                         text: 'Error logger',
                         link: '/guide/services/error_logger',
                     },
