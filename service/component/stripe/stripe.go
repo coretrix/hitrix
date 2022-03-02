@@ -1,27 +1,37 @@
 package stripe
 
 import (
-	"context"
-
 	"github.com/stripe/stripe-go/v72"
+	"github.com/stripe/stripe-go/v72/account"
+	"github.com/stripe/stripe-go/v72/accountlink"
 	"github.com/stripe/stripe-go/v72/checkout/session"
+	"github.com/stripe/stripe-go/v72/paymentintent"
 	"github.com/stripe/stripe-go/v72/webhook"
 )
 
 type Stripe struct {
-	ctx            context.Context
-	environment    string
 	webhookSecrets map[string]string
 }
 
-func NewStripe(token string, webhookSecrets map[string]string, environment string) *Stripe {
+func NewStripe(token string, webhookSecrets map[string]string) *Stripe {
 	stripe.Key = token
 
 	return &Stripe{
-		ctx:            context.Background(),
-		environment:    environment,
 		webhookSecrets: webhookSecrets,
 	}
+}
+
+func (s *Stripe) CreateAccount(accountParams *stripe.AccountParams) (*stripe.Account, error) {
+	return account.New(accountParams)
+}
+
+func (s *Stripe) CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error) {
+	return accountlink.New(accountLinkParams)
+}
+
+func (s *Stripe) CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error) {
+	paymentIntentParams.SetStripeAccount(linkedAccountID)
+	return paymentintent.New(paymentIntentParams)
 }
 
 func (s *Stripe) NewCheckoutSession(paymentMethods []string, mode, successURL, CancelURL string, lineItems []*stripe.CheckoutSessionLineItemParams, discounts []*stripe.CheckoutSessionDiscountParams) *stripe.CheckoutSession {
@@ -52,6 +62,9 @@ func (s *Stripe) ConstructWebhookEvent(reqBody []byte, signature string, webhook
 }
 
 type IStripe interface {
+	CreateAccount(accountParams *stripe.AccountParams) (*stripe.Account, error)
+	CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error)
+	CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error)
 	ConstructWebhookEvent(reqBody []byte, signature string, webhookKey string) (stripe.Event, error)
 	NewCheckoutSession(paymentMethods []string, mode, successURL, CancelURL string, lineItems []*stripe.CheckoutSessionLineItemParams, discounts []*stripe.CheckoutSessionDiscountParams) *stripe.CheckoutSession
 }
