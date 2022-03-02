@@ -193,22 +193,42 @@ func Clockwork(ginEngine *gin.Engine) {
 	})
 }
 
-func setController(c *gin.Context, profilerService *clockwork.Clockwork) string {
-	b, err := c.GetRawData()
-	if err != nil {
-		panic(err)
+func isMultipartRequest(c *gin.Context) bool {
+	contentTypes := c.Request.Header["Content-Type"]
+	return len(contentTypes) > 0 && strings.Contains(contentTypes[0], gin.MIMEMultipartPOSTForm)
+}
+
+func getRawData(c *gin.Context) []byte {
+	var b []byte
+	if isMultipartRequest(c) {
+		err := c.Request.ParseMultipartForm(4096)
+		if err != nil {
+			panic(err)
+		}
+		v := c.Request.FormValue("operations")
+		b = []byte(v)
+	} else {
+		var err error
+		b, err = c.GetRawData()
+		if err != nil {
+			panic(err)
+		}
 	}
+	return b
+}
+
+func setController(c *gin.Context, profilerService *clockwork.Clockwork) string {
+	b := getRawData(c)
 
 	if len(b) == 0 {
 		return ""
 	}
 
 	bodyMap := map[string]interface{}{}
-	err = json.Unmarshal(b, &bodyMap)
+	err := json.Unmarshal(b, &bodyMap)
 	if err != nil {
 		panic(err)
 	}
-
 	var queryType string
 	var resolverName string
 
