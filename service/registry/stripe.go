@@ -17,7 +17,7 @@ func ServiceProviderStripe() *service.DefinitionGlobal {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 
 			key, ok := configService.String("stripe.key")
-			if ok {
+			if !ok {
 				return nil, errors.New("missing stripe key")
 			}
 
