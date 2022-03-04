@@ -55,6 +55,7 @@ type CreateInvoiceRequest struct {
 
 type GetInvoiceListRequest struct {
 	Client   string `json:"client"`
+	Status   string `json:"status"`
 	Page     string `json:"page"`
 	PageSize string `json:"page_size"`
 }
@@ -159,6 +160,9 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 	query.Set("client", request.Client)
 	query.Set("page", request.Page)
 	query.Set("page_size", request.PageSize)
+	if len(request.Status) > 0 {
+		query.Set("status", request.Status)
+	}
 	requestURL.RawQuery = query.Encode()
 
 	req, err := http.NewRequest("GET", requestURL.String(), nil)
