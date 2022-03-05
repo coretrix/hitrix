@@ -7,7 +7,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/elorus"
 )
 
-func ServiceProviderMockClock(mock elorus.IProvider) *service.DefinitionGlobal {
+func ServiceProviderMockElorus(mock elorus.IProvider) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.ElorusService,
 		Build: func(ctn di.Container) (interface{}, error) {
