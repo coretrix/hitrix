@@ -2,6 +2,8 @@ package helper
 
 import (
 	"fmt"
+
+	"github.com/bojanz/currency"
 )
 
 const (
@@ -24,6 +26,16 @@ func (c Price) String() string {
 
 func (c Price) StringWithCurrency(currencySymbol string) string {
 	return fmt.Sprintf("%.2f "+currencySymbol, c.Float())
+}
+
+func (c Price) StringByLocale(locale, inCurrency string) (string, error) {
+	amount, err := currency.NewAmount(c.String(), inCurrency)
+
+	if err != nil {
+		return "", err
+	}
+
+	return currency.NewFormatter(currency.NewLocale(locale)).Format(amount), nil
 }
 
 func NewPrice(amount float64) Price {
