@@ -13,22 +13,22 @@ type FakeElorus struct {
 	mock.Mock
 }
 
-func (c *FakeElorus) CreateContact(request *elorus.CreateContactRequest) (*elorus.Response, error) {
-  args := t.Called(request)
+func (e *FakeElorus) CreateContact(request *elorus.CreateContactRequest) (*elorus.Response, error) {
+	args := e.Called(request)
 	return args.Get(0).(*elorus.Response), args.Error(1)
 }
 
-func (c *FakeElorus) CreateInvoice(request *elorus.CreateInvoiceRequest) (*elorus.Response, error) {
-  args := t.Called(request)
+func (e *FakeElorus) CreateInvoice(request *elorus.CreateInvoiceRequest) (*elorus.Response, error) {
+	args := e.Called(request)
 	return args.Get(0).(*elorus.Response), args.Error(1)
 }
 
-func (c *FakeElorus) GetInvoiceList(request *elorus.GetInvoiceListRequest) (*elorus.InvoiceListResponse, error) {
-  args := t.Called(request)
+func (e *FakeElorus) GetInvoiceList(request *elorus.GetInvoiceListRequest) (*elorus.InvoiceListResponse, error) {
+ 	args := e.Called(request)
 	return args.Get(0).(*elorus.InvoiceListResponse), args.Error(1)
 }
 
-func (c *FakeElorus) DownloadInvoice(request *elorus.DownloadInvoiceRequest) (*io.ReadCloser, error) {
-  args := t.Called(request)
+func (e *FakeElorus) DownloadInvoice(request *elorus.DownloadInvoiceRequest) (*io.ReadCloser, error) {
+	args := e.Called(request)
 	return args.Get(0).(*io.ReadCloser), args.Error(1)
 }
