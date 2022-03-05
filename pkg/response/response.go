@@ -16,10 +16,7 @@ type Error struct {
 
 func SuccessResponse(c *gin.Context, data interface{}) {
 	if data != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"Result": data,
-		})
-
+		c.JSON(http.StatusOK, data)
 		return
 	}
 
