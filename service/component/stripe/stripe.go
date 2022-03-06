@@ -4,6 +4,7 @@ import (
 	"github.com/stripe/stripe-go/v72"
 	"github.com/stripe/stripe-go/v72/account"
 	"github.com/stripe/stripe-go/v72/accountlink"
+	portalsession "github.com/stripe/stripe-go/v72/billingportal/session"
 	"github.com/stripe/stripe-go/v72/checkout/session"
 	"github.com/stripe/stripe-go/v72/customer"
 	"github.com/stripe/stripe-go/v72/paymentintent"
@@ -28,6 +29,14 @@ func (s *Stripe) CreateAccount(accountParams *stripe.AccountParams) (*stripe.Acc
 
 func (s *Stripe) CreateCustomer(customerParams *stripe.CustomerParams) (*stripe.Customer, error) {
 	return customer.New(customerParams)
+}
+
+func (s *Stripe) CreateCheckoutSession(checkoutSessionParams *stripe.CheckoutSessionParams) (*stripe.CheckoutSession, error) {
+	return session.New(checkoutSessionParams)
+}
+
+func (s *Stripe) CreateBillingPortalSession(billingPortalSessionParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error) {
+	return portalsession.New(billingPortalSessionParams)
 }
 
 func (s *Stripe) CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error) {
@@ -69,6 +78,8 @@ func (s *Stripe) ConstructWebhookEvent(reqBody []byte, signature string, webhook
 type IStripe interface {
 	CreateAccount(accountParams *stripe.AccountParams) (*stripe.Account, error)
 	CreateCustomer(customerParams *stripe.CustomerParams) (*stripe.Customer, error)
+	CreateCheckoutSession(checkoutSessionParams *stripe.CheckoutSessionParams) (*stripe.CheckoutSession, error)
+	CreateBillingPortalSession(billingPortalSessionParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error)
 	CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error)
 	CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error)
 	ConstructWebhookEvent(reqBody []byte, signature string, webhookKey string) (stripe.Event, error)
