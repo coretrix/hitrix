@@ -5,6 +5,7 @@ import (
 	"github.com/stripe/stripe-go/v72/account"
 	"github.com/stripe/stripe-go/v72/accountlink"
 	"github.com/stripe/stripe-go/v72/checkout/session"
+	"github.com/stripe/stripe-go/v72/customer"
 	"github.com/stripe/stripe-go/v72/paymentintent"
 	"github.com/stripe/stripe-go/v72/webhook"
 )
@@ -23,6 +24,10 @@ func NewStripe(token string, webhookSecrets map[string]string) *Stripe {
 
 func (s *Stripe) CreateAccount(accountParams *stripe.AccountParams) (*stripe.Account, error) {
 	return account.New(accountParams)
+}
+
+func (s *Stripe) CreateCustomer(customerParams *stripe.CustomerParams) (*stripe.Customer, error) {
+	return customer.New(customerParams)
 }
 
 func (s *Stripe) CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error) {
@@ -63,6 +68,7 @@ func (s *Stripe) ConstructWebhookEvent(reqBody []byte, signature string, webhook
 
 type IStripe interface {
 	CreateAccount(accountParams *stripe.AccountParams) (*stripe.Account, error)
+	CreateCustomer(customerParams *stripe.CustomerParams) (*stripe.Customer, error)
 	CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error)
 	CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error)
 	ConstructWebhookEvent(reqBody []byte, signature string, webhookKey string) (stripe.Event, error)

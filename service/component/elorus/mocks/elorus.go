@@ -23,7 +23,7 @@ func (e *FakeElorus) CreateInvoice(request *elorus.CreateInvoiceRequest) (*eloru
 }
 
 func (e *FakeElorus) GetInvoiceList(request *elorus.GetInvoiceListRequest) (*elorus.InvoiceListResponse, error) {
- 	args := e.Called(request)
+	args := e.Called(request)
 	return args.Get(0).(*elorus.InvoiceListResponse), args.Error(1)
 }
 
