@@ -1,12 +1,11 @@
 package mocks
 
 import (
-  "io"
-	"time"
+	"io"
 
 	"github.com/stretchr/testify/mock"
 
-  "github.com/coretrix/hitrix/service/component/elorus"
+	"github.com/coretrix/hitrix/service/component/elorus"
 )
 
 type FakeElorus struct {
