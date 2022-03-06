@@ -8,6 +8,7 @@ import (
 	"github.com/stripe/stripe-go/v72/checkout/session"
 	"github.com/stripe/stripe-go/v72/customer"
 	"github.com/stripe/stripe-go/v72/paymentintent"
+	"github.com/stripe/stripe-go/v72/setupintent"
 	"github.com/stripe/stripe-go/v72/sub"
 	"github.com/stripe/stripe-go/v72/webhook"
 )
@@ -50,6 +51,10 @@ func (s *Stripe) UpdateSubscription(subscriptionID string, subscriptionParams *s
 
 func (s *Stripe) CancelSubscription(subscriptionID string, subscriptionCancelParams *stripe.SubscriptionCancelParams) (*stripe.Subscription, error) {
 	return sub.Cancel(subscriptionID, subscriptionCancelParams)
+}
+
+func (s *Stripe) CreateSetupIntent(setupIntentParams *stripe.SetupIntentParams) (*stripe.SetupIntent, error) {
+	return setupintent.New(setupIntentParams)
 }
 
 func (s *Stripe) CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error) {
@@ -95,6 +100,7 @@ type IStripe interface {
 	CreateSubscription(subscriptionParams *stripe.SubscriptionParams) (*stripe.Subscription, error)
 	UpdateSubscription(subscriptionID string, subscriptionParams *stripe.SubscriptionParams) (*stripe.Subscription, error)
 	CancelSubscription(subscriptionID string, subscriptionCancelParams *stripe.SubscriptionCancelParams) (*stripe.Subscription, error)
+	CreateSetupIntent(setupIntentParams *stripe.SetupIntentParams) (*stripe.SetupIntent, error)
 	CreateBillingPortalSession(billingPortalSessionParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error)
 	CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error)
 	CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error)

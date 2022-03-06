@@ -39,6 +39,11 @@ func (t *FakeStripeClient) CancelSubscription(subscriptionID string, subscriptio
 	return args.Get(0).(*stripe.Subscription), args.Error(1)
 }
 
+func (t *FakeStripeClient) CreateSetupIntent(setupIntentParams *stripe.SetupIntentParams) (*stripe.SetupIntent, error) {
+	args := t.Called(setupIntentParams)
+	return args.Get(0).(*stripe.SetupIntent), args.Error(1)
+}
+
 func (t *FakeStripeClient) CreateBillingPortalSession(billingPortalSessionParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error) {
 	args := t.Called(billingPortalSessionParams)
 	return args.Get(0).(*stripe.BillingPortalSession), args.Error(1)
