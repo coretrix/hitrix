@@ -46,7 +46,7 @@ require (
 	github.com/sarulabs/di v2.0.0+incompatible
 	github.com/slack-go/slack v0.9.0
 	github.com/stretchr/testify v1.7.0
-	github.com/stripe/stripe-go/v72 v72.50.0
+	github.com/stripe/stripe-go/v72 v72.91.0
 	github.com/tealeg/xlsx v1.0.5
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.2.1 // indirect
