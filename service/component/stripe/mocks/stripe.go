@@ -14,6 +14,21 @@ func (t *FakeStripeClient) CreateAccount(accountParams *stripe.AccountParams) (*
 	return args.Get(0).(*stripe.Account), args.Error(1)
 }
 
+func (t *FakeStripeClient) CreateCustomer(customerParams *stripe.CustomerParams) (*stripe.Customer, error) {
+	args := t.Called(customerParams)
+	return args.Get(0).(*stripe.Customer), args.Error(1)
+}
+
+func (t *FakeStripeClient) CreateCheckoutSession(checkoutSessionParams *stripe.CheckoutSessionParams) (*stripe.CheckoutSession, error) {
+	args := t.Called(checkoutSessionParams)
+	return args.Get(0).(*stripe.CheckoutSession), args.Error(1)
+}
+
+func (t *FakeStripeClient) CreateBillingPortalSession(billingPortalSessionParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error) {
+	args := t.Called(billingPortalSessionParams)
+	return args.Get(0).(*stripe.BillingPortalSession), args.Error(1)
+}
+
 func (t *FakeStripeClient) CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error) {
 	args := t.Called(accountLinkParams)
 	return args.Get(0).(*stripe.AccountLink), args.Error(1)
