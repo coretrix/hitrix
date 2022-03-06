@@ -24,6 +24,7 @@ import (
 	fileextractor "github.com/coretrix/hitrix/service/component/file_extractor"
 	"github.com/coretrix/hitrix/service/component/generator"
 	"github.com/coretrix/hitrix/service/component/gql"
+	"github.com/coretrix/hitrix/service/component/instagram"
 	"github.com/coretrix/hitrix/service/component/jwt"
 	"github.com/coretrix/hitrix/service/component/localize"
 	"github.com/coretrix/hitrix/service/component/mail"
@@ -83,6 +84,7 @@ const (
 	TemplateService         = "template"
 	GQLService              = "gql"
 	ElorusService           = "elorus"
+	InstagramService        = "instagram"
 )
 
 type DIContainer struct {
@@ -244,4 +246,8 @@ func (d *DIContainer) Gql() gql.IGQLInterface {
 
 func (d *DIContainer) Elorus() elorus.IProvider {
 	return GetServiceRequired(ElorusService).(elorus.IProvider)
+}
+
+func (d *DIContainer) Instagram() *instagram.APIManager {
+	return GetServiceRequired(InstagramService).(*instagram.APIManager)
 }
