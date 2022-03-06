@@ -27,8 +27,8 @@ type Post struct {
 
 type IProvider interface {
 	GetName() string
-	GetAccount(accountID string) (*Account, error)
-	GetFeed(accountID, nextPageToken string) ([]*Post, string, error)
+	GetAccount(account string) (*Account, error)
+	GetFeed(accountID int64, nextPageToken string) ([]*Post, string, error)
 }
 
 type APIManager struct {

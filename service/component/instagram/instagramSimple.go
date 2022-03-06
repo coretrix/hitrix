@@ -93,7 +93,7 @@ func (i *RapidAPIInstagramSimple) GetAccount(account string) (*Account, error) {
 	}, nil
 }
 
-func (i *RapidAPIInstagramSimple) GetFeed(accountID, nextPageToken string) ([]*Post, string, error) {
+func (i *RapidAPIInstagramSimple) GetFeed(accountID int64, nextPageToken string) ([]*Post, string, error) {
 	response := struct {
 		Data []RapidAPIInstagramSimplePost `json:"data"`
 		Meta struct {
@@ -103,7 +103,7 @@ func (i *RapidAPIInstagramSimple) GetFeed(accountID, nextPageToken string) ([]*P
 		Code int64 `json:"code"`
 	}{}
 
-	instagramURL := fmt.Sprintf("%s/account/%s/feed", i.apiBaseURL, accountID)
+	instagramURL := fmt.Sprintf("%s/account/%d/feed", i.apiBaseURL, accountID)
 	if nextPageToken != "" {
 		instagramURL = fmt.Sprintf("?pageId=%s", nextPageToken)
 	}
