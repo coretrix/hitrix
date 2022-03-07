@@ -19,6 +19,11 @@ func (t *FakeStripeClient) CreateCustomer(customerParams *stripe.CustomerParams)
 	return args.Get(0).(*stripe.Customer), args.Error(1)
 }
 
+func (t *FakeStripeClient) UpdateCustomer(customerID string, customerParams *stripe.CustomerParams) (*stripe.Customer, error) {
+	args := t.Called(customerID, customerParams)
+	return args.Get(0).(*stripe.Customer), args.Error(1)
+}
+
 func (t *FakeStripeClient) CreateCheckoutSession(checkoutSessionParams *stripe.CheckoutSessionParams) (*stripe.CheckoutSession, error) {
 	args := t.Called(checkoutSessionParams)
 	return args.Get(0).(*stripe.CheckoutSession), args.Error(1)

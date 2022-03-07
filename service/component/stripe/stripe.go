@@ -33,6 +33,10 @@ func (s *Stripe) CreateCustomer(customerParams *stripe.CustomerParams) (*stripe.
 	return customer.New(customerParams)
 }
 
+func (s *Stripe) UpdateCustomer(customerID string, customerParams *stripe.CustomerParams) (*stripe.Customer, error) {
+	return customer.Update(customerID, customerParams)
+}
+
 func (s *Stripe) CreateCheckoutSession(checkoutSessionParams *stripe.CheckoutSessionParams) (*stripe.CheckoutSession, error) {
 	return session.New(checkoutSessionParams)
 }
@@ -96,6 +100,7 @@ func (s *Stripe) ConstructWebhookEvent(reqBody []byte, signature string, webhook
 type IStripe interface {
 	CreateAccount(accountParams *stripe.AccountParams) (*stripe.Account, error)
 	CreateCustomer(customerParams *stripe.CustomerParams) (*stripe.Customer, error)
+	UpdateCustomer(customerID string, customerParams *stripe.CustomerParams) (*stripe.Customer, error)
 	CreateCheckoutSession(checkoutSessionParams *stripe.CheckoutSessionParams) (*stripe.CheckoutSession, error)
 	CreateSubscription(subscriptionParams *stripe.SubscriptionParams) (*stripe.Subscription, error)
 	UpdateSubscription(subscriptionID string, subscriptionParams *stripe.SubscriptionParams) (*stripe.Subscription, error)
