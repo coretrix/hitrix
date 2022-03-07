@@ -31,11 +31,16 @@ type IProvider interface {
 	GetFeed(accountID int64, nextPageToken string) ([]*Post, string, error)
 }
 
+type IAPIManager interface {
+	GetRandomProvider() IProvider
+	GetProvider() IProvider
+}
+
 type APIManager struct {
 	Providers map[uint64]IProvider
 }
 
-func NewAPIManager(configService config.IConfig, newProviderFunctions ...NewProviderFunc) (*APIManager, error) {
+func NewAPIManager(configService config.IConfig, newProviderFunctions ...NewProviderFunc) (IAPIManager, error) {
 	providers := map[uint64]IProvider{}
 
 	for i, newProviderFunc := range newProviderFunctions {

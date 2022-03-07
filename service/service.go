@@ -248,6 +248,6 @@ func (d *DIContainer) Elorus() elorus.IProvider {
 	return GetServiceRequired(ElorusService).(elorus.IProvider)
 }
 
-func (d *DIContainer) Instagram() *instagram.APIManager {
-	return GetServiceRequired(InstagramService).(*instagram.APIManager)
+func (d *DIContainer) Instagram() instagram.IAPIManager {
+	return GetServiceRequired(InstagramService).(instagram.IAPIManager)
 }
