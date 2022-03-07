@@ -82,7 +82,10 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 		}
 
 		ginEngine.POST("/query", queryHandler)
-		ginEngine.GET("/", playgroundHandler())
+		if !app.IsInProdMode() {
+			ginEngine.GET("/", playgroundHandler())
+
+		}
 	}
 	binding.Validator = helper.NewValidator()
 	return ginEngine
