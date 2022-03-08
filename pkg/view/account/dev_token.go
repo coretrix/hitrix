@@ -1,7 +1,6 @@
 package account
 
 import (
-	// nolint
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/json"
