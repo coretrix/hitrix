@@ -28,7 +28,7 @@ type GoogleOSS struct {
 	privateKey   []byte
 }
 
-func (ossStorage *GoogleOSS) NewGoogleOSS(configService config.IConfig, clockService clock.IClock, publicNamespaces, privateNamespaces []Namespace) (IProvider, error) {
+func NewGoogleOSS(configService config.IConfig, clockService clock.IClock, publicNamespaces, privateNamespaces []Namespace) (IProvider, error) {
 	ctx := context.Background()
 
 	if !helper.ExistsInDir(".oss.json", configService.GetFolderPath()) {
