@@ -11,4 +11,5 @@ type SettingsEntity struct {
 	Value      string `orm:"required;length=max;"`
 	Editable   bool
 	Deletable  bool
+	Hidden     bool `orm:"searchable"`
 }
