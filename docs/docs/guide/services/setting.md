@@ -23,10 +23,11 @@ import (
 
 func SaveConfig(){
     ormService := service.DI().ORMEngine()
-    ormService.Flush(&entity.SettingsEntity{
-        Key: "user.login.threshold",
-        Value: "3",
-    })
+	ormService.Flush(&entity.SettingsEntity{
+		Key:       "user.login.threshold",
+		Value:     "3",
+		ValueType: entity.SettingsValueTypeAll.SettingsValueTypeNumber,
+	})
 }
 ```
 
