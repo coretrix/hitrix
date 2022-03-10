@@ -45,6 +45,10 @@ func (s *Stripe) CreateBillingPortalSession(billingPortalSessionParams *stripe.B
 	return portalsession.New(billingPortalSessionParams)
 }
 
+func (s *Stripe) GetSubscription(subscriptionID string, params *stripe.SubscriptionParams) (*stripe.Subscription, error) {
+	return sub.Get(subscriptionID, params)
+}
+
 func (s *Stripe) CreateSubscription(subscriptionParams *stripe.SubscriptionParams) (*stripe.Subscription, error) {
 	return sub.New(subscriptionParams)
 }
@@ -102,6 +106,7 @@ type IStripe interface {
 	CreateCustomer(customerParams *stripe.CustomerParams) (*stripe.Customer, error)
 	UpdateCustomer(customerID string, customerParams *stripe.CustomerParams) (*stripe.Customer, error)
 	CreateCheckoutSession(checkoutSessionParams *stripe.CheckoutSessionParams) (*stripe.CheckoutSession, error)
+	GetSubscription(subscriptionID string, subscriptionParams *stripe.SubscriptionParams) (*stripe.Subscription, error)
 	CreateSubscription(subscriptionParams *stripe.SubscriptionParams) (*stripe.Subscription, error)
 	UpdateSubscription(subscriptionID string, subscriptionParams *stripe.SubscriptionParams) (*stripe.Subscription, error)
 	CancelSubscription(subscriptionID string, subscriptionCancelParams *stripe.SubscriptionCancelParams) (*stripe.Subscription, error)

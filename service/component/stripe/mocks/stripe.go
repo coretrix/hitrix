@@ -29,6 +29,11 @@ func (t *FakeStripeClient) CreateCheckoutSession(checkoutSessionParams *stripe.C
 	return args.Get(0).(*stripe.CheckoutSession), args.Error(1)
 }
 
+func (t *FakeStripeClient) GetSubscription(subscriptionID string, params *stripe.SubscriptionParams) (*stripe.Subscription, error) {
+	args := t.Called(subscriptionID, params)
+	return args.Get(0).(*stripe.Subscription), args.Error(1)
+}
+
 func (t *FakeStripeClient) CreateSubscription(subscriptionParams *stripe.SubscriptionParams) (*stripe.Subscription, error) {
 	args := t.Called(subscriptionParams)
 	return args.Get(0).(*stripe.Subscription), args.Error(1)
