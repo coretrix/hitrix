@@ -12,7 +12,7 @@ const (
 	SettingsValueTypeURI      = "uri"
 	SettingsValueTypePassword = "password"
 	SettingsValueTypeDateTime = "datetime"
-	SettingsValueTypeJson     = "json"
+	SettingsValueTypeJSON     = "json"
 )
 
 type settingsValueType struct {
@@ -23,7 +23,7 @@ type settingsValueType struct {
 	SettingsValueTypeURI      string
 	SettingsValueTypePassword string
 	SettingsValueTypeDateTime string
-	SettingsValueTypeJson     string
+	SettingsValueTypeJSON     string
 }
 
 var SettingsValueTypeAll = settingsValueType{
@@ -34,7 +34,7 @@ var SettingsValueTypeAll = settingsValueType{
 	SettingsValueTypeURI:      SettingsValueTypeURI,
 	SettingsValueTypePassword: SettingsValueTypePassword,
 	SettingsValueTypeDateTime: SettingsValueTypeDateTime,
-	SettingsValueTypeJson:     SettingsValueTypeJson,
+	SettingsValueTypeJSON:     SettingsValueTypeJSON,
 }
 
 type SettingsEntity struct {
