@@ -9,8 +9,10 @@ const (
 	SettingsValueTypeNumber   = "number"
 	SettingsValueTypeEmail    = "email"
 	SettingsValueTypeTel      = "tel"
-	SettingsValueTypeURL      = "url"
+	SettingsValueTypeURI      = "uri"
 	SettingsValueTypePassword = "password"
+	SettingsValueTypeDateTime = "datetime"
+	SettingsValueTypeJson     = "json"
 )
 
 type settingsValueType struct {
@@ -18,8 +20,10 @@ type settingsValueType struct {
 	SettingsValueTypeNumber   string
 	SettingsValueTypeEmail    string
 	SettingsValueTypeTel      string
-	SettingsValueTypeURL      string
+	SettingsValueTypeURI      string
 	SettingsValueTypePassword string
+	SettingsValueTypeDateTime string
+	SettingsValueTypeJson     string
 }
 
 var SettingsValueTypeAll = settingsValueType{
@@ -27,8 +31,10 @@ var SettingsValueTypeAll = settingsValueType{
 	SettingsValueTypeNumber:   SettingsValueTypeNumber,
 	SettingsValueTypeEmail:    SettingsValueTypeEmail,
 	SettingsValueTypeTel:      SettingsValueTypeTel,
-	SettingsValueTypeURL:      SettingsValueTypeURL,
+	SettingsValueTypeURI:      SettingsValueTypeURI,
 	SettingsValueTypePassword: SettingsValueTypePassword,
+	SettingsValueTypeDateTime: SettingsValueTypeDateTime,
+	SettingsValueTypeJson:     SettingsValueTypeJson,
 }
 
 type SettingsEntity struct {
