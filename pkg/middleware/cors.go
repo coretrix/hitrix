@@ -18,7 +18,7 @@ func Cors(ginEngine *gin.Engine) {
 
 	corsConfig := cors.Config{
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization", "X-Requested-With"},
 		AllowOrigins:     origins,
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
