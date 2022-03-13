@@ -53,6 +53,13 @@ type AuthProviderEntity interface {
 	GetPassword() string
 }
 
+type EmailAuthEntity interface {
+	beeorm.Entity
+	AuthenticatableEntity
+	GetPassword() string
+	GetEmailFieldName() string
+}
+
 type Authentication struct {
 	accessTokenTTL       int
 	refreshTokenTTL      int
@@ -223,6 +230,24 @@ func (t *Authentication) Authenticate(ormService *beeorm.Engine, uniqueValue str
 	found := ormService.RedisSearchOne(entity, q)
 	if !found {
 		return "", "", errors.New("invalid user/pass")
+	}
+
+	if !t.passwordService.VerifyPassword(password, entity.GetPassword()) {
+		return "", "", errors.New("invalid user/pass")
+	}
+
+	if !entity.CanAuthenticate() {
+		return "", "", errors.New("cannot authenticate this entity")
+	}
+	return t.generateUserTokens(ormService, entity.GetID())
+}
+
+func (t *Authentication) AuthenticateEmail(ormService *beeorm.Engine, email string, password string, entity EmailAuthEntity) (accessToken string, refreshToken string, err error) {
+	q := &beeorm.RedisSearchQuery{}
+	q.FilterString(entity.GetEmailFieldName(), email)
+	found := ormService.RedisSearchOne(entity, q)
+	if !found {
+		return "", "", errors.New("invalid credentials")
 	}
 
 	if !t.passwordService.VerifyPassword(password, entity.GetPassword()) {

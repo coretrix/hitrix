@@ -2,8 +2,7 @@ package errorlogger
 
 import (
 	"bytes"
-	//nolint
-	"crypto/md5"
+	"crypto/md5" //nolint
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
