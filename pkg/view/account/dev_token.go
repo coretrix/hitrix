@@ -2,7 +2,7 @@ package account
 
 import (
 	//nolint
-	"crypto/md5"
+	"crypto/md5" //nolint
 	"encoding/base64"
 	"encoding/json"
 	"errors"
