@@ -245,6 +245,7 @@ mainLoop:
 		SearchOR:            selectedORSearches,
 		StringFilters:       selectedStringFilters,
 		FormatStringFilters: selectedFormatStringFilters,
+		ArrayStringFilters:  selectedArrayStringFilters,
 		NumberFilters:       selectedNumberFilters,
 		ArrayNumberFilters:  selectedArrayNumberFilters,
 		RangeNumberFilters:  selectedRangeNumberFilters,
