@@ -10,7 +10,7 @@ import (
 )
 
 type FileExtractor struct {
-	founds map[string]string
+	Founds []string
 }
 
 type ExtractParams struct {
@@ -20,7 +20,6 @@ type ExtractParams struct {
 }
 
 func (l *FileExtractor) Extract(params ExtractParams) ([]string, error) {
-	l.founds = map[string]string{}
 	err := filepath.Walk(params.SearchPath,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
@@ -38,12 +37,7 @@ func (l *FileExtractor) Extract(params ExtractParams) ([]string, error) {
 		return nil, err
 	}
 
-	var foundsSlice []string
-	for key := range l.founds {
-		foundsSlice = append(foundsSlice, key)
-	}
-
-	return foundsSlice, err
+	return l.Founds, err
 }
 
 func (l *FileExtractor) ExtractFromFile(pathToread string, expression string) {
@@ -53,8 +47,13 @@ func (l *FileExtractor) ExtractFromFile(pathToread string, expression string) {
 	}
 	reg := *regexp.MustCompile(expression)
 	res := reg.FindAllStringSubmatch(fileContent, -1)
+	foundsMap := map[string]string{}
 	for i := range res {
-		l.founds[res[i][1]] = ""
+		foundsMap[res[i][1]] = ""
+	}
+
+	for key := range foundsMap {
+		l.Founds = append(l.Founds, key)
 	}
 }
 
