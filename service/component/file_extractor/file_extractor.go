@@ -30,7 +30,7 @@ func (l *FileExtractor) Extract(params ExtractParams) ([]string, error) {
 				!strings.HasSuffix(path, "_test.go") &&
 				!strings.HasSuffix(path, "_gen.go") &&
 				!strings.HasSuffix(path, "generated.go") {
-				l.extractFormFile(path, params.Expression)
+				l.ExtractFromFile(path, params.Expression)
 			}
 			return err
 		})
@@ -46,7 +46,7 @@ func (l *FileExtractor) Extract(params ExtractParams) ([]string, error) {
 	return foundsSlice, err
 }
 
-func (l *FileExtractor) extractFormFile(pathToread string, expression string) {
+func (l *FileExtractor) ExtractFromFile(pathToread string, expression string) {
 	fileContent, err := l.readFile(pathToread)
 	if err != nil {
 		log.Fatal(err)
