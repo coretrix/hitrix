@@ -128,14 +128,14 @@ func (ossStorage *AmazonOSS) GetObjectBase64Content(_ Bucket, _ *Object) (string
 	panic("not implemented")
 }
 
-func (ossStorage *AmazonOSS) UploadObjectFromByte(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, objectContent []byte, extension string) (Object, error) {
+func (ossStorage *AmazonOSS) UploadObjectFromByte(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, objectContent []byte, fileName *string, extension string) (Object, error) {
 	bucketConfig := ossStorage.buckets[bucket]
 
 	bucketConfig.validateNamespace(namespace)
 
 	storageCounter := getStorageCounter(ormService, bucketConfig)
 
-	objectKey := ossStorage.getObjectKey(namespace, storageCounter, extension)
+	objectKey := ossStorage.getObjectKey(namespace, storageCounter, fileName, extension)
 
 	putObjectInput := &s3.PutObjectInput{
 		Body:   bytes.NewReader(objectContent),
@@ -166,7 +166,7 @@ func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *beeorm.Engine, buc
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, fileContent, ext)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, fileContent, nil, ext)
 }
 
 func (ossStorage *AmazonOSS) UploadObjectFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, content, extension string) (Object, error) {
@@ -176,7 +176,7 @@ func (ossStorage *AmazonOSS) UploadObjectFromBase64(ormService *beeorm.Engine, b
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, extension)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, nil, extension)
 }
 
 func (ossStorage *AmazonOSS) UploadImageFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (Object, error) {
@@ -190,7 +190,7 @@ func (ossStorage *AmazonOSS) UploadImageFromBase64(ormService *beeorm.Engine, bu
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, extension)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, nil, extension)
 }
 
 func (ossStorage *AmazonOSS) DeleteObject(bucket Bucket, object *Object) error {
@@ -212,10 +212,16 @@ func (ossStorage *AmazonOSS) CreateObjectFromKey(ormService *beeorm.Engine, buck
 	}
 }
 
-func (ossStorage *AmazonOSS) getObjectKey(namespace Namespace, storageCounter uint64, fileExtension string) string {
-	if namespace != "" {
-		return namespace.String() + "/" + strconv.FormatUint(storageCounter, 10) + fileExtension
+func (ossStorage *AmazonOSS) getObjectKey(namespace Namespace, storageCounter uint64, fileName *string, fileExtension string) string {
+	name := strconv.FormatUint(storageCounter, 10)
+	if fileName != nil {
+		name = *fileName
 	}
 
-	return strconv.FormatUint(storageCounter, 10) + fileExtension
+	if namespace != "" {
+		return namespace.String() + "/" + name + fileExtension
+	}
+
+	return name + fileExtension
+
 }

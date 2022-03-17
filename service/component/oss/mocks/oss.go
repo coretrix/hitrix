@@ -45,8 +45,8 @@ func (t *FakeOSSClient) UploadObjectFromBase64(_ *beeorm.Engine, bucket oss.Buck
 	return t.Called(bucket, path, content, extension).Get(0).(oss.Object), nil
 }
 
-func (t *FakeOSSClient) UploadObjectFromByte(_ *beeorm.Engine, bucket oss.Bucket, path oss.Namespace, content []byte, extension string) (oss.Object, error) {
-	return t.Called(bucket, path, content, extension).Get(0).(oss.Object), nil
+func (t *FakeOSSClient) UploadObjectFromByte(_ *beeorm.Engine, bucket oss.Bucket, path oss.Namespace, content []byte, fileName *string, extension string) (oss.Object, error) {
+	return t.Called(bucket, path, content, fileName, extension).Get(0).(oss.Object), nil
 }
 
 func (t *FakeOSSClient) UploadImageFromFile(_ *beeorm.Engine, bucket oss.Bucket, path oss.Namespace, localFile string) (oss.Object, error) {

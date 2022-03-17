@@ -131,7 +131,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *beeorm.Engine, buc
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, fileContent, ext)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, fileContent, nil, ext)
 }
 
 func (ossStorage *GoogleOSS) UploadObjectFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, base64content, extension string) (Object, error) {
@@ -141,7 +141,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromBase64(ormService *beeorm.Engine, b
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, extension)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, nil, extension)
 }
 
 func (ossStorage *GoogleOSS) UploadImageFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, base64image, extension string) (Object, error) {
@@ -151,21 +151,21 @@ func (ossStorage *GoogleOSS) UploadImageFromBase64(ormService *beeorm.Engine, bu
 		return Object{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, extension)
+	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, nil, extension)
 }
 
 func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (Object, error) {
 	return ossStorage.UploadObjectFromFile(ormService, bucket, namespace, localFile)
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromByte(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, objectContent []byte, extension string) (Object, error) {
+func (ossStorage *GoogleOSS) UploadObjectFromByte(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, objectContent []byte, fileName *string, extension string) (Object, error) {
 	bucketConfig := ossStorage.buckets[bucket]
 
 	bucketConfig.validateNamespace(namespace)
 
 	storageCounter := getStorageCounter(ormService, ossStorage.buckets[bucket])
 
-	objectKey := ossStorage.getObjectKey(namespace, storageCounter, extension)
+	objectKey := ossStorage.getObjectKey(namespace, storageCounter, fileName, extension)
 
 	ossBucketObject := ossStorage.client.Bucket(bucketConfig.Name).Object(objectKey).NewWriter(ossStorage.ctx)
 
@@ -201,12 +201,17 @@ func (ossStorage *GoogleOSS) CreateObjectFromKey(ormService *beeorm.Engine, buck
 	}
 }
 
-func (ossStorage *GoogleOSS) getObjectKey(namespace Namespace, storageCounter uint64, fileExtension string) string {
-	if namespace != "" {
-		return namespace.String() + "/" + strconv.FormatUint(storageCounter, 10) + fileExtension
+func (ossStorage *GoogleOSS) getObjectKey(namespace Namespace, storageCounter uint64, fileName *string, fileExtension string) string {
+	name := strconv.FormatUint(storageCounter, 10)
+	if fileName != nil {
+		name = *fileName
 	}
 
-	return strconv.FormatUint(storageCounter, 10) + fileExtension
+	if namespace != "" {
+		return namespace.String() + "/" + name + fileExtension
+	}
+
+	return name + fileExtension
 }
 
 //TODO Remove
