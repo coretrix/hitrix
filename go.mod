@@ -37,7 +37,7 @@ require (
 	github.com/kevinburke/go.uuid v1.2.0 // indirect
 	github.com/kevinburke/rest v0.0.0-20210425173428-1fcb8c8e9022 // indirect
 	github.com/kevinburke/twilio-go v0.0.0-20210327194925-1623146bcf73
-	github.com/latolukasz/beeorm v1.3.17
+	github.com/latolukasz/beeorm v1.3.18
 	github.com/mattbaird/gochimp v0.0.0-20200820164431-f1082bcdf63f
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
@@ -45,7 +45,7 @@ require (
 	github.com/ryanuber/columnize v2.1.2+incompatible
 	github.com/sarulabs/di v2.0.0+incompatible
 	github.com/slack-go/slack v0.9.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/stripe/stripe-go/v72 v72.91.0
 	github.com/tealeg/xlsx v1.0.5
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
