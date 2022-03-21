@@ -47,7 +47,9 @@ func Router(ginEngine *gin.Engine) {
 	var errorLog *controller.ErrorLogController
 	{
 		errorLogGroup := ginEngine.Group("/error-log/")
-		errorLogGroup.Use(AuthorizeDevUser())
+		if !service.DI().App().IsInLocalMode() {
+			errorLogGroup.Use(AuthorizeDevUser())
+		}
 
 		errorLogGroup.GET("errors/", errorLog.GetErrors)
 		errorLogGroup.GET("remove/:id/", errorLog.DeleteError)
