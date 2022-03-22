@@ -161,7 +161,7 @@ func Clockwork(ginEngine *gin.Engine) {
 			return
 		}
 
-		if resolverName := setController(c, profilerService); resolverName == "IntrospectionQuery" || resolverName == "" {
+		if resolverName := setController(c, profilerService); resolverName == "IntrospectionQuery" {
 			return
 		}
 
