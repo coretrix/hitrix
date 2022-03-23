@@ -19,6 +19,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/coretrix/hitrix/pkg/middleware"
 	"github.com/coretrix/hitrix/service"
 )
 
@@ -82,7 +83,9 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 		}
 
 		ginEngine.POST("/query", queryHandler)
-		if !app.IsInProdMode() {
+		if app.IsInProdMode() {
+			ginEngine.GET("/", middleware.AuthorizeWithQueryParam(), playgroundHandler())
+		} else {
 			ginEngine.GET("/", playgroundHandler())
 		}
 	}
