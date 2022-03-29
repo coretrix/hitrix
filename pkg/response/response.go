@@ -8,6 +8,8 @@ import (
 	"github.com/coretrix/hitrix/pkg/errors"
 )
 
+const ResponseBody = "response_body"
+
 type Error struct {
 	GlobalError string            `json:"GlobalError,omitempty"`
 	FieldsError map[string]string `json:"FieldsError,omitempty"`
@@ -15,6 +17,8 @@ type Error struct {
 }
 
 func SuccessResponse(c *gin.Context, data interface{}) {
+	c.Set(ResponseBody, data)
+
 	if data != nil {
 		c.JSON(http.StatusOK, data)
 		return
@@ -36,6 +40,8 @@ func ErrorResponseGlobal(c *gin.Context, globalError interface{}, data interface
 
 	err, ok := globalError.(*errors.PermissionError)
 	if ok {
+		c.Set(ResponseBody, err.Error())
+
 		c.AbortWithStatusJSON(http.StatusForbidden, err.Error())
 		return
 	}
@@ -46,6 +52,8 @@ func ErrorResponseGlobal(c *gin.Context, globalError interface{}, data interface
 	} else {
 		result.GlobalError = globalError.(string)
 	}
+
+	c.Set(ResponseBody, result)
 
 	c.JSON(http.StatusBadRequest, result)
 }
@@ -58,6 +66,8 @@ func ErrorResponseFields(c *gin.Context, fieldsError errors.FieldErrors, data in
 	if data != nil {
 		result.Result = &data
 	}
+
+	c.Set(ResponseBody, result)
 
 	c.JSON(http.StatusBadRequest, result)
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
 
+	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/service"
 )
 
@@ -161,7 +162,9 @@ func Clockwork(ginEngine *gin.Engine) {
 			return
 		}
 
-		if resolverName := setController(c, profilerService); resolverName == "IntrospectionQuery" {
+		body := getRawRequestData(c)
+
+		if resolverName := setController(body, profilerService); resolverName == "IntrospectionQuery" {
 			return
 		}
 
@@ -189,6 +192,12 @@ func Clockwork(ginEngine *gin.Engine) {
 
 		profilerService.GetRequestDataSource().SetResponseStatus(int16(c.Writer.Status()))
 
+		profilerService.GetLoggerDataSource().LogDebugString("Request", string(body))
+		responseBody, has := c.Get(response.ResponseBody)
+		if has {
+			responseBodyByte, _ := json.Marshal(responseBody)
+			profilerService.GetLoggerDataSource().LogDebugString("Response", string(responseBodyByte))
+		}
 		profilerService.SaveData()
 	})
 }
@@ -198,7 +207,7 @@ func isMultipartRequest(c *gin.Context) bool {
 	return len(contentTypes) > 0 && strings.Contains(contentTypes[0], gin.MIMEMultipartPOSTForm)
 }
 
-func getRawData(c *gin.Context) []byte {
+func getRawRequestData(c *gin.Context) []byte {
 	var b []byte
 	if isMultipartRequest(c) {
 		err := c.Request.ParseMultipartForm(4096)
@@ -214,12 +223,13 @@ func getRawData(c *gin.Context) []byte {
 			panic(err)
 		}
 	}
+
+	c.Request.Body = ioutil.NopCloser(bytes.NewReader(b))
+
 	return b
 }
 
-func setController(c *gin.Context, profilerService *clockwork.Clockwork) string {
-	b := getRawData(c)
-
+func setController(b []byte, profilerService *clockwork.Clockwork) string {
 	if len(b) == 0 {
 		return ""
 	}
@@ -259,8 +269,6 @@ func setController(c *gin.Context, profilerService *clockwork.Clockwork) string 
 	}
 
 	profilerService.GetRequestDataSource().SetController(queryType, resolverName)
-
-	c.Request.Body = ioutil.NopCloser(bytes.NewReader(b))
 
 	return resolverName
 }
