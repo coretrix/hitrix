@@ -22,7 +22,7 @@ func Cors(ginEngine *gin.Engine) {
 		AllowOrigins:     origins,
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
-		ExposeHeaders:    []string{"X-Invalid-Authorization"},
+		ExposeHeaders:    []string{"X-Invalid-Authorization", "X-Clockwork-Id", "X-Clockwork-Version"},
 	}
 
 	ginEngine.Use(cors.New(corsConfig))
