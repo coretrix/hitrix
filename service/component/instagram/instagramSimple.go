@@ -105,7 +105,7 @@ func (i *RapidAPIInstagramSimple) GetFeed(accountID int64, nextPageToken string)
 
 	instagramURL := fmt.Sprintf("%s/account/%d/feed", i.apiBaseURL, accountID)
 	if nextPageToken != "" {
-		instagramURL = fmt.Sprintf("?pageId=%s", nextPageToken)
+		instagramURL += fmt.Sprintf("?pageId=%s", nextPageToken)
 	}
 
 	res, err := sendRapidRequest(i, instagramURL)
