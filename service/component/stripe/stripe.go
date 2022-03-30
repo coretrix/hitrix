@@ -121,11 +121,6 @@ func (s *Stripe) CreateSetupIntent(setupIntentParams *stripe.SetupIntentParams) 
 }
 
 func (s *Stripe) CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error) {
-	if accountLinkParams.Params.Metadata == nil {
-		accountLinkParams.Params.Metadata = map[string]string{Env: s.appService.Mode}
-	} else {
-		accountLinkParams.Params.Metadata[Env] = s.appService.Mode
-	}
 	return accountlink.New(accountLinkParams)
 }
 
