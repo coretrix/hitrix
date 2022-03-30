@@ -6,6 +6,7 @@ import (
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/stripe"
 )
@@ -26,7 +27,9 @@ func ServiceProviderStripe() *service.DefinitionGlobal {
 				return nil, errors.New("missing stripe secrets")
 			}
 
-			return stripe.NewStripe(key, secrets), nil
+			appService := ctn.Get(service.AppService).(*app.App)
+
+			return stripe.NewStripe(key, secrets, appService), nil
 		},
 	}
 }
