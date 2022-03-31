@@ -67,11 +67,6 @@ func (s *Stripe) CreateCheckoutSession(checkoutSessionParams *stripe.CheckoutSes
 }
 
 func (s *Stripe) CreateBillingPortalSession(billingPortalSessionParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error) {
-	if billingPortalSessionParams.Params.Metadata == nil {
-		billingPortalSessionParams.Params.Metadata = map[string]string{Env: s.appService.Mode}
-	} else {
-		billingPortalSessionParams.Params.Metadata[Env] = s.appService.Mode
-	}
 	return portalsession.New(billingPortalSessionParams)
 }
 
