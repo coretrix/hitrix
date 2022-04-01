@@ -25,7 +25,7 @@ type Mailjet struct {
 	sandboxMode      bool
 }
 
-func NewMailjet(configService config.IConfig) (*Mailjet, error) {
+func NewMailjet(configService config.IConfig) (Sender, error) {
 	apiKeyPublic, ok := configService.String("mailjet.api_key_public")
 	if !ok {
 		return nil, errors.New("mailjet.api_key_public is missing")

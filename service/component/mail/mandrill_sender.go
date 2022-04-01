@@ -28,7 +28,7 @@ type Mandrill struct {
 	fromName         string
 }
 
-func NewMandrill(configService config.IConfig) (*Mandrill, error) {
+func NewMandrill(configService config.IConfig) (Sender, error) {
 	apiKey, ok := configService.String("mandrill.api_key")
 	if !ok {
 		return nil, errors.New("mailchimp.api_key is missing")
