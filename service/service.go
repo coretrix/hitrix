@@ -184,12 +184,8 @@ func (d *DIContainer) Authentication() *authentication.Authentication {
 	return GetServiceRequired(AuthenticationService).(*authentication.Authentication)
 }
 
-func (d *DIContainer) Mandrill() mail.Sender {
-	return GetServiceRequired(MailService).(*mail.Mandrill)
-}
-
-func (d *DIContainer) Mailjet() mail.Sender {
-	return GetServiceRequired(MailService).(*mail.Mailjet)
+func (d *DIContainer) Mail() mail.Sender {
+	return GetServiceRequired(MailService).(mail.Sender)
 }
 
 func (d *DIContainer) Google() *social.Google {

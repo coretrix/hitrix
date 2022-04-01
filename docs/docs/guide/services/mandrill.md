@@ -18,7 +18,7 @@ mandrill:
 
 Access the service:
 ```go
-service.DI().Mandrill()
+service.DI().Mail()
 ```
 
 Some of the functions this service provide are:

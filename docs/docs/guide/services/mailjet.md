@@ -20,7 +20,7 @@ mailjet:
 
 Access the service:
 ```go
-service.DI().Mailjet()
+service.DI().Mail()
 ```
 
 Some of the functions this service provide are:
