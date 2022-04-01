@@ -26,29 +26,29 @@ type Mailjet struct {
 }
 
 func NewMailjet(configService config.IConfig) (Sender, error) {
-	apiKeyPublic, ok := configService.String("mailjet.api_key_public")
+	apiKeyPublic, ok := configService.String("mail.mailjet.api_key_public")
 	if !ok {
-		return nil, errors.New("mailjet.api_key_public is missing")
+		return nil, errors.New("mail.mailjet.api_key_public is missing")
 	}
 
-	apiKeyPrivate, ok := configService.String("mailjet.api_key_private")
+	apiKeyPrivate, ok := configService.String("mail.mailjet.api_key_private")
 	if !ok {
-		return nil, errors.New("mailjet.api_key_private is missing")
+		return nil, errors.New("mail.mailjet.api_key_private is missing")
 	}
 
-	fromEmail, ok := configService.String("mailjet.default_from_email")
+	fromEmail, ok := configService.String("mail.mailjet.default_from_email")
 	if !ok {
-		return nil, errors.New("mailjet.default_from_email is missing")
+		return nil, errors.New("mail.mailjet.default_from_email is missing")
 	}
 
-	fromName, ok := configService.String("mailjet.from_name")
+	fromName, ok := configService.String("mail.mailjet.from_name")
 	if !ok {
-		return nil, errors.New("mailjet.from_name is missing")
+		return nil, errors.New("mail.mailjet.from_name is missing")
 	}
 
-	sandboxMode, ok := configService.Bool("mailjet.sandbox_mode")
+	sandboxMode, ok := configService.Bool("mail.mailjet.sandbox_mode")
 	if !ok {
-		return nil, errors.New("mailjet.sandbox_mode is missing")
+		return nil, errors.New("mail.mailjet.sandbox_mode is missing")
 	}
 
 	mailjetAPI := mailjet.NewMailjetClient(apiKeyPublic, apiKeyPrivate)

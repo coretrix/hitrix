@@ -10,10 +10,11 @@ and you should register the entity `MailTrackerEntity` into the ORM
 Also, you should put your credentials and other configs in your config file
 
 ```yml
-mandrill:
-  api_key: ...
-  default_from_email: test@coretrix.tv
-  from_name: coretrix.com
+mail:
+  mandrill:
+    api_key: ...
+    default_from_email: test@coretrix.tv
+    from_name: coretrix.com
 ```
 
 Access the service:

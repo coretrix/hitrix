@@ -10,12 +10,13 @@ and you should register the entity `MailTrackerEntity` into the ORM
 Also, you should put your credentials and other configs in your config file
 
 ```yml
-mailjet:
-  api_key_public: ...
-  api_key_private: ...
-  default_from_email: test@coretrix.tv
-  from_name: coretrix.com
-  sandbox_mode: false
+mail:
+  mailjet:
+    api_key_public: ...
+    api_key_private: ...
+    default_from_email: test@coretrix.tv
+    from_name: coretrix.com
+    sandbox_mode: false
 ```
 
 Access the service:

@@ -29,19 +29,19 @@ type Mandrill struct {
 }
 
 func NewMandrill(configService config.IConfig) (Sender, error) {
-	apiKey, ok := configService.String("mandrill.api_key")
+	apiKey, ok := configService.String("mail.mandrill.api_key")
 	if !ok {
-		return nil, errors.New("mailchimp.api_key is missing")
+		return nil, errors.New("mail.mandrill.api_key is missing")
 	}
 
-	fromEmail, ok := configService.String("mandrill.default_from_email")
+	fromEmail, ok := configService.String("mail.mandrill.default_from_email")
 	if !ok {
-		return nil, errors.New("mailchimp.default_from_email is missing")
+		return nil, errors.New("mail.mandrill.default_from_email is missing")
 	}
 
-	fromName, ok := configService.String("mandrill.from_name")
+	fromName, ok := configService.String("mail.mandrill.from_name")
 	if !ok {
-		return nil, errors.New("mandrill.from_name is missing")
+		return nil, errors.New("mail.mandrill.from_name is missing")
 	}
 
 	mandrillAPI, err := gochimp.NewMandrill(apiKey)
