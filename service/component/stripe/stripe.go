@@ -1,7 +1,6 @@
 package stripe
 
 import (
-	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/stripe/stripe-go/v72"
 	"github.com/stripe/stripe-go/v72/account"
 	"github.com/stripe/stripe-go/v72/accountlink"
@@ -12,6 +11,8 @@ import (
 	"github.com/stripe/stripe-go/v72/setupintent"
 	"github.com/stripe/stripe-go/v72/sub"
 	"github.com/stripe/stripe-go/v72/webhook"
+
+	"github.com/coretrix/hitrix/service/component/app"
 )
 
 const Env = "env"

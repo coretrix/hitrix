@@ -9,7 +9,7 @@ import (
 
 func ServiceProviderMockMail(mock mail.Sender) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: service.MailMandrillService,
+		Name: service.MailService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return mock, nil
 		},

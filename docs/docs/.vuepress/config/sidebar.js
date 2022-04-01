@@ -83,6 +83,10 @@ module.exports = [
                         link: '/guide/services/mandrill',
                     },
                     {
+                        text: 'Mailjet - Transactional emails',
+                        link: '/guide/services/mailjet',
+                    },
+                    {
                         text: 'JWT',
                         link: '/guide/services/jwt',
                     },

@@ -2,8 +2,11 @@ package mail
 
 import (
 	"github.com/latolukasz/beeorm"
-	"github.com/mattbaird/gochimp"
+
+	"github.com/coretrix/hitrix/service/component/config"
 )
+
+type NewSenderFunc func(configService config.IConfig) (Sender, error)
 
 type Sender interface {
 	SendTemplate(ormService *beeorm.Engine, message *Message) error
@@ -23,7 +26,13 @@ type Message struct {
 	TemplateData interface{}
 }
 
+type Attachment struct {
+	ContentType   string
+	Filename      string
+	Base64Content string
+}
+
 type MessageAttachment struct {
 	Message
-	Attachments []gochimp.Attachment
+	Attachments []Attachment
 }

@@ -2,7 +2,6 @@ package registry
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
@@ -12,10 +11,10 @@ import (
 	"github.com/coretrix/hitrix/service/component/mail"
 )
 
-// MailMandrill Be sure that you registered entity MailTrackerEntity
-func ServiceProviderMailMandrill() *service.DefinitionGlobal {
+// ServiceProviderMail Be sure that you registered entity MailTrackerEntity
+func ServiceProviderMail(newFunc mail.NewSenderFunc) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: service.MailMandrillService,
+		Name: service.MailService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()
@@ -23,24 +22,7 @@ func ServiceProviderMailMandrill() *service.DefinitionGlobal {
 				return nil, errors.New("you should register MailTrackerEntity")
 			}
 
-			configService := ctn.Get("config").(config.IConfig)
-
-			apiKey, ok := configService.String("mandrill.api_key")
-			if !ok {
-				panic(fmt.Errorf("mailchimp.api_key is missing"))
-			}
-
-			fromEmail, ok := configService.String("mandrill.default_from_email")
-			if !ok {
-				panic(fmt.Errorf("mailchimp.default_from_email is missing"))
-			}
-
-			fromName, ok := configService.String("mandrill.from_name")
-			if !ok {
-				panic(fmt.Errorf("mandrill.from_name is missing"))
-			}
-
-			return mail.NewMandrill(apiKey, fromEmail, fromName), nil
+			return newFunc(ctn.Get(service.ConfigService).(config.IConfig))
 		},
 	}
 }
