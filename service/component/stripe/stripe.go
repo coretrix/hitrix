@@ -71,11 +71,6 @@ func (s *Stripe) CreateBillingPortalSession(billingPortalSessionParams *stripe.B
 }
 
 func (s *Stripe) GetSubscription(subscriptionID string, params *stripe.SubscriptionParams) (*stripe.Subscription, error) {
-	if params.Params.Metadata == nil {
-		params.Params.Metadata = map[string]string{Env: s.appService.Mode}
-	} else {
-		params.Params.Metadata[Env] = s.appService.Mode
-	}
 	return sub.Get(subscriptionID, params)
 }
 
