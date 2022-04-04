@@ -74,6 +74,11 @@ func (t *FakeStripeClient) CreatePaymentIntentMultiparty(paymentIntentParams *st
 	return args.Get(0).(*stripe.PaymentIntent), args.Error(1)
 }
 
+func (t *FakeStripeClient) CreateRefundMultiparty(refundParams *stripe.RefundParams, linkedAccountID string) (*stripe.Refund, error) {
+	args := t.Called(refundParams, linkedAccountID)
+	return args.Get(0).(*stripe.Refund), args.Error(1)
+}
+
 func (t *FakeStripeClient) ConstructWebhookEvent(reqBody []byte, signature string, webhookKey string) (stripe.Event, error) {
 	return t.Called(reqBody, signature, webhookKey).Get(0).(stripe.Event), t.Called(reqBody, signature, webhookKey).Error(1)
 }

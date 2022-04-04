@@ -9,6 +9,7 @@ import (
 	"github.com/stripe/stripe-go/v72/checkout/session"
 	"github.com/stripe/stripe-go/v72/customer"
 	"github.com/stripe/stripe-go/v72/paymentintent"
+	"github.com/stripe/stripe-go/v72/refund"
 	"github.com/stripe/stripe-go/v72/setupintent"
 	"github.com/stripe/stripe-go/v72/sub"
 	"github.com/stripe/stripe-go/v72/webhook"
@@ -128,6 +129,16 @@ func (s *Stripe) CreatePaymentIntentMultiparty(paymentIntentParams *stripe.Payme
 	return paymentintent.New(paymentIntentParams)
 }
 
+func (s *Stripe) CreateRefundMultiparty(refundParams *stripe.RefundParams, linkedAccountID string) (*stripe.Refund, error) {
+	if refundParams.Params.Metadata == nil {
+		refundParams.Params.Metadata = map[string]string{Env: s.appService.Mode}
+	} else {
+		refundParams.Params.Metadata[Env] = s.appService.Mode
+	}
+	refundParams.SetStripeAccount(linkedAccountID)
+	return refund.New(refundParams)
+}
+
 func (s *Stripe) NewCheckoutSession(paymentMethods []string, mode, successURL, CancelURL string, lineItems []*stripe.CheckoutSessionLineItemParams, discounts []*stripe.CheckoutSessionDiscountParams) *stripe.CheckoutSession {
 	params := &stripe.CheckoutSessionParams{
 		Params:             stripe.Params{Metadata: map[string]string{Env: s.appService.Mode}},
@@ -170,6 +181,7 @@ type IStripe interface {
 	CreateBillingPortalSession(billingPortalSessionParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error)
 	CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error)
 	CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error)
+	CreateRefundMultiparty(refundParams *stripe.RefundParams, linkedAccountID string) (*stripe.Refund, error)
 	ConstructWebhookEvent(reqBody []byte, signature string, webhookKey string) (stripe.Event, error)
 	NewCheckoutSession(paymentMethods []string, mode, successURL, CancelURL string, lineItems []*stripe.CheckoutSessionLineItemParams, discounts []*stripe.CheckoutSessionDiscountParams) *stripe.CheckoutSession
 }
