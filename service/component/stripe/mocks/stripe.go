@@ -69,6 +69,11 @@ func (t *FakeStripeClient) CreateAccountLink(accountLinkParams *stripe.AccountLi
 	return args.Get(0).(*stripe.AccountLink), args.Error(1)
 }
 
+func (t *FakeStripeClient) GetPaymentIntent(paymentIntentID string, paymentIntentParams *stripe.PaymentIntentParams) (*stripe.PaymentIntent, error) {
+	args := t.Called(paymentIntentID, paymentIntentParams)
+	return args.Get(0).(*stripe.PaymentIntent), args.Error(1)
+}
+
 func (t *FakeStripeClient) CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error) {
 	args := t.Called(paymentIntentParams, linkedAccountID)
 	return args.Get(0).(*stripe.PaymentIntent), args.Error(1)
