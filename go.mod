@@ -53,7 +53,7 @@ require (
 	github.com/ttacon/builder v0.0.0-20170518171403-c099f663e1c2 // indirect
 	github.com/ttacon/libphonenumber v1.2.1 // indirect
 	github.com/tus/tusd v1.6.0
-	github.com/twilio/twilio-go v0.15.0
+	github.com/twilio/twilio-go v0.23.0
 	github.com/ugorji/go v1.2.2 // indirect
 	github.com/vektah/gqlparser/v2 v2.2.0
 	github.com/xorcare/pointer v1.1.0
