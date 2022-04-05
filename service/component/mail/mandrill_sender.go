@@ -62,7 +62,7 @@ func (s *Mandrill) SendTemplateAsync(ormService *beeorm.Engine, message *Message
 }
 
 func (s *Mandrill) SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error {
-	var attachments []gochimp.Attachment = nil
+	var attachments []gochimp.Attachment
 	if message.Attachments != nil {
 		attachments = make([]gochimp.Attachment, len(message.Attachments))
 		for i, attachment := range message.Attachments {
@@ -78,7 +78,7 @@ func (s *Mandrill) SendTemplateWithAttachments(ormService *beeorm.Engine, messag
 }
 
 func (s *Mandrill) SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, message *MessageAttachment) error {
-	var attachments []gochimp.Attachment = nil
+	var attachments []gochimp.Attachment
 	if message.Attachments != nil {
 		attachments = make([]gochimp.Attachment, len(message.Attachments))
 		for i, attachment := range message.Attachments {

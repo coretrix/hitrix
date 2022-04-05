@@ -65,7 +65,7 @@ func (s *Mailjet) SendTemplateAsync(ormService *beeorm.Engine, message *Message)
 }
 
 func (s *Mailjet) SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error {
-	var attachments []mailjet.AttachmentV31 = nil
+	var attachments []mailjet.AttachmentV31
 	if message.Attachments != nil {
 		attachments = make([]mailjet.AttachmentV31, len(message.Attachments))
 		for i, attachment := range message.Attachments {
@@ -81,7 +81,7 @@ func (s *Mailjet) SendTemplateWithAttachments(ormService *beeorm.Engine, message
 }
 
 func (s *Mailjet) SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, message *MessageAttachment) error {
-	var attachments []mailjet.AttachmentV31 = nil
+	var attachments []mailjet.AttachmentV31
 	if message.Attachments != nil {
 		attachments = make([]mailjet.AttachmentV31, len(message.Attachments))
 		for i, attachment := range message.Attachments {
@@ -120,7 +120,7 @@ func (s *Mailjet) sendTemplate(ormService *beeorm.Engine, from string, fromName 
 		TemplateID: templateName,
 	}
 
-	if attachments != nil && len(attachments) > 0 {
+	if len(attachments) > 0 {
 		messageInfo.Attachments = (*mailjet.AttachmentsV31)(&attachments)
 	}
 
