@@ -72,7 +72,7 @@ const (
 	SMSService              = "sms"
 	GoroutineService        = "goroutine"
 	GeneratorService        = "generator"
-	MailMandrillService     = "mail_mandrill"
+	MailService             = "mail"
 	GoogleService           = "google"
 	FacebookService         = "facebook"
 	CrudService             = "crud"
@@ -184,8 +184,8 @@ func (d *DIContainer) Authentication() *authentication.Authentication {
 	return GetServiceRequired(AuthenticationService).(*authentication.Authentication)
 }
 
-func (d *DIContainer) MailMandrill() mail.Sender {
-	return GetServiceRequired(MailMandrillService).(mail.Sender)
+func (d *DIContainer) Mail() mail.Sender {
+	return GetServiceRequired(MailService).(mail.Sender)
 }
 
 func (d *DIContainer) Google() *social.Google {

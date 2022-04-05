@@ -66,7 +66,7 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 			clockService := ctn.Get(service.ClockService).(clock.IClock)
 
 			var mailService *mail.Sender
-			mailServiceHitrix, err := ctn.SafeGet(service.MailMandrillService)
+			mailServiceHitrix, err := ctn.SafeGet(service.MailService)
 
 			if err == nil && mailServiceHitrix != nil {
 				convertedMail := mailServiceHitrix.(mail.Sender)

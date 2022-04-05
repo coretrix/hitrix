@@ -10,14 +10,15 @@ import (
 	"github.com/xorcare/pointer"
 
 	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 const (
-	templateCachePrefix = "mandrill_template_"
+	mandrillTemplateCachePrefix = "mandrill_template_"
 
 	// ref: https://github.com/shawnmclean/Mandrill-dotnet/blob/05f26c917264751a903e3bcf83ca7153b5656526/src/Mandrill/Models/EmailMessage.cs#L19
 	mergeLanguageHandlebars = "handlebars"
-	//nolint
+	// nolint
 	mergeLanguageMailchimp = "mailchimp"
 )
 
@@ -27,14 +28,29 @@ type Mandrill struct {
 	fromName         string
 }
 
-func NewMandrill(apiKey, defaultFromEmail, fromName string) *Mandrill {
+func NewMandrill(configService config.IConfig) (Sender, error) {
+	apiKey, ok := configService.String("mail.mandrill.api_key")
+	if !ok {
+		return nil, errors.New("mail.mandrill.api_key is missing")
+	}
+
+	fromEmail, ok := configService.String("mail.mandrill.default_from_email")
+	if !ok {
+		return nil, errors.New("mail.mandrill.default_from_email is missing")
+	}
+
+	fromName, ok := configService.String("mail.mandrill.from_name")
+	if !ok {
+		return nil, errors.New("mail.mandrill.from_name is missing")
+	}
+
 	mandrillAPI, err := gochimp.NewMandrill(apiKey)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return &Mandrill{client: mandrillAPI, defaultFromEmail: defaultFromEmail, fromName: fromName}
+	return &Mandrill{client: mandrillAPI, defaultFromEmail: fromEmail, fromName: fromName}, nil
 }
 
 func (s *Mandrill) SendTemplate(ormService *beeorm.Engine, message *Message) error {
@@ -46,11 +62,35 @@ func (s *Mandrill) SendTemplateAsync(ormService *beeorm.Engine, message *Message
 }
 
 func (s *Mandrill) SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error {
-	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, message.Attachments, false)
+	var attachments []gochimp.Attachment = nil
+	if message.Attachments != nil {
+		attachments = make([]gochimp.Attachment, len(message.Attachments))
+		for i, attachment := range message.Attachments {
+			attachments[i] = gochimp.Attachment{
+				Type:    attachment.ContentType,
+				Name:    attachment.Filename,
+				Content: attachment.Base64Content,
+			}
+		}
+	}
+
+	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, attachments, false)
 }
 
 func (s *Mandrill) SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, message *MessageAttachment) error {
-	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, message.Attachments, true)
+	var attachments []gochimp.Attachment = nil
+	if message.Attachments != nil {
+		attachments = make([]gochimp.Attachment, len(message.Attachments))
+		for i, attachment := range message.Attachments {
+			attachments[i] = gochimp.Attachment{
+				Type:    attachment.ContentType,
+				Name:    attachment.Filename,
+				Content: attachment.Base64Content,
+			}
+		}
+	}
+
+	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, attachments, true)
 }
 
 func (s *Mandrill) sendTemplate(ormService *beeorm.Engine, from string, fromName string, to string, replyTo string, subject string, templateName string, templateData interface{}, attachments []gochimp.Attachment, async bool) error {
@@ -141,7 +181,7 @@ func (s *Mandrill) sendTemplate(ormService *beeorm.Engine, from string, fromName
 }
 
 func (s *Mandrill) GetTemplateHTMLCode(ormService *beeorm.Engine, templateName string, ttl int) (string, error) {
-	key := templateCachePrefix + templateName
+	key := mandrillTemplateCachePrefix + templateName
 	redisCache := ormService.GetRedis()
 
 	htmlCode, has := redisCache.Get(key)
