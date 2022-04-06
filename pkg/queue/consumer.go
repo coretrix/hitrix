@@ -135,9 +135,6 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 	outerWG.Add(maxModulo)
 
 	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
-		innerWG := sync.WaitGroup{}
-		innerWG.Add(1)
-
 		hitrix.GoroutineWithRestart(func() {
 			currentModulo := moduloID
 
@@ -148,8 +145,6 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 			ormService := service.DI().OrmEngine().Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
-
-			innerWG.Done()
 
 			for {
 				// eventsConsumer.Consume should block and not return anything
@@ -180,7 +175,7 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 			log.Printf("RunConsumerOneByModulo goroutine %d (%s) exited", currentModulo, queueName)
 		})
 
-		innerWG.Wait()
+		time.Sleep(time.Second)
 	}
 
 	outerWG.Wait()
@@ -202,9 +197,6 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 	outerWG.Add(maxModulo)
 
 	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
-		innerWG := sync.WaitGroup{}
-		innerWG.Add(1)
-
 		hitrix.GoroutineWithRestart(func() {
 			currentModulo := moduloID
 
@@ -215,8 +207,6 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 			ormService := service.DI().OrmEngine().Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
-
-			innerWG.Done()
 
 			for {
 				// eventsConsumer.Consume should block and not return anything
@@ -244,7 +234,7 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 			log.Printf("RunConsumerManyByModulo goroutine %d (%s) exited", currentModulo, queueName)
 		})
 
-		innerWG.Wait()
+		time.Sleep(time.Second)
 	}
 
 	outerWG.Wait()
