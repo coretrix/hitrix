@@ -37,7 +37,7 @@ require (
 	github.com/kevinburke/go.uuid v1.2.0 // indirect
 	github.com/kevinburke/rest v0.0.0-20210425173428-1fcb8c8e9022 // indirect
 	github.com/kevinburke/twilio-go v0.0.0-20210327194925-1623146bcf73
-	github.com/latolukasz/beeorm v1.3.21
+	github.com/latolukasz/beeorm v1.3.22
 	github.com/mailjet/mailjet-apiv3-go v0.0.0-20201009050126-c24bc15a9394
 	github.com/mailjet/mailjet-apiv3-go/v3 v3.1.1
 	github.com/mattbaird/gochimp v0.0.0-20200820164431-f1082bcdf63f
