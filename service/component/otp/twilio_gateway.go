@@ -17,7 +17,7 @@ type Twilio struct {
 
 func NewTwilioSMSOTPProvider(accountSid, authToken, verificationSid string) *Twilio {
 	return &Twilio{
-		Client: twilio.NewRestClientWithParams(twilio.ClientParams{
+		Client: twilio.NewRestClientWithParams(twilio.RestClientParams{
 			Username: accountSid,
 			Password: authToken,
 		}),
