@@ -3,6 +3,7 @@ package mail
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/latolukasz/beeorm"
@@ -101,15 +102,16 @@ func (s *Mailjet) sendTemplate(ormService *beeorm.Engine, from string, fromName 
 		from = s.defaultFromEmail
 	}
 
+	templateID, err := strconv.ParseInt(templateName, 10, 64)
+	if err != nil {
+		return err
+	}
+
 	messageInfo := mailjet.InfoMessagesV31{
 		From: &mailjet.RecipientV31{
 			Email: from,
 			Name:  fromName,
 		},
-		ReplyTo: &mailjet.RecipientV31{
-			Email: replyTo,
-		},
-		Sender: nil,
 		To: &mailjet.RecipientsV31{
 			mailjet.RecipientV31{
 				Email: to,
@@ -117,7 +119,13 @@ func (s *Mailjet) sendTemplate(ormService *beeorm.Engine, from string, fromName 
 		},
 		Subject:    subject,
 		Variables:  templateData.(map[string]interface{}),
-		TemplateID: templateName,
+		TemplateID: templateID,
+	}
+
+	if len(replyTo) > 0 {
+		messageInfo.ReplyTo = &mailjet.RecipientV31{
+			Email: replyTo,
+		}
 	}
 
 	if len(attachments) > 0 {
