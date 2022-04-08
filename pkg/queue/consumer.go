@@ -135,8 +135,8 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 	outerWG.Add(maxModulo)
 
 	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
+		currentModulo := moduloID
 		hitrix.GoroutineWithRestart(func() {
-			currentModulo := moduloID
 
 			queueName := consumer.GetQueueName(currentModulo)
 			consumerGroupName := consumer.GetGroupName(currentModulo, groupNameSuffix)
@@ -197,9 +197,8 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 	outerWG.Add(maxModulo)
 
 	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
+		currentModulo := moduloID
 		hitrix.GoroutineWithRestart(func() {
-			currentModulo := moduloID
-
 			queueName := consumer.GetQueueName(currentModulo)
 			consumerGroupName := consumer.GetGroupName(currentModulo, groupNameSuffix)
 
