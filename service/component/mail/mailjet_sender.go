@@ -117,9 +117,10 @@ func (s *Mailjet) sendTemplate(ormService *beeorm.Engine, from string, fromName 
 				Email: to,
 			},
 		},
-		Subject:    subject,
-		Variables:  templateData.(map[string]interface{}),
-		TemplateID: templateID,
+		Subject:          subject,
+		Variables:        templateData.(map[string]interface{}),
+		TemplateID:       templateID,
+		TemplateLanguage: true,
 	}
 
 	if len(replyTo) > 0 {
