@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/anton-shumanski/clockwork"
-	dataSource "github.com/anton-shumanski/clockwork/data-source"
+	"github.com/coretrix/clockwork"
+	dataSource "github.com/coretrix/clockwork/data-source"
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
 

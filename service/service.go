@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/anton-shumanski/clockwork"
+	"github.com/coretrix/clockwork"
 	"github.com/latolukasz/beeorm"
 
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
