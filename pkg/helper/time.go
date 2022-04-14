@@ -19,6 +19,7 @@ const (
 	TimeLayoutMDYYYYHMMSSPM     = "1/2/2006 3:04:05 PM"
 	TimeLayoutNoSepYYYYMMDDHHMM = "200601021504"
 	TimeLayoutTextMD            = "January 2"
+	TimeLayoutRFC3339Milli      = "2006-01-02T15:04:05.999Z07:00"
 )
 
 const Second = 1
