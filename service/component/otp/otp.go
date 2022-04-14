@@ -1,8 +1,7 @@
 package otp
 
 import (
-	//nolint
-	"crypto/md5"
+	"crypto/md5" // nolint
 	"errors"
 	"fmt"
 	"regexp"
@@ -99,7 +98,7 @@ func (o *OTP) SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error) {
 			GatewayName:       gateway.GetName(),
 			GatewayPriority:   uint8(priority),
 			GatewaySendStatus: entity.OTPTrackerGatewaySendStatusNew,
-			SentAt:            time.Now(), //TODO ClockService
+			SentAt:            time.Now(), // TODO ClockService
 		}
 
 		otpTrackerEntity.GatewaySendRequest, otpTrackerEntity.GatewaySendResponse, err = gateway.SendOTP(phone, code)
@@ -135,7 +134,7 @@ func (o *OTP) Call(ormService *beeorm.Engine, phone *Phone, customMessage string
 			GatewayName:       gateway.GetName(),
 			GatewayPriority:   uint8(priority),
 			GatewaySendStatus: entity.OTPTrackerGatewaySendStatusNew,
-			SentAt:            time.Now(), //TODO ClockService
+			SentAt:            time.Now(), // TODO ClockService
 		}
 
 		otpTrackerEntity.GatewaySendRequest, otpTrackerEntity.GatewaySendResponse, err = gateway.Call(phone, code, customMessage)
@@ -171,7 +170,7 @@ func (o *OTP) VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (b
 
 	otpTrackerEntity.GatewayVerifyRequest, otpTrackerEntity.GatewayVerifyResponse, otpRequestValid, otpCodeValid, err = gateway.VerifyOTP(phone, code, otpTrackerEntity.Code)
 
-	//TODO add error to tracker
+	// TODO add error to tracker
 	if err != nil {
 		otpTrackerEntity.GatewayVerifyStatus = entity.OTPTrackerGatewayVerifyStatusGatewayError
 	} else if !otpRequestValid {

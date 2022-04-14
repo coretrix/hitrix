@@ -14,7 +14,6 @@ import (
 	"github.com/fatih/color"
 
 	"github.com/coretrix/hitrix/service"
-	// nolint
 	"github.com/coretrix/hitrix/service/component/app"
 )
 

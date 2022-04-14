@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/latolukasz/beeorm"
 
@@ -13,18 +14,22 @@ import (
 )
 
 type SearchParams struct {
-	Page                int
-	PageSize            int
-	Search              map[string]string
-	SearchOR            map[string]string
-	StringFilters       map[string]string
-	FormatStringFilters map[string]string
-	ArrayStringFilters  map[string][]string
-	NumberFilters       map[string]int64
-	ArrayNumberFilters  map[string][]int64
-	RangeNumberFilters  map[string][]int64
-	BooleanFilters      map[string]bool
-	Sort                map[string]bool
+	Page                 int
+	PageSize             int
+	Search               map[string]string
+	SearchOR             map[string]string
+	StringFilters        map[string]string
+	FormatStringFilters  map[string]string
+	ArrayStringFilters   map[string][]string
+	NumberFilters        map[string]int64
+	ArrayNumberFilters   map[string][]int64
+	RangeNumberFilters   map[string][]int64
+	DateTimeFilters      map[string]time.Time
+	DateFilters          map[string]time.Time
+	RangeDateTimeFilters map[string][]time.Time
+	RangeDateFilters     map[string][]time.Time
+	BooleanFilters       map[string]bool
+	Sort                 map[string]bool
 }
 
 type Column struct {
@@ -74,6 +79,10 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 	var numberFilters = make([]string, 0)
 	var rangeNumberFilters = make([]string, 0)
 	var arrayNumberFilters = make([]string, 0)
+	var dateTimeFilters = make([]string, 0)
+	var dateFilters = make([]string, 0)
+	var rangeDateTimeFilters = make([]string, 0)
+	var rangeDateFilters = make([]string, 0)
 	var sortables = make([]string, 0)
 	for i := range cols {
 		if cols[i].Sortable {
@@ -115,6 +124,22 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 			stringEnumFilters[cols[i].Key] = cols[i].FilterValidMap
 			continue
 		}
+		if cols[i].Filterable && cols[i].Type == DateTimeType {
+			dateTimeFilters = append(dateTimeFilters, cols[i].Key)
+			continue
+		}
+		if cols[i].Filterable && cols[i].Type == DateType {
+			dateFilters = append(dateFilters, cols[i].Key)
+			continue
+		}
+		if cols[i].Filterable && cols[i].Type == RangeDateTimeType {
+			rangeDateTimeFilters = append(rangeDateTimeFilters, cols[i].Key)
+			continue
+		}
+		if cols[i].Filterable && cols[i].Type == RangeDateType {
+			rangeDateFilters = append(rangeDateFilters, cols[i].Key)
+			continue
+		}
 	}
 
 	var selectedStringFilters = make(map[string]string)
@@ -123,6 +148,10 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 	var selectedNumberFilters = make(map[string]int64)
 	var selectedRangeNumberFilters = make(map[string][]int64, 2)
 	var selectedArrayNumberFilters = make(map[string][]int64)
+	var selectedDateTimeFilters = make(map[string]time.Time)
+	var selectedDateFilters = make(map[string]time.Time)
+	var selectedRangeDateTimeFilters = make(map[string][]time.Time)
+	var selectedRangeDateFilters = make(map[string][]time.Time)
 	var selectedBooleanFilters = make(map[string]bool)
 	var selectedSort = make(map[string]bool)
 	var selectedSearches = make(map[string]string)
@@ -153,6 +182,24 @@ mainLoop:
 				maxRange, _ := strconv.ParseInt(fmt.Sprintf("%v", s.Index(1)), 10, 64)
 
 				selectedRangeNumberFilters[field] = []int64{minRange, maxRange}
+			} else if helper.StringInArray(field, rangeDateTimeFilters...) {
+				if s.Len() != 2 {
+					continue mainLoop
+				}
+
+				minRange, _ := time.Parse(helper.TimeLayoutRFC3339Milli, fmt.Sprintf("%v", s.Index(0)))
+				maxRange, _ := time.Parse(helper.TimeLayoutRFC3339Milli, fmt.Sprintf("%v", s.Index(1)))
+
+				selectedRangeDateTimeFilters[field] = []time.Time{minRange, maxRange}
+			} else if helper.StringInArray(field, rangeDateFilters...) {
+				if s.Len() != 2 {
+					continue mainLoop
+				}
+
+				minRange, _ := time.Parse(helper.TimeLayoutYMD, fmt.Sprintf("%v", s.Index(0)))
+				maxRange, _ := time.Parse(helper.TimeLayoutYMD, fmt.Sprintf("%v", s.Index(1)))
+
+				selectedRangeDateFilters[field] = []time.Time{minRange, maxRange}
 			} else if helper.StringInArray(field, arrayNumberFilters...) {
 				if s.Len() == 0 {
 					continue mainLoop
@@ -186,6 +233,18 @@ mainLoop:
 		if ok {
 			if helper.StringInArray(field, stringFilters...) {
 				selectedStringFilters[field] = stringValue
+				continue mainLoop
+			}
+
+			if helper.StringInArray(field, dateTimeFilters...) {
+				dateTimeValue, _ := time.Parse(helper.TimeLayoutRFC3339Milli, stringValue)
+				selectedDateTimeFilters[field] = dateTimeValue
+				continue mainLoop
+			}
+
+			if helper.StringInArray(field, dateFilters...) {
+				dateValue, _ := time.Parse(helper.TimeLayoutYMD, stringValue)
+				selectedDateFilters[field] = dateValue
 				continue mainLoop
 			}
 
@@ -239,18 +298,22 @@ mainLoop:
 	}
 
 	return SearchParams{
-		Page:                finalPage,
-		PageSize:            finalPageSize,
-		Search:              selectedSearches,
-		SearchOR:            selectedORSearches,
-		StringFilters:       selectedStringFilters,
-		FormatStringFilters: selectedFormatStringFilters,
-		ArrayStringFilters:  selectedArrayStringFilters,
-		NumberFilters:       selectedNumberFilters,
-		ArrayNumberFilters:  selectedArrayNumberFilters,
-		RangeNumberFilters:  selectedRangeNumberFilters,
-		BooleanFilters:      selectedBooleanFilters,
-		Sort:                selectedSort,
+		Page:                 finalPage,
+		PageSize:             finalPageSize,
+		Search:               selectedSearches,
+		SearchOR:             selectedORSearches,
+		StringFilters:        selectedStringFilters,
+		FormatStringFilters:  selectedFormatStringFilters,
+		ArrayStringFilters:   selectedArrayStringFilters,
+		NumberFilters:        selectedNumberFilters,
+		ArrayNumberFilters:   selectedArrayNumberFilters,
+		RangeNumberFilters:   selectedRangeNumberFilters,
+		DateTimeFilters:      selectedDateTimeFilters,
+		DateFilters:          selectedDateFilters,
+		RangeDateTimeFilters: selectedRangeDateTimeFilters,
+		RangeDateFilters:     selectedRangeDateFilters,
+		BooleanFilters:       selectedBooleanFilters,
+		Sort:                 selectedSort,
 	}
 }
 
@@ -267,6 +330,22 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 
 	for field, value := range params.RangeNumberFilters {
 		query.FilterIntMinMax(field, value[0], value[1])
+	}
+
+	for field, value := range params.DateTimeFilters {
+		query.FilterDateTime(field, value)
+	}
+
+	for field, value := range params.DateFilters {
+		query.FilterDate(field, value)
+	}
+
+	for field, value := range params.RangeDateTimeFilters {
+		query.FilterDateTimeMinMax(field, value[0], value[1])
+	}
+
+	for field, value := range params.RangeDateFilters {
+		query.FilterDateMinMax(field, value[0], value[1])
 	}
 
 	for field, value := range params.StringFilters {
