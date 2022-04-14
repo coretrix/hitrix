@@ -1,7 +1,7 @@
 package registry
 
 import (
-	"github.com/anton-shumanski/clockwork"
+	"github.com/coretrix/clockwork"
 	"github.com/gin-gonic/gin"
 
 	"github.com/coretrix/hitrix/service"

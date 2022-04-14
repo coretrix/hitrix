@@ -48,13 +48,8 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 
 			registry.InitByYaml(yamlConfig)
 
-			if !appService.IsInProdMode() && !appService.IsInTestMode() {
-				entityLogConfig, ok := configService.StringMap("entity_log")
-				if ok && entityLogConfig != nil {
-					if enable, has := entityLogConfig["enabled"]; has && enable == "true" {
-						registry.ForceEntityLogInAllEntities(entityLogConfig["pool"])
-					}
-				}
+			if appService.IsInTestMode() {
+				registry.ForceEntityLogInAllEntities("")
 			}
 
 			init(registry)
