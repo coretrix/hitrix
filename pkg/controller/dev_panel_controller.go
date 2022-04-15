@@ -271,23 +271,33 @@ func (controller *DevPanelController) PostRedisSearchForceReindexAll(c *gin.Cont
 
 	indexes := ormService.GetRedisSearch(appService.RedisPools.Search).ListIndices()
 
-	wg := sync.WaitGroup{}
-	wg.Add(len(indexes))
+	concurrently := c.Query("concurrently")
+	if concurrently != "" {
+		redisSearch := ormService.GetRedisSearch(appService.RedisPools.Search)
 
-	for _, index := range indexes {
-		go func(index string) {
-			defer func() {
-				if r := recover(); r != nil {
-					service.DI().ErrorLogger().LogError(r)
-				}
-			}()
+		wg := sync.WaitGroup{}
+		wg.Add(len(indexes))
 
+		for _, index := range indexes {
+			go func(index string) {
+				defer func() {
+					if r := recover(); r != nil {
+						service.DI().ErrorLogger().LogError(r)
+					}
+				}()
+
+				redisSearch.ForceReindex(index)
+				wg.Done()
+			}(index)
+		}
+
+		wg.Wait()
+	} else {
+		for _, index := range indexes {
 			ormService.GetRedisSearch(appService.RedisPools.Search).ForceReindex(index)
-			wg.Done()
-		}(index)
+		}
 	}
 
-	wg.Wait()
 	response.SuccessResponse(c, nil)
 }
 
