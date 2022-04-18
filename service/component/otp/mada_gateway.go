@@ -231,7 +231,7 @@ func validateSmResponse(commandStatus string) error {
 }
 
 // No online reference
-// Recieved this from
+// Received this from technical team MyMada via email
 var errorCodes = map[string]string{
 	"0":    "No Error",
 	"1":    "Message too long",
