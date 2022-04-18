@@ -136,8 +136,8 @@ func (m *Mada) soapCall(recipientPhoneNumber, otp string) (string, string, error
 		return string(payload), string(bodyBytes), err
 	}
 
-	if resp.Body.SOS.SMResponse.CommandStatus != "0" {
-		return string(payload), string(bodyBytes), fmt.Errorf("expected status code 0, but got %s", resp.Body.SOS.SMResponse.CommandStatus)
+	if err := validateSmResponse(resp.Body.SOS.SMResponse.CommandStatus); err != nil {
+		return string(payload), string(bodyBytes), err
 	}
 
 	return string(payload), string(bodyBytes), nil
@@ -218,4 +218,76 @@ type sosResp struct {
 type smResponse struct {
 	XMLName       xml.Name `xml:"smResponse"`
 	CommandStatus string   `xml:"commandStatus"`
+}
+
+func validateSmResponse(commandStatus string) error {
+	if commandStatus == "0" {
+		return nil
+	}
+	if errorMsg, ok := errorCodes[commandStatus]; ok {
+		return fmt.Errorf("otp Mada[%s]: %s", commandStatus, errorMsg)
+	}
+	return fmt.Errorf("otp Mada[%s]: expected commandStatus code 0, but got (unrecognized) %s", commandStatus, commandStatus)
+}
+
+// No online reference
+// Recieved this from
+var errorCodes = map[string]string{
+	"0":    "No Error",
+	"1":    "Message too long",
+	"2":    "Command length is invalid",
+	"3":    "Command ID is invalid or not supported",
+	"4":    "Incorrect bind status for given command",
+	"5":    "Already bound",
+	"6":    "Invalid Priority Flag",
+	"7":    "Invalid registered delivery flag",
+	"8":    "System error",
+	"10":   "Invalid source address",
+	"11":   "Invalid destination address",
+	"12":   "Message ID is invalid",
+	"13":   "Bind failed",
+	"14":   "Invalid password",
+	"15":   "Invalid System ID",
+	"17":   "Cancelling message failed",
+	"19":   "Message recplacement failed",
+	"20":   "Message queue full",
+	"21":   "Invalid service type",
+	"51":   "Invalid number of destinations",
+	"52":   "Invalid distribution list name",
+	"64":   "Invalid destination flag",
+	"66":   "Invalid submit with replace request",
+	"67":   "Invalid esm class set",
+	"68":   "Invalid submit to ditribution list",
+	"69":   "Submitting message has failed",
+	"72":   "Invalid source address type of number ( TON )",
+	"73":   "Invalid source address numbering plan ( NPI )",
+	"80":   "Invalid destination address type of number ( TON )",
+	"81":   "Invalid destination address numbering plan ( NPI )",
+	"83":   "Invalid system type",
+	"84":   "Invalid replace_if_present flag",
+	"85":   "Invalid number of messages",
+	"88":   "Throttling error",
+	"97":   "Invalid scheduled delivery time",
+	"98":   "Invalid Validty Period value",
+	"99":   "Predefined message not found",
+	"100":  "ESME Receiver temporary error",
+	"101":  "ESME Receiver permanent error",
+	"102":  "ESME Receiver reject message error",
+	"103":  "Message query request failed",
+	"192":  "Error in the optional part of the PDU body",
+	"193":  "TLV not allowed",
+	"194":  "Invalid parameter length",
+	"195":  "Expected TLV missing",
+	"196":  "Invalid TLV value",
+	"254":  "Transaction delivery failure",
+	"255":  "Unknown error",
+	"256":  "ESME not authorised to use specified servicetype",
+	"257":  "ESME prohibited from using specified operation",
+	"258":  "Specified servicetype is unavailable",
+	"259":  "Specified servicetype is denied",
+	"260":  "Invalid data coding scheme",
+	"261":  "Invalid source address subunit",
+	"262":  "Invalid destination address subunit",
+	"1035": "Insufficient credits to send message",
+	"1036": "Destination address blocked by the ActiveXperts SMPP Demo Server",
 }
