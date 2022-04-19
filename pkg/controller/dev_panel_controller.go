@@ -162,11 +162,9 @@ func (controller *DevPanelController) DeleteRedisStreamAction(c *gin.Context) {
 func (controller *DevPanelController) GetAlters(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	dbService := ormService.GetMysql()
-
 	alters := ormService.GetAlters()
-
 	result := make([]string, len(alters))
+
 	force := c.Query("force")
 	if force != "" {
 		redisService := ormService.GetRedis()
@@ -175,7 +173,7 @@ func (controller *DevPanelController) GetAlters(c *gin.Context) {
 
 	for i, alter := range alters {
 		if force != "" {
-			dbService.Exec(alter.SQL)
+			alter.Exec()
 		} else {
 			result[i] = alter.SQL
 		}
