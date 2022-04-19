@@ -1,6 +1,7 @@
 package mail
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -145,6 +146,17 @@ func (s *Mailjet) sendTemplate(ormService *beeorm.Engine, from string, fromName 
 		Subject:      subject,
 		TemplateFile: templateName,
 	}
+
+	templateDataAsByte, err := json.Marshal(templateData)
+	if err != nil {
+		mailTrackerEntity.SenderError = "Cannot marshal TemplateData"
+		mailTrackerEntity.Status = entity.MailTrackerStatusError
+		ormService.Flush(mailTrackerEntity)
+
+		return err
+	}
+
+	mailTrackerEntity.TemplateData = string(templateDataAsByte)
 
 	results, err := s.client.SendMailV31(message)
 
