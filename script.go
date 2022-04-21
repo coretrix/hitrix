@@ -153,11 +153,16 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 	appService := service.DI().App()
 
 	GoroutineWithRestart(func() {
+		log.Println("starting orm background consumer")
+
 		asyncConsumer := beeorm.NewBackgroundConsumer(ormService)
 		for {
 			if asyncConsumer.Digest(appService.GlobalContext) {
+				log.Println("orm background consumer exited successfully")
 				break
 			}
+
+			log.Println("orm background consumer count not obtain lock, sleeping for 30 seconds")
 			time.Sleep(time.Second * 30)
 		}
 	})
