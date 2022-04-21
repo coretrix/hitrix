@@ -22,6 +22,10 @@ func (script *DBSeedScript) Run(_ context.Context, _ app.IExit) {
 	Seeder(script.SeedsPerProject, ormService, appService)
 }
 
+func (script *DBSeedScript) Infinity() bool {
+	return true
+}
+
 func (script *DBSeedScript) Unique() bool {
 	return true
 }
