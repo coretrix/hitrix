@@ -46,6 +46,10 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 	interval, isInterval := s.(app.Interval)
 	_, isInfinity := s.(app.Infinity)
 
+	if !isInterval && !isInfinity {
+		log.Println("Failed script - "+s.Description(), " - it must implement either Interval or Infinity interface")
+	}
+
 	go func() {
 		for {
 			log.Println("Run script - " + s.Description())
