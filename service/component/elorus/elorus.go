@@ -112,6 +112,15 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 		return nil, err
 	}
 
+	if resp.StatusCode != 200 {
+		var failedResponse interface{}
+		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
+	}
+
 	response := new(Response)
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
@@ -139,6 +148,15 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		var failedResponse interface{}
+		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
 
 	response := new(Response)
@@ -180,6 +198,15 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		var failedResponse interface{}
+		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
+		if err != nil {
+			return nil, err
+		}
+		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
 
 	response := new(InvoiceListResponse)
