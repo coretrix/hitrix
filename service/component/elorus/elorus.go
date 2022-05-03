@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -119,7 +118,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 		if err != nil {
 			return nil, err
 		}
-		return nil, errors.New(fmt.Sprintf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse))
+		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
 
 	response := new(Response)
@@ -157,7 +156,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 		if err != nil {
 			return nil, err
 		}
-		return nil, errors.New(fmt.Sprintf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse))
+		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
 
 	response := new(Response)
@@ -207,7 +206,7 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 		if err != nil {
 			return nil, err
 		}
-		return nil, errors.New(fmt.Sprintf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse))
+		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
 
 	response := new(InvoiceListResponse)
