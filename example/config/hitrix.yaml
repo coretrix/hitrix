@@ -31,4 +31,8 @@ oss:
     private:
       name: bucket-name-private
       cdn_url: "http://127.0.0.1/{Bucket}/{StorageKey}"
+
+server:
+  timeout_sec: 10
+
 orm_debug: false
