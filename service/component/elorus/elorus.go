@@ -23,6 +23,7 @@ type CreateContactRequest struct {
 	Active    bool   `json:"active"`
 	Company   string `json:"company"`
 	VatNumber string `json:"vat_number"`
+	IsClient  bool   `json:"is_client"`
 	Email     []struct {
 		Email   string `json:"email"`
 		Primary bool   `json:"primary"`
