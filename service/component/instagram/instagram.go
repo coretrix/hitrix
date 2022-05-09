@@ -33,33 +33,40 @@ type IProvider interface {
 
 type IAPIManager interface {
 	GetRandomProvider() IProvider
-	GetProvider() IProvider
+	GetProvider(name string) IProvider
 }
 
 type APIManager struct {
-	Providers map[uint64]IProvider
+	Providers        map[string]IProvider
+	ProvidersByIndex map[int]IProvider
 }
 
 func NewAPIManager(configService config.IConfig, newProviderFunctions ...NewProviderFunc) (IAPIManager, error) {
-	providers := map[uint64]IProvider{}
+	providers := map[string]IProvider{}
+	providersByIndex := map[int]IProvider{}
 
 	for i, newProviderFunc := range newProviderFunctions {
 		provider, err := newProviderFunc(configService)
 		if err != nil {
 			return nil, err
 		}
-		providers[uint64(i)] = provider
+		providers[provider.GetName()] = provider
+		providersByIndex[i] = provider
 	}
 
 	return &APIManager{
-		Providers: providers,
+		Providers:        providers,
+		ProvidersByIndex: providersByIndex,
 	}, nil
 }
 
 func (a *APIManager) GetRandomProvider() IProvider {
-	return a.Providers[0]
+	//rand.Seed(time.Now().UnixNano())
+	//
+	//return a.ProvidersByIndex[rand.Intn(len(a.ProvidersByIndex))]
+	return a.ProvidersByIndex[0]
 }
 
-func (a *APIManager) GetProvider() IProvider {
-	return a.Providers[0]
+func (a *APIManager) GetProvider(name string) IProvider {
+	return a.Providers[name]
 }

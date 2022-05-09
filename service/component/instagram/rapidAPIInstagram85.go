@@ -5,13 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/coretrix/hitrix/service/component/config"
 )
 
-// RapidAPIInstagramSimple https://rapidapi.com/premium-apis-premium-apis-default/api/instagram85/
-type RapidAPIInstagramSimple struct {
+// RapidAPIInstagram85 https://rapidapi.com/premium-apis-premium-apis-default/api/instagram85/
+type RapidAPIInstagram85 struct {
 	client       *http.Client
 	apiKey       string
 	apiHost      string
@@ -19,8 +20,8 @@ type RapidAPIInstagramSimple struct {
 	providerName string
 }
 
-func NewRapidAPIInstagramSimple(configService config.IConfig) (IProvider, error) {
-	return &RapidAPIInstagramSimple{
+func NewRapidAPIInstagram85(configService config.IConfig) (IProvider, error) {
+	return &RapidAPIInstagram85{
 		client:       &http.Client{},
 		apiKey:       configService.MustString("instagram.api.rapid_api_token"),
 		apiHost:      "instagram85.p.rapidapi.com",
@@ -29,15 +30,15 @@ func NewRapidAPIInstagramSimple(configService config.IConfig) (IProvider, error)
 	}, nil
 }
 
-func (i *RapidAPIInstagramSimple) GetName() string {
+func (i *RapidAPIInstagram85) GetName() string {
 	return i.providerName
 }
 
-func (i *RapidAPIInstagramSimple) APIKey() string {
+func (i *RapidAPIInstagram85) APIKey() string {
 	return i.apiKey
 }
 
-func (i *RapidAPIInstagramSimple) GetAccount(account string) (*Account, error) {
+func (i *RapidAPIInstagram85) GetAccount(account string) (*Account, error) {
 	response := struct {
 		Data struct {
 			ID       int64  `json:"id"`
@@ -93,9 +94,9 @@ func (i *RapidAPIInstagramSimple) GetAccount(account string) (*Account, error) {
 	}, nil
 }
 
-func (i *RapidAPIInstagramSimple) GetFeed(accountID int64, nextPageToken string) ([]*Post, string, error) {
+func (i *RapidAPIInstagram85) GetFeed(accountID int64, nextPageToken string) ([]*Post, string, error) {
 	response := struct {
-		Data []RapidAPIInstagramSimplePost `json:"data"`
+		Data []RapidAPIInstagram85Post `json:"data"`
 		Meta struct {
 			HasNext  bool   `json:"has_next"`
 			NextPage string `json:"next_page"`
@@ -108,6 +109,7 @@ func (i *RapidAPIInstagramSimple) GetFeed(accountID int64, nextPageToken string)
 		instagramURL += fmt.Sprintf("?pageId=%s", nextPageToken)
 	}
 
+	log.Println(instagramURL)
 	res, err := sendRapidRequest(i, instagramURL)
 
 	if err != nil {
@@ -146,15 +148,15 @@ func (i *RapidAPIInstagramSimple) GetFeed(accountID int64, nextPageToken string)
 	return posts, nextPageToken, nil
 }
 
-func (i *RapidAPIInstagramSimple) APIHost() string {
+func (i *RapidAPIInstagram85) APIHost() string {
 	return i.apiHost
 }
 
-func (i *RapidAPIInstagramSimple) HTTPClient() *http.Client {
+func (i *RapidAPIInstagram85) HTTPClient() *http.Client {
 	return i.client
 }
 
-func (p RapidAPIInstagramSimplePost) ToPost() *Post {
+func (p RapidAPIInstagram85Post) ToPost() *Post {
 	post := &Post{
 		ID:        p.ID,
 		Title:     p.Caption,
@@ -179,7 +181,7 @@ func (p RapidAPIInstagramSimplePost) ToPost() *Post {
 	return post
 }
 
-type RapidAPIInstagramSimplePost struct {
+type RapidAPIInstagram85Post struct {
 	ID          string `json:"id"`
 	CreatedTime struct {
 		Unix int64 `json:"unix"`
@@ -194,7 +196,7 @@ type RapidAPIInstagramSimplePost struct {
 	Videos struct {
 		Standard string `json:"standard"`
 	} `json:"videos"`
-	Sidecar []RapidAPIInstagramSimplePost `json:"sidecar"`
+	Sidecar []RapidAPIInstagram85Post `json:"sidecar"`
 }
 
 type rapidAPIProvider interface {
