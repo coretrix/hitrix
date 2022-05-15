@@ -290,8 +290,8 @@ mainLoop:
 
 	if len(request.Sort) == 1 {
 		for field, mode := range request.Sort {
-			stringVal := mode.(string)
-			if helper.StringInArray(field, sortables...) && helper.StringInArray(stringVal, "asc", "desc") {
+			stringVal, ok := mode.(string)
+			if ok && helper.StringInArray(field, sortables...) && helper.StringInArray(stringVal, "asc", "desc") {
 				selectedSort[field] = stringVal == "asc"
 			}
 		}
