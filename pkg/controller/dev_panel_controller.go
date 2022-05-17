@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 	"sync"
@@ -392,4 +393,8 @@ func (controller *DevPanelController) PostDisableFeatureFlag(c *gin.Context) {
 	ormService.Flush(featureFlagEntity)
 
 	response.SuccessResponse(c, nil)
+}
+
+func (controller *DevPanelController) GetEnvValues(c *gin.Context) {
+	response.SuccessResponse(c, map[string]interface{}{"list": os.Environ()})
 }
