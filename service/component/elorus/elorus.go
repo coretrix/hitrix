@@ -113,7 +113,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode > 201 {
 		var failedResponse interface{}
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
 		if err != nil {
@@ -151,7 +151,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode > 201 {
 		var failedResponse interface{}
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
 		if err != nil {
@@ -201,7 +201,7 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 		return nil, err
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode > 201 {
 		var failedResponse interface{}
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
 		if err != nil {
