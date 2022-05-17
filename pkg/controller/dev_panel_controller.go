@@ -396,5 +396,5 @@ func (controller *DevPanelController) PostDisableFeatureFlag(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetEnvValues(c *gin.Context) {
-	response.SuccessResponse(c, map[string]interface{}{"result": os.Environ()})
+	response.SuccessResponse(c, map[string]interface{}{"list": os.Environ()})
 }
