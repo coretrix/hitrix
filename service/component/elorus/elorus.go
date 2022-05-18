@@ -93,6 +93,7 @@ func NewElorus(url string, token string, organizationID string, environment stri
 }
 
 func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error) {
+	fmt.Println("hello")
 	client := &http.Client{}
 
 	jsonReq, _ := json.Marshal(request)
@@ -107,6 +108,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 	if e.environment != "prod" {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
+	fmt.Println("hello", e)
 
 	resp, err := client.Do(req)
 	if err != nil {
