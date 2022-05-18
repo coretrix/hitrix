@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"io"
 	"net/http"
 	"net/url"
@@ -93,7 +94,6 @@ func NewElorus(url string, token string, organizationID string, environment stri
 }
 
 func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error) {
-	fmt.Println("hello")
 	client := &http.Client{}
 
 	jsonReq, _ := json.Marshal(request)
@@ -108,7 +108,6 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 	if e.environment != "prod" {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
-	fmt.Println("hello", e)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -121,7 +120,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
+		return nil, fmt.Errorf("not successful request with status code : %v , response : %v response : %v", resp.StatusCode, failedResponse)
 	}
 
 	response := new(Response)
@@ -169,6 +168,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 
 	response := new(Response)
 	err = json.NewDecoder(resp.Body).Decode(&response)
+	spew.Dump(resp.Body)
 	if err != nil {
 		var failedResponse interface{}
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
