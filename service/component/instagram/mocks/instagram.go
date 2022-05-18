@@ -14,6 +14,6 @@ func (f *FakeInstagram) GetRandomProvider() instagram.IProvider {
 	return f.Called().Get(0).(instagram.IProvider)
 }
 
-func (f *FakeInstagram) GetProvider() instagram.IProvider {
+func (f *FakeInstagram) GetProvider(_ string) instagram.IProvider {
 	return f.Called().Get(0).(instagram.IProvider)
 }
