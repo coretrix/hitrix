@@ -21,6 +21,26 @@ You can register OTP providers in 2 ways:
 1. Provide setting in DB for key: `otp_sms_provider` with value either of `Twilio` or `Sinch` or `Mada`. You can pass all providers as well separated by semicolon - `Twilio;Mada:+35987,+35988;Sinch`.
 2. Call `registry.ServiceProviderOTP(otp.SMSOTPProviderTwilio, otp.SMSOTPProviderSinch)` with 1 or more parameters for force provider.
 
+## Retry feature:
+You can set up the service to retry failed OTP send attempts.
+In order to do this, you need to add in the config:
+```
+sms:
+  retry: true
+  max_retries: 20
+``` 
+
+For retry feature you also need to start in your app this consumer:
+
+```go
+    // add this if you want to use send OTP retry feature
+    s.RunBackgroundProcess(func(b *hitrix.BackgroundProcessor) {
+	    go b.RunScript(&scripts.RetryOTPConsumer{})
+    })
+```
+Retry feature uses exponential backoff to retry OTP requests, starting from 0.5 seconds.
+If `max_retries` is reached, the consumer will drop the OTP request and mark it unsendable in DB.
+
 Access the service:
 ```go
 service.DI().OTP()
@@ -39,7 +59,12 @@ func SendOTP(){
     ormService := service.DI().OrmEngineForContext(context.Background())
     OTPService := service.DI().OTP()
 
-    //SMS
+    // add this if you want to use send OTP retry feature
+    s.RunBackgroundProcess(func(b *hitrix.BackgroundProcessor) {
+    	go b.RunScript(&scripts.RetryOTPConsumer{})
+    })
+
+	//SMS
     code, err := OTPService.SendSMS(ormService, &otp.Phone{
         Number: "+123456789",
     })

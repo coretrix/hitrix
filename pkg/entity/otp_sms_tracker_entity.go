@@ -67,19 +67,20 @@ var OTPTrackerGatewayVerifyStatusAll = OTPTrackerGatewayVerifyStatus{
 }
 
 type OTPTrackerEntity struct {
-	beeorm.ORM `orm:"table=otp_tracker"`
-	ID         uint64
-	Type       string `orm:"enum=entity.OTPTrackerTypeAll;required"`
-
+	beeorm.ORM            `orm:"table=otp_tracker"`
+	ID                    uint64
+	Type                  string `orm:"enum=entity.OTPTrackerTypeAll;required"`
 	To                    string `orm:"length=15"`
 	Code                  string
 	GatewayName           string
 	GatewayPriority       uint8
-	GatewaySendStatus     string    `orm:"enum=entity.OTPTrackerGatewaySendStatusAll;required"`
-	GatewaySendRequest    string    `orm:"length=max"`
-	GatewaySendResponse   string    `orm:"length=max"`
-	GatewayVerifyStatus   string    `orm:"enum=entity.OTPTrackerGatewayVerifyStatusAll;required"`
-	GatewayVerifyRequest  string    `orm:"length=max"`
-	GatewayVerifyResponse string    `orm:"length=max"`
+	GatewaySendStatus     string `orm:"enum=entity.OTPTrackerGatewaySendStatusAll;required"`
+	GatewaySendRequest    string `orm:"length=max"`
+	GatewaySendResponse   string `orm:"length=max"`
+	GatewayVerifyStatus   string `orm:"enum=entity.OTPTrackerGatewayVerifyStatusAll;required"`
+	GatewayVerifyRequest  string `orm:"length=max"`
+	GatewayVerifyResponse string `orm:"length=max"`
+	RetryCount            int
+	MaxRetriesReached     bool
 	SentAt                time.Time `orm:"time"`
 }
