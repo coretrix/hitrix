@@ -89,6 +89,8 @@ type Message struct {
 ##### configs
 ```yaml
 sms:
+  retry: true
+  max_retries: 20
   twilio:
     sid: ENV[SMS_TWILIO_SID]
     token: ENV[SMS_TWILIO_TOKEN]
