@@ -195,7 +195,7 @@ func (p instagram40Post) ToPost() *Post {
 	case "GraphSidecar":
 		for _, edge := range p.EdgeSidecarToChildren.Edges {
 			if edge.Node.Type == "GraphImage" {
-				images = append(images, p.DisplayURL)
+				images = append(images, edge.Node.DisplayURL)
 			}
 		}
 	case "GraphImage":
