@@ -45,15 +45,15 @@ type App struct {
 }
 
 func (app *App) IsInLocalMode() bool {
-	return app.IsInMode(ModeLocal)
+	return app.Mode == ModeLocal
 }
 
 func (app *App) IsInTestMode() bool {
-	return app.IsInMode(ModeTest)
+	return app.Mode == ModeTest
 }
 
 func (app *App) IsInProdMode() bool {
-	return app.IsInMode(ModeProd)
+	return app.Mode == ModeProd
 }
 
 func (app *App) IsInDevMode() bool {
