@@ -37,3 +37,23 @@ func (r *mutationResolver) RegisterTransactions(ctx context.Context, applePurcha
 ```
 
 The function `hitrix.Validate(ctx, nil)` as second param accept callback where you can define your custom validation related to business logic
+
+
+#### REST validator
+
+You should define tags for every field
+```go
+type RequestDTOMerchantSave struct {
+	StoreID         string `conform:"trim" binding:"required,min=1,max=30"`
+	StoreBio        string `conform:"trim" binding:"omitempty,min=5,max=1000"`
+	AvatarFileID    *uint64
+	ContactPhone    *ContactPhone    `binding:"omitempty"`
+	ContactWhatsapp *ContactWhatsapp `binding:"omitempty"`
+	ContactWeb      string           `binding:"omitempty,url"`
+	ContactTelegram *ContactTelegram `binding:"omitempty"`
+	ContactEmail    string           `conform:"trim" binding:"omitempty,email"`
+}
+```
+
+Using `binding` you can define all rules needed for the particular validation
+Using `conform` you can trim the value before validation to be applied
