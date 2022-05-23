@@ -26,7 +26,7 @@ func NewRapidAPIInstagram28(configService config.IConfig) (IProvider, error) {
 		apiKey:       configService.MustString("instagram.api.rapid_api_token"),
 		apiHost:      "instagram28.p.rapidapi.com",
 		apiBaseURL:   "https://instagram28.p.rapidapi.com",
-		providerName: "RapidAPIInstagram85",
+		providerName: "RapidAPIInstagram28",
 	}, nil
 }
 
