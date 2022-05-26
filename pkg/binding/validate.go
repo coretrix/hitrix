@@ -1,9 +1,10 @@
 package binding
 
 import (
-	"github.com/coretrix/hitrix/pkg/errors"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/leebenson/conform"
+
+	"github.com/coretrix/hitrix/pkg/errors"
 )
 
 func ValidateStruct(s interface{}) error {
