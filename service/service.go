@@ -23,6 +23,7 @@ import (
 	featureflag "github.com/coretrix/hitrix/service/component/feature_flag"
 	fileextractor "github.com/coretrix/hitrix/service/component/file_extractor"
 	"github.com/coretrix/hitrix/service/component/generator"
+	googleanalytics "github.com/coretrix/hitrix/service/component/google_analytics"
 	"github.com/coretrix/hitrix/service/component/gql"
 	"github.com/coretrix/hitrix/service/component/instagram"
 	"github.com/coretrix/hitrix/service/component/jwt"
@@ -85,6 +86,7 @@ const (
 	GQLService              = "gql"
 	ElorusService           = "elorus"
 	InstagramService        = "instagram"
+	GoogleAnalyticsService  = "google_analytics"
 )
 
 type DIContainer struct {
@@ -250,4 +252,8 @@ func (d *DIContainer) Elorus() elorus.IProvider {
 
 func (d *DIContainer) Instagram() instagram.IAPIManager {
 	return GetServiceRequired(InstagramService).(instagram.IAPIManager)
+}
+
+func (d *DIContainer) GoogleAnalytics() googleanalytics.IAPIManager {
+	return GetServiceRequired(GoogleAnalyticsService).(googleanalytics.IAPIManager)
 }
