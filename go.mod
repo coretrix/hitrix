@@ -31,7 +31,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/kavenegar/kavenegar-go v0.0.0-20200629080648-6e28263b7162
 	github.com/kevinburke/twilio-go v0.0.0-20210327194925-1623146bcf73
-	github.com/latolukasz/beeorm v1.3.29
+	github.com/latolukasz/beeorm v1.3.31
 	github.com/leebenson/conform v1.2.2
 	github.com/mailjet/mailjet-apiv3-go v0.0.0-20201009050126-c24bc15a9394
 	github.com/mailjet/mailjet-apiv3-go/v3 v3.1.1
