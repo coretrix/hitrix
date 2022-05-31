@@ -1,10 +1,12 @@
 package googleanalytics
 
 import (
+	"os"
+
 	"github.com/coretrix/hitrix/service/component/config"
 )
 
-type NewProviderFunc func(configService config.IConfig) (IProvider, error)
+type NewProviderFunc func(configFolder string, configService config.IConfig) (IProvider, error)
 
 type IAPIManager interface {
 	GetProvider(name Provider) IProvider
@@ -15,12 +17,21 @@ type APIManager struct {
 	ProvidersByIndex map[int]IProvider
 }
 
-func NewAPIManager(configService config.IConfig, newProviderFunctions ...NewProviderFunc) (IAPIManager, error) {
+func NewAPIManager(localConfigFolder string, configService config.IConfig, newProviderFunctions ...NewProviderFunc) (IAPIManager, error) {
 	providers := map[string]IProvider{}
 	providersByIndex := map[int]IProvider{}
 
+	var configFolder string
+
+	appFolder, hasConfigFolder := os.LookupEnv("APP_FOLDER")
+	if !hasConfigFolder {
+		configFolder = localConfigFolder
+	} else {
+		configFolder = appFolder + "/config"
+	}
+
 	for i, newProviderFunc := range newProviderFunctions {
-		provider, err := newProviderFunc(configService)
+		provider, err := newProviderFunc(configFolder, configService)
 		if err != nil {
 			return nil, err
 		}

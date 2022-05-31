@@ -13,6 +13,7 @@ func ServiceProviderGoogleAnalytics(newFunctions googleanalytics.NewProviderFunc
 		Name: service.GoogleAnalyticsService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return googleanalytics.NewAPIManager(
+				ctn.Get("config_directory").(string),
 				ctn.Get(service.ConfigService).(config.IConfig),
 				newFunctions)
 		},
