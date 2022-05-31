@@ -16,8 +16,8 @@ type GoogleAnalytics4 struct {
 	providerName Provider
 }
 
-func NewGA4(configService config.IConfig) (IProvider, error) {
-	configFilePath := configService.MustString("google_analytics.config_file")
+func NewGA4(configFolder string, configService config.IConfig) (IProvider, error) {
+	configFilePath := configFolder + "/" + configService.MustString("google_analytics.config_file_name")
 
 	client, err := ga.NewService(context.Background(), option.WithCredentialsFile(configFilePath))
 	if err != nil {
