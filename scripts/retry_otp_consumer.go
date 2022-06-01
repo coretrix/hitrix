@@ -15,13 +15,14 @@ type RetryOTPConsumer struct {
 func (script *RetryOTPConsumer) Run(ctx context.Context, _ app.IExit) {
 	ormService := service.DI().OrmEngine()
 	configService := service.DI().Config()
+	otpService := service.DI().OTP()
 
 	maxRetries, ok := configService.Int("sms.max_retries")
 	if !ok {
 		panic("missing sms.max_retries")
 	}
 
-	queue.NewConsumerRunner(ctx).RunConsumerOne(consumers.NewOTPRetryConsumer(ormService, maxRetries), nil, 1)
+	queue.NewConsumerRunner(ctx).RunConsumerOne(consumers.NewOTPRetryConsumer(ormService, maxRetries, otpService.GetGatewayRegistry()), nil, 1)
 }
 
 func (script *RetryOTPConsumer) Infinity() bool {
