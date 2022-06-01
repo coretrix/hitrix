@@ -56,10 +56,14 @@ func TestOTPRetry(t *testing.T) {
 		Code:               code,
 		Phone:              phone,
 		OTPTrackerEntityID: otpTrackerEntity.ID,
-		Gateway:            gateway,
+		Gateway:            "g",
 	}
 
-	consumers.RetryOTP(ormService, dto, otpTrackerEntity, 10)
+	registry := map[string]otp.IOTPSMSGateway{
+		"g": gateway,
+	}
+
+	consumers.RetryOTP(ormService, registry, dto, otpTrackerEntity, 10)
 
 	otpTrackerEntity = &entity.OTPTrackerEntity{}
 	ormService.LoadByID(1, otpTrackerEntity)
@@ -117,10 +121,14 @@ func TestOTPWithMultipleRetry(t *testing.T) {
 		Code:               code,
 		Phone:              phone,
 		OTPTrackerEntityID: otpTrackerEntity.ID,
-		Gateway:            gateway,
+		Gateway:            "g",
 	}
 
-	consumers.RetryOTP(ormService, dto, otpTrackerEntity, 10)
+	registry := map[string]otp.IOTPSMSGateway{
+		"g": gateway,
+	}
+
+	consumers.RetryOTP(ormService, registry, dto, otpTrackerEntity, 10)
 
 	otpTrackerEntity = &entity.OTPTrackerEntity{}
 	ormService.LoadByID(1, otpTrackerEntity)
@@ -177,10 +185,14 @@ func TestOTPRetryWithMaxReached(t *testing.T) {
 		Code:               code,
 		Phone:              phone,
 		OTPTrackerEntityID: otpTrackerEntity.ID,
-		Gateway:            gateway,
+		Gateway:            "g",
 	}
 
-	consumers.RetryOTP(ormService, dto, otpTrackerEntity, 3)
+	registry := map[string]otp.IOTPSMSGateway{
+		"g": gateway,
+	}
+
+	consumers.RetryOTP(ormService, registry, dto, otpTrackerEntity, 3)
 
 	otpTrackerEntity = &entity.OTPTrackerEntity{}
 	ormService.LoadByID(1, otpTrackerEntity)

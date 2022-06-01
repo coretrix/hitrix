@@ -20,6 +20,7 @@ type IOTP interface {
 	SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error)
 	VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (bool, bool, error)
 	Call(ormService *beeorm.Engine, phone *Phone, customMessage string) (string, error)
+	GetGatewayRegistry() map[string]IOTPSMSGateway
 }
 
 type OTP struct {
@@ -122,7 +123,7 @@ func (o *OTP) SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error) {
 				Code:               code,
 				Phone:              phone,
 				OTPTrackerEntityID: otpTrackerEntity.ID,
-				Gateway:            gateway,
+				Gateway:            gateway.GetName(),
 			})
 		}
 	}
@@ -196,6 +197,10 @@ func (o *OTP) VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (b
 	return otpRequestValid, otpCodeValid, err
 }
 
+func (o *OTP) GetGatewayRegistry() map[string]IOTPSMSGateway {
+	return o.GatewayName
+}
+
 func (o *OTP) getOTPTrackerEntity(ormService *beeorm.Engine, phone *Phone) (*entity.OTPTrackerEntity, error) {
 	otpTrackerEntityIDString, has := ormService.GetRedis().Get(o.getRedisKey(phone))
 
@@ -229,5 +234,5 @@ type RetryDTO struct {
 	Code               string
 	Phone              *Phone
 	OTPTrackerEntityID uint64
-	Gateway            IOTPSMSGateway
+	Gateway            string
 }

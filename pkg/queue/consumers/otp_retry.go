@@ -1,6 +1,7 @@
 package consumers
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -12,12 +13,13 @@ import (
 )
 
 type OTPRetryConsumer struct {
-	ormService *beeorm.Engine
-	maxRetries int
+	ormService      *beeorm.Engine
+	maxRetries      int
+	gatewayRegistry map[string]otp.IOTPSMSGateway
 }
 
-func NewOTPRetryConsumer(ormService *beeorm.Engine, maxRetries int) *OTPRetryConsumer {
-	return &OTPRetryConsumer{ormService: ormService, maxRetries: maxRetries}
+func NewOTPRetryConsumer(ormService *beeorm.Engine, maxRetries int, gatewayRegistry map[string]otp.IOTPSMSGateway) *OTPRetryConsumer {
+	return &OTPRetryConsumer{ormService: ormService, maxRetries: maxRetries, gatewayRegistry: gatewayRegistry}
 }
 
 func (c *OTPRetryConsumer) GetQueueName() string {
@@ -39,20 +41,25 @@ func (c *OTPRetryConsumer) Consume(_ *beeorm.Engine, event beeorm.Event) error {
 	otpTrackerEntity := &entity.OTPTrackerEntity{}
 	ormService.LoadByID(retryDTO.OTPTrackerEntityID, otpTrackerEntity)
 
-	RetryOTP(ormService, retryDTO, otpTrackerEntity, c.maxRetries)
+	RetryOTP(ormService, c.gatewayRegistry, retryDTO, otpTrackerEntity, c.maxRetries)
 
 	return nil
 }
 
-func RetryOTP(ormService *beeorm.Engine, retryDTO *otp.RetryDTO, otpTrackerEntity *entity.OTPTrackerEntity, maxRetries int) {
+func RetryOTP(ormService *beeorm.Engine, gatewayRegistry map[string]otp.IOTPSMSGateway, retryDTO *otp.RetryDTO, otpTrackerEntity *entity.OTPTrackerEntity, maxRetries int) {
 	retryAfter := time.Second / 2
 
 	retryCount := 1
 	for retryCount <= maxRetries {
 		retryCount++
 
+		gateway, ok := gatewayRegistry[retryDTO.Gateway]
+		if !ok {
+			panic(fmt.Sprintf("gateway %s not found in registry", gateway))
+		}
+
 		var err error
-		otpTrackerEntity.GatewaySendRequest, otpTrackerEntity.GatewaySendResponse, err = retryDTO.Gateway.SendOTP(retryDTO.Phone, retryDTO.Code)
+		otpTrackerEntity.GatewaySendRequest, otpTrackerEntity.GatewaySendResponse, err = gateway.SendOTP(retryDTO.Phone, retryDTO.Code)
 		if err == nil {
 			otpTrackerEntity.GatewaySendStatus = entity.OTPTrackerGatewaySendStatusSent
 		}
