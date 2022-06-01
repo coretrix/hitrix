@@ -104,6 +104,26 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 
 	registry.RegisterMySQLPool(mysqlConnection[0] + "/" + newDBName)
 
+	connectionString, has := configService.String("orm.log_db_pool.mysql")
+	if has {
+		mysqlLogConnection := strings.Split(connectionString, "/")
+		dbLog, err := sql.Open("mysql", mysqlLogConnection[0]+"/?multiStatements=true")
+		if err != nil {
+			panic(err)
+		}
+		defer dbLog.Close()
+
+		newDBLogName := newDBName + "_log"
+
+		_, err = db.Exec("CREATE DATABASE IF NOT EXISTS `" + newDBLogName + "`")
+
+		if err != nil {
+			panic(err)
+		}
+
+		registry.RegisterMySQLPool(mysqlLogConnection[0]+"/"+newDBLogName, "log_db_pool")
+	}
+
 	for pool, value := range yamlConfig {
 		if _, ok := value.(map[interface{}]interface{})["mysql"]; ok {
 			mysqlConn := strings.Split(configService.MustString("orm."+pool+".mysql"), "/")
