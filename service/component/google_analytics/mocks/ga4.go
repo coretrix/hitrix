@@ -19,3 +19,8 @@ func (f *FakeGoogleAnalytics4) RunReport(runReportRequest *ga.RunReportRequest) 
 	args := f.Called(runReportRequest)
 	return args.Get(0).(*ga.RunReportResponse), args.Error(1)
 }
+
+func (f *FakeGoogleAnalytics4) GetDimensionsAndMetrics() ([]*ga.DimensionMetadata, []*ga.MetricMetadata, error) {
+	args := f.Called()
+	return args.Get(0).([]*ga.DimensionMetadata), args.Get(1).([]*ga.MetricMetadata), args.Error(2)
+}
