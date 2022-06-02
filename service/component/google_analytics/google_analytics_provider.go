@@ -18,4 +18,5 @@ func (p Provider) String() string {
 type IProvider interface {
 	GetName() Provider
 	RunReport(runReportRequest *ga.RunReportRequest) (*ga.RunReportResponse, error)
+	GetDimensionsAndMetrics() ([]*ga.DimensionMetadata, []*ga.MetricMetadata, error)
 }
