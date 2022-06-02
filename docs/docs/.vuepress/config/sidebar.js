@@ -79,6 +79,10 @@ module.exports = [
                         link: '/guide/services/localizer',
                     },
                     {
+                        text: 'Google Analytics',
+                        link: '/guide/services/google_analytics',
+                    },
+                    {
                         text: 'Mandrill - Transactional emails',
                         link: '/guide/services/mandrill',
                     },

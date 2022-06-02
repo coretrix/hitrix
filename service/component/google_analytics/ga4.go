@@ -38,3 +38,12 @@ func (g *GoogleAnalytics4) GetName() Provider {
 func (g *GoogleAnalytics4) RunReport(runReportRequest *ga.RunReportRequest) (*ga.RunReportResponse, error) {
 	return g.client.Properties.RunReport("properties/"+g.propertyID, runReportRequest).Do()
 }
+
+func (g *GoogleAnalytics4) GetDimensionsAndMetrics() ([]*ga.DimensionMetadata, []*ga.MetricMetadata, error) {
+	metadata, err := g.client.Properties.GetMetadata("properties/" + g.propertyID + "/metadata").Do()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return metadata.Dimensions, metadata.Metrics, nil
+}
