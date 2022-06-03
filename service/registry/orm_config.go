@@ -4,8 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"reflect"
-	"strconv"
+	"os"
 	"strings"
 
 	"github.com/fatih/color"
@@ -46,6 +45,10 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 				yamlConfig[fmt.Sprint(k)] = v
 			}
 
+			if appService.IsInTestMode() {
+				overwriteORMConfig(appService, configService, registry, yamlConfig)
+			}
+
 			registry.InitByYaml(yamlConfig)
 
 			if appService.IsInTestMode() {
@@ -53,10 +56,6 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 			}
 
 			init(registry)
-
-			if appService.IsInTestMode() {
-				overwriteORMConfig(appService, configService, registry, yamlConfig)
-			}
 
 			ormConfig, defferFunc, err = registry.Validate()
 			return ormConfig, err
@@ -102,7 +101,7 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 		panic(err)
 	}
 
-	registry.RegisterMySQLPool(mysqlConnection[0] + "/" + newDBName)
+	yamlConfig["default"].(map[interface{}]interface{})["mysql"] = mysqlConnection[0] + "/" + newDBName
 
 	connectionString, has := configService.String("orm.log_db_pool.mysql")
 	if has {
@@ -121,32 +120,23 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, regis
 			panic(err)
 		}
 
-		registry.RegisterMySQLPool(mysqlLogConnection[0]+"/"+newDBLogName, "log_db_pool")
+		yamlConfig["log_db_pool"].(map[interface{}]interface{})["mysql"] = mysqlLogConnection[0] + "/" + newDBLogName
 	}
 
-	for pool, value := range yamlConfig {
-		if _, ok := value.(map[interface{}]interface{})["mysql"]; ok {
-			mysqlConn := strings.Split(configService.MustString("orm."+pool+".mysql"), "/")
-			_, err = db.Exec("CREATE DATABASE IF NOT EXISTS `" + strings.SplitN(mysqlConn[len(mysqlConn)-1], "?", 2)[0] + "`")
-			if err != nil {
-				panic(err)
-			}
-		}
-
+	for _, value := range yamlConfig {
 		if _, ok := value.(map[interface{}]interface{})["sentinel"]; ok {
-			for masterConf, sentinelConnections := range value.(map[interface{}]interface{})["sentinel"].(map[interface{}]interface{}) {
-				sentinelConn := make([]string, 0)
-				sentinelConnValues := reflect.ValueOf(sentinelConnections)
+			for masterConf := range value.(map[interface{}]interface{})["sentinel"].(map[interface{}]interface{}) {
+				settings := strings.Split(fmt.Sprint(masterConf), ":")
 
-				for i := 0; i < reflect.ValueOf(sentinelConnections).Len(); i++ {
-					sentinelConn = append(sentinelConn, fmt.Sprint(sentinelConnValues.Index(i)))
+				_, has = os.LookupEnv("REDIS_TEST")
+				if !has {
+					panic("Please set `REDIS_TEST` ENV variable")
 				}
 
-				settings := strings.Split(fmt.Sprint(masterConf), ":")
-				dbIndex, _ := strconv.Atoi(settings[1])
-
 				sequence++
-				registry.RegisterRedisSentinel(settings[0], appService.ParallelTestID+fmt.Sprint(sequence), dbIndex, sentinelConn, fmt.Sprint(pool))
+				//host:dbIndex:namespace
+				value.(map[interface{}]interface{})["redis"] = os.Getenv("REDIS_TEST") + ":" + settings[1] + ":" + newDBName + fmt.Sprint(sequence)
+				delete(value.(map[interface{}]interface{}), "sentinel")
 			}
 		}
 	}
