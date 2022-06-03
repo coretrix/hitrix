@@ -1,6 +1,7 @@
 package googleanalytics
 
 import (
+	"golang.org/x/net/context"
 	ga "google.golang.org/api/analyticsdata/v1beta"
 )
 
@@ -17,6 +18,6 @@ func (p Provider) String() string {
 
 type IProvider interface {
 	GetName() Provider
-	RunReport(runReportRequest *ga.RunReportRequest) (*ga.RunReportResponse, error)
-	GetDimensionsAndMetrics() ([]*ga.DimensionMetadata, []*ga.MetricMetadata, error)
+	RunReport(ctx context.Context, runReportRequest *ga.RunReportRequest) (*ga.RunReportResponse, error)
+	GetDimensionsAndMetrics(ctx context.Context) ([]*ga.DimensionMetadata, []*ga.MetricMetadata, error)
 }

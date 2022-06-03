@@ -35,12 +35,12 @@ func (g *GoogleAnalytics4) GetName() Provider {
 	return g.providerName
 }
 
-func (g *GoogleAnalytics4) RunReport(runReportRequest *ga.RunReportRequest) (*ga.RunReportResponse, error) {
-	return g.client.Properties.RunReport("properties/"+g.propertyID, runReportRequest).Do()
+func (g *GoogleAnalytics4) RunReport(ctx context.Context, runReportRequest *ga.RunReportRequest) (*ga.RunReportResponse, error) {
+	return g.client.Properties.RunReport("properties/"+g.propertyID, runReportRequest).Context(ctx).Do()
 }
 
-func (g *GoogleAnalytics4) GetDimensionsAndMetrics() ([]*ga.DimensionMetadata, []*ga.MetricMetadata, error) {
-	metadata, err := g.client.Properties.GetMetadata("properties/" + g.propertyID + "/metadata").Do()
+func (g *GoogleAnalytics4) GetDimensionsAndMetrics(ctx context.Context) ([]*ga.DimensionMetadata, []*ga.MetricMetadata, error) {
+	metadata, err := g.client.Properties.GetMetadata("properties/" + g.propertyID + "/metadata").Context(ctx).Do()
 	if err != nil {
 		return nil, nil, err
 	}
