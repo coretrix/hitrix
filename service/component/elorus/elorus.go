@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/coretrix/hitrix/service"
-	"github.com/davecgh/go-spew/spew"
 	"io"
 	"net/http"
 	"net/url"
@@ -171,7 +170,6 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 
 	response := new(Response)
 	err = json.NewDecoder(resp.Body).Decode(&response)
-	spew.Dump(resp.Body)
 	if err != nil {
 		var failedResponse interface{}
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
