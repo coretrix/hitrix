@@ -121,7 +121,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("not successful request with status code : %v , response : %v response : %v", resp.StatusCode, failedResponse)
+		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
 
 	response := new(Response)
