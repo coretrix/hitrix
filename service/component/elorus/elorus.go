@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/coretrix/hitrix/service"
 	"github.com/davecgh/go-spew/spew"
 	"io"
 	"net/http"
@@ -94,6 +95,7 @@ func NewElorus(url string, token string, organizationID string, environment stri
 }
 
 func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error) {
+	app := service.DI().App()
 	client := &http.Client{}
 
 	jsonReq, _ := json.Marshal(request)
@@ -105,7 +107,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
-	if e.environment != "prod" {
+	if !app.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
 
@@ -137,6 +139,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 }
 
 func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error) {
+	app := service.DI().App()
 	client := &http.Client{}
 
 	jsonReq, _ := json.Marshal(request)
@@ -148,7 +151,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
-	if e.environment != "prod" {
+	if !app.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
 
@@ -181,6 +184,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 }
 
 func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListResponse, error) {
+	app := service.DI().App()
 	client := &http.Client{}
 
 	requestURL, err := url.Parse(e.url + "/invoices/")
@@ -204,7 +208,7 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
-	if e.environment != "prod" {
+	if !app.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
 
@@ -236,6 +240,7 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 }
 
 func (e *Elorus) DownloadInvoice(request *DownloadInvoiceRequest) (*io.ReadCloser, error) {
+	app := service.DI().App()
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", fmt.Sprintf(e.url+"/invoices/%s/pdf", request.ID), nil)
@@ -246,7 +251,7 @@ func (e *Elorus) DownloadInvoice(request *DownloadInvoiceRequest) (*io.ReadClose
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
-	if e.environment != "prod" {
+	if !app.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
 
