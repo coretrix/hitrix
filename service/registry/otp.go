@@ -80,7 +80,12 @@ func ServiceProviderOTP(forceProviders ...string) *service.DefinitionGlobal {
 				return nil, errors.New("must provide otp_sms_provider in settings or at least 1 forceProviders")
 			}
 
-			return otp.NewOTP(providers...), nil
+			retry, ok := configService.Bool("sms.retry")
+			if !ok {
+				return nil, errors.New("missing sms.retry")
+			}
+
+			return otp.NewOTP(retry, providers...), nil
 		},
 	}
 }

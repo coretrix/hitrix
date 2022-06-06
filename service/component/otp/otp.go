@@ -13,18 +13,21 @@ import (
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/coretrix/hitrix/pkg/queue/streams"
 )
 
 type IOTP interface {
 	SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error)
 	VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (bool, bool, error)
 	Call(ormService *beeorm.Engine, phone *Phone, customMessage string) (string, error)
+	GetGatewayRegistry() map[string]IOTPSMSGateway
 }
 
 type OTP struct {
 	GatewayPriority         []IOTPSMSGateway
 	GatewayName             map[string]IOTPSMSGateway
 	GatewayPhonePrefixRegex map[*regexp.Regexp]IOTPSMSGateway
+	RetryOTP                bool
 }
 
 type Phone struct {
@@ -32,11 +35,12 @@ type Phone struct {
 	ISO3166 phonenumber.ISO3166
 }
 
-func NewOTP(gateways ...IOTPSMSGateway) *OTP {
+func NewOTP(retryOTP bool, gateways ...IOTPSMSGateway) *OTP {
 	otp := &OTP{
 		GatewayPriority:         make([]IOTPSMSGateway, 0),
 		GatewayName:             map[string]IOTPSMSGateway{},
 		GatewayPhonePrefixRegex: map[*regexp.Regexp]IOTPSMSGateway{},
+		RetryOTP:                retryOTP,
 	}
 
 	for _, gateway := range gateways {
@@ -114,6 +118,13 @@ func (o *OTP) SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error) {
 		if err == nil {
 			ormService.GetRedis().Set(o.getRedisKey(phone), otpTrackerEntity.ID, helper.Hour)
 			break
+		} else if o.RetryOTP {
+			ormService.GetEventBroker().Publish(streams.StreamMsgRetryOTP, &RetryDTO{
+				Code:               code,
+				Phone:              phone,
+				OTPTrackerEntityID: otpTrackerEntity.ID,
+				Gateway:            gateway.GetName(),
+			})
 		}
 	}
 
@@ -186,6 +197,10 @@ func (o *OTP) VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (b
 	return otpRequestValid, otpCodeValid, err
 }
 
+func (o *OTP) GetGatewayRegistry() map[string]IOTPSMSGateway {
+	return o.GatewayName
+}
+
 func (o *OTP) getOTPTrackerEntity(ormService *beeorm.Engine, phone *Phone) (*entity.OTPTrackerEntity, error) {
 	otpTrackerEntityIDString, has := ormService.GetRedis().Get(o.getRedisKey(phone))
 
@@ -213,4 +228,11 @@ func (o *OTP) getOTPTrackerEntity(ormService *beeorm.Engine, phone *Phone) (*ent
 func (o *OTP) getRedisKey(phone *Phone) string {
 	// #nosec
 	return fmt.Sprintf("%x", md5.Sum([]byte(phone.Number)))
+}
+
+type RetryDTO struct {
+	Code               string
+	Phone              *Phone
+	OTPTrackerEntityID uint64
+	Gateway            string
 }

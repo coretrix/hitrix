@@ -26,7 +26,7 @@ func NewRapidAPIInstagram28(configService config.IConfig) (IProvider, error) {
 		apiKey:       configService.MustString("instagram.api.rapid_api_token"),
 		apiHost:      "instagram28.p.rapidapi.com",
 		apiBaseURL:   "https://instagram28.p.rapidapi.com",
-		providerName: "RapidAPIInstagram85",
+		providerName: "RapidAPIInstagram28",
 	}, nil
 }
 
@@ -195,7 +195,7 @@ func (p instagram40Post) ToPost() *Post {
 	case "GraphSidecar":
 		for _, edge := range p.EdgeSidecarToChildren.Edges {
 			if edge.Node.Type == "GraphImage" {
-				images = append(images, p.DisplayURL)
+				images = append(images, edge.Node.DisplayURL)
 			}
 		}
 	case "GraphImage":

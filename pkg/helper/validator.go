@@ -25,6 +25,10 @@ type Validator struct {
 }
 
 func (t *Validator) ValidateStruct(s interface{}) error {
+	//if err := conform.Strings(s); err != nil {
+	//	return err
+	//}
+
 	err := t.validator.Struct(s)
 
 	if err != nil {
