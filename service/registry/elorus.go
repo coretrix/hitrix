@@ -34,7 +34,7 @@ func ServiceProviderElorus() *service.DefinitionGlobal {
 
 			appService := ctn.Get(service.AppService).(*app.App)
 
-			return elorus.NewElorus(url, token, organizationID, appService.Mode), nil
+			return elorus.NewElorus(url, token, organizationID, appService), nil
 		},
 	}
 }

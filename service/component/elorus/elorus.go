@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/coretrix/hitrix/service/component/app"
 	"io"
 	"net/http"
 	"net/url"
@@ -15,7 +16,7 @@ type Elorus struct {
 	url            string
 	token          string
 	organizationID string
-	environment    string
+	appService     *app.App
 }
 
 type CreateContactRequest struct {
@@ -82,13 +83,13 @@ type Response struct {
 	ID string `json:"id"`
 }
 
-func NewElorus(url string, token string, organizationID string, environment string) *Elorus {
+func NewElorus(url string, token string, organizationID string, appService *app.App) *Elorus {
 	return &Elorus{
 		ctx:            context.Background(),
 		url:            url,
 		token:          token,
 		organizationID: organizationID,
-		environment:    environment,
+		appService:     appService,
 	}
 }
 
@@ -104,7 +105,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
-	if e.environment != "prod" {
+	if !e.appService.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
 
@@ -147,7 +148,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
-	if e.environment != "prod" {
+	if !e.appService.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
 
@@ -202,7 +203,7 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
-	if e.environment != "prod" {
+	if !e.appService.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
 
@@ -244,7 +245,7 @@ func (e *Elorus) DownloadInvoice(request *DownloadInvoiceRequest) (*io.ReadClose
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
-	if e.environment != "prod" {
+	if !e.appService.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
 
