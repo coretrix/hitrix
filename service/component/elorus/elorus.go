@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/coretrix/hitrix/service/component/app"
 	"io"
 	"net/http"
