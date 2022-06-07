@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/coretrix/hitrix/service"
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/coretrix/hitrix/service"
 )
 
 type Elorus struct {
