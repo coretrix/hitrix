@@ -68,11 +68,21 @@ func (s *serviceFeatureFlagWithCache) FailIfIsNotActive(ormService *beeorm.Engin
 }
 
 func (s *serviceFeatureFlagWithCache) Enable(ormService *beeorm.Engine, name string) error {
-	return s.featureFlagService.Enable(ormService, name)
+	err := s.featureFlagService.Enable(ormService, name)
+	s.Lock()
+	delete(s.cache, name)
+	s.Unlock()
+
+	return err
 }
 
 func (s *serviceFeatureFlagWithCache) Disable(ormService *beeorm.Engine, name string) error {
-	return s.featureFlagService.Disable(ormService, name)
+	err := s.featureFlagService.Disable(ormService, name)
+	s.Lock()
+	delete(s.cache, name)
+	s.Unlock()
+
+	return err
 }
 
 func (s *serviceFeatureFlagWithCache) GetScriptsSingleInstance(ormService *beeorm.Engine) []app.IScript {
