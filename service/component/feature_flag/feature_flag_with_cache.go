@@ -39,6 +39,8 @@ func (s *serviceFeatureFlagWithCache) IsActive(ormService *beeorm.Engine, name s
 	if name == "" {
 		panic("name cannot be empty")
 	}
+	s.Lock()
+	defer s.Unlock()
 
 	if cacheEntry, has := s.cache[name]; has {
 		if s.clockService.Now().Sub(cacheEntry.time) <= 5*time.Second {
@@ -53,12 +55,10 @@ func (s *serviceFeatureFlagWithCache) IsActive(ormService *beeorm.Engine, name s
 	if !found {
 		return false
 	}
-	s.Lock()
 	s.cache[name] = &cacheEntity{
 		featureFlagEntity: featureFlagEntity,
 		time:              s.clockService.Now(),
 	}
-	defer s.Unlock()
 
 	return featureFlagEntity.Enabled && featureFlagEntity.Registered
 }
