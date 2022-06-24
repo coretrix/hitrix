@@ -142,6 +142,10 @@ module.exports = [
                         link: '/guide/services/clockwork',
                     },
                     {
+                        text: 'Kubernetes',
+                        link: '/guide/services/kubernetes',
+                    },
+                    {
                         text: 'Template',
                         link: '/guide/services/template',
                     },

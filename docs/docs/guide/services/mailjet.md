@@ -24,7 +24,7 @@ Access the service:
 service.DI().Mail()
 ```
 
-Some of the functions this service provide are:
+Some functions this service provide are:
 ```go
 	SendTemplate(ormService *beeorm.Engine, message *TemplateMessage) error
 	SendTemplateAsync(ormService *beeorm.Engine, message *TemplateMessage) error
