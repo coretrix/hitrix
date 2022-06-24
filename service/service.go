@@ -27,6 +27,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/gql"
 	"github.com/coretrix/hitrix/service/component/instagram"
 	"github.com/coretrix/hitrix/service/component/jwt"
+	"github.com/coretrix/hitrix/service/component/kubernetes"
 	"github.com/coretrix/hitrix/service/component/localize"
 	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/oss"
@@ -87,6 +88,7 @@ const (
 	ElorusService           = "elorus"
 	InstagramService        = "instagram"
 	GoogleAnalyticsService  = "google_analytics"
+	KubernetesService       = "kubernetes"
 )
 
 type DIContainer struct {
@@ -256,4 +258,8 @@ func (d *DIContainer) Instagram() instagram.IAPIManager {
 
 func (d *DIContainer) GoogleAnalytics() googleanalytics.IAPIManager {
 	return GetServiceRequired(GoogleAnalyticsService).(googleanalytics.IAPIManager)
+}
+
+func (d *DIContainer) Kubernetes() kubernetes.IProvider {
+	return GetServiceRequired(KubernetesService).(kubernetes.IProvider)
 }
