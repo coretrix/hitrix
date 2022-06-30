@@ -12,7 +12,12 @@ Access the service:
 service.DI().Crud()
 ```
 
-First you need to define what columns you going to have and which of them will be Searchable, Sortable or Filterable(user for enum values).
+### Search vs Filter
+Search is used on strings while filtering can be used on wide range of data types.  One important note to remember is that if your column is searchable it can't be filterable. 
+ 
+
+### defining columns
+First you need to define what columns you're going to have and which of them will be Searchable, Sortable or Filterable(user for enum values).
 Using this configuration you also define the supported filters that can be applied.
 
 The second step is in your controller(handler) to call few methods from that service that will build the right query for you based on the request.
