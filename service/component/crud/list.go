@@ -1,7 +1,6 @@
 package crud
 
 import (
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -84,61 +83,43 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 	var rangeDateTimeFilters = make([]string, 0)
 	var rangeDateFilters = make([]string, 0)
 	var sortables = make([]string, 0)
-	for i := range cols {
-		if cols[i].Sortable {
-			sortables = append(sortables, cols[i].Key)
+	for _, column := range cols {
+		if column.Sortable {
+			sortables = append(sortables, column.Key)
 		}
-		if cols[i].Searchable && cols[i].Type == FormatStringType {
-			formatStringSearch = append(formatStringSearch, cols[i].Key)
+		if column.Searchable && column.Type == FormatStringType {
+			formatStringSearch = append(formatStringSearch, column.Key)
 			continue
 		}
-		if cols[i].Searchable {
-			searchable = append(searchable, cols[i].Key)
+		if column.Searchable {
+			searchable = append(searchable, column.Key)
 			continue
 		}
-		if cols[i].Filterable && cols[i].Type == StringType {
-			stringFilters = append(stringFilters, cols[i].Key)
-			continue
-		}
-		if cols[i].Filterable && cols[i].Type == ArrayStringType {
-			arrayStringFilters = append(arrayStringFilters, cols[i].Key)
-			continue
-		}
-		if cols[i].Filterable && cols[i].Type == BooleanType {
-			booleanFilters = append(booleanFilters, cols[i].Key)
-			continue
-		}
-		if cols[i].Filterable && cols[i].Type == RangeNumberType {
-			rangeNumberFilters = append(rangeNumberFilters, cols[i].Key)
-			continue
-		}
-		if cols[i].Filterable && cols[i].Type == ArrayNumberType {
-			arrayNumberFilters = append(arrayNumberFilters, cols[i].Key)
-			continue
-		}
-		if cols[i].Filterable && cols[i].Type == NumberType {
-			numberFilters = append(numberFilters, cols[i].Key)
-			continue
-		}
-		if cols[i].Filterable && cols[i].Type == EnumType {
-			stringEnumFilters[cols[i].Key] = cols[i].FilterValidMap
-			continue
-		}
-		if cols[i].Filterable && cols[i].Type == DateTimeType {
-			dateTimeFilters = append(dateTimeFilters, cols[i].Key)
-			continue
-		}
-		if cols[i].Filterable && cols[i].Type == DateType {
-			dateFilters = append(dateFilters, cols[i].Key)
-			continue
-		}
-		if cols[i].Filterable && cols[i].Type == RangeDateTimeType {
-			rangeDateTimeFilters = append(rangeDateTimeFilters, cols[i].Key)
-			continue
-		}
-		if cols[i].Filterable && cols[i].Type == RangeDateType {
-			rangeDateFilters = append(rangeDateFilters, cols[i].Key)
-			continue
+		if column.Filterable {
+			switch column.Type {
+			case StringType:
+				stringFilters = append(stringFilters, column.Key)
+			case ArrayStringType:
+				arrayStringFilters = append(arrayStringFilters, column.Key)
+			case BooleanType:
+				booleanFilters = append(booleanFilters, column.Key)
+			case RangeNumberType:
+				rangeNumberFilters = append(rangeNumberFilters, column.Key)
+			case ArrayNumberType:
+				arrayNumberFilters = append(arrayNumberFilters, column.Key)
+			case NumberType:
+				numberFilters = append(numberFilters, column.Key)
+			case EnumType:
+				stringEnumFilters[column.Key] = column.FilterValidMap
+			case DateTimeType:
+				dateTimeFilters = append(dateTimeFilters, column.Key)
+			case DateType:
+				dateFilters = append(dateFilters, column.Key)
+			case RangeDateTimeType:
+				rangeDateTimeFilters = append(rangeDateTimeFilters, column.Key)
+			case RangeDateType:
+				rangeDateFilters = append(rangeDateFilters, column.Key)
+			}
 		}
 	}
 
@@ -159,18 +140,23 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 
 mainLoop:
 	for field, value := range request.Filter {
-		jsonIntValue, ok := value.(json.Number)
-		if ok {
-			jsonInt, err := jsonIntValue.Int64()
-			if err == nil {
-				if helper.StringInArray(field, numberFilters...) {
-					selectedNumberFilters[field] = jsonInt
-					continue mainLoop
-				}
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.Int64:
+			if helper.StringInArray(field, numberFilters...) {
+				selectedNumberFilters[field] = value.(int64)
+				continue mainLoop
 			}
-		}
-
-		if reflect.TypeOf(value).Kind() == reflect.Slice {
+		case reflect.Float64:
+			if helper.StringInArray(field, numberFilters...) {
+				selectedNumberFilters[field] = int64(value.(float64))
+				continue mainLoop
+			}
+		case reflect.Bool:
+			if helper.StringInArray(field, booleanFilters...) {
+				selectedBooleanFilters[field] = value.(bool)
+				continue mainLoop
+			}
+		case reflect.Slice:
 			s := reflect.ValueOf(value)
 
 			if helper.StringInArray(field, rangeNumberFilters...) {
@@ -219,18 +205,9 @@ mainLoop:
 			}
 
 			continue mainLoop
-		}
 
-		booleanValue, ok := value.(bool)
-		if ok {
-			if helper.StringInArray(field, booleanFilters...) {
-				selectedBooleanFilters[field] = booleanValue
-				continue mainLoop
-			}
-		}
-
-		stringValue, ok := value.(string)
-		if ok {
+		case reflect.String:
+			stringValue := value.(string)
 			if helper.StringInArray(field, stringFilters...) {
 				selectedStringFilters[field] = stringValue
 				continue mainLoop
@@ -317,7 +294,7 @@ mainLoop:
 	}
 }
 
-// TODO : add full text queries when supported by hitrix
+//GenerateListRedisSearchQuery TODO : add full text queries when supported by hitrix
 func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSearchQuery {
 	query := &beeorm.RedisSearchQuery{}
 	for field, value := range params.NumberFilters {
