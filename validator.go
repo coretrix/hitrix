@@ -29,13 +29,22 @@ func ValidateDirective() func(ctx context.Context, obj interface{}, next graphql
 		}
 
 		errs := helper.NewValidator().Validate(originalValue, rules)
+		if len(errs) > 0 {
+			if len(errs) > 1 {
+				for i := 1; i < len(errs); i++ {
+					graphql.AddError(ctx, &gqlerror.Error{
+						Path:    graphql.GetPath(ctx),
+						Message: "Field" + errs[i].Error(),
+					})
+				}
+			}
 
-		for _, e := range errs {
-			graphql.AddError(ctx, &gqlerror.Error{
+			return nil, &gqlerror.Error{
 				Path:    graphql.GetPath(ctx),
-				Message: "Field" + e.Error(),
-			})
+				Message: "Field" + errs[0].Error(),
+			}
 		}
+
 		return originalValue, nil
 	}
 }
