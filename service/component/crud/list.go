@@ -343,6 +343,9 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 
 	// TODO : use full text search
 	for field, value := range params.Search {
+		if strings.TrimSpace(value) == "" {
+			continue
+		}
 		query.QueryRaw(fmt.Sprintf(
 			"@%s:%v* ",
 			field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
@@ -351,6 +354,9 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 
 	orStatements := make([]string, 0)
 	for field, value := range params.SearchOR {
+		if strings.TrimSpace(value) == "" {
+			continue
+		}
 		orStatements = append(orStatements, fmt.Sprintf(
 			"(@%s:%v*)",
 			field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
