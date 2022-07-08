@@ -175,7 +175,7 @@ We have defined rules that backend and frontend developers should follow to keep
 2. Backend and frontend developers together should go through design and define endpoints and request/response structure. Whenever they are ready they should post it as a comment into the backend ticket to be visible that both agreed on it
 3. Start implementing the feature
 4. Before completing the task they should do following things:
-   4.1. When backend developer is done and all tests pass he should test every endpoint by himself using `swagger` on `dev` environment before complete his ticket
-   4.2. When frontend developer is done he should deploy on `dev` and test the feature very well before complete his ticket 
+   - When backend developer is done and all tests pass he should test every endpoint by himself using `swagger` on `dev` environment before complete his ticket
+   - When frontend developer is done he should deploy on `dev` and test the feature very well before complete his ticket 
 5. When everything works on `dev` frontend developer is responsible to talk to backend developer and together to deploy on `demo` and go through the flow and verify if it works 
 6. Mark the task as completed and inform the business person.
