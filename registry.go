@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"os"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sarulabs/di"
@@ -39,6 +40,7 @@ func (r *Registry) Build() (*Hitrix, func()) {
 	globalContext, cancel := context.WithCancel(context.Background())
 	r.app.GlobalContext = globalContext
 	r.app.CancelContext = cancel
+	r.app.WaitGroup = &sync.WaitGroup{}
 
 	r.initializeIoCHandlers()
 

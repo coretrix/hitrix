@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/latolukasz/beeorm"
@@ -59,6 +58,7 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 
 	ormService := service.DI().OrmEngine().Clone()
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
+	service.DI().App().WaitGroup.Add(1)
 
 	for {
 		// eventsConsumer.Consume should block and not return anything
@@ -78,11 +78,11 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 			continue
 		} else {
 			log.Println("eventsConsumer.Consume returned true")
+			log.Printf("RunConsumerMany exited (%s)", queueName)
+			service.DI().App().WaitGroup.Done()
 			break
 		}
 	}
-
-	log.Printf("RunConsumerMany exited (%s)", queueName)
 }
 
 func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *string, prefetchCount int) {
@@ -92,7 +92,7 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 
 	ormService := service.DI().OrmEngine().Clone()
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
-
+	service.DI().App().WaitGroup.Add(1)
 	for {
 		// eventsConsumer.Consume should block and not return anything
 		// if it returns true => this consumer is exited with no errors, but still not consuming
@@ -114,10 +114,10 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 			continue
 		} else {
 			log.Println("eventsConsumer.Consume returned true")
+			service.DI().App().WaitGroup.Done()
 			break
 		}
 	}
-
 	log.Printf("RunConsumerOne exited (%s)", queueName)
 }
 
@@ -132,8 +132,7 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 	log.Printf("RunConsumerOneByModulo initialized (%s)", baseQueueName)
 
-	outerWG := sync.WaitGroup{}
-	outerWG.Add(maxModulo)
+	service.DI().App().WaitGroup.Add(maxModulo)
 
 	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
 		currentModulo := moduloID
@@ -167,7 +166,8 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 					continue
 				} else {
 					log.Printf("eventsConsumer.Consume returned true for goroutine %d (%s)", currentModulo, queueName)
-					outerWG.Done()
+					log.Printf("RunConsumerOneByModulo exited (%s)", baseQueueName)
+					service.DI().App().WaitGroup.Done()
 					break
 				}
 			}
@@ -177,9 +177,6 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 		time.Sleep(time.Second)
 	}
-
-	outerWG.Wait()
-	log.Printf("RunConsumerOneByModulo exited (%s)", baseQueueName)
 }
 
 func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, groupNameSuffix *string, prefetchCount int) {
@@ -193,8 +190,7 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 	log.Printf("RunConsumerManyByModulo initialized (%s)", baseQueueName)
 
-	outerWG := sync.WaitGroup{}
-	outerWG.Add(maxModulo)
+	service.DI().App().WaitGroup.Add(maxModulo)
 
 	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
 		currentModulo := moduloID
@@ -225,7 +221,8 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 					continue
 				} else {
 					log.Printf("eventsConsumer.Consume returned true for goroutine %d (%s)", currentModulo, queueName)
-					outerWG.Done()
+					log.Printf("RunConsumerManyByModulo exited (%s)", baseQueueName)
+					service.DI().App().WaitGroup.Done()
 					break
 				}
 			}
@@ -235,9 +232,6 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 		time.Sleep(time.Second)
 	}
-
-	outerWG.Wait()
-	log.Printf("RunConsumerManyByModulo exited (%s)", baseQueueName)
 }
 
 type ScalableConsumerRunner struct {
@@ -261,6 +255,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 	log.Printf("RunScalableConsumerMany index (%d) initialized (%s)", currentIndex, queueName)
 
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
+	service.DI().App().WaitGroup.Add(1)
 
 	for {
 		// eventsConsumer.ConsumeMany should block and not return anything
@@ -281,13 +276,12 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 			continue
 		} else {
 			log.Println("eventsConsumer.ConsumeMany returned true")
+			service.DI().App().WaitGroup.Done()
 			break
 		}
 	}
 
 	removeConsumerGroup(eventsConsumer, redis, consumerGroupName, currentIndex)
-
-	log.Printf("RunScalableConsumerMany exited (%s)", queueName)
 }
 
 func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, groupNameSuffix *string, prefetchCount int) {
@@ -302,7 +296,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 	log.Printf("RunScalableConsumerOne index (%d) initialized (%s)", currentIndex, queueName)
 
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
-
+	service.DI().App().WaitGroup.Add(1)
 	for {
 		// eventsConsumer.ConsumeMany should block and not return anything
 		// if it returns true => this consumer is exited with no errors, but still not consuming
@@ -325,6 +319,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 			continue
 		} else {
 			log.Println("eventsConsumer.ConsumeMany returned true")
+			service.DI().App().WaitGroup.Done()
 			break
 		}
 	}

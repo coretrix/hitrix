@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
@@ -42,6 +43,7 @@ type App struct {
 	RedisPools     *RedisPools
 	GlobalContext  context.Context
 	CancelContext  context.CancelFunc
+	WaitGroup      *sync.WaitGroup
 }
 
 func (app *App) IsInLocalMode() bool {
