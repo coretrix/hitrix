@@ -145,7 +145,6 @@ func (processor *BackgroundProcessor) runScript(s app.IScript) bool {
 		}()
 
 		appService := service.DI().App()
-
 		s.Run(appService.GlobalContext, &exit{s: processor.Server})
 
 		return valid

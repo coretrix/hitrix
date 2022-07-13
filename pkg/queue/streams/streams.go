@@ -3,9 +3,9 @@ package streams
 const StreamMsgRetryOTP = "msg.retry-otp"
 
 func GetGroupName(queueName string, suffix *string) string {
-	groupName := queueName + "_group"
-	if suffix != nil {
-		groupName += "_" + *suffix
+	if suffix == nil {
+		return queueName + "_group"
 	}
-	return groupName
+
+	return queueName + "_group_" + *suffix
 }
