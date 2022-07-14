@@ -180,7 +180,7 @@ func Clockwork(ginEngine *gin.Engine) {
 		profilerService.GetRequestDataSource().SetStartTime(time.Now())
 		profilerService.GetRequestDataSource().StartMemoryUsage()
 
-		c.Writer.Header().Set("X-Clockwork-Id", profilerService.GetUniqueId())
+		c.Writer.Header().Set("X-Clockwork-Id", profilerService.GetUniqueID())
 		c.Writer.Header().Set("X-Clockwork-Version", "5.1.0")
 
 		c.Next()

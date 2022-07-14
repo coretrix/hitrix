@@ -13,7 +13,7 @@ require (
 	github.com/checkout/checkout-sdk-go v0.0.19
 	github.com/chromedp/cdproto v0.0.0-20210910012206-68626162910d
 	github.com/chromedp/chromedp v0.7.4
-	github.com/coretrix/clockwork v0.1.0
+	github.com/coretrix/clockwork v1.0.0
 	github.com/dongri/phonenumber v0.0.0-20210304071411-690733f34185
 	github.com/fatih/color v1.13.0
 	github.com/gin-contrib/cors v1.3.1
