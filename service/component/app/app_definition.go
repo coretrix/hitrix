@@ -43,7 +43,7 @@ type App struct {
 	RedisPools     *RedisPools
 	GlobalContext  context.Context
 	CancelContext  context.CancelFunc
-	WaitGroup      *sync.WaitGroup
+	waitGroup      *sync.WaitGroup
 }
 
 func (app *App) IsInLocalMode() bool {
@@ -68,4 +68,21 @@ func (app *App) IsInDemoMode() bool {
 
 func (app *App) IsInMode(mode string) bool {
 	return app.Mode == mode
+}
+
+func (app *App) InitWaitGroup() {
+	if app.waitGroup == nil {
+		app.waitGroup = &sync.WaitGroup{}
+	}
+}
+
+func (app *App) Add(delta int) {
+	app.waitGroup.Add(delta)
+}
+
+func (app *App) Done() {
+	app.waitGroup.Done()
+}
+func (app *App) Wait() {
+	app.waitGroup.Wait()
 }
