@@ -58,8 +58,8 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 
 	ormService := service.DI().OrmEngine().Clone()
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
-	service.DI().App().WaitGroup.Add(1)
-	defer service.DI().App().WaitGroup.Done()
+	service.DI().App().Add(1)
+	defer service.DI().App().Done()
 
 	for {
 		// eventsConsumer.Consume should block and not return anything
@@ -92,8 +92,8 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 
 	ormService := service.DI().OrmEngine().Clone()
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
-	service.DI().App().WaitGroup.Add(1)
-	defer service.DI().App().WaitGroup.Done()
+	service.DI().App().Add(1)
+	defer service.DI().App().Done()
 
 	for {
 		// eventsConsumer.Consume should block and not return anything
@@ -143,8 +143,8 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 			ormService := service.DI().OrmEngine().Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
-			service.DI().App().WaitGroup.Add(1)
-			defer service.DI().App().WaitGroup.Done()
+			service.DI().App().Add(1)
+			defer service.DI().App().Done()
 
 			for {
 				// eventsConsumer.Consume should block and not return anything
@@ -200,8 +200,8 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 			ormService := service.DI().OrmEngine().Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
-			service.DI().App().WaitGroup.Add(1)
-			defer service.DI().App().WaitGroup.Done()
+			service.DI().App().Add(1)
+			defer service.DI().App().Done()
 
 			for {
 				// eventsConsumer.Consume should block and not return anything
@@ -254,8 +254,8 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 	log.Printf("RunScalableConsumerMany index (%d) initialized (%s)", currentIndex, queueName)
 
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
-	service.DI().App().WaitGroup.Add(1)
-	defer service.DI().App().WaitGroup.Done()
+	service.DI().App().Add(1)
+	defer service.DI().App().Done()
 
 	for {
 		// eventsConsumer.ConsumeMany should block and not return anything
@@ -295,8 +295,8 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 	log.Printf("RunScalableConsumerOne index (%d) initialized (%s)", currentIndex, queueName)
 
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
-	service.DI().App().WaitGroup.Add(1)
-	defer service.DI().App().WaitGroup.Done()
+	service.DI().App().Add(1)
+	defer service.DI().App().Done()
 
 	for {
 		// eventsConsumer.ConsumeMany should block and not return anything

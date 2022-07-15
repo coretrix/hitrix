@@ -166,15 +166,15 @@ func (h *Hitrix) await() {
 	select {
 	case code := <-h.exit:
 		appService.CancelContext()
-		appService.WaitGroup.Wait()
+		appService.Wait()
 		os.Exit(code)
 	case <-h.done:
 		appService.CancelContext()
-		appService.WaitGroup.Wait()
+		appService.Wait()
 	case <-termChan:
 		log.Println("TERMINATING")
 		appService.CancelContext()
-		appService.WaitGroup.Wait()
+		appService.Wait()
 		time.Sleep(time.Millisecond * 300)
 		log.Println("TERMINATED")
 	}
