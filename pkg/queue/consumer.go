@@ -59,6 +59,7 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 	ormService := service.DI().OrmEngine().Clone()
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 	service.DI().App().WaitGroup.Add(1)
+	defer service.DI().App().WaitGroup.Done()
 
 	for {
 		// eventsConsumer.Consume should block and not return anything
@@ -79,7 +80,6 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 		} else {
 			log.Println("eventsConsumer.Consume returned true")
 			log.Printf("RunConsumerMany exited (%s)", queueName)
-			service.DI().App().WaitGroup.Done()
 			break
 		}
 	}
@@ -93,6 +93,8 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 	ormService := service.DI().OrmEngine().Clone()
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 	service.DI().App().WaitGroup.Add(1)
+	defer service.DI().App().WaitGroup.Done()
+
 	for {
 		// eventsConsumer.Consume should block and not return anything
 		// if it returns true => this consumer is exited with no errors, but still not consuming
@@ -114,7 +116,6 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 			continue
 		} else {
 			log.Println("eventsConsumer.Consume returned true")
-			service.DI().App().WaitGroup.Done()
 			break
 		}
 	}
@@ -132,8 +133,6 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 	log.Printf("RunConsumerOneByModulo initialized (%s)", baseQueueName)
 
-	service.DI().App().WaitGroup.Add(maxModulo)
-
 	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
 		currentModulo := moduloID
 		hitrix.GoroutineWithRestart(func() {
@@ -144,6 +143,8 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 			ormService := service.DI().OrmEngine().Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
+			service.DI().App().WaitGroup.Add(1)
+			defer service.DI().App().WaitGroup.Done()
 
 			for {
 				// eventsConsumer.Consume should block and not return anything
@@ -167,7 +168,6 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 				} else {
 					log.Printf("eventsConsumer.Consume returned true for goroutine %d (%s)", currentModulo, queueName)
 					log.Printf("RunConsumerOneByModulo exited (%s)", baseQueueName)
-					service.DI().App().WaitGroup.Done()
 					break
 				}
 			}
@@ -190,8 +190,6 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 	log.Printf("RunConsumerManyByModulo initialized (%s)", baseQueueName)
 
-	service.DI().App().WaitGroup.Add(maxModulo)
-
 	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
 		currentModulo := moduloID
 		hitrix.GoroutineWithRestart(func() {
@@ -202,6 +200,8 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 			ormService := service.DI().OrmEngine().Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
+			service.DI().App().WaitGroup.Add(1)
+			defer service.DI().App().WaitGroup.Done()
 
 			for {
 				// eventsConsumer.Consume should block and not return anything
@@ -222,7 +222,6 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 				} else {
 					log.Printf("eventsConsumer.Consume returned true for goroutine %d (%s)", currentModulo, queueName)
 					log.Printf("RunConsumerManyByModulo exited (%s)", baseQueueName)
-					service.DI().App().WaitGroup.Done()
 					break
 				}
 			}
@@ -256,6 +255,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
 	service.DI().App().WaitGroup.Add(1)
+	defer service.DI().App().WaitGroup.Done()
 
 	for {
 		// eventsConsumer.ConsumeMany should block and not return anything
@@ -276,7 +276,6 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 			continue
 		} else {
 			log.Println("eventsConsumer.ConsumeMany returned true")
-			service.DI().App().WaitGroup.Done()
 			break
 		}
 	}
@@ -297,6 +296,8 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
 	service.DI().App().WaitGroup.Add(1)
+	defer service.DI().App().WaitGroup.Done()
+
 	for {
 		// eventsConsumer.ConsumeMany should block and not return anything
 		// if it returns true => this consumer is exited with no errors, but still not consuming
@@ -319,7 +320,6 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 			continue
 		} else {
 			log.Println("eventsConsumer.ConsumeMany returned true")
-			service.DI().App().WaitGroup.Done()
 			break
 		}
 	}
