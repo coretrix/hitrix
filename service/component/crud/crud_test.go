@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -268,6 +269,34 @@ func TestExtractListParams(t *testing.T) {
 			NumberFilters:        map[string]int64{},
 			ArrayNumberFilters:   map[string][]int64{},
 			RangeNumberFilters:   map[string][]int64{"RangeNumberType": {1, 100}},
+			DateTimeFilters:      map[string]time.Time{},
+			DateFilters:          map[string]time.Time{},
+			RangeDateTimeFilters: map[string][]time.Time{},
+			RangeDateFilters:     map[string][]time.Time{},
+			BooleanFilters:       map[string]bool{},
+			Sort:                 map[string]bool{},
+		}
+		assert.Equal(t, expected, searchParam)
+	})
+	t.Run("Filter By json.Number", func(t *testing.T) {
+		searchParam := crud.ExtractListParams(columns(), &ListRequest{
+			Page:     pointer.Int(1),
+			PageSize: pointer.Int(15),
+			Filter: map[string]interface{}{
+				"NumberType": json.Number("1"),
+			},
+		})
+		expected := SearchParams{
+			Page:                 1,
+			PageSize:             15,
+			Search:               map[string]string{},
+			SearchOR:             map[string]string{},
+			StringFilters:        map[string]string{},
+			FormatStringFilters:  map[string]string{},
+			ArrayStringFilters:   map[string][]string{},
+			NumberFilters:        map[string]int64{"NumberType": int64(1)},
+			ArrayNumberFilters:   map[string][]int64{},
+			RangeNumberFilters:   map[string][]int64{},
 			DateTimeFilters:      map[string]time.Time{},
 			DateFilters:          map[string]time.Time{},
 			RangeDateTimeFilters: map[string][]time.Time{},

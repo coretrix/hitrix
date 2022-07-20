@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -207,6 +208,17 @@ mainLoop:
 			continue mainLoop
 
 		case reflect.String:
+			jsonIntValue, ok := value.(json.Number)
+			if ok {
+				jsonInt, err := jsonIntValue.Int64()
+				if err == nil {
+					if helper.StringInArray(field, numberFilters...) {
+						selectedNumberFilters[field] = jsonInt
+						continue mainLoop
+					}
+				}
+			}
+
 			stringValue := value.(string)
 			if helper.StringInArray(field, stringFilters...) {
 				selectedStringFilters[field] = stringValue
