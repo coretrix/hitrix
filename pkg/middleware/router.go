@@ -42,6 +42,8 @@ func Router(ginEngine *gin.Engine) {
 			devGroup.GET("feature-flag/list/", devPanel.GetFeatureFlags)
 			devGroup.POST("feature-flag/enable/:name/", devPanel.PostEnableFeatureFlag)
 			devGroup.POST("feature-flag/disable/:name/", devPanel.PostDisableFeatureFlag)
+
+			devGroup.POST("request-logger/list/", devPanel.PostRequestsLogger)
 		}
 	}
 

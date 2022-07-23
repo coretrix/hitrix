@@ -42,8 +42,10 @@ func main() {
 
 	b := &hitrix.BackgroundProcessor{Server: s}
 	b.RunAsyncOrmConsumer()
+	b.RunAsyncRequestLoggerCleaner()
 
 	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}), func(ginEngine *gin.Engine) {
+		middleware.RequestLogger(ginEngine, nil)
 		exampleMiddleware.Router(ginEngine)
 		middleware.Cors(ginEngine)
 	}, nil)

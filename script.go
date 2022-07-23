@@ -10,6 +10,7 @@ import (
 	"github.com/latolukasz/beeorm"
 	"github.com/ryanuber/columnize"
 
+	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 )
@@ -169,4 +170,49 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 			time.Sleep(time.Second * 30)
 		}
 	})
+}
+
+func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
+	ormService := service.DI().OrmEngine()
+
+	ormConfig := service.DI().OrmConfig()
+	entities := ormConfig.GetEntities()
+	if _, ok := entities["entity.RequestLoggerEntity"]; !ok {
+		panic("you should register RequestLoggerEntity")
+	}
+
+	GoroutineWithRestart(func() {
+		log.Println("starting request logger cleaner")
+
+		for {
+			removeAllOldRequestLoggerRows(ormService)
+
+			log.Println("sleeping request logger cleaner")
+			time.Sleep(time.Minute * 30)
+		}
+	})
+}
+
+func removeAllOldRequestLoggerRows(ormService *beeorm.Engine) {
+	pager := beeorm.NewPager(1, 1000)
+
+	for {
+		query := beeorm.NewRedisSearchQuery()
+		query.FilterDateLess("CreatedAt", service.DI().Clock().Now().AddDate(0, -1, 0))
+
+		var requestLoggerEntities []*entity.RequestLoggerEntity
+		ormService.RedisSearch(&requestLoggerEntities, query, pager)
+
+		flusher := ormService.NewFlusher()
+		for _, requestLoggerEntity := range requestLoggerEntities {
+			flusher.Delete(requestLoggerEntity)
+		}
+		flusher.Flush()
+		log.Printf("%d rows was removed", len(requestLoggerEntities))
+
+		if len(requestLoggerEntities) < pager.PageSize {
+			break
+		}
+		pager.IncrementPage()
+	}
 }

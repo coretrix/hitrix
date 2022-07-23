@@ -12,11 +12,14 @@ import (
 	"github.com/latolukasz/beeorm/tools"
 
 	"github.com/coretrix/hitrix/pkg/binding"
+	"github.com/coretrix/hitrix/pkg/dto/list"
 	"github.com/coretrix/hitrix/pkg/entity"
+	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
 	"github.com/coretrix/hitrix/pkg/errors"
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/pkg/view/account"
+	"github.com/coretrix/hitrix/pkg/view/requestlogger"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 )
@@ -397,4 +400,20 @@ func (controller *DevPanelController) PostDisableFeatureFlag(c *gin.Context) {
 
 func (controller *DevPanelController) GetEnvValues(c *gin.Context) {
 	response.SuccessResponse(c, map[string]interface{}{"list": os.Environ()})
+}
+
+func (controller *DevPanelController) PostRequestsLogger(c *gin.Context) {
+	request := list.RequestDTOList{}
+
+	err := binding.ShouldBindJSON(c, &request)
+	if errorhandling.HandleError(c, err) {
+		return
+	}
+
+	res, err := requestlogger.RequestsLogger(c.Request.Context(), request)
+	if errorhandling.HandleError(c, err) {
+		return
+	}
+
+	response.SuccessResponse(c, res)
 }
