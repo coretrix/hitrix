@@ -190,6 +190,10 @@ module.exports = [
                         text: 'Goroutine',
                         link: '/guide/features/goroutine',
                     },
+                    {
+                        text: 'Request logger',
+                        link: '/guide/features/request_logger',
+                    },
                 ],
             },
             {
