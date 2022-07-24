@@ -5,7 +5,7 @@ Request logger `middleware` allows you to log every request that comes to the `A
 This is really helpful to debug your application
 
 ```go
-middleware.RequestLogger(ginEngine, func(context *gin.Context, requestEntity *entity.RequestEntity) {
+middleware.RequestLogger(ginEngine, func(context *gin.Context, requestEntity *entity.RequestLoggerEntity) {
 			userService := ioc.GetUserService()
 			session, hasSession := userService.GetSession(context.Request.Context())
 
