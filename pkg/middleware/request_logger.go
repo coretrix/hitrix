@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"net/http/httputil"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/service"
-	"github.com/gin-gonic/gin"
 )
 
 type dbLogger struct {
