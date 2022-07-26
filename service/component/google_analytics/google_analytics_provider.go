@@ -20,4 +20,5 @@ type IProvider interface {
 	GetName() Provider
 	RunReport(ctx context.Context, runReportRequest *ga.RunReportRequest) (*ga.RunReportResponse, error)
 	GetDimensionsAndMetrics(ctx context.Context) ([]*ga.DimensionMetadata, []*ga.MetricMetadata, error)
+	GetMetrics(ctx context.Context, dateFrom, dateTo string, metrics []string, dimensions []string) (map[uint64]map[string]interface{}, error)
 }

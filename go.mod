@@ -17,6 +17,7 @@ require (
 	github.com/dongri/phonenumber v0.0.0-20210304071411-690733f34185
 	github.com/fatih/color v1.13.0
 	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-contrib/sessions v0.0.5
 	github.com/gin-contrib/timeout v0.0.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/locales v0.14.0
@@ -86,6 +87,9 @@ require (
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/googleapis/gnostic v0.4.1 // indirect
 	github.com/googleapis/go-type-adapters v1.0.0 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/securecookie v1.1.1 // indirect
+	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
