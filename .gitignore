@@ -1,6 +1,3 @@
-*.DS_Store
-/.gcloudignore
+.idea/
 
 bin/
-/example/docker/.env
-.idea/
