@@ -139,6 +139,7 @@ mainLoop:
 		for _, h := range high {
 			if l == h {
 				found = true
+
 				break mainLoop
 			}
 		}
@@ -159,6 +160,7 @@ mainLoop:
 		for _, h := range high {
 			if l == h {
 				found = true
+
 				break mainLoop
 			}
 		}
@@ -179,6 +181,7 @@ mainLoop:
 		for _, h := range high {
 			if l == h {
 				found = true
+
 				break mainLoop
 			}
 		}
@@ -199,6 +202,7 @@ mainLoop:
 		for _, h := range high {
 			if l == h {
 				found = true
+
 				break mainLoop
 			}
 		}
@@ -219,6 +223,7 @@ mainLoop:
 		for _, h := range high {
 			if l == h {
 				found = true
+
 				break mainLoop
 			}
 		}

@@ -44,6 +44,7 @@ func (s *Socket) ReadPump(registry *Registry, readMessageHandler func(rawData []
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
 				s.ErrorLogger.LogError(err)
 			}
+
 			break
 		}
 

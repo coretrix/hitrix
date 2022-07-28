@@ -48,6 +48,7 @@ func (n Name) ToLowerCamelCase() string {
 	for i, word := range n {
 		if i == 0 {
 			n[i] = strings.ToLower(word)
+
 			continue
 		}
 		r, size := utf8.DecodeRuneInString(word)

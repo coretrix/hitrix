@@ -21,6 +21,7 @@ func SuccessResponse(c *gin.Context, data interface{}) {
 
 	if data != nil {
 		c.JSON(http.StatusOK, data)
+
 		return
 	}
 
@@ -43,6 +44,7 @@ func ErrorResponseGlobal(c *gin.Context, globalError interface{}, data interface
 		c.Set(ResponseBody, err.Error())
 
 		c.AbortWithStatusJSON(http.StatusForbidden, err.Error())
+
 		return
 	}
 

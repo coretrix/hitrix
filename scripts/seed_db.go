@@ -51,6 +51,7 @@ func Seeder(seedsPerProject map[string][]Seed, ormService *beeorm.Engine, appSer
 			for _, env := range seed.Environments() {
 				if env == appService.Mode {
 					supportCurrentEnv = true
+
 					break
 				}
 			}

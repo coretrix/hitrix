@@ -264,9 +264,10 @@ func executeAlters(ormService *beeorm.Engine) {
 func getRandomString() string {
 	rand.Seed(time.Now().UnixNano())
 	b := make([]byte, 10)
-	//TODO
-	//nolint
+
+	//nolint //G404: Use of weak random number generator (math/rand instead of crypto/rand)
 	rand.Read(b)
+
 	return fmt.Sprintf("%x%d", b, os.Getpid())[:5]
 }
 

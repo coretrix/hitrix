@@ -1,7 +1,9 @@
 package account
 
 import (
-	"crypto/md5" //nolint
+
+	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive
+	"crypto/md5"
 	"encoding/base64"
 	"encoding/json"
 	"errors"

@@ -1,7 +1,9 @@
 package otp
 
 import (
-	"crypto/md5" //nolint
+
+	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive
+	"crypto/md5"
 	"errors"
 	"fmt"
 	"regexp"
@@ -117,6 +119,7 @@ func (o *OTP) SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error) {
 
 		if err == nil {
 			ormService.GetRedis().Set(o.getRedisKey(phone), otpTrackerEntity.ID, helper.Hour)
+
 			break
 		} else if o.RetryOTP {
 			ormService.GetEventBroker().Publish(streams.StreamMsgRetryOTP, &RetryDTO{
@@ -160,6 +163,7 @@ func (o *OTP) Call(ormService *beeorm.Engine, phone *Phone, customMessage string
 
 		if err == nil {
 			ormService.GetRedis().Set(o.getRedisKey(phone), otpTrackerEntity.ID, helper.Hour)
+
 			break
 		}
 	}

@@ -77,11 +77,6 @@ func (l *SimpleLocalizer) LoadBucketFromFile(bucket string, path string, append 
 	l.LoadBucketFromMap(bucket, tempParis, append)
 }
 
-// func (l *SimpleLocalizer) SaveToFile(path string) {
-// 	//TODO: not implemented
-// 	panic("not implemented")
-// }
-
 func (l *SimpleLocalizer) SaveBucketToFile(bucket string, path string) {
 	err := l.touchFile(path)
 	if err != nil {
@@ -89,8 +84,8 @@ func (l *SimpleLocalizer) SaveBucketToFile(bucket string, path string) {
 	}
 	tempPairs := l.getBucketPairsWithoutPrefix(bucket)
 	jsonBytes, _ := json.MarshalIndent(tempPairs, "", " ")
-	//TODO
-	//nolint
+
+	//nolint //G306: Expect WriteFile permissions to be 0600 or less
 	err = ioutil.WriteFile(path, jsonBytes, 0644)
 	if err != nil {
 		panic(err)

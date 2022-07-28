@@ -53,6 +53,7 @@ func SliceUint64Difference(slice1 []uint64, slice2 []uint64) []uint64 {
 			for _, s2 := range slice2 {
 				if s1 == s2 {
 					found = true
+
 					break
 				}
 			}

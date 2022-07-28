@@ -90,10 +90,12 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 		}
 		if column.Searchable && column.Type == FormatStringType {
 			formatStringSearch = append(formatStringSearch, column.Key)
+
 			continue
 		}
 		if column.Searchable {
 			searchable = append(searchable, column.Key)
+
 			continue
 		}
 		if column.Filterable {
@@ -145,16 +147,19 @@ mainLoop:
 		case reflect.Int64:
 			if helper.StringInArray(field, numberFilters...) {
 				selectedNumberFilters[field] = value.(int64)
+
 				continue mainLoop
 			}
 		case reflect.Float64:
 			if helper.StringInArray(field, numberFilters...) {
 				selectedNumberFilters[field] = int64(value.(float64))
+
 				continue mainLoop
 			}
 		case reflect.Bool:
 			if helper.StringInArray(field, booleanFilters...) {
 				selectedBooleanFilters[field] = value.(bool)
+
 				continue mainLoop
 			}
 		case reflect.Slice:
@@ -214,6 +219,7 @@ mainLoop:
 				if err == nil {
 					if helper.StringInArray(field, numberFilters...) {
 						selectedNumberFilters[field] = jsonInt
+
 						continue mainLoop
 					}
 				}
@@ -222,18 +228,21 @@ mainLoop:
 			stringValue := value.(string)
 			if helper.StringInArray(field, stringFilters...) {
 				selectedStringFilters[field] = stringValue
+
 				continue mainLoop
 			}
 
 			if helper.StringInArray(field, dateTimeFilters...) {
 				dateTimeValue, _ := time.Parse(helper.TimeLayoutRFC3339Milli, stringValue)
 				selectedDateTimeFilters[field] = dateTimeValue
+
 				continue mainLoop
 			}
 
 			if helper.StringInArray(field, dateFilters...) {
 				dateValue, _ := time.Parse(helper.TimeLayoutYMD, stringValue)
 				selectedDateFilters[field] = dateValue
+
 				continue mainLoop
 			}
 
@@ -242,6 +251,7 @@ mainLoop:
 					for _, filterValue := range stringEnumFilters[enumFiledName] {
 						if filterValue.Key == stringValue {
 							selectedStringFilters[field] = stringValue
+
 							continue mainLoop
 						}
 					}
@@ -256,6 +266,7 @@ mainLoop:
 		if ok {
 			if helper.StringInArray(field, formatStringSearch...) {
 				selectedFormatStringFilters[field] = stringValue
+
 				continue
 			}
 

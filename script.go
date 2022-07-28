@@ -62,6 +62,7 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 			} else {
 				log.Println("Failed script - " + s.Description())
 				time.Sleep(time.Second * 10)
+
 				continue
 			}
 
@@ -73,6 +74,7 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 			if !isInterval {
 				log.Println("Finished - " + s.Description())
 				processor.Server.done <- true
+
 				break
 			}
 
@@ -163,6 +165,7 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 		for {
 			if asyncConsumer.Digest(appService.GlobalContext) {
 				log.Println("orm background consumer exited successfully")
+
 				break
 			}
 

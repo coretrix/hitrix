@@ -106,6 +106,7 @@ func (s *serviceFeatureFlag) getAllActive(ormService *beeorm.Engine, pager *beeo
 	for _, featureFlagEntity := range featureFlagEntities {
 		if _, ok := s.featureFlags[featureFlagEntity.Name]; !ok {
 			s.errorLoggerService.LogError("feature flag " + featureFlagEntity.Name + " is not registered")
+
 			continue
 		}
 

@@ -281,7 +281,7 @@ var errorCodes = map[string]string{
 	"196":  "Invalid TLV value",
 	"254":  "Transaction delivery failure",
 	"255":  "Unknown error",
-	"256":  "ESME not authorised to use specified servicetype",
+	"256":  "ESME not authorized to use specified servicetype",
 	"257":  "ESME prohibited from using specified operation",
 	"258":  "Specified servicetype is unavailable",
 	"259":  "Specified servicetype is denied",

@@ -65,5 +65,6 @@ func (fe FieldErrors) Error() string {
 	for _, val := range fe {
 		result += val + "\n\r"
 	}
+
 	return result
 }

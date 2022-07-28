@@ -46,6 +46,7 @@ func verifyRows(columns []string, rows [][]interface{}) error {
 	for rowID, row := range rows {
 		if len(row) != len(columns) {
 			dataErrors = append(dataErrors, "Different column count for row["+strconv.Itoa(rowID)+"]")
+
 			continue
 		}
 	}

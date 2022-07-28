@@ -126,6 +126,7 @@ func (g *GoogleAnalytics4) GetMetrics(ctx context.Context, dateFrom, dateTo stri
 		dimensionResourceID, err := strconv.ParseUint(dimension, 10, 64)
 		if err != nil {
 			g.errorLogger.LogError(fmt.Sprintf("could not parse %q as dimensionResourceID (Uint64) : %v", dimension, err))
+
 			continue
 		}
 
@@ -144,6 +145,7 @@ func (g *GoogleAnalytics4) GetMetrics(ctx context.Context, dateFrom, dateTo stri
 
 			if castErr != nil {
 				g.errorLogger.LogError(fmt.Sprintf("could not parse %q as %s (%s) : %v", metric.Value, headers[i], types[i], err))
+
 				continue
 			}
 

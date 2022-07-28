@@ -76,10 +76,12 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 		}); !exitedWithNoErrors {
 			log.Printf("RunConsumerMany failed to start (%s) - retrying in %.1f seconds", queueName, obtainLockRetryDuration.Seconds())
 			time.Sleep(obtainLockRetryDuration)
+
 			continue
 		} else {
 			log.Println("eventsConsumer.Consume returned true")
 			log.Printf("RunConsumerMany exited (%s)", queueName)
+
 			break
 		}
 	}
@@ -113,9 +115,11 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 		}); !exitedWithNoErrors {
 			log.Printf("RunConsumerOne failed to start (%s) - retrying in %.1f seconds", queueName, obtainLockRetryDuration.Seconds())
 			time.Sleep(obtainLockRetryDuration)
+
 			continue
 		} else {
 			log.Println("eventsConsumer.Consume returned true")
+
 			break
 		}
 	}
@@ -164,10 +168,12 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 				}); !exitedWithNoErrors {
 					log.Printf("RunConsumerOneByModulo failed to start for goroutine %d (%s) - retrying in %.1f seconds", currentModulo, queueName, obtainLockRetryDuration.Seconds())
 					time.Sleep(obtainLockRetryDuration)
+
 					continue
 				} else {
 					log.Printf("eventsConsumer.Consume returned true for goroutine %d (%s)", currentModulo, queueName)
 					log.Printf("RunConsumerOneByModulo exited (%s)", baseQueueName)
+
 					break
 				}
 			}
@@ -218,10 +224,12 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 				}); !exitedWithNoErrors {
 					log.Printf("RunConsumerManyByModulo failed to start for goroutine %d (%s) - retrying in %.1f seconds", currentModulo, queueName, obtainLockRetryDuration.Seconds())
 					time.Sleep(obtainLockRetryDuration)
+
 					continue
 				} else {
 					log.Printf("eventsConsumer.Consume returned true for goroutine %d (%s)", currentModulo, queueName)
 					log.Printf("RunConsumerManyByModulo exited (%s)", baseQueueName)
+
 					break
 				}
 			}
@@ -273,9 +281,11 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 		}); !exitedWithNoErrors {
 			log.Printf("RunScalableConsumerMany failed to start (%s) - retrying in %.1f seconds", queueName, obtainLockRetryDuration.Seconds())
 			time.Sleep(obtainLockRetryDuration)
+
 			continue
 		} else {
 			log.Println("eventsConsumer.ConsumeMany returned true")
+
 			break
 		}
 	}
@@ -317,9 +327,11 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 		}); !exitedWithNoErrors {
 			log.Printf("RunScalableConsumerOne failed to start (%s) - retrying in %.1f seconds", queueName, obtainLockRetryDuration.Seconds())
 			time.Sleep(obtainLockRetryDuration)
+
 			continue
 		} else {
 			log.Println("eventsConsumer.ConsumeMany returned true")
+
 			break
 		}
 	}
@@ -378,6 +390,7 @@ func removeConsumerGroup(consumer beeorm.EventsConsumer, redis *beeorm.RedisCach
 		indexToTransferClaimedItems := 0
 		for index := range indexerValue.ActiveConsumerIndexes {
 			indexToTransferClaimedItems = index
+
 			break
 		}
 
