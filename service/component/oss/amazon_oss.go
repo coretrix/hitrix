@@ -128,7 +128,13 @@ func (ossStorage *AmazonOSS) GetObjectBase64Content(_ Bucket, _ *Object) (string
 	panic("not implemented")
 }
 
-func (ossStorage *AmazonOSS) UploadObjectFromByte(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, objectContent []byte, extension string) (Object, error) {
+func (ossStorage *AmazonOSS) UploadObjectFromByte(
+	ormService *beeorm.Engine,
+	bucket Bucket,
+	namespace Namespace,
+	objectContent []byte,
+	extension string,
+) (Object, error) {
 	bucketConfig := ossStorage.buckets[bucket]
 
 	bucketConfig.validateNamespace(namespace)
@@ -169,7 +175,13 @@ func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *beeorm.Engine, buc
 	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, fileContent, ext)
 }
 
-func (ossStorage *AmazonOSS) UploadObjectFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, content, extension string) (Object, error) {
+func (ossStorage *AmazonOSS) UploadObjectFromBase64(
+	ormService *beeorm.Engine,
+	bucket Bucket,
+	namespace Namespace,
+	content string,
+	extension string,
+) (Object, error) {
 	byteData, err := base64.StdEncoding.DecodeString(content)
 
 	if err != nil {
@@ -183,7 +195,13 @@ func (ossStorage *AmazonOSS) UploadImageFromFile(ormService *beeorm.Engine, buck
 	return ossStorage.UploadObjectFromFile(ormService, bucket, namespace, localFile)
 }
 
-func (ossStorage *AmazonOSS) UploadImageFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, image, extension string) (Object, error) {
+func (ossStorage *AmazonOSS) UploadImageFromBase64(
+	ormService *beeorm.Engine,
+	bucket Bucket,
+	namespace Namespace,
+	image string,
+	extension string,
+) (Object, error) {
 	byteData, err := base64.StdEncoding.DecodeString(image)
 
 	if err != nil {

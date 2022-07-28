@@ -59,11 +59,31 @@ func NewMailjet(configService config.IConfig) (Sender, error) {
 }
 
 func (s *Mailjet) SendTemplate(ormService *beeorm.Engine, message *Message) error {
-	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, nil, false)
+	return s.sendTemplate(
+		ormService,
+		message.From,
+		message.FromName,
+		message.To,
+		message.ReplyTo,
+		message.Subject,
+		message.TemplateName,
+		message.TemplateData,
+		nil,
+		false)
 }
 
 func (s *Mailjet) SendTemplateAsync(ormService *beeorm.Engine, message *Message) error {
-	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, nil, true)
+	return s.sendTemplate(
+		ormService,
+		message.From,
+		message.FromName,
+		message.To,
+		message.ReplyTo,
+		message.Subject,
+		message.TemplateName,
+		message.TemplateData,
+		nil,
+		true)
 }
 
 func (s *Mailjet) SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error {
@@ -79,7 +99,17 @@ func (s *Mailjet) SendTemplateWithAttachments(ormService *beeorm.Engine, message
 		}
 	}
 
-	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, attachments, false)
+	return s.sendTemplate(
+		ormService,
+		message.From,
+		message.FromName,
+		message.To,
+		message.ReplyTo,
+		message.Subject,
+		message.TemplateName,
+		message.TemplateData,
+		attachments,
+		false)
 }
 
 func (s *Mailjet) SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, message *MessageAttachment) error {
@@ -95,10 +125,31 @@ func (s *Mailjet) SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, me
 		}
 	}
 
-	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, attachments, true)
+	return s.sendTemplate(
+		ormService,
+		message.From,
+		message.FromName,
+		message.To,
+		message.ReplyTo,
+		message.Subject,
+		message.TemplateName,
+		message.TemplateData,
+		attachments,
+		true)
 }
 
-func (s *Mailjet) sendTemplate(ormService *beeorm.Engine, from string, fromName string, to string, replyTo string, subject string, templateName string, templateData interface{}, attachments []mailjet.AttachmentV31, async bool) error {
+func (s *Mailjet) sendTemplate(
+	ormService *beeorm.Engine,
+	from string,
+	fromName string,
+	to string,
+	replyTo string,
+	subject string,
+	templateName string,
+	templateData interface{},
+	attachments []mailjet.AttachmentV31,
+	async bool,
+) error {
 	if from == "" {
 		from = s.defaultFromEmail
 	}

@@ -90,7 +90,11 @@ func ServiceProviderOTP(forceProviders ...string) *service.DefinitionGlobal {
 	}
 }
 
-var smsOTPProviderBuilderFactory = map[string]func(configService config.IConfig, generatorService generator.IGenerator, phonePrefixes []string) (otp.IOTPSMSGateway, error){
+var smsOTPProviderBuilderFactory = map[string]func(
+	configService config.IConfig,
+	generatorService generator.IGenerator,
+	phonePrefixes []string,
+) (otp.IOTPSMSGateway, error){
 	otp.SMSOTPProviderTwilio: twilioSMSOTPProviderBuilder,
 	otp.SMSOTPProviderSinch:  sinchSMSOTPProviderBuilder,
 	otp.SMSOTPProviderMada:   madaSMSOTPProviderBuilder,
@@ -130,7 +134,11 @@ func sinchSMSOTPProviderBuilder(configService config.IConfig, _ generator.IGener
 	return otp.NewSinchSMSOTPProvider(appID, appSecret, verificationURL), nil
 }
 
-func madaSMSOTPProviderBuilder(configService config.IConfig, generatorService generator.IGenerator, phonePrefixes []string) (otp.IOTPSMSGateway, error) {
+func madaSMSOTPProviderBuilder(
+	configService config.IConfig,
+	generatorService generator.IGenerator,
+	phonePrefixes []string,
+) (otp.IOTPSMSGateway, error) {
 	username, ok := configService.String("sms.mada.username")
 	if !ok {
 		return nil, errors.New("missing sms.mada.username")

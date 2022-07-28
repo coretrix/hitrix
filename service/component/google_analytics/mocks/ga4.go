@@ -29,7 +29,13 @@ func (f *FakeGoogleAnalytics4) GetDimensionsAndMetrics(ctx context.Context) ([]*
 	return args.Get(0).([]*ga.DimensionMetadata), args.Get(1).([]*ga.MetricMetadata), args.Error(2)
 }
 
-func (f *FakeGoogleAnalytics4) GetMetrics(_ context.Context, dateFrom, dateTo string, metrics []string, dimensions []string) (map[uint64]map[string]interface{}, error) {
+func (f *FakeGoogleAnalytics4) GetMetrics(
+	_ context.Context,
+	dateFrom string,
+	dateTo string,
+	metrics []string,
+	dimensions []string,
+) (map[uint64]map[string]interface{}, error) {
 	args := f.Called(dateTo, dateFrom, metrics, dimensions)
 
 	return args.Get(0).(map[uint64]map[string]interface{}), args.Error(1)

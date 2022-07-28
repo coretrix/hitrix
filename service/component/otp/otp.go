@@ -183,7 +183,8 @@ func (o *OTP) VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (b
 	var otpRequestValid bool
 	var otpCodeValid bool
 
-	otpTrackerEntity.GatewayVerifyRequest, otpTrackerEntity.GatewayVerifyResponse, otpRequestValid, otpCodeValid, err = gateway.VerifyOTP(phone, code, otpTrackerEntity.Code)
+	otpTrackerEntity.GatewayVerifyRequest, otpTrackerEntity.GatewayVerifyResponse, otpRequestValid, otpCodeValid, err =
+		gateway.VerifyOTP(phone, code, otpTrackerEntity.Code)
 
 	// TODO add error to tracker
 	if err != nil {

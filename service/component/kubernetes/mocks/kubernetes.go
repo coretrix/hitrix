@@ -16,7 +16,14 @@ func (k *FakeKubernetes) GetIngressDomains(ctx context.Context) ([]string, error
 	return args.Get(0).([]string), args.Error(1)
 }
 
-func (k *FakeKubernetes) AddIngress(ctx context.Context, domain, secretName, serviceName, servicePortName string, annotations map[string]string) error {
+func (k *FakeKubernetes) AddIngress(
+	ctx context.Context,
+	domain string,
+	secretName string,
+	serviceName string,
+	servicePortName string,
+	annotations map[string]string,
+) error {
 	args := k.Called(ctx, domain, secretName, serviceName, servicePortName)
 
 	return args.Error(0)

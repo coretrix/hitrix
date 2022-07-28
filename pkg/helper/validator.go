@@ -105,15 +105,15 @@ type CustomValidation struct {
 	TranslationMessage string
 }
 
-// custom validators
 var customValidations = map[string]CustomValidation{
 	"country_code_custom": {
 		ValidatorFunction:  validateCountryCodeAlpha2,
 		TranslationMessage: "not a valid Country Code",
 	},
 	"password_strength": {
-		ValidatorFunction:  validatePasswordStrength(8),
-		TranslationMessage: "Not strong enough. Should be more than 8 character, contain at least 1 lowercase, 1 uppercase, 1 number, and 1 special character.",
+		ValidatorFunction: validatePasswordStrength(8),
+		TranslationMessage: "Not strong enough. Should be more than 8 character, contain" +
+			" at least 1 lowercase, 1 uppercase, 1 number, and 1 special character.",
 	},
 }
 

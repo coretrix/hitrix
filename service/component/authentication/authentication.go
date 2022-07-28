@@ -123,7 +123,7 @@ type GenerateOTPEmail struct {
 	Token          string
 }
 
-func (t *Authentication) GenerateAndSendOTPEmail(ormService *beeorm.Engine, email string, template string, from string, title string) (*GenerateOTPEmail, error) {
+func (t *Authentication) GenerateAndSendOTPEmail(ormService *beeorm.Engine, email, template, from, title string) (*GenerateOTPEmail, error) {
 	_, err := mail2.ParseAddress(email)
 
 	if err != nil {
@@ -197,7 +197,11 @@ func (t *Authentication) VerifySocialLogin(source, token string) (*social.UserDa
 	return socialProvider.GetUserData(token)
 }
 
-func (t *Authentication) AuthenticateOTP(ormService *beeorm.Engine, phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) AuthenticateOTP(
+	ormService *beeorm.Engine,
+	phone string,
+	entity OTPProviderEntity,
+) (accessToken string, refreshToken string, err error) {
 	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetPhoneFieldName(), phone)
 	found := ormService.RedisSearchOne(entity, q)
@@ -212,7 +216,11 @@ func (t *Authentication) AuthenticateOTP(ormService *beeorm.Engine, phone string
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) AuthenticateOTPEmail(ormService *beeorm.Engine, email string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) AuthenticateOTPEmail(
+	ormService *beeorm.Engine,
+	email string,
+	entity OTPProviderEntity,
+) (accessToken string, refreshToken string, err error) {
 	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetEmailFieldName(), email)
 	found := ormService.RedisSearchOne(entity, q)
@@ -227,7 +235,12 @@ func (t *Authentication) AuthenticateOTPEmail(ormService *beeorm.Engine, email s
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) Authenticate(ormService *beeorm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) Authenticate(
+	ormService *beeorm.Engine,
+	uniqueValue string,
+	password string,
+	entity AuthProviderEntity,
+) (accessToken string, refreshToken string, err error) {
 	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetUniqueFieldName(), uniqueValue)
 	found := ormService.RedisSearchOne(entity, q)
@@ -246,7 +259,12 @@ func (t *Authentication) Authenticate(ormService *beeorm.Engine, uniqueValue str
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) AuthenticateEmail(ormService *beeorm.Engine, email string, password string, entity EmailAuthEntity) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) AuthenticateEmail(
+	ormService *beeorm.Engine,
+	email string,
+	password string,
+	entity EmailAuthEntity,
+) (accessToken string, refreshToken string, err error) {
 	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetEmailFieldName(), email)
 	found := ormService.RedisSearchOne(entity, q)
@@ -265,7 +283,11 @@ func (t *Authentication) AuthenticateEmail(ormService *beeorm.Engine, email stri
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) AuthenticateByID(ormService *beeorm.Engine, id uint64, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) AuthenticateByID(
+	ormService *beeorm.Engine,
+	id uint64,
+	entity AuthProviderEntity,
+) (accessToken string, refreshToken string, err error) {
 	exists := ormService.LoadByID(id, entity)
 	if !exists {
 		return "", "", errors.New("id_does_not_exists")

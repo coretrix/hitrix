@@ -46,7 +46,13 @@ func (c *OTPRetryConsumer) Consume(_ *beeorm.Engine, event beeorm.Event) error {
 	return nil
 }
 
-func RetryOTP(ormService *beeorm.Engine, gatewayRegistry map[string]otp.IOTPSMSGateway, retryDTO *otp.RetryDTO, otpTrackerEntity *entity.OTPTrackerEntity, maxRetries int) {
+func RetryOTP(
+	ormService *beeorm.Engine,
+	gatewayRegistry map[string]otp.IOTPSMSGateway,
+	retryDTO *otp.RetryDTO,
+	otpTrackerEntity *entity.OTPTrackerEntity,
+	maxRetries int,
+) {
 	retryAfter := time.Second / 2
 
 	retryCount := 1

@@ -53,7 +53,13 @@ func (g *GoogleAnalytics4) GetDimensionsAndMetrics(ctx context.Context) ([]*ga.D
 	return metadata.Dimensions, metadata.Metrics, nil
 }
 
-func (g *GoogleAnalytics4) GetMetrics(ctx context.Context, dateFrom, dateTo string, metrics []string, dimensions []string) (map[uint64]map[string]interface{}, error) {
+func (g *GoogleAnalytics4) GetMetrics(
+	ctx context.Context,
+	dateFrom string,
+	dateTo string,
+	metrics []string,
+	dimensions []string,
+) (map[uint64]map[string]interface{}, error) {
 	offset := int64(0)
 	headers := make([]string, 0)
 	types := make([]string, 0)

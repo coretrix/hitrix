@@ -52,11 +52,31 @@ func NewMandrill(configService config.IConfig) (Sender, error) {
 }
 
 func (s *Mandrill) SendTemplate(ormService *beeorm.Engine, message *Message) error {
-	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, nil, false)
+	return s.sendTemplate(
+		ormService,
+		message.From,
+		message.FromName,
+		message.To,
+		message.ReplyTo,
+		message.Subject,
+		message.TemplateName,
+		message.TemplateData,
+		nil,
+		false)
 }
 
 func (s *Mandrill) SendTemplateAsync(ormService *beeorm.Engine, message *Message) error {
-	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, nil, true)
+	return s.sendTemplate(
+		ormService,
+		message.From,
+		message.FromName,
+		message.To,
+		message.ReplyTo,
+		message.Subject,
+		message.TemplateName,
+		message.TemplateData,
+		nil,
+		true)
 }
 
 func (s *Mandrill) SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error {
@@ -72,7 +92,17 @@ func (s *Mandrill) SendTemplateWithAttachments(ormService *beeorm.Engine, messag
 		}
 	}
 
-	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, attachments, false)
+	return s.sendTemplate(
+		ormService,
+		message.From,
+		message.FromName,
+		message.To,
+		message.ReplyTo,
+		message.Subject,
+		message.TemplateName,
+		message.TemplateData,
+		attachments,
+		false)
 }
 
 func (s *Mandrill) SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, message *MessageAttachment) error {
@@ -88,10 +118,31 @@ func (s *Mandrill) SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, m
 		}
 	}
 
-	return s.sendTemplate(ormService, message.From, message.FromName, message.To, message.ReplyTo, message.Subject, message.TemplateName, message.TemplateData, attachments, true)
+	return s.sendTemplate(
+		ormService,
+		message.From,
+		message.FromName,
+		message.To,
+		message.ReplyTo,
+		message.Subject,
+		message.TemplateName,
+		message.TemplateData,
+		attachments,
+		true)
 }
 
-func (s *Mandrill) sendTemplate(ormService *beeorm.Engine, from string, fromName string, to string, replyTo string, subject string, templateName string, templateData interface{}, attachments []gochimp.Attachment, async bool) error {
+func (s *Mandrill) sendTemplate(
+	ormService *beeorm.Engine,
+	from string,
+	fromName string,
+	to string,
+	replyTo string,
+	subject string,
+	templateName string,
+	templateData interface{},
+	attachments []gochimp.Attachment,
+	async bool,
+) error {
 	if from == "" {
 		from = s.defaultFromEmail
 	}

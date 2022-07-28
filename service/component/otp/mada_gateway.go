@@ -27,7 +27,15 @@ type Mada struct {
 	generatorService generator.IGenerator
 }
 
-func NewMadaSMSOTPProvider(username, password, url, sourceName string, otpLength int, phonePrefixes []string, generatorService generator.IGenerator) *Mada {
+func NewMadaSMSOTPProvider(
+	username string,
+	password string,
+	url string,
+	sourceName string,
+	otpLength int,
+	phonePrefixes []string,
+	generatorService generator.IGenerator,
+) *Mada {
 	return &Mada{
 		username:         username,
 		password:         password,

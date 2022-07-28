@@ -57,8 +57,8 @@ func (t *FakeStripeClient) UpdateSubscription(subscriptionID string, subscriptio
 	return args.Get(0).(*stripe.Subscription), args.Error(1)
 }
 
-func (t *FakeStripeClient) CancelSubscription(subscriptionID string, subscriptionCancelParams *stripe.SubscriptionCancelParams) (*stripe.Subscription, error) {
-	args := t.Called(subscriptionID, subscriptionCancelParams)
+func (t *FakeStripeClient) CancelSubscription(subscriptionID string, cancelParams *stripe.SubscriptionCancelParams) (*stripe.Subscription, error) {
+	args := t.Called(subscriptionID, cancelParams)
 
 	return args.Get(0).(*stripe.Subscription), args.Error(1)
 }
@@ -69,8 +69,8 @@ func (t *FakeStripeClient) CreateSetupIntent(setupIntentParams *stripe.SetupInte
 	return args.Get(0).(*stripe.SetupIntent), args.Error(1)
 }
 
-func (t *FakeStripeClient) CreateBillingPortalSession(billingPortalSessionParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error) {
-	args := t.Called(billingPortalSessionParams)
+func (t *FakeStripeClient) CreateBillingPortalSession(billingPortalSParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error) {
+	args := t.Called(billingPortalSParams)
 
 	return args.Get(0).(*stripe.BillingPortalSession), args.Error(1)
 }
@@ -87,7 +87,10 @@ func (t *FakeStripeClient) GetPaymentIntent(paymentIntentID string, paymentInten
 	return args.Get(0).(*stripe.PaymentIntent), args.Error(1)
 }
 
-func (t *FakeStripeClient) CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error) {
+func (t *FakeStripeClient) CreatePaymentIntentMultiparty(
+	paymentIntentParams *stripe.PaymentIntentParams,
+	linkedAccountID string,
+) (*stripe.PaymentIntent, error) {
 	args := t.Called(paymentIntentParams, linkedAccountID)
 
 	return args.Get(0).(*stripe.PaymentIntent), args.Error(1)

@@ -12,7 +12,7 @@ linters:
 #    - revive
 #    - wsl
     - funlen
-#    - lll
+    - lll
     - misspell
     - nilerr
     - nlreturn
@@ -31,9 +31,9 @@ linters-settings:
     sections:
       - standard # Standard section: captures all standard packages.
       - default # Default section: contains all imports that could not be matched to another section type.
-      - prefix(ggithub.com/coretrix/hitrix) # Custom section: groups all imports with the specified Prefix.
+      - prefix(github.com/coretrix/hitrix) # Custom section: groups all imports with the specified Prefix.
   lll:
-    line-length: 260 #TODO Krasi: switch to 150
+    line-length: 150
   misspell:
     locale: US
   nolintlint:

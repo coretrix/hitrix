@@ -132,7 +132,10 @@ func (s *Stripe) GetPaymentIntent(paymentIntentID string, paymentIntentParams *s
 	return paymentintent.Get(paymentIntentID, paymentIntentParams)
 }
 
-func (s *Stripe) CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error) {
+func (s *Stripe) CreatePaymentIntentMultiparty(
+	paymentIntentParams *stripe.PaymentIntentParams,
+	linkedAccountID string,
+) (*stripe.PaymentIntent, error) {
 	if paymentIntentParams.Params.Metadata == nil {
 		paymentIntentParams.Params.Metadata = map[string]string{Env: s.appService.Mode}
 	} else {
@@ -154,7 +157,14 @@ func (s *Stripe) CreateRefundMultiparty(refundParams *stripe.RefundParams, linke
 	return refund.New(refundParams)
 }
 
-func (s *Stripe) NewCheckoutSession(paymentMethods []string, mode, successURL, CancelURL string, lineItems []*stripe.CheckoutSessionLineItemParams, discounts []*stripe.CheckoutSessionDiscountParams) *stripe.CheckoutSession {
+func (s *Stripe) NewCheckoutSession(
+	paymentMethods []string,
+	mode string,
+	successURL string,
+	CancelURL string,
+	lineItems []*stripe.CheckoutSessionLineItemParams,
+	discounts []*stripe.CheckoutSessionDiscountParams,
+) *stripe.CheckoutSession {
 	params := &stripe.CheckoutSessionParams{
 		Params:             stripe.Params{Metadata: map[string]string{Env: s.appService.Mode}},
 		PaymentMethodTypes: stripe.StringSlice(paymentMethods),
@@ -200,5 +210,12 @@ type IStripe interface {
 	CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error)
 	CreateRefundMultiparty(refundParams *stripe.RefundParams, linkedAccountID string) (*stripe.Refund, error)
 	ConstructWebhookEvent(reqBody []byte, signature string, webhookKey string) (stripe.Event, error)
-	NewCheckoutSession(paymentMethods []string, mode, successURL, CancelURL string, lineItems []*stripe.CheckoutSessionLineItemParams, discounts []*stripe.CheckoutSessionDiscountParams) *stripe.CheckoutSession
+	NewCheckoutSession(
+		paymentMethods []string,
+		mode string,
+		successURL string,
+		CancelURL string,
+		lineItems []*stripe.CheckoutSessionLineItemParams,
+		discounts []*stripe.CheckoutSessionDiscountParams,
+	) *stripe.CheckoutSession
 }

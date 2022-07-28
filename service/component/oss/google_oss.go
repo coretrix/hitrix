@@ -134,7 +134,13 @@ func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *beeorm.Engine, buc
 	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, fileContent, ext)
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, base64content, extension string) (Object, error) {
+func (ossStorage *GoogleOSS) UploadObjectFromBase64(
+	ormService *beeorm.Engine,
+	bucket Bucket,
+	namespace Namespace,
+	base64content,
+	extension string,
+) (Object, error) {
 	byteData, err := base64.StdEncoding.DecodeString(base64content)
 
 	if err != nil {
@@ -144,7 +150,13 @@ func (ossStorage *GoogleOSS) UploadObjectFromBase64(ormService *beeorm.Engine, b
 	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, extension)
 }
 
-func (ossStorage *GoogleOSS) UploadImageFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, base64image, extension string) (Object, error) {
+func (ossStorage *GoogleOSS) UploadImageFromBase64(
+	ormService *beeorm.Engine,
+	bucket Bucket,
+	namespace Namespace,
+	base64image string,
+	extension string,
+) (Object, error) {
 	byteData, err := base64.StdEncoding.DecodeString(base64image)
 
 	if err != nil {
@@ -158,7 +170,13 @@ func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *beeorm.Engine, buck
 	return ossStorage.UploadObjectFromFile(ormService, bucket, namespace, localFile)
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromByte(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, objectContent []byte, extension string) (Object, error) {
+func (ossStorage *GoogleOSS) UploadObjectFromByte(
+	ormService *beeorm.Engine,
+	bucket Bucket,
+	namespace Namespace,
+	objectContent []byte,
+	extension string,
+) (Object, error) {
 	bucketConfig := ossStorage.buckets[bucket]
 
 	bucketConfig.validateNamespace(namespace)

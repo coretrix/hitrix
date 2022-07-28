@@ -22,7 +22,12 @@ type Hitrix struct {
 	exit chan int
 }
 
-func (h *Hitrix) RunServer(defaultPort uint, server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gqlServerInitHandler GQLServerInitHandler) {
+func (h *Hitrix) RunServer(
+	defaultPort uint,
+	server graphql.ExecutableSchema,
+	ginInitHandler GinInitHandler,
+	gqlServerInitHandler GQLServerInitHandler,
+) {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = fmt.Sprintf("%d", defaultPort)

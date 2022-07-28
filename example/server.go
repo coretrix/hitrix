@@ -17,7 +17,10 @@ import (
 )
 
 var eventHandlersMap = socket.NamespaceEventHandlerMap{
-	model.DefaultWebsocketNamespace: &socket.EventHandlers{RegisterHandler: model.RegisterSocketHandler, UnregisterHandler: model.UnRegisterSocketHandler},
+	model.DefaultWebsocketNamespace: &socket.EventHandlers{
+		RegisterHandler:   model.RegisterSocketHandler,
+		UnregisterHandler: model.UnRegisterSocketHandler,
+	},
 }
 
 func main() {

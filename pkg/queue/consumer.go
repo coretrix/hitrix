@@ -166,7 +166,11 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 					log.Printf("We consumed %d dirty events in %s", len(events), consumerGroupName)
 				}); !exitedWithNoErrors {
-					log.Printf("RunConsumerOneByModulo failed to start for goroutine %d (%s) - retrying in %.1f seconds", currentModulo, queueName, obtainLockRetryDuration.Seconds())
+					log.Printf(
+						"RunConsumerOneByModulo failed to start for goroutine %d (%s) - retrying in %.1f seconds",
+						currentModulo,
+						queueName,
+						obtainLockRetryDuration.Seconds())
 					time.Sleep(obtainLockRetryDuration)
 
 					continue
@@ -222,7 +226,11 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 					log.Printf("We consumed %d dirty events in %s", len(events), consumerGroupName)
 				}); !exitedWithNoErrors {
-					log.Printf("RunConsumerManyByModulo failed to start for goroutine %d (%s) - retrying in %.1f seconds", currentModulo, queueName, obtainLockRetryDuration.Seconds())
+					log.Printf(
+						"RunConsumerManyByModulo failed to start for goroutine %d (%s) - retrying in %.1f seconds",
+						currentModulo,
+						queueName,
+						obtainLockRetryDuration.Seconds())
 					time.Sleep(obtainLockRetryDuration)
 
 					continue
@@ -385,7 +393,8 @@ func removeConsumerGroup(consumer beeorm.EventsConsumer, redis *beeorm.RedisCach
 		panic(err)
 	}
 
-	// transfer pending items from stopped consumer to another if available as per: https://beeorm.io/guide/event_broker.html#consumers-scaling
+	// transfer pending items from stopped consumer to another if available as per:
+	// https://beeorm.io/guide/event_broker.html#consumers-scaling
 	if len(indexerValue.ActiveConsumerIndexes) != 0 {
 		indexToTransferClaimedItems := 0
 		for index := range indexerValue.ActiveConsumerIndexes {

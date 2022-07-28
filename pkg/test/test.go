@@ -172,7 +172,12 @@ func (env *Environment) handleMultiPart(query string, variables interface{},
 	return nil, *out.Data
 }
 
-func CreateContext(t *testing.T, projectName string, defaultServices []*service.DefinitionGlobal, mockServices ...*service.DefinitionGlobal) *Environment {
+func CreateContext(
+	t *testing.T,
+	projectName string,
+	defaultServices []*service.DefinitionGlobal,
+	mockServices ...*service.DefinitionGlobal,
+) *Environment {
 	var deferFunc func()
 
 	err := os.Setenv("TZ", "UTC")
@@ -196,7 +201,17 @@ func CreateContext(t *testing.T, projectName string, defaultServices []*service.
 	return &Environment{t: t, Hitrix: testSpringInstance}
 }
 
-func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.ExecutableSchema, ginInitHandler hitrix.GinInitHandler, defaultGlobalServices []*service.DefinitionGlobal, defaultRequestServices []*service.DefinitionRequest, mockGlobalServices []*service.DefinitionGlobal, mockRequestServices []*service.DefinitionRequest, redisPools *app.RedisPools) *Environment {
+func CreateAPIContext(
+	t *testing.T,
+	projectName string,
+	resolvers graphql.ExecutableSchema,
+	ginInitHandler hitrix.GinInitHandler,
+	defaultGlobalServices []*service.DefinitionGlobal,
+	defaultRequestServices []*service.DefinitionRequest,
+	mockGlobalServices []*service.DefinitionGlobal,
+	mockRequestServices []*service.DefinitionRequest,
+	redisPools *app.RedisPools,
+) *Environment {
 	var deferFunc func()
 	gqlServerInitHandler := func(server *handler.Server) {
 		server.AddTransport(transport.MultipartForm{})

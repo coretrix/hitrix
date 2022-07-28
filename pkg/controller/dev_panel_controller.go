@@ -80,7 +80,9 @@ func (controller *DevPanelController) CreateDevPanelUserAction(c *gin.Context) {
 	}
 
 	adminTableSchema := ormService.GetRegistry().GetTableSchemaForEntity(adminEntity)
-	response.SuccessResponse(c, fmt.Sprintf(`INSERT INTO %s (Email, Password) VALUES('%s', '%s')`, adminTableSchema.GetTableName(), form.Username, passwordHash))
+	response.SuccessResponse(
+		c,
+		fmt.Sprintf(`INSERT INTO %s (Email, Password) VALUES('%s', '%s')`, adminTableSchema.GetTableName(), form.Username, passwordHash))
 }
 
 func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {

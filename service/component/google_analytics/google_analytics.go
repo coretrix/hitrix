@@ -7,7 +7,7 @@ import (
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 )
 
-type NewProviderFunc func(configFolder string, configService config.IConfig, errorlogger errorlogger.ErrorLogger) (IProvider, error)
+type NewProviderFunc func(configFolder string, configService config.IConfig, errorLogger errorlogger.ErrorLogger) (IProvider, error)
 
 type IAPIManager interface {
 	GetProvider(name Provider) IProvider
@@ -18,7 +18,12 @@ type APIManager struct {
 	ProvidersByIndex map[int]IProvider
 }
 
-func NewAPIManager(localConfigFolder string, configService config.IConfig, errorlogger errorlogger.ErrorLogger, newProviderFunctions ...NewProviderFunc) (IAPIManager, error) {
+func NewAPIManager(
+	localConfigFolder string,
+	configService config.IConfig,
+	errorLogger errorlogger.ErrorLogger,
+	newProviderFunctions ...NewProviderFunc,
+) (IAPIManager, error) {
 	providers := map[string]IProvider{}
 	providersByIndex := map[int]IProvider{}
 
@@ -32,7 +37,7 @@ func NewAPIManager(localConfigFolder string, configService config.IConfig, error
 	}
 
 	for i, newProviderFunc := range newProviderFunctions {
-		provider, err := newProviderFunc(configFolder, configService, errorlogger)
+		provider, err := newProviderFunc(configFolder, configService, errorLogger)
 		if err != nil {
 			return nil, err
 		}
