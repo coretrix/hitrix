@@ -34,6 +34,8 @@ linters-settings:
       - prefix(github.com/coretrix/hitrix) # Custom section: groups all imports with the specified Prefix.
   lll:
     line-length: 150
+  misspell:
+    locale: US
   nolintlint:
     require-explanation: true
   forbidigo:
