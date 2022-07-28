@@ -20,7 +20,7 @@ type ResponseDTORequestLogger struct {
 	ResponseContent string
 	Text            string
 	ResponseText    string
-	Log             string
+	Log             *string
 	Status          int
 	CreatedAt       time.Time
 }

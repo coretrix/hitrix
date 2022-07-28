@@ -2,6 +2,7 @@ package requestlogger
 
 import (
 	"context"
+	"github.com/xorcare/pointer"
 
 	"github.com/latolukasz/beeorm"
 
@@ -71,16 +72,6 @@ func columns() []crud.Column {
 			FilterValidMap: nil,
 		},
 		{
-			Key:            "Log",
-			Type:           crud.StringType,
-			Label:          "Log",
-			Searchable:     false,
-			Sortable:       false,
-			Visible:        true,
-			Filterable:     false,
-			FilterValidMap: nil,
-		},
-		{
 			Key:            "Status",
 			Type:           crud.NumberType,
 			Label:          "Status",
@@ -133,7 +124,7 @@ func RequestsLogger(ctx context.Context, userListRequest listDto.RequestDTOList)
 			AppName:      requestLoggerEntity.AppName,
 			Text:         requestLoggerEntity.Text,
 			ResponseText: requestLoggerEntity.ResponseText,
-			Log:          string(requestLoggerEntity.Log),
+			Log:          pointer.String(string(requestLoggerEntity.Log)),
 			Status:       requestLoggerEntity.Status,
 			CreatedAt:    requestLoggerEntity.CreatedAt,
 		}
