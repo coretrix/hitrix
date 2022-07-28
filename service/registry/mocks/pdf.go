@@ -8,7 +8,7 @@ import (
 
 func FakeServiceTemplate(fake interface{}) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: service.PDFService,
+		Name: service.HTML2PDFService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return fake, nil
 		},

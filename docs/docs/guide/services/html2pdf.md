@@ -1,5 +1,5 @@
-# PDF service
-PDF service provides a generating pdf function from html code using Chrome headless.
+# HTML2PDF service
+HTML2PDF service provides a generating pdf function from html code using Chrome headless.
 
 First you need these in your app config:
 ```yaml
@@ -9,16 +9,16 @@ chrome_headless:
 Register the service into your `main.go` file:
 
 ```go
-registry.ServiceProviderPDF()
+registry.ServiceProviderHTML2PDF()
 ```
 
 Access the service:
 ```go
-service.DI().PDFService()
+service.DI().HTML2PDFService()
 ```
 Using `HtmlToPdf()` function to generate PDF from html:
 ```go
-pdfBytes := pdfService.HtmlToPdf("<html><p>Hi!</p></html>")
+pdfBytes := html2pdfService.HtmlToPdf("<html><p>Hi!</p></html>")
 ```
 
 Recommended docker file for Chrome headless:

@@ -9,7 +9,7 @@ linters:
     - stylecheck
     - unparam
     - whitespace
-#    - revive
+    - revive
 #    - wsl
     - funlen
     - lll

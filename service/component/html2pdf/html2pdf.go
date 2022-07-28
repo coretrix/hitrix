@@ -1,4 +1,4 @@
-package pdf
+package html2pdf
 
 import (
 	"context"
@@ -12,19 +12,17 @@ type ServiceInterface interface {
 	HTMLToPdf(html string) []byte
 }
 
-//TODO
-
-type PDFService struct {
+type HTML2PDF struct {
 	chromeWebSocketURL string
 }
 
-func NewPDFService(chromeWebSocketURL string) *PDFService {
-	return &PDFService{
+func NewHTML2PDFService(chromeWebSocketURL string) *HTML2PDF {
+	return &HTML2PDF{
 		chromeWebSocketURL: chromeWebSocketURL,
 	}
 }
 
-func (c *PDFService) HTMLToPdf(html string) []byte {
+func (c *HTML2PDF) HTMLToPdf(html string) []byte {
 	allocatorContext, cancel := chromedp.NewRemoteAllocator(context.Background(), c.chromeWebSocketURL)
 	defer cancel()
 

@@ -25,6 +25,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/generator"
 	googleanalytics "github.com/coretrix/hitrix/service/component/google_analytics"
 	"github.com/coretrix/hitrix/service/component/gql"
+	"github.com/coretrix/hitrix/service/component/html2pdf"
 	"github.com/coretrix/hitrix/service/component/instagram"
 	"github.com/coretrix/hitrix/service/component/jwt"
 	"github.com/coretrix/hitrix/service/component/kubernetes"
@@ -33,7 +34,6 @@ import (
 	"github.com/coretrix/hitrix/service/component/oss"
 	"github.com/coretrix/hitrix/service/component/otp"
 	"github.com/coretrix/hitrix/service/component/password"
-	"github.com/coretrix/hitrix/service/component/pdf"
 	"github.com/coretrix/hitrix/service/component/setting"
 	"github.com/coretrix/hitrix/service/component/slack"
 	"github.com/coretrix/hitrix/service/component/sms"
@@ -50,7 +50,7 @@ const (
 	ConfigService           = "config"
 	ErrorLoggerService      = "error_logger"
 	LocalizeService         = "localize"
-	PDFService              = "pdf"
+	HTML2PDFService         = "html2pdf"
 	ExtractorService        = "extractor"
 	JWTService              = "jwt"
 	DDOSService             = "ddos"
@@ -232,8 +232,8 @@ func (d *DIContainer) FCM() fcm.FCM {
 	return GetServiceRequired(FCMService).(fcm.FCM)
 }
 
-func (d *DIContainer) PDF() pdf.ServiceInterface {
-	return GetServiceRequired(PDFService).(pdf.ServiceInterface)
+func (d *DIContainer) HTML2PDF() html2pdf.ServiceInterface {
+	return GetServiceRequired(HTML2PDFService).(html2pdf.ServiceInterface)
 }
 
 func (d *DIContainer) FeatureFlag() featureflag.ServiceFeatureFlagInterface {

@@ -7,12 +7,12 @@ import (
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
-	pdf "github.com/coretrix/hitrix/service/component/pdf"
+	"github.com/coretrix/hitrix/service/component/html2pdf"
 )
 
-func ServiceProviderPDF() *service.DefinitionGlobal {
+func ServiceProviderHTML2PDF() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: service.PDFService,
+		Name: service.HTML2PDFService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 			chromeWebSocketURL, ok := configService.String("chrome_headless.web_socket_url")
@@ -20,7 +20,7 @@ func ServiceProviderPDF() *service.DefinitionGlobal {
 				return nil, errors.New("missing chrome_headless.web_socket_url")
 			}
 
-			return pdf.NewPDFService(chromeWebSocketURL), nil
+			return html2pdf.NewHTML2PDFService(chromeWebSocketURL), nil
 		},
 	}
 }
