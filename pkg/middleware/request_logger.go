@@ -62,9 +62,9 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 		}
 
 		if isText(context.ContentType()) && len(content) <= 16_000_000 {
-			requestEntity.Text = string(content)
+			requestEntity.RequestText = string(content)
 		} else {
-			requestEntity.Content = content
+			requestEntity.Request = content
 		}
 
 		ormService.Flush(requestEntity)
@@ -87,7 +87,7 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 			if len(responseBodyByte) <= 16_000_000 {
 				requestEntity.ResponseText = string(responseBodyByte)
 			} else {
-				requestEntity.ResponseContent = responseBodyByte
+				requestEntity.Response = responseBodyByte
 			}
 		}
 

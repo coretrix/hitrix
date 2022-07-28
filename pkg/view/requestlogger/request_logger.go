@@ -52,9 +52,9 @@ func columns() []crud.Column {
 			FilterValidMap: nil,
 		},
 		{
-			Key:            "Text",
+			Key:            "Request",
 			Type:           crud.StringType,
-			Label:          "Text",
+			Label:          "Request",
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
@@ -62,9 +62,9 @@ func columns() []crud.Column {
 			FilterValidMap: nil,
 		},
 		{
-			Key:            "ResponseText",
+			Key:            "Response",
 			Type:           crud.StringType,
-			Label:          "ResponseText",
+			Label:          "Response",
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
@@ -119,14 +119,14 @@ func RequestsLogger(ctx context.Context, userListRequest listDto.RequestDTOList)
 
 	for i, requestLoggerEntity := range requestLoggerEntities {
 		requestLoggerEntityList[i] = &requestlogger.ResponseDTORequestLogger{
-			UserID:       requestLoggerEntity.UserID,
-			URL:          requestLoggerEntity.URL,
-			AppName:      requestLoggerEntity.AppName,
-			Text:         requestLoggerEntity.Text,
-			ResponseText: requestLoggerEntity.ResponseText,
-			Log:          pointer.String(string(requestLoggerEntity.Log)),
-			Status:       requestLoggerEntity.Status,
-			CreatedAt:    requestLoggerEntity.CreatedAt,
+			UserID:    requestLoggerEntity.UserID,
+			URL:       requestLoggerEntity.URL,
+			AppName:   requestLoggerEntity.AppName,
+			Request:   requestLoggerEntity.RequestText,
+			Response:  requestLoggerEntity.ResponseText,
+			Log:       pointer.String(string(requestLoggerEntity.Log)),
+			Status:    requestLoggerEntity.Status,
+			CreatedAt: requestLoggerEntity.CreatedAt,
 		}
 	}
 
