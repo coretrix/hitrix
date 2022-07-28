@@ -17,6 +17,7 @@ func constructQuery(v interface{}, variables map[string]interface{}) string {
 	if len(variables) > 0 {
 		return "query(" + queryArguments(variables) + ")" + query
 	}
+
 	return query
 }
 
@@ -25,6 +26,7 @@ func constructMutation(v interface{}, variables map[string]interface{}) string {
 	if len(variables) > 0 {
 		return "mutation(" + queryArguments(variables) + ")" + query
 	}
+
 	return "mutation" + query
 }
 
@@ -37,12 +39,21 @@ func queryArguments(variables map[string]interface{}) string {
 
 	var buf bytes.Buffer
 	for _, k := range keys {
-		// nolint
-		io.WriteString(&buf, "$")
-		// nolint
-		io.WriteString(&buf, k)
-		// nolint
-		io.WriteString(&buf, ":")
+		_, err := io.WriteString(&buf, "$")
+		if err != nil {
+			panic(err)
+		}
+
+		_, err = io.WriteString(&buf, k)
+		if err != nil {
+			panic(err)
+		}
+
+		_, err = io.WriteString(&buf, ":")
+		if err != nil {
+			panic(err)
+		}
+
 		writeArgumentType(&buf, reflect.TypeOf(variables[k]), true)
 	}
 	return buf.String()
@@ -56,19 +67,29 @@ func writeArgumentType(w io.Writer, t reflect.Type, value bool) {
 
 	switch t.Kind() {
 	case reflect.Slice, reflect.Array:
-		// nolint
-		io.WriteString(w, "[")
+		_, err := io.WriteString(w, "[")
+		if err != nil {
+			panic(err)
+		}
+
 		writeArgumentType(w, t.Elem(), true)
-		// nolint
-		io.WriteString(w, "]")
+
+		_, err = io.WriteString(w, "]")
+		if err != nil {
+			panic(err)
+		}
 	default:
-		// nolint
-		io.WriteString(w, strings.Title(t.Name()))
+		_, err := io.WriteString(w, strings.Title(t.Name()))
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	if value {
-		// nolint
-		io.WriteString(w, "!")
+		_, err := io.WriteString(w, "!")
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
@@ -76,6 +97,7 @@ func query(v interface{}) string {
 	var buf bytes.Buffer
 	shownError := false
 	writeQuery(&buf, reflect.TypeOf(v), false, 0, &shownError)
+
 	return buf.String()
 }
 
@@ -84,13 +106,14 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 	case reflect.Ptr, reflect.Slice:
 		writeQuery(w, t.Elem(), false, depth, shownError)
 	case reflect.Struct:
-
 		if reflect.PtrTo(t).Implements(jsonUnmarshaler) {
 			return
 		}
 		if !inline {
-			// nolint
-			io.WriteString(w, "{")
+			_, err := io.WriteString(w, "{")
+			if err != nil {
+				panic(err)
+			}
 		}
 
 		skipComma := false
@@ -101,11 +124,14 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 					*shownError = true
 					log.Println("You reached writeQueryDeepLimit constant")
 				}
+
 				continue
 			}
 			if i != 0 && !skipComma {
-				// nolint
-				io.WriteString(w, ",")
+				_, err := io.WriteString(w, ",")
+				if err != nil {
+					panic(err)
+				}
 			}
 			skipComma = false
 			f := t.Field(i)
@@ -114,8 +140,10 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 			inlineField := f.Anonymous && !ok
 			if !inlineField {
 				if ok {
-					// nolint
-					io.WriteString(w, value)
+					_, err := io.WriteString(w, value)
+					if err != nil {
+						panic(err)
+					}
 				} else {
 					if f.Type.Kind() == reflect.Slice && f.Type.Elem().Kind() == reflect.Ptr &&
 						f.Type.Elem().Elem().Kind() == reflect.Struct ||
@@ -130,15 +158,22 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 								log.Println("You reached writeQueryDeepLimit constant")
 							}
 							skipComma = true
+
 							continue
 						}
 					}
-					// nolint
+
 					//io.WriteString(w, ident.ParseMixedCaps(f.Name).ToLowerCamelCase())
 					if hasJSON && fieldName != "-" {
-						io.WriteString(w, fieldName)
+						_, err := io.WriteString(w, fieldName)
+						if err != nil {
+							panic(err)
+						}
 					} else {
-						io.WriteString(w, f.Name)
+						_, err := io.WriteString(w, f.Name)
+						if err != nil {
+							panic(err)
+						}
 					}
 				}
 			}
@@ -149,8 +184,10 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 			}
 		}
 		if !inline {
-			// nolint
-			io.WriteString(w, "}")
+			_, err := io.WriteString(w, "}")
+			if err != nil {
+				panic(err)
+			}
 		}
 	}
 }

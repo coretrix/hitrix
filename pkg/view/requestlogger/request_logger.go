@@ -2,9 +2,9 @@ package requestlogger
 
 import (
 	"context"
-	"github.com/xorcare/pointer"
 
 	"github.com/latolukasz/beeorm"
+	"github.com/xorcare/pointer"
 
 	listDto "github.com/coretrix/hitrix/pkg/dto/list"
 	"github.com/coretrix/hitrix/pkg/dto/requestlogger"
