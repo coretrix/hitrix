@@ -15,11 +15,13 @@ func AuthorizeWithQueryParam() gin.HandlerFunc {
 		secretFromConfig, ok := service.DI().Config().String("query_param.secret")
 		if !ok {
 			c.AbortWithStatus(http.StatusUnauthorized)
+
 			return
 		}
 
 		if secretFromConfig != secretFromQueryString {
 			c.AbortWithStatus(http.StatusUnauthorized)
+
 			return
 		}
 

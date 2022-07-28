@@ -193,6 +193,7 @@ func (t *Authentication) VerifySocialLogin(source, token string) (*social.UserDa
 	if !ok {
 		return nil, errors.New("not supported social provider: " + source)
 	}
+
 	return socialProvider.GetUserData(token)
 }
 
@@ -207,6 +208,7 @@ func (t *Authentication) AuthenticateOTP(ormService *beeorm.Engine, phone string
 	if !entity.CanAuthenticate() {
 		return "", "", errors.New("cannot authenticate this entity")
 	}
+
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
@@ -221,6 +223,7 @@ func (t *Authentication) AuthenticateOTPEmail(ormService *beeorm.Engine, email s
 	if !entity.CanAuthenticate() {
 		return "", "", errors.New("cannot authenticate this entity")
 	}
+
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
@@ -239,6 +242,7 @@ func (t *Authentication) Authenticate(ormService *beeorm.Engine, uniqueValue str
 	if !entity.CanAuthenticate() {
 		return "", "", errors.New("cannot authenticate this entity")
 	}
+
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
@@ -257,6 +261,7 @@ func (t *Authentication) AuthenticateEmail(ormService *beeorm.Engine, email stri
 	if !entity.CanAuthenticate() {
 		return "", "", errors.New("cannot authenticate this entity")
 	}
+
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
@@ -268,6 +273,7 @@ func (t *Authentication) AuthenticateByID(ormService *beeorm.Engine, id uint64, 
 	if !entity.CanAuthenticate() {
 		return "", "", errors.New("cannot authenticate this entity")
 	}
+
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
@@ -285,6 +291,7 @@ func (t *Authentication) generateUserTokens(ormService *beeorm.Engine, ID uint64
 	}
 
 	t.addUserAccessKeyList(ormService, ID, accessKey, "", t.refreshTokenTTL)
+
 	return accessToken, refreshToken, nil
 }
 
@@ -409,6 +416,7 @@ func (t *Authentication) GenerateTokenPair(id uint64, accessKey string, ttl int)
 func (t *Authentication) generateAndStoreAccessKey(ormService *beeorm.Engine, id uint64, ttl int) string {
 	key := generateAccessKey(id, t.uuidService.Generate())
 	ormService.GetRedis(t.appService.RedisPools.Persistent).Set(key, "", ttl)
+
 	return key
 }
 
@@ -418,6 +426,7 @@ func (t *Authentication) addUserAccessKeyList(ormService *beeorm.Engine, id uint
 	res, has := cacheService.Get(key)
 	if !has {
 		cacheService.Set(key, accessKey, ttl)
+
 		return
 	}
 
@@ -430,6 +439,7 @@ func (t *Authentication) addUserAccessKeyList(ormService *beeorm.Engine, id uint
 	if oldAccessKey == "" {
 		currentTokenArr = append(currentTokenArr, accessKey)
 		cacheService.Set(key, strings.Join(currentTokenArr, accessListSeparator), ttl)
+
 		return
 	}
 
@@ -458,8 +468,10 @@ func getUserIDFromAccessKey(accessKey string) uint64 {
 	accessArr := strings.Split(accessKey, separator)
 	if len(accessArr) == 3 {
 		userIDInt, _ := strconv.ParseInt(accessArr[1], 10, 0)
+
 		return uint64(userIDInt)
 	}
+
 	return 0
 }
 

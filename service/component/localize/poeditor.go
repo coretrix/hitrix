@@ -41,6 +41,7 @@ func (l *PoeditorSource) Pull() (pairs map[string]string, err error) {
 	req, err := http.NewRequest("POST", "https://api.poeditor.com/v2/terms/list", body)
 	if err != nil {
 		log.Fatal(err)
+
 		return
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -48,6 +49,7 @@ func (l *PoeditorSource) Pull() (pairs map[string]string, err error) {
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Fatal(err)
+
 		return
 	}
 	defer resp.Body.Close()
@@ -55,6 +57,7 @@ func (l *PoeditorSource) Pull() (pairs map[string]string, err error) {
 	err = json.NewDecoder(resp.Body).Decode(&termList)
 	if err != nil {
 		log.Fatal(err)
+
 		return
 	}
 
@@ -79,6 +82,7 @@ func (l *PoeditorSource) Push(terms []string) (err error) {
 	b, err := json.Marshal(termsModel)
 	if err != nil {
 		log.Fatal(err)
+
 		return
 	}
 	params := url.Values{}
@@ -91,6 +95,7 @@ func (l *PoeditorSource) Push(terms []string) (err error) {
 	req, err := http.NewRequest("POST", "https://api.poeditor.com/v2/projects/sync", body)
 	if err != nil {
 		log.Fatal(err)
+
 		return
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -98,6 +103,7 @@ func (l *PoeditorSource) Push(terms []string) (err error) {
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Fatal(err)
+
 		return
 	}
 	defer resp.Body.Close()

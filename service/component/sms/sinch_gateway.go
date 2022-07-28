@@ -124,10 +124,9 @@ func (g *SinchGateway) SendCalloutMessage(message *Message) (string, error) {
 }
 
 func (g *SinchGateway) getSinchHeaders() map[string]string {
-	base64Credentials := base64.StdEncoding.EncodeToString([]byte(g.AppID + ":" + g.AppSecret))
 	return map[string]string{
 		"Content-Type":  "application/json",
-		"Authorization": "Basic " + base64Credentials,
+		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte(g.AppID+":"+g.AppSecret)),
 		"X-Timestamp":   g.Clock.Now().Format(javascriptISOString),
 	}
 }

@@ -18,6 +18,7 @@ func (controller *ReadinessController) GetReadinessAction(c *gin.Context) {
 	has := ormService.GetMysql().QueryRow(beeorm.NewWhere("SELECT 1"), &res)
 	if !has || res != 1 {
 		c.JSON(503, gin.H{"error": "mysql do not respond"})
+
 		return
 	}
 
@@ -25,6 +26,7 @@ func (controller *ReadinessController) GetReadinessAction(c *gin.Context) {
 	_, has = ormService.GetRedis().Get("ping")
 	if !has {
 		c.JSON(503, gin.H{"error": "redis do not respond"})
+
 		return
 	}
 

@@ -13,6 +13,7 @@ func AuthorizeDevUser() gin.HandlerFunc {
 		err := account.IsValidDevToken(c, c.Request.Header.Get("Authorization"))
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
+
 			return
 		}
 	}
@@ -23,6 +24,7 @@ func AuthorizeWithDevRefreshToken() gin.HandlerFunc {
 		err := account.IsValidDevRefreshToken(c, c.Request.Header.Get("Authorization"))
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
+
 			return
 		}
 	}

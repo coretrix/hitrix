@@ -144,10 +144,9 @@ func (s *Sinch) VerifyOTP(phone *Phone, code, _ string) (string, string, bool, b
 }
 
 func (s *Sinch) getSinchHeaders() map[string]string {
-	base64Credentials := base64.StdEncoding.EncodeToString([]byte(s.AppID + ":" + s.AppSecret))
 	return map[string]string{
 		"Content-Type":  "application/json",
-		"Authorization": "Basic " + base64Credentials,
+		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte(s.AppID+":"+s.AppSecret)),
 	}
 }
 

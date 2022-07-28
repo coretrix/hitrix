@@ -178,6 +178,7 @@ func (s *Mailjet) sendTemplate(ormService *beeorm.Engine, from string, fromName 
 		if mailTrackerEntity.SenderError != "" {
 			mailTrackerEntity.Status = entity.MailTrackerStatusError
 			ormService.Flush(mailTrackerEntity)
+
 			return errors.New(mailTrackerEntity.SenderError)
 		}
 	}

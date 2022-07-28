@@ -44,6 +44,7 @@ func (l *SimpleLocalizer) T(bucket string, key string) string {
 	}
 
 	l.errorLogger.LogError("missing translations for key " + l.genKey(bucket, key))
+
 	return key
 }
 
@@ -101,6 +102,7 @@ func (l *SimpleLocalizer) PushBucketToSource(bucket string) (err error) {
 	err = l.source.Push(terms)
 	if err != nil {
 		log.Fatal(err)
+
 		return
 	}
 
@@ -115,6 +117,7 @@ func (l *SimpleLocalizer) PullBucketFromSource(bucket string, append bool) (err 
 	terms, err := l.source.Pull()
 	if err != nil {
 		log.Fatal(err)
+
 		return
 	}
 	l.LoadBucketFromMap(bucket, terms, append)
@@ -163,6 +166,7 @@ func (l *SimpleLocalizer) touchFile(path string) error {
 	if err != nil {
 		return err
 	}
+
 	return file.Close()
 }
 

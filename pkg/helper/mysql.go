@@ -16,6 +16,7 @@ func DBTransaction(ormService *beeorm.Engine, callback transaction) error {
 	err := callback()
 	if err != nil {
 		dbService.Rollback()
+
 		return err
 	}
 	dbService.Commit()

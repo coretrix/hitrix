@@ -92,6 +92,7 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 		}
 	}
 	binding.Validator = helper.NewValidator()
+
 	return ginEngine
 }
 
@@ -130,6 +131,7 @@ func graphqlHandler(server graphql.ExecutableSchema, gqlServerInitHandler GQLSer
 	if gqlServerInitHandler != nil {
 		gqlServerInitHandler(h)
 	}
+
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
 	}
@@ -137,6 +139,7 @@ func graphqlHandler(server graphql.ExecutableSchema, gqlServerInitHandler GQLSer
 
 func playgroundHandler() gin.HandlerFunc {
 	h := playground.Handler("GraphQL", "/query")
+
 	return func(c *gin.Context) {
 		c.Writer.Header().Add("X-Robots-Tag", "noindex")
 		h.ServeHTTP(c.Writer, c.Request)

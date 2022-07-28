@@ -64,6 +64,7 @@ func (k *Kubernetes) IsCertificateProvisioned(ctx context.Context, secretName st
 						if status == "True" {
 							return true, nil
 						}
+
 						return false, errors.New(message)
 					}
 				}

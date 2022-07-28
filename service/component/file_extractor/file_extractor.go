@@ -31,6 +31,7 @@ func (l *FileExtractor) Extract(params ExtractParams) ([]string, error) {
 				!strings.HasSuffix(path, "generated.go") {
 				l.ExtractFromFile(path, params.Expression)
 			}
+
 			return err
 		})
 	if err != nil {
@@ -61,6 +62,7 @@ func (l *FileExtractor) readFile(pathToread string) (string, error) {
 	file, err := os.Open(pathToread)
 	if err != nil {
 		log.Fatal(err)
+
 		return "", err
 	}
 	defer file.Close()
@@ -68,6 +70,7 @@ func (l *FileExtractor) readFile(pathToread string) (string, error) {
 	srcbuf, err := ioutil.ReadAll(file)
 	if err != nil {
 		log.Fatal(err)
+
 		return "", err
 	}
 

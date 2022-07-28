@@ -72,6 +72,7 @@ func (i *RapidAPIInstagram85) GetAccount(account string) (*Account, error) {
 		if errResponse.Code == 302 {
 			return nil, errors.New("internal_server_error status code 302")
 		}
+
 		return nil, err
 	}
 

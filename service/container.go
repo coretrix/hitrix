@@ -46,6 +46,7 @@ func SetRequestServices(servicesDefinitionsRequest []*DefinitionRequest) {
 
 func HasService(key string) bool {
 	_, has := container.Definitions()[key]
+
 	return has
 }
 
@@ -70,6 +71,7 @@ func getServiceSafe(ctn di.Container, key string) (service interface{}, has bool
 	if !has {
 		return nil, false, nil
 	}
+
 	return nil, true, err
 }
 
@@ -78,6 +80,7 @@ func getServiceOptional(ctn di.Container, key string) (service interface{}, has 
 	if err != nil {
 		panic(err)
 	}
+
 	return service, has
 }
 
@@ -88,6 +91,7 @@ func getServiceRequired(ctn di.Container, key string) interface{} {
 	} else if !has {
 		panic(fmt.Errorf("missing service " + key))
 	}
+
 	return service
 }
 

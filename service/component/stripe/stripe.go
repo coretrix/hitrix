@@ -38,6 +38,7 @@ func (s *Stripe) CreateAccount(accountParams *stripe.AccountParams) (*stripe.Acc
 	} else {
 		accountParams.Params.Metadata[Env] = s.appService.Mode
 	}
+
 	return account.New(accountParams)
 }
 
@@ -51,6 +52,7 @@ func (s *Stripe) CreateCustomer(customerParams *stripe.CustomerParams) (*stripe.
 	} else {
 		customerParams.Params.Metadata[Env] = s.appService.Mode
 	}
+
 	return customer.New(customerParams)
 }
 
@@ -60,6 +62,7 @@ func (s *Stripe) UpdateCustomer(customerID string, customerParams *stripe.Custom
 	} else {
 		customerParams.Params.Metadata[Env] = s.appService.Mode
 	}
+
 	return customer.Update(customerID, customerParams)
 }
 
@@ -69,6 +72,7 @@ func (s *Stripe) CreateCheckoutSession(checkoutSessionParams *stripe.CheckoutSes
 	} else {
 		checkoutSessionParams.Params.Metadata[Env] = s.appService.Mode
 	}
+
 	return session.New(checkoutSessionParams)
 }
 
@@ -86,6 +90,7 @@ func (s *Stripe) CreateSubscription(subscriptionParams *stripe.SubscriptionParam
 	} else {
 		subscriptionParams.Params.Metadata[Env] = s.appService.Mode
 	}
+
 	return sub.New(subscriptionParams)
 }
 
@@ -95,6 +100,7 @@ func (s *Stripe) UpdateSubscription(subscriptionID string, subscriptionParams *s
 	} else {
 		subscriptionParams.Params.Metadata[Env] = s.appService.Mode
 	}
+
 	return sub.Update(subscriptionID, subscriptionParams)
 }
 
@@ -104,6 +110,7 @@ func (s *Stripe) CancelSubscription(subscriptionID string, subscriptionCancelPar
 	} else {
 		subscriptionCancelParams.Params.Metadata[Env] = s.appService.Mode
 	}
+
 	return sub.Cancel(subscriptionID, subscriptionCancelParams)
 }
 
@@ -113,6 +120,7 @@ func (s *Stripe) CreateSetupIntent(setupIntentParams *stripe.SetupIntentParams) 
 	} else {
 		setupIntentParams.Params.Metadata[Env] = s.appService.Mode
 	}
+
 	return setupintent.New(setupIntentParams)
 }
 
@@ -131,6 +139,7 @@ func (s *Stripe) CreatePaymentIntentMultiparty(paymentIntentParams *stripe.Payme
 		paymentIntentParams.Params.Metadata[Env] = s.appService.Mode
 	}
 	paymentIntentParams.SetStripeAccount(linkedAccountID)
+
 	return paymentintent.New(paymentIntentParams)
 }
 
@@ -141,6 +150,7 @@ func (s *Stripe) CreateRefundMultiparty(refundParams *stripe.RefundParams, linke
 		refundParams.Params.Metadata[Env] = s.appService.Mode
 	}
 	refundParams.SetStripeAccount(linkedAccountID)
+
 	return refund.New(refundParams)
 }
 
@@ -169,6 +179,7 @@ func (s *Stripe) ConstructWebhookEvent(reqBody []byte, signature string, webhook
 		panic("stripe webhook secret [" + webhookKey + "] not found")
 	}
 	event, err := webhook.ConstructEvent(reqBody, signature, secret)
+
 	return event, err
 }
 

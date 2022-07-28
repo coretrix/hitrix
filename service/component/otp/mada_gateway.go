@@ -144,8 +144,7 @@ func (m *Mada) soapCall(recipientPhoneNumber, otp string) (string, string, error
 }
 
 func basicAuth(username, password string) string {
-	auth := username + ":" + password
-	return base64.StdEncoding.EncodeToString([]byte(auth))
+	return base64.StdEncoding.EncodeToString([]byte(username + ":" + password))
 }
 
 type soapRQ struct {
@@ -227,6 +226,7 @@ func validateSmResponse(commandStatus string) error {
 	if errorMsg, ok := errorCodes[commandStatus]; ok {
 		return fmt.Errorf("otp Mada[%s]: %s", commandStatus, errorMsg)
 	}
+
 	return fmt.Errorf("otp Mada[%s]: expected commandStatus code 0, but got (unrecognized) %s", commandStatus, commandStatus)
 }
 
@@ -248,7 +248,7 @@ var errorCodes = map[string]string{
 	"13":   "Bind failed",
 	"14":   "Invalid password",
 	"15":   "Invalid System ID",
-	"17":   "Cancelling message failed",
+	"17":   "Canceling message failed",
 	"19":   "Message recplacement failed",
 	"20":   "Message queue full",
 	"21":   "Invalid service type",

@@ -128,6 +128,7 @@ func (amazonS3 *AmazonS3) DeleteObject(bucket string, objects ...*Object) bool {
 	if err != nil {
 		panic("s3BucketObjectsDelete:" + err.Error())
 	}
+
 	return len(deletedObjects.Deleted) == len(objects)
 }
 

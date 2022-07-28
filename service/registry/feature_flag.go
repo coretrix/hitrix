@@ -27,6 +27,7 @@ func ServiceProviderFeatureFlag(registry FeatureFlagRegistryInitFunc) *service.D
 			errorLoggerService := ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger)
 			featureFlagService := featureflag.NewFeatureFlagService(errorLoggerService)
 			registry(featureFlagService)
+
 			return featureFlagService, nil
 		},
 	}
@@ -46,6 +47,7 @@ func ServiceProviderFeatureFlagWithCache(registry FeatureFlagRegistryInitFunc) *
 
 			featureFlagService := featureflag.NewFeatureFlagWithCacheService(errorLoggerService, clockService)
 			registry(featureFlagService)
+
 			return featureFlagService, nil
 		},
 	}

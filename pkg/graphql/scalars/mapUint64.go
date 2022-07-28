@@ -31,12 +31,14 @@ func UnmarshalMapUint64(v interface{}) (map[uint64]interface{}, error) {
 		if err := json.Unmarshal(v, &m); err != nil {
 			return nil, err
 		}
+
 		return m, nil
 	case string:
 		m := map[uint64]interface{}{}
 		if err := json.Unmarshal([]byte(v), &m); err != nil {
 			return nil, err
 		}
+
 		return m, nil
 	default:
 		return nil, fmt.Errorf("%T is not a map", v)

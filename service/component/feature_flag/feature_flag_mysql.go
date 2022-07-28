@@ -25,6 +25,7 @@ type serviceFeatureFlag struct {
 
 func NewFeatureFlagService(errorLoggerService errorlogger.ErrorLogger) ServiceFeatureFlagInterface {
 	featureFlags := make(map[string]IFeatureFlag)
+
 	return &serviceFeatureFlag{
 		featureFlags:       featureFlags,
 		errorLoggerService: errorLoggerService,

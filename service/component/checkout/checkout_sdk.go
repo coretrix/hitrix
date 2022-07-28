@@ -85,6 +85,7 @@ func (c *Checkout) CheckWebhookKey(keyCode, key string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -128,6 +129,7 @@ func (c *Checkout) GetCustomer(idOrEmail string) (bool, *CustomerResponse) {
 		if err != nil {
 			panic(err)
 		}
+
 		return true, res
 	}
 	data, _ := ioutil.ReadAll(resp.Body)
@@ -152,6 +154,7 @@ func (c *Checkout) SaveGetClient(customerData *SaveCustomerRequest) (created boo
 
 	if resp.StatusCode == 201 {
 		_, customerRes := c.GetCustomer(customerData.Email)
+
 		return true, customerRes
 	}
 	data, _ := ioutil.ReadAll(resp.Body)
@@ -168,6 +171,7 @@ func (c *Checkout) CreateToken(request *tokens.Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return resp.Created.Token, nil
 }
 
@@ -181,6 +185,7 @@ func (c *Checkout) CreateInstrument(request *instruments.Request) (*instruments.
 	if err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 
@@ -194,6 +199,7 @@ func (c *Checkout) GetInstrument(sourceID string) (*instruments.Response, error)
 	if err != nil {
 		return nil, err
 	}
+
 	return res, nil
 }
 

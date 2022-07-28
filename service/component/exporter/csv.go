@@ -33,6 +33,7 @@ func (e *CSVExporter) exportToFile(columns []string, rows [][]interface{}, fileP
 
 	writer := csv.NewWriter(f)
 	defer writer.Flush()
+
 	return e.export(writer, columns, rows)
 }
 
@@ -48,6 +49,7 @@ func (e *CSVExporter) exportToByte(columns []string, rows [][]interface{}) ([]by
 	if err != nil {
 		return nil, err
 	}
+
 	return buf.Bytes(), nil
 }
 
@@ -72,5 +74,6 @@ func (e *CSVExporter) export(writer *csv.Writer, columns []string, rows [][]inte
 		record = make([]string, 0)
 	}
 	writer.Flush()
+
 	return nil
 }

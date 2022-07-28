@@ -38,8 +38,10 @@ func (t *Validator) ValidateStruct(s interface{}) error {
 			translatedErr := e.Translate(t.translator)
 			fieldErrors[e.Field()] = translatedErr
 		}
+
 		return fieldErrors
 	}
+
 	return nil
 }
 
@@ -49,6 +51,7 @@ func (t *Validator) Engine() interface{} {
 
 func (t *Validator) Validate(field interface{}, rules string) []error {
 	err := t.validator.Var(field, rules)
+
 	return t.translateError(err)
 }
 
@@ -69,6 +72,7 @@ func NewValidator() *Validator {
 				return ut.Add(ruleName, customValidation.TranslationMessage, false)
 			}, func(ut ut.Translator, fe validator.FieldError) string {
 				t, _ := ut.T(ruleName, fe.Field())
+
 				return t
 			})
 			if err != nil {
@@ -79,6 +83,7 @@ func NewValidator() *Validator {
 
 		singleton = &Validator{validator: validatorInstance, translator: translator}
 	})
+
 	return singleton
 }
 
@@ -91,6 +96,7 @@ func (t *Validator) translateError(err error) (errs []error) {
 		translatedErr := fmt.Errorf(e.Translate(t.translator))
 		errs = append(errs, translatedErr)
 	}
+
 	return errs
 }
 
@@ -114,6 +120,7 @@ var customValidations = map[string]CustomValidation{
 func validateCountryCodeAlpha2(fl validator.FieldLevel) bool {
 	query := gountries.New()
 	_, err := query.FindCountryByAlpha(fl.Field().String())
+
 	return err == nil
 }
 

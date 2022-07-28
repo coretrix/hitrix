@@ -16,6 +16,7 @@ func ServiceProviderGql() *service.DefinitionGlobal {
 			if err == nil {
 				return gql.NewGqlService(localizeService.(localize.ILocalizer)), nil
 			}
+
 			return gql.NewGqlService(nil), nil
 		},
 	}

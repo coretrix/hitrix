@@ -71,6 +71,7 @@ func Call(ctx context.Context,
 	if err != nil {
 		return nil, nil, resp.StatusCode, errors.New("error in reading response")
 	}
+
 	return data, resp.Header, resp.StatusCode, nil
 }
 
@@ -123,5 +124,6 @@ func CallXML(ctx context.Context,
 	if err != nil {
 		return nil, nil, resp.StatusCode, err
 	}
+
 	return data, resp.Header, resp.StatusCode, nil
 }

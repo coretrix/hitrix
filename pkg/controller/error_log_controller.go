@@ -78,6 +78,7 @@ func (controller *ErrorLogController) DeleteError(c *gin.Context) {
 	id := c.Param("id")
 	if len(id) <= 0 {
 		response.ErrorResponseGlobal(c, "missing id", nil)
+
 		return
 	}
 	ormService.GetRedis().HDel(errorlogger.GroupError, id)

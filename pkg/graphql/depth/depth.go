@@ -33,5 +33,6 @@ func findSelectionDepth(selections ast.SelectionSet) int {
 			}
 		}
 	}
+
 	return maxDepth
 }

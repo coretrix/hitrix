@@ -29,10 +29,12 @@ func (lock *redisLock) Lock() error {
 	}
 
 	lock.redisLock = redisLock
+
 	return nil
 }
 
 func (lock *redisLock) Unlock() error {
 	lock.redisLock.Release()
+
 	return nil
 }

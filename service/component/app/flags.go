@@ -25,6 +25,7 @@ func (f *Flags) Bool(name string) bool {
 	if !has {
 		return false
 	}
+
 	return *v.(*bool)
 }
 
@@ -33,5 +34,6 @@ func (f *Flags) String(name string) string {
 	if !has {
 		return ""
 	}
+
 	return *v.(*string)
 }

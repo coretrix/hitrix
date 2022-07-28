@@ -56,12 +56,14 @@ func queryArguments(variables map[string]interface{}) string {
 
 		writeArgumentType(&buf, reflect.TypeOf(variables[k]), true)
 	}
+
 	return buf.String()
 }
 
 func writeArgumentType(w io.Writer, t reflect.Type, value bool) {
 	if t.Kind() == reflect.Ptr {
 		writeArgumentType(w, t.Elem(), false)
+
 		return
 	}
 

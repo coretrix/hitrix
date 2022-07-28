@@ -21,5 +21,6 @@ func GetImageURLTemplateFilled(image, fit, format, quality, width, dpr string) s
 	image = strings.Replace(image, "${quality}", quality, -1)
 	image = strings.Replace(image, "${width}", width, -1)
 	image = strings.Replace(image, "${dpr}", dpr, -1)
+
 	return image
 }

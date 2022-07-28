@@ -227,6 +227,7 @@ func CreateAPIContext(t *testing.T, projectName string, resolvers graphql.Execut
 
 	resp := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(resp)
+
 	return &Environment{t: t, Hitrix: testSpringInstance, GinEngine: ginTestInstance, Cxt: c, ResponseRecorder: resp}
 }
 
@@ -278,6 +279,7 @@ func getParallelID() string {
 		return parallelTestID
 	} else {
 		parallelTestID = getRandomString()
+
 		return parallelTestID
 	}
 }

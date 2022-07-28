@@ -21,6 +21,7 @@ func (g *KavenegarGateway) SendOTPSMS(otp *OTP) (string, error) {
 
 	if res.Status != kavenegar.Type_MessageStatus_Sent && res.Status != kavenegar.Type_MessageStatus_Delivered {
 		e := fmt.Errorf("there was a problem sending sms")
+
 		return e.Error(), e
 	}
 
@@ -44,6 +45,7 @@ func (g *KavenegarGateway) SendSMSMessage(message *Message) (string, error) {
 
 	if len(res) < 1 {
 		e := fmt.Errorf("there was a problem sending sms")
+
 		return e.Error(), e
 	}
 

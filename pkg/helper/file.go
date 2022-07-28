@@ -84,6 +84,7 @@ func CSVToMap(reader *bytes.Buffer) ([]map[string]string, error) {
 			rows = append(rows, dict)
 		}
 	}
+
 	return rows, nil
 }
 
@@ -143,5 +144,6 @@ func Copy(src, dst string, bufferSize int64) error {
 			return err
 		}
 	}
+
 	return err
 }

@@ -22,6 +22,7 @@ func UnmarshalUint64(v interface{}) (uint64, error) {
 		if err != nil {
 			return 0, fmt.Errorf("string failed to be parsed: %v", err)
 		}
+
 		return uint64(i), nil
 	case int:
 		return uint64(v), nil
@@ -32,6 +33,7 @@ func UnmarshalUint64(v interface{}) (uint64, error) {
 		if err != nil {
 			return 0, fmt.Errorf("json.Number failed to be parsed: %v", err)
 		}
+
 		return uint64(i), nil
 	default:
 		return 0, fmt.Errorf("%T is not an int", v)

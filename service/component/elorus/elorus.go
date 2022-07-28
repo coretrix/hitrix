@@ -121,6 +121,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 		if err != nil {
 			return nil, err
 		}
+
 		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
 
@@ -132,8 +133,10 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 		if err != nil {
 			return nil, err
 		}
+
 		return nil, fmt.Errorf("decode failed, status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
+
 	return response, nil
 }
 
@@ -164,6 +167,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 		if err != nil {
 			return nil, err
 		}
+
 		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
 
@@ -175,8 +179,10 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 		if err != nil {
 			return nil, err
 		}
+
 		return nil, fmt.Errorf("decode failed, status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
+
 	return response, nil
 }
 
@@ -219,6 +225,7 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 		if err != nil {
 			return nil, err
 		}
+
 		return nil, fmt.Errorf("not successful request with status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
 
@@ -230,8 +237,10 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 		if err != nil {
 			return nil, err
 		}
+
 		return nil, fmt.Errorf("decode failed, status code : %v , response : %v", resp.StatusCode, failedResponse)
 	}
+
 	return response, nil
 }
 
@@ -254,5 +263,6 @@ func (e *Elorus) DownloadInvoice(request *DownloadInvoiceRequest) (*io.ReadClose
 	if err != nil {
 		return nil, err
 	}
+
 	return &resp.Body, nil
 }

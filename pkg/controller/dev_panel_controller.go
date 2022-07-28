@@ -63,9 +63,12 @@ func (controller *DevPanelController) CreateDevPanelUserAction(c *gin.Context) {
 		fieldError, ok := (err).(errors.FieldErrors)
 		if ok {
 			response.ErrorResponseFields(c, fieldError, nil)
+
 			return
 		}
+
 		response.ErrorResponseGlobal(c, err, nil)
+
 		return
 	}
 
@@ -88,11 +91,13 @@ func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
 
 	if ok && errType != nil {
 		response.ErrorResponseFields(c, errType, nil)
+
 		return
 	}
 
 	if err != nil {
 		response.ErrorResponseGlobal(c, err, nil)
+
 		return
 	}
 
@@ -110,6 +115,7 @@ func (controller *DevPanelController) PostGenerateTokenAction(c *gin.Context) {
 	token, refreshToken, err := account.GenerateDevTokenAndRefreshToken(ormService, devPanelUserEntity.GetID())
 	if err != nil {
 		response.ErrorResponseGlobal(c, err, nil)
+
 		return
 	}
 
@@ -251,6 +257,7 @@ func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context
 	indexName := c.Param("index")
 	if indexName == "" {
 		response.ErrorResponseGlobal(c, "index is required", nil)
+
 		return
 	}
 
@@ -309,6 +316,7 @@ func (controller *DevPanelController) PostRedisSearchIndexInfo(c *gin.Context) {
 	indexName := c.Param("index")
 	if indexName == "" {
 		response.ErrorResponseGlobal(c, "index is required", nil)
+
 		return
 	}
 
@@ -350,6 +358,7 @@ func (controller *DevPanelController) PostEnableFeatureFlag(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
 		response.ErrorResponseGlobal(c, "name is required", nil)
+
 		return
 	}
 
@@ -363,6 +372,7 @@ func (controller *DevPanelController) PostEnableFeatureFlag(c *gin.Context) {
 
 	if !found {
 		response.ErrorResponseGlobal(c, "feature is missing", nil)
+
 		return
 	}
 
@@ -376,6 +386,7 @@ func (controller *DevPanelController) PostDisableFeatureFlag(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
 		response.ErrorResponseGlobal(c, "name is required", nil)
+
 		return
 	}
 
@@ -389,6 +400,7 @@ func (controller *DevPanelController) PostDisableFeatureFlag(c *gin.Context) {
 
 	if !found {
 		response.ErrorResponseGlobal(c, "feature is missing", nil)
+
 		return
 	}
 

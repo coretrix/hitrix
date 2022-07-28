@@ -24,15 +24,18 @@ func (f *FakeGateway) GetPhonePrefixes() []string {
 
 func (f *FakeGateway) SendOTP(phone *otp.Phone, code string) (string, string, error) {
 	args := f.Called(phone, code)
+
 	return args.String(0), args.String(1), args.Error(2)
 }
 
 func (f *FakeGateway) Call(phone *otp.Phone, code string, customMessage string) (string, string, error) {
 	args := f.Called(phone, code, customMessage)
+
 	return args.String(0), args.String(1), args.Error(2)
 }
 
 func (f *FakeGateway) VerifyOTP(phone *otp.Phone, code, generatedCode string) (string, string, bool, bool, error) {
 	args := f.Called(phone, code, generatedCode)
+
 	return args.String(0), args.String(1), args.Bool(2), args.Bool(3), args.Error(4)
 }

@@ -28,11 +28,13 @@ func New(appName string, secret string) *Registry {
 	r := &Registry{
 		app: &app.App{Mode: mode, Name: appName, Secret: secret},
 	}
+
 	return r
 }
 
 func (r *Registry) SetParallelTestID(parallelTestID string) *Registry {
 	r.app.ParallelTestID = parallelTestID
+
 	return r
 }
 func (r *Registry) Build() (*Hitrix, func()) {
@@ -70,21 +72,25 @@ func (r *Registry) RegisterDevPanel(devPanelUserEntity app.IDevPanelUserEntity, 
 	}
 
 	r.app.DevPanel = &app.DevPanel{UserEntity: devPanelUserEntity, Router: router}
+
 	return r
 }
 
 func (r *Registry) RegisterRedisPools(pools *app.RedisPools) *Registry {
 	r.app.RedisPools = pools
+
 	return r
 }
 
 func (r *Registry) RegisterDIGlobalService(service ...*service.DefinitionGlobal) *Registry {
 	r.servicesDefinitionsGlobal = append(r.servicesDefinitionsGlobal, service...)
+
 	return r
 }
 
 func (r *Registry) RegisterDIRequestService(service ...*service.DefinitionRequest) *Registry {
 	r.servicesDefinitionsRequest = append(r.servicesDefinitionsRequest, service...)
+
 	return r
 }
 

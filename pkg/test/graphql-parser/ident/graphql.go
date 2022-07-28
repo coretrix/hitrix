@@ -39,6 +39,7 @@ func ParseMixedCaps(name string) Name {
 		}
 		w = i
 	}
+
 	return words
 }
 
@@ -54,12 +55,14 @@ func (n Name) ToLowerCamelCase() string {
 		r, size := utf8.DecodeRuneInString(word)
 		n[i] = string(unicode.ToUpper(r)) + strings.ToLower(word[size:])
 	}
+
 	return strings.Join(n, "")
 }
 
 func isInitialism(word string) (string, bool) {
 	initialism := strings.ToUpper(word)
 	_, ok := initialisms[initialism]
+
 	return initialism, ok
 }
 
@@ -72,6 +75,7 @@ func isTwoInitialisms(word string) (string, string, bool) {
 			return word[:i], word[i:], true
 		}
 	}
+
 	return "", "", false
 }
 

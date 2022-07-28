@@ -20,12 +20,14 @@ func (g *SimpleGenerator) GenerateRandomRangeNumber(min, max int64) int64 {
 	if err != nil {
 		panic(err)
 	}
+
 	return n.Int64() + min
 }
 
 func (g *SimpleGenerator) GenerateSha256Hash(input string) string {
 	sha256Hash := sha256.New()
 	sha256Hash.Write([]byte(input))
+
 	return base64.StdEncoding.EncodeToString(sha256Hash.Sum(nil))
 }
 

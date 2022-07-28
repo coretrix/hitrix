@@ -25,6 +25,7 @@ type Socket struct {
 
 func (c *Connection) write(mt int, payload []byte) error {
 	_ = c.Ws.SetWriteDeadline(time.Now().Add(writeWait))
+
 	return c.Ws.WriteMessage(mt, payload)
 }
 
@@ -36,7 +37,11 @@ func (s *Socket) ReadPump(registry *Registry, readMessageHandler func(rawData []
 
 	s.Connection.Ws.SetReadLimit(maxMessageSize)
 	_ = s.Connection.Ws.SetReadDeadline(time.Now().Add(pongWait))
-	s.Connection.Ws.SetPongHandler(func(string) error { _ = s.Connection.Ws.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+	s.Connection.Ws.SetPongHandler(func(string) error {
+		_ = s.Connection.Ws.SetReadDeadline(time.Now().Add(pongWait))
+
+		return nil
+	})
 
 	for {
 		_, rawData, err := s.Connection.Ws.ReadMessage()
@@ -66,15 +71,18 @@ func (s *Socket) WritePump() {
 				if err != nil {
 					s.ErrorLogger.LogError(err)
 				}
+
 				return
 			}
 			if err := s.Connection.write(websocket.TextMessage, message); err != nil {
 				s.ErrorLogger.LogError(err)
+
 				return
 			}
 		case <-ticker.C:
 			if err := s.Connection.write(websocket.PingMessage, []byte{}); err != nil {
 				s.ErrorLogger.LogError(err)
+
 				return
 			}
 		}
@@ -85,6 +93,7 @@ func (s *Socket) Emit(dto interface{}) {
 	data, err := json.Marshal(dto)
 	if err != nil {
 		s.ErrorLogger.LogError(err)
+
 		return
 	}
 

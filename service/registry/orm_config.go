@@ -58,10 +58,12 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 			init(registry)
 
 			ormConfig, defferFunc, err = registry.Validate()
+
 			return ormConfig, err
 		},
 		Close: func(obj interface{}) error {
 			defferFunc()
+
 			return nil
 		},
 	}

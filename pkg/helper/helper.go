@@ -16,6 +16,7 @@ func BoolToInt(b bool) int8 {
 	if b {
 		return 1
 	}
+
 	return 0
 }
 
@@ -39,6 +40,7 @@ func IsValidEnum(val string, enums map[string]string) bool {
 	if _, ok := enums[val]; ok {
 		return true
 	}
+
 	return false
 }
 

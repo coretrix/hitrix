@@ -408,6 +408,7 @@ func setConsumerGroupIndexer(redis *beeorm.RedisCache, consumerGroupName string,
 	}
 
 	redis.HSet(consumerGroupsKey, consumerGroupName, marshaled)
+
 	return err
 }
 

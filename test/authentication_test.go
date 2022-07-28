@@ -31,6 +31,7 @@ func createUser(input map[string]interface{}) *entity.DevPanelUserEntity {
 		}
 	}
 	ormService.Flush(devPanelUserEntity)
+
 	return devPanelUserEntity
 }
 

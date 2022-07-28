@@ -26,6 +26,7 @@ type ORMAltersScript struct {
 
 func (script *ORMAltersScript) Active() bool {
 	_ = service.DI().OrmConfig()
+
 	return true
 }
 

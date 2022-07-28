@@ -19,6 +19,7 @@ func ServiceProviderPDF() *service.DefinitionGlobal {
 			if !ok {
 				return nil, errors.New("missing chrome_headless.web_socket_url")
 			}
+
 			return pdf.NewPDFService(chromeWebSocketURL), nil
 		},
 	}

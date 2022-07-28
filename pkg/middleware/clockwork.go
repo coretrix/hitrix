@@ -113,6 +113,7 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 				}, "Queries",
 				nil,
 			)
+
 			return
 		}
 
@@ -204,6 +205,7 @@ func Clockwork(ginEngine *gin.Engine) {
 
 func isMultipartRequest(c *gin.Context) bool {
 	contentTypes := c.Request.Header["Content-Type"]
+
 	return len(contentTypes) > 0 && strings.Contains(contentTypes[0], gin.MIMEMultipartPOSTForm)
 }
 

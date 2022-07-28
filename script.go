@@ -41,6 +41,7 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 	if isOptional {
 		if !options.Active() {
 			log.Print("IScript not active. Exiting.")
+
 			return
 		}
 	}

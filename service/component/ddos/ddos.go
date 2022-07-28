@@ -28,5 +28,6 @@ func (t *DDOS) ProtectManyAttempts(redis *beeorm.RedisCache, protectCriterion st
 	}
 
 	redis.Set("ddos_"+protectCriterion, count+1, ttl)
+
 	return true
 }

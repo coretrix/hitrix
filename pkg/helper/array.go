@@ -9,6 +9,7 @@ func UniqueString(a []string) []string {
 			found[a[i]] = true
 		}
 	}
+
 	return res
 }
 
@@ -21,6 +22,7 @@ func UniqueInt64(a []int64) []int64 {
 			found[a[i]] = true
 		}
 	}
+
 	return res
 }
 
@@ -33,6 +35,7 @@ func UniqueInt32(a []int32) []int32 {
 			found[a[i]] = true
 		}
 	}
+
 	return res
 }
 
@@ -45,6 +48,7 @@ func UniqueInt(a []int) []int {
 			found[a[i]] = true
 		}
 	}
+
 	return res
 }
 
@@ -57,6 +61,7 @@ func UniqueUInt64(a []uint64) []uint64 {
 			found[a[i]] = true
 		}
 	}
+
 	return res
 }
 
@@ -69,6 +74,7 @@ func UniqueUInt32(a []uint32) []uint32 {
 			found[a[i]] = true
 		}
 	}
+
 	return res
 }
 
@@ -78,6 +84,7 @@ func StringInArray(s string, arr ...string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -87,6 +94,7 @@ func Int64InArray(s int64, arr ...int64) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -96,6 +104,7 @@ func Int32InArray(s int32, arr ...int32) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -105,6 +114,7 @@ func IntInArray(s int, arr ...int) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -114,6 +124,7 @@ func UIn64tInArray(s uint64, arr ...uint64) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -123,6 +134,7 @@ func UIn32tInArray(s uint32, arr ...uint32) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -144,6 +156,7 @@ mainLoop:
 			}
 		}
 	}
+
 	return found
 }
 
@@ -165,6 +178,7 @@ mainLoop:
 			}
 		}
 	}
+
 	return found
 }
 
@@ -186,6 +200,7 @@ mainLoop:
 			}
 		}
 	}
+
 	return found
 }
 
@@ -207,6 +222,7 @@ mainLoop:
 			}
 		}
 	}
+
 	return found
 }
 
@@ -228,6 +244,7 @@ mainLoop:
 			}
 		}
 	}
+
 	return found
 }
 
@@ -245,6 +262,7 @@ func SubtractUInt64Slice(a []uint64, b []uint64) []uint64 { // a-b
 			res = append(res, a[i])
 		}
 	}
+
 	return res
 }
 
@@ -262,6 +280,7 @@ func SubtractInt64Slice(a []int64, b []int64) []int64 { // a-b
 			res = append(res, a[i])
 		}
 	}
+
 	return res
 }
 
@@ -279,6 +298,7 @@ func SubtractInt32Slice(a []int32, b []int32) []int32 { // a-b
 			res = append(res, a[i])
 		}
 	}
+
 	return res
 }
 
@@ -296,6 +316,7 @@ func SubtractUInt32Slice(a []uint32, b []uint32) []uint32 { // a-b
 			res = append(res, a[i])
 		}
 	}
+
 	return res
 }
 
@@ -313,6 +334,7 @@ func SubtractIntSlice(a []int, b []int) []int { // a-b
 			res = append(res, a[i])
 		}
 	}
+
 	return res
 }
 
@@ -330,5 +352,6 @@ func SubtractUIntSlice(a []uint, b []uint) []uint { // a-b
 			res = append(res, a[i])
 		}
 	}
+
 	return res
 }

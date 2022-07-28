@@ -97,6 +97,7 @@ func (t *JWT) extractJWTParts(jwt string) ([]string, error) {
 	if len(jwtToken) != 3 {
 		return nil, fmt.Errorf("token not valid need to be from three parts")
 	}
+
 	return jwtToken, nil
 }
 
@@ -141,6 +142,7 @@ func (t *JWT) checkSignature(secret string, jwtToken []string) error {
 	if !valid {
 		return fmt.Errorf("token not valid")
 	}
+
 	return nil
 }
 

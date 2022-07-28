@@ -12,5 +12,6 @@ type FakeDynamicLinksGenerator struct {
 
 func (f *FakeDynamicLinksGenerator) GenerateDynamicLink(s string) (*dynamiclink.GenerateResponse, error) {
 	args := f.Called(s)
+
 	return args.Get(0).(*dynamiclink.GenerateResponse), args.Error(1)
 }

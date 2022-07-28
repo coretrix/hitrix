@@ -10,5 +10,6 @@ type PDFService struct {
 
 func (t *PDFService) HTMLToPdf(_ string) []byte {
 	args := t.Called()
+
 	return args.Get(0).([]byte)
 }

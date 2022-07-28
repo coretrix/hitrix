@@ -16,6 +16,7 @@ func (controller *ClockworkController) GetIndexAction(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
 		response.NotFoundResponse(c)
+
 		return
 	}
 	profilerService := service.DI().ClockWorkForContext(c.Request.Context())

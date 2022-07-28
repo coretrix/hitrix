@@ -18,8 +18,6 @@ const (
 
 	// ref: https://github.com/shawnmclean/Mandrill-dotnet/blob/05f26c917264751a903e3bcf83ca7153b5656526/src/Mandrill/Models/EmailMessage.cs#L19
 	mergeLanguageHandlebars = "handlebars"
-	// nolint
-	mergeLanguageMailchimp = "mailchimp"
 )
 
 type Mandrill struct {
@@ -164,6 +162,7 @@ func (s *Mandrill) sendTemplate(ormService *beeorm.Engine, from string, fromName
 		if mailTrackerEntity.SenderError != "" {
 			mailTrackerEntity.Status = entity.MailTrackerStatusError
 			ormService.Flush(mailTrackerEntity)
+
 			return errors.New(mailTrackerEntity.SenderError)
 		}
 	}

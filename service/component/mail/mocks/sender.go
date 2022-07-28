@@ -29,5 +29,6 @@ func (m *Sender) SendTemplateWithAttachmentsAsync(_ *beeorm.Engine, message *mai
 
 func (m *Sender) GetTemplateHTMLCode(_ *beeorm.Engine, templateName string, ttl int) (string, error) {
 	args := m.Called(templateName, ttl)
+
 	return args.Get(0).(string), args.Error(1)
 }

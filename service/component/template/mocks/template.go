@@ -14,6 +14,7 @@ func (t *FakeTemplateService) RenderTemplate(html string, data interface{}) (str
 	if err == nil {
 		return args.Get(0).(string), nil
 	}
+
 	return args.Get(0).(string), err.(error)
 }
 
@@ -23,5 +24,6 @@ func (t *FakeTemplateService) RenderMandrillTemplate(template string, data inter
 	if err == nil {
 		return args.Get(0).(string), nil
 	}
+
 	return args.Get(0).(string), err.(error)
 }

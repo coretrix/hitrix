@@ -119,5 +119,6 @@ func (s *serviceSetting) GetBool(ormService *beeorm.Engine, key string) (bool, b
 	if strings.ToLower(setting.Value) == "false" {
 		return false, true
 	}
+
 	return true, true
 }

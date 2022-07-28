@@ -63,9 +63,11 @@ func (controller *WebsocketController) InitConnection(c *gin.Context) {
 			err = json.Unmarshal(rawData, dto)
 			if err != nil {
 				errorLogger.LogError(err)
+
 				return
 			}
-			//return back the received message
+
+			//return the received message
 			s, _ := socketRegistryService.Sockets.Load(socketHolder.ID)
 			s.(*socket.Socket).Emit(dto)
 		})

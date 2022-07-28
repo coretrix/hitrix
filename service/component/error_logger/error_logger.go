@@ -150,6 +150,7 @@ func stack(skip int) []byte {
 		}
 		_, _ = fmt.Fprintf(buf, "\t%s: %s\n", function(pc), source(lines, line))
 	}
+
 	return buf.Bytes()
 }
 
@@ -158,6 +159,7 @@ func source(lines [][]byte, n int) []byte {
 	if n < 0 || n >= len(lines) {
 		return dunno
 	}
+
 	return bytes.TrimSpace(lines[n])
 }
 
@@ -174,5 +176,6 @@ func function(pc uintptr) []byte {
 		name = name[period+1:]
 	}
 	name = bytes.Replace(name, centerDot, dot, -1)
+
 	return name
 }

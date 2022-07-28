@@ -13,7 +13,7 @@ type ServiceInterface interface {
 }
 
 //TODO
-//nolint
+
 type PDFService struct {
 	chromeWebSocketURL string
 }
@@ -78,6 +78,7 @@ func printToPDF(res *[]byte) chromedp.Tasks {
 				return err
 			}
 			*res = buf
+
 			return nil
 		}),
 	}
