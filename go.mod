@@ -13,7 +13,7 @@ require (
 	github.com/checkout/checkout-sdk-go v0.0.19
 	github.com/chromedp/cdproto v0.0.0-20210910012206-68626162910d
 	github.com/chromedp/chromedp v0.7.4
-	github.com/coretrix/clockwork v1.0.1
+	github.com/coretrix/clockwork v1.1.0
 	github.com/dongri/phonenumber v0.0.0-20210304071411-690733f34185
 	github.com/fatih/color v1.13.0
 	github.com/gin-contrib/cors v1.3.1
@@ -72,7 +72,7 @@ require (
 	github.com/etgryphon/stringUp v0.0.0-20121020160746-31534ccd8cac // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-logr/logr v0.2.0 // indirect
-	github.com/go-redis/redis/v7 v7.0.0-beta.4 // indirect
+	github.com/go-redis/redis/v7 v7.4.1 // indirect
 	github.com/go-redis/redis_rate/v9 v9.1.2 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect

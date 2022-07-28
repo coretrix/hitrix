@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/coretrix/clockwork"
-	dataSource "github.com/coretrix/clockwork/data-source"
+	dataSource "github.com/coretrix/clockwork/datasource"
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
 

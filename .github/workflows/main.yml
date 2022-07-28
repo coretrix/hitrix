@@ -47,8 +47,8 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          export GOPATH=$(go env GOPATH)
           make test-cover
+
       - name: Upload report to codecov
         uses: codecov/codecov-action@v3
         with:
