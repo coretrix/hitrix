@@ -103,8 +103,8 @@ module.exports = [
                         link: '/guide/services/password',
                     },
                     {
-                        text: 'PDF',
-                        link: '/guide/services/pdf',
+                        text: 'HTML2PDF',
+                        link: '/guide/services/html2pdf',
                     },
                     {
                         text: 'Slack',
