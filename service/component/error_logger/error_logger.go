@@ -68,6 +68,7 @@ func (e *RedisErrorLogger) LogErrorWithRequest(c *gin.Context, errData interface
 
 func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
 	var msg string
+
 	err, ok := errData.(error)
 	if ok {
 		msg = err.Error()
@@ -133,20 +134,25 @@ func stack(skip int) []byte {
 	buf := new(bytes.Buffer)
 	var lines [][]byte
 	var lastFile string
+
 	for i := skip; ; i++ {
 		pc, file, line, ok := runtime.Caller(i)
 		if !ok {
 			break
 		}
+
 		_, _ = fmt.Fprintf(buf, "%s:%d (0x%x)\n", file, line, pc)
+
 		if file != lastFile {
 			data, err := ioutil.ReadFile(file)
 			if err != nil {
 				continue
 			}
+
 			lines = bytes.Split(data, []byte{'\n'})
 			lastFile = file
 		}
+
 		_, _ = fmt.Fprintf(buf, "\t%s: %s\n", function(pc), source(lines, line))
 	}
 
@@ -167,13 +173,16 @@ func function(pc uintptr) []byte {
 	if fn == nil {
 		return dunno
 	}
+
 	name := []byte(fn.Name())
 	if lastSlash := bytes.LastIndex(name, slash); lastSlash >= 0 {
 		name = name[lastSlash+1:]
 	}
+
 	if period := bytes.Index(name, dot); period >= 0 {
 		name = name[period+1:]
 	}
+
 	name = bytes.Replace(name, centerDot, dot, -1)
 
 	return name

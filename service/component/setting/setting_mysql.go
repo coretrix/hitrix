@@ -24,7 +24,9 @@ func (s *serviceSetting) Get(ormService *beeorm.Engine, key string) (*entity.Set
 
 	query := beeorm.NewRedisSearchQuery()
 	query.FilterString("Key", key)
+
 	settingEntity := &entity.SettingsEntity{}
+
 	found := ormService.RedisSearchOne(settingEntity, query)
 	if !found {
 		return nil, false
@@ -51,6 +53,7 @@ func (s *serviceSetting) GetInt(ormService *beeorm.Engine, key string) (int, boo
 	if !found {
 		return 0, false
 	}
+
 	i, err := strconv.ParseInt(setting.Value, 10, 64)
 	if err != nil {
 		return 0, false
@@ -64,6 +67,7 @@ func (s *serviceSetting) GetUint(ormService *beeorm.Engine, key string) (uint, b
 	if !found {
 		return 0, false
 	}
+
 	i, err := strconv.ParseUint(setting.Value, 10, 64)
 	if err != nil {
 		return 0, false
@@ -77,6 +81,7 @@ func (s *serviceSetting) GetInt64(ormService *beeorm.Engine, key string) (int64,
 	if !found {
 		return 0, false
 	}
+
 	i, err := strconv.ParseInt(setting.Value, 10, 64)
 	if err != nil {
 		return 0, false
@@ -90,6 +95,7 @@ func (s *serviceSetting) GetUint64(ormService *beeorm.Engine, key string) (uint6
 	if !found {
 		return 0, false
 	}
+
 	i, err := strconv.ParseUint(setting.Value, 10, 64)
 	if err != nil {
 		return 0, false
@@ -103,6 +109,7 @@ func (s *serviceSetting) GetFloat64(ormService *beeorm.Engine, key string) (floa
 	if !found {
 		return 0, false
 	}
+
 	i, err := strconv.ParseFloat(setting.Value, 64)
 	if err != nil {
 		return 0, false
@@ -116,6 +123,7 @@ func (s *serviceSetting) GetBool(ormService *beeorm.Engine, key string) (bool, b
 	if !found {
 		return false, false
 	}
+
 	if strings.ToLower(setting.Value) == "false" {
 		return false, true
 	}

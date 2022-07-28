@@ -25,14 +25,10 @@ type Validator struct {
 }
 
 func (t *Validator) ValidateStruct(s interface{}) error {
-	//if err := conform.Strings(s); err != nil {
-	//	return err
-	//}
-
 	err := t.validator.Struct(s)
-
 	if err != nil {
 		var fieldErrors errors.FieldErrors = make(map[string]string)
+
 		validatorErrs := err.(validator.ValidationErrors)
 		for _, e := range validatorErrs {
 			translatedErr := e.Translate(t.translator)
@@ -91,6 +87,7 @@ func (t *Validator) translateError(err error) (errs []error) {
 	if err == nil {
 		return nil
 	}
+
 	validatorErrs := err.(validator.ValidationErrors)
 	for _, e := range validatorErrs {
 		translatedErr := fmt.Errorf(e.Translate(t.translator))

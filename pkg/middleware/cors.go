@@ -10,8 +10,7 @@ import (
 )
 
 func Cors(ginEngine *gin.Engine) {
-	configService := service.DI().Config()
-	origins, ok := configService.Strings("cors")
+	origins, ok := service.DI().Config().Strings("cors")
 	if !ok {
 		panic("cors is missing")
 	}

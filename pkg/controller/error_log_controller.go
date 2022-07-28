@@ -48,10 +48,12 @@ func (controller *ErrorLogController) GetErrors(c *gin.Context) {
 
 		if len(splitKeys) == 1 {
 			errorMessage := &errorlogger.ErrorMessage{}
+
 			err := json.Unmarshal([]byte(value), errorMessage)
 			if err != nil {
 				panic(err)
 			}
+
 			errorsList[splitKeys[0]].Request = string(errorMessage.Request)
 			errorsList[splitKeys[0]].Stack = string(errorMessage.Stack)
 			errorsList[splitKeys[0]].File = errorMessage.File
@@ -81,6 +83,7 @@ func (controller *ErrorLogController) DeleteError(c *gin.Context) {
 
 		return
 	}
+
 	ormService.GetRedis().HDel(errorlogger.GroupError, id)
 	ormService.GetRedis().HDel(errorlogger.GroupError, id+":time")
 	ormService.GetRedis().HDel(errorlogger.GroupError, id+":counter")

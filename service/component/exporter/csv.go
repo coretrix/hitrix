@@ -42,9 +42,12 @@ func (e *CSVExporter) exportToByte(columns []string, rows [][]interface{}) ([]by
 	if err != nil {
 		return nil, err
 	}
+
 	var buf bytes.Buffer
+
 	writer := csv.NewWriter(&buf)
 	defer writer.Flush()
+
 	err = e.export(writer, columns, rows)
 	if err != nil {
 		return nil, err
@@ -63,16 +66,20 @@ func (e *CSVExporter) export(writer *csv.Writer, columns []string, rows [][]inte
 	}
 
 	record = make([]string, 0)
+
 	for _, row := range rows {
 		for columnIndex := range columns {
 			record = append(record, row[columnIndex].(string))
 		}
+
 		err := writer.Write(record)
 		if err != nil {
 			panic(err.Error())
 		}
+
 		record = make([]string, 0)
 	}
+
 	writer.Flush()
 
 	return nil

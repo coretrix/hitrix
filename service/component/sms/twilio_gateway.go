@@ -144,6 +144,7 @@ func (g *TwilioGateway) SendVerificationSMS(otp *OTP) (string, error) {
 		g.VerifySID, "/",
 		"Verifications",
 	}, "")
+
 	baseURL, err := url.Parse(endpoint)
 	if err != nil {
 		return err.Error(), err
@@ -185,6 +186,7 @@ func (g *TwilioGateway) SendVerificationCallout(otp *OTP) (string, error) {
 		g.VerifySID, "/",
 		"Verifications",
 	}, "")
+
 	baseURL, err := url.Parse(endpoint)
 	if err != nil {
 		return err.Error(), err
@@ -226,6 +228,7 @@ func (g *TwilioGateway) VerifyCode(otp *OTP) (string, error) {
 		g.VerifySID, "/",
 		"VerificationCheck",
 	}, "")
+
 	baseURL, err := url.Parse(endpoint)
 	if err != nil {
 		return err.Error(), err

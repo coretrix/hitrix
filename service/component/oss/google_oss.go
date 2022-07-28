@@ -232,6 +232,7 @@ func (ossStorage *GoogleOSS) setObjectContentType(writer *storage.Writer, extens
 	if writer == nil {
 		return
 	}
+
 	if extension == ".svg" && writer.ObjectAttrs.ContentType == "" {
 		writer.ObjectAttrs.ContentType = "image/svg+xml"
 	}

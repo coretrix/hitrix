@@ -93,6 +93,7 @@ func NewConfig(appName, mode, localConfigFolder string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	err = c.LoadSources(config.Yaml, parseEnvVariables(yamlFileAppConfig), parseEnvVariables(yamlFileHitrixConfig))
 	if err != nil {
 		return nil, err

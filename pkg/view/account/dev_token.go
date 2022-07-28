@@ -24,6 +24,7 @@ const expireTimeRefreshToken = 7200
 
 func GenerateDevTokenAndRefreshToken(ormService *beeorm.Engine, userID uint64) (string, string, error) {
 	appService := service.DI().App()
+
 	token, err := generateTokenValue(appService.Secret, userID, time.Now().Unix()+expireTimeToken)
 	if err != nil {
 		return "", "", err
@@ -90,8 +91,7 @@ func IsValidDevRefreshToken(c *gin.Context, token string) error {
 }
 
 func IsValidDevToken(c *gin.Context, token string) error {
-	appService := service.DI().App()
-	userID, err := isValid(token, appService.Secret, expireTimeToken)
+	userID, err := isValid(token, service.DI().App().Secret, expireTimeToken)
 	if err != nil {
 		return err
 	}
@@ -132,10 +132,12 @@ func isValid(token, tokenSecret string, tokenExpire int64) (uint64, error) {
 	}
 
 	data := strings.Split(token, ".")
+
 	dbyte, err := base64.StdEncoding.DecodeString(data[1])
 	if err != nil {
 		return 0, err
 	}
+
 	payload := make(map[string]string)
 
 	err = json.Unmarshal(dbyte, &payload)

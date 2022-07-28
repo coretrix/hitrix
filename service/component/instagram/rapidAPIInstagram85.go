@@ -57,10 +57,12 @@ func (i *RapidAPIInstagram85) GetAccount(account string) (*Account, error) {
 		} `json:"data"`
 		Code int64 `json:"code"`
 	}{}
+
 	res, err := sendRapidRequest(i, fmt.Sprintf("%v/account/%v/info", i.apiBaseURL, account))
 	if err != nil {
 		return nil, err
 	}
+
 	if err = json.Unmarshal(res, &response); err != nil {
 		errResponse := struct {
 			Code int64 `json:"code"`

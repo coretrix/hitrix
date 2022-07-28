@@ -24,6 +24,7 @@ func Call(ctx context.Context,
 	cookies []*http.Cookie) ([]byte, http.Header, int, error) {
 	var d []byte
 	var e error
+
 	switch v := payload.(type) {
 	case string:
 		d = []byte(v)
@@ -36,6 +37,7 @@ func Call(ctx context.Context,
 
 	var b io.Reader
 	b = bytes.NewReader(d)
+
 	method = strings.ToUpper(method)
 	if StringInArray(method, "GET", "DELETE") {
 		b = nil
@@ -89,6 +91,7 @@ func CallXML(ctx context.Context,
 
 	var b io.Reader
 	b = bytes.NewReader(d)
+
 	method = strings.ToUpper(method)
 	if StringInArray(method, "GET", "DELETE") {
 		b = nil

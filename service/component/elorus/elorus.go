@@ -98,6 +98,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 	client := &http.Client{}
 
 	jsonReq, _ := json.Marshal(request)
+
 	req, err := http.NewRequest("POST", e.url+"/contacts/", bytes.NewBuffer(jsonReq))
 	if err != nil {
 		return nil, err
@@ -106,6 +107,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
+
 	if !e.appService.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
@@ -117,6 +119,7 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 
 	if resp.StatusCode > 201 {
 		var failedResponse interface{}
+
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
 		if err != nil {
 			return nil, err
@@ -126,9 +129,11 @@ func (e *Elorus) CreateContact(request *CreateContactRequest) (*Response, error)
 	}
 
 	response := new(Response)
+
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		var failedResponse interface{}
+
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
 		if err != nil {
 			return nil, err
@@ -144,6 +149,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 	client := &http.Client{}
 
 	jsonReq, _ := json.Marshal(request)
+
 	req, err := http.NewRequest("POST", e.url+"/invoices/", bytes.NewBuffer(jsonReq))
 	if err != nil {
 		return nil, err
@@ -152,6 +158,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
+
 	if !e.appService.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
@@ -163,6 +170,7 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 
 	if resp.StatusCode > 201 {
 		var failedResponse interface{}
+
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
 		if err != nil {
 			return nil, err
@@ -172,9 +180,11 @@ func (e *Elorus) CreateInvoice(request *CreateInvoiceRequest) (*Response, error)
 	}
 
 	response := new(Response)
+
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		var failedResponse interface{}
+
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
 		if err != nil {
 			return nil, err
@@ -193,13 +203,16 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 	if err != nil {
 		return nil, err
 	}
+
 	query := requestURL.Query()
 	query.Set("client", request.Client)
 	query.Set("page", request.Page)
 	query.Set("page_size", request.PageSize)
+
 	if len(request.Status) > 0 {
 		query.Set("status", request.Status)
 	}
+
 	requestURL.RawQuery = query.Encode()
 
 	req, err := http.NewRequest("GET", requestURL.String(), nil)
@@ -210,6 +223,7 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
+
 	if !e.appService.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}
@@ -221,6 +235,7 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 
 	if resp.StatusCode > 201 {
 		var failedResponse interface{}
+
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
 		if err != nil {
 			return nil, err
@@ -230,9 +245,11 @@ func (e *Elorus) GetInvoiceList(request *GetInvoiceListRequest) (*InvoiceListRes
 	}
 
 	response := new(InvoiceListResponse)
+
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
 		var failedResponse interface{}
+
 		err = json.NewDecoder(resp.Body).Decode(&failedResponse)
 		if err != nil {
 			return nil, err
@@ -255,6 +272,7 @@ func (e *Elorus) DownloadInvoice(request *DownloadInvoiceRequest) (*io.ReadClose
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Token "+e.token)
 	req.Header.Set("X-Elorus-Organization", e.organizationID)
+
 	if !e.appService.IsInProdMode() {
 		req.Header.Set("X-Elorus-Demo", "true")
 	}

@@ -12,6 +12,7 @@ func GetOperationDepth(ctx context.Context) int {
 }
 func findSelectionDepth(selections ast.SelectionSet) int {
 	maxDepth := 0
+
 	for _, selection := range selections {
 		if field, isField := selection.(*ast.Field); isField && field != nil {
 			if len(field.SelectionSet) > 0 {

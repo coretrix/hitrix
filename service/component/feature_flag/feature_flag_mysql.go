@@ -39,7 +39,9 @@ func (s *serviceFeatureFlag) IsActive(ormService *beeorm.Engine, name string) bo
 
 	query := beeorm.NewRedisSearchQuery()
 	query.FilterString("Name", name)
+
 	featureFlagEntity := &entity.FeatureFlagEntity{}
+
 	found := ormService.RedisSearchOne(featureFlagEntity, query)
 	if !found {
 		return false
@@ -64,7 +66,9 @@ func (s *serviceFeatureFlag) Enable(ormService *beeorm.Engine, name string) erro
 
 	query := beeorm.NewRedisSearchQuery()
 	query.FilterString("Name", name)
+
 	featureFlagEntity := &entity.FeatureFlagEntity{}
+
 	found := ormService.RedisSearchOne(featureFlagEntity, query)
 	if !found {
 		return errors.New("feature cannot be found")
@@ -83,7 +87,9 @@ func (s *serviceFeatureFlag) Disable(ormService *beeorm.Engine, name string) err
 
 	query := beeorm.NewRedisSearchQuery()
 	query.FilterString("Name", name)
+
 	featureFlagEntity := &entity.FeatureFlagEntity{}
+
 	found := ormService.RedisSearchOne(featureFlagEntity, query)
 	if !found {
 		return errors.New("feature cannot be found")
@@ -104,6 +110,7 @@ func (s *serviceFeatureFlag) getAllActive(ormService *beeorm.Engine, pager *beeo
 	ormService.RedisSearch(&featureFlagEntities, query, pager)
 
 	activeFeatureFlags := make([]IFeatureFlag, 0)
+
 	for _, featureFlagEntity := range featureFlagEntities {
 		if _, ok := s.featureFlags[featureFlagEntity.Name]; !ok {
 			s.errorLoggerService.LogError("feature flag " + featureFlagEntity.Name + " is not registered")
@@ -146,6 +153,7 @@ func (s *serviceFeatureFlag) Register(featureFlags ...IFeatureFlag) {
 		if _, has := s.featureFlags[featureFlag.GetName()]; has {
 			panic("feature flag with name '" + featureFlag.GetName() + "' already exists")
 		}
+
 		s.featureFlags[featureFlag.GetName()] = featureFlag
 	}
 }
@@ -153,10 +161,12 @@ func (s *serviceFeatureFlag) Register(featureFlags ...IFeatureFlag) {
 func (s *serviceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.IClock) {
 	var featureFlagEntities []*entity.FeatureFlagEntity
 	var lastID uint64
+
 	for {
 		var rows []*entity.FeatureFlagEntity
 		pager := beeorm.NewPager(1, 1000)
 		ormService.Search(beeorm.NewWhere("ID > ? ORDER BY ID ASC", lastID), pager, &rows)
+
 		if len(rows) == 0 {
 			break
 		}
@@ -168,6 +178,7 @@ func (s *serviceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.
 			break
 		}
 	}
+
 	flusher := ormService.NewFlusher()
 
 	dbFeatureFlags := make(map[string]*entity.FeatureFlagEntity)

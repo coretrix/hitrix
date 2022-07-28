@@ -51,9 +51,11 @@ func TestVerifyJWT(t *testing.T) {
 	err := jwt.VerifyJWT("mynewsecret", jwtToken, 72000)
 
 	var msg string
+
 	if err != nil {
 		msg = err.Error()
 	}
+
 	assert.NoError(t, err, msg)
 }
 

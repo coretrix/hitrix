@@ -63,6 +63,7 @@ func (s *Socket) WritePump() {
 		ticker.Stop()
 		s.Connection.Ws.Close()
 	}()
+
 	for {
 		select {
 		case message, ok := <-s.Connection.Send:
@@ -74,6 +75,7 @@ func (s *Socket) WritePump() {
 
 				return
 			}
+
 			if err := s.Connection.write(websocket.TextMessage, message); err != nil {
 				s.ErrorLogger.LogError(err)
 

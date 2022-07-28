@@ -41,6 +41,7 @@ func NewAPIManager(
 		if err != nil {
 			return nil, err
 		}
+
 		providers[provider.GetName().String()] = provider
 		providersByIndex[i] = provider
 	}

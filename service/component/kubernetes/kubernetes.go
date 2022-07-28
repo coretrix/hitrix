@@ -146,10 +146,7 @@ func (k *Kubernetes) AddIngress(ctx context.Context, domain, secretName, service
 
 	if apierrors.IsAlreadyExists(err) {
 		// ignore already exist error
-		return nil
-
-		// TODO: or we can
-		// return fmt.Errorf("%s has already been registered", domain)
+		return nil // TODO: or we can return fmt.Errorf("%s has already been registered", domain)
 	}
 
 	return err
@@ -163,10 +160,7 @@ func (k *Kubernetes) RemoveIngress(ctx context.Context, domain string) error {
 
 	if apierrors.IsNotFound(err) {
 		// ignore already exist error
-		return nil
-
-		// TODO: or we can
-		// return fmt.Errorf("%s has not been registered", domain)
+		return nil // TODO: or we can return fmt.Errorf("%s has not been registered", domain)
 	}
 
 	return err

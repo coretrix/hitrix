@@ -122,10 +122,12 @@ func sinchSMSOTPProviderBuilder(configService config.IConfig, _ generator.IGener
 	if !ok {
 		return nil, errors.New("missing sms.sinch.app_id")
 	}
+
 	appSecret, ok := configService.String("sms.sinch.app_secret")
 	if !ok {
 		return nil, errors.New("missing sms.sinch.app_secret")
 	}
+
 	verificationURL, ok := configService.String("sms.sinch.verification_url")
 	if !ok {
 		return nil, errors.New("missing sms.sinch.verification_url")
@@ -143,20 +145,24 @@ func madaSMSOTPProviderBuilder(
 	if !ok {
 		return nil, errors.New("missing sms.mada.username")
 	}
+
 	password, ok := configService.String("sms.mada.password")
 	if !ok {
 		return nil, errors.New("missing sms.mada.password")
 	}
+
 	url, ok := configService.String("sms.mada.url")
 	if !ok {
 		return nil, errors.New("missing sms.mada.url")
 	}
+
 	sourceName, ok := configService.String("sms.mada.source_name")
 	if !ok {
 		return nil, errors.New("missing sms.mada.source_name")
 	}
 
 	var otpLength int
+
 	otpLengthConfig, ok := configService.Int("authentication.otp_length")
 	if ok && otpLengthConfig > 0 {
 		otpLength = otpLengthConfig

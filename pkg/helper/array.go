@@ -3,6 +3,7 @@ package helper
 func UniqueString(a []string) []string {
 	var res = make([]string, 0)
 	var found = make(map[string]bool)
+
 	for i := range a {
 		if !found[a[i]] {
 			res = append(res, a[i])
@@ -16,6 +17,7 @@ func UniqueString(a []string) []string {
 func UniqueInt64(a []int64) []int64 {
 	var res = make([]int64, 0)
 	var found = make(map[int64]bool)
+
 	for i := range a {
 		if !found[a[i]] {
 			res = append(res, a[i])
@@ -29,6 +31,7 @@ func UniqueInt64(a []int64) []int64 {
 func UniqueInt32(a []int32) []int32 {
 	var res = make([]int32, 0)
 	var found = make(map[int32]bool)
+
 	for i := range a {
 		if !found[a[i]] {
 			res = append(res, a[i])
@@ -42,6 +45,7 @@ func UniqueInt32(a []int32) []int32 {
 func UniqueInt(a []int) []int {
 	var res = make([]int, 0)
 	var found = make(map[int]bool)
+
 	for i := range a {
 		if !found[a[i]] {
 			res = append(res, a[i])
@@ -55,6 +59,7 @@ func UniqueInt(a []int) []int {
 func UniqueUInt64(a []uint64) []uint64 {
 	var res = make([]uint64, 0)
 	var found = make(map[uint64]bool)
+
 	for i := range a {
 		if !found[a[i]] {
 			res = append(res, a[i])
@@ -68,6 +73,7 @@ func UniqueUInt64(a []uint64) []uint64 {
 func UniqueUInt32(a []uint32) []uint32 {
 	var res = make([]uint32, 0)
 	var found = make(map[uint32]bool)
+
 	for i := range a {
 		if !found[a[i]] {
 			res = append(res, a[i])

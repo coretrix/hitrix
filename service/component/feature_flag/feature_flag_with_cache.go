@@ -39,6 +39,7 @@ func (s *serviceFeatureFlagWithCache) IsActive(ormService *beeorm.Engine, name s
 	if name == "" {
 		panic("name cannot be empty")
 	}
+
 	s.Lock()
 	defer s.Unlock()
 
@@ -50,11 +51,14 @@ func (s *serviceFeatureFlagWithCache) IsActive(ormService *beeorm.Engine, name s
 
 	query := beeorm.NewRedisSearchQuery()
 	query.FilterString("Name", name)
+
 	featureFlagEntity := &entity.FeatureFlagEntity{}
+
 	found := ormService.RedisSearchOne(featureFlagEntity, query)
 	if !found {
 		return false
 	}
+
 	s.cache[name] = &cacheEntity{
 		featureFlagEntity: featureFlagEntity,
 		time:              s.clockService.Now(),

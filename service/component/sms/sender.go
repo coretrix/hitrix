@@ -42,9 +42,11 @@ func (s *Sender) SendOTPSMS(ormService *beeorm.Engine, errorLoggerService errorl
 	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
 	trySecondaryProvider := false
+
 	status, err := primaryGateway.SendOTPSMS(otp)
 	if err != nil {
 		trySecondaryProvider = true
+
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
 		errorLoggerService.LogError(err)
 	}
@@ -92,9 +94,11 @@ func (s *Sender) SendOTPCallout(ormService *beeorm.Engine, errorLoggerService er
 	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
 	trySecondaryProvider := false
+
 	status, err := primaryGateway.SendOTPCallout(otp)
 	if err != nil {
 		trySecondaryProvider = true
+
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
 		errorLoggerService.LogError(err)
 	}
@@ -142,9 +146,11 @@ func (s *Sender) SendMessage(ormService *beeorm.Engine, errorLoggerService error
 	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
 	trySecondaryProvider := false
+
 	status, err := primaryGateway.SendSMSMessage(message)
 	if err != nil {
 		trySecondaryProvider = true
+
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
 		errorLoggerService.LogError(err)
 	}
@@ -192,9 +198,11 @@ func (s *Sender) SendVerificationSMS(ormService *beeorm.Engine, errorLoggerServi
 	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
 	trySecondaryProvider := false
+
 	status, err := primaryGateway.SendVerificationSMS(otp)
 	if err != nil {
 		trySecondaryProvider = true
+
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
 		errorLoggerService.LogError(err)
 	}
@@ -242,9 +250,11 @@ func (s *Sender) SendVerificationCallout(ormService *beeorm.Engine, errorLoggerS
 	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
 	trySecondaryProvider := false
+
 	status, err := primaryGateway.SendVerificationCallout(otp)
 	if err != nil {
 		trySecondaryProvider = true
+
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
 		errorLoggerService.LogError(err)
 	}
@@ -293,9 +303,11 @@ func (s *Sender) VerifyCode(ormService *beeorm.Engine, errorLoggerService errorl
 	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
 	trySecondaryProvider := false
+
 	status, err := primaryGateway.VerifyCode(otp)
 	if err != nil {
 		trySecondaryProvider = true
+
 		smsTrackerEntity.SetPrimaryGatewayError(err.Error())
 		errorLoggerService.LogError(err)
 	}

@@ -43,6 +43,7 @@ func (e *Exporter) CSVExportToByte(columns []string, rows [][]interface{}) ([]by
 
 func verifyRows(columns []string, rows [][]interface{}) error {
 	dataErrors := make([]string, 0, 1)
+
 	for rowID, row := range rows {
 		if len(row) != len(columns) {
 			dataErrors = append(dataErrors, "Different column count for row["+strconv.Itoa(rowID)+"]")

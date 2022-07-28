@@ -102,9 +102,11 @@ func (i *RapidAPIInstagram28) GetAccount(account string) (*Account, error) {
 
 func (i *RapidAPIInstagram28) GetFeed(accountID int64, nextPageToken string) ([]*Post, string, error) {
 	reqNextPageToken := ""
+
 	if len(nextPageToken) > 0 {
 		reqNextPageToken = "&next_cursor=" + nextPageToken
 	}
+
 	body, err := sendRapidRequest(
 		i,
 		fmt.Sprintf("%s/%s", i.apiBaseURL, fmt.Sprintf("medias?user_id=%d&batch_size=40%s", accountID, reqNextPageToken)),
@@ -191,6 +193,7 @@ func (p instagram40Post) ToPost() *Post {
 	}
 
 	var images []string
+
 	switch p.Type {
 	case "GraphSidecar":
 		for _, edge := range p.EdgeSidecarToChildren.Edges {

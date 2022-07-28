@@ -11,6 +11,7 @@ func ParseMixedCaps(name string) Name {
 
 	runes := []rune(name)
 	w, i := 0, 0
+
 	for i+1 <= len(runes) {
 		eow := false
 		if i+1 == len(runes) {
@@ -24,7 +25,9 @@ func ParseMixedCaps(name string) Name {
 				eow = false
 			}
 		}
+
 		i++
+
 		if !eow {
 			continue
 		}
@@ -37,6 +40,7 @@ func ParseMixedCaps(name string) Name {
 		} else {
 			words = append(words, word)
 		}
+
 		w = i
 	}
 
@@ -52,6 +56,7 @@ func (n Name) ToLowerCamelCase() string {
 
 			continue
 		}
+
 		r, size := utf8.DecodeRuneInString(word)
 		n[i] = string(unicode.ToUpper(r)) + strings.ToLower(word[size:])
 	}
@@ -71,6 +76,7 @@ func isTwoInitialisms(word string) (string, string, bool) {
 	for i := 2; i <= len(word)-2; i++ {
 		_, ok1 := initialisms[word[:i]]
 		_, ok2 := initialisms[word[i:]]
+
 		if ok1 && ok2 {
 			return word[:i], word[i:], true
 		}

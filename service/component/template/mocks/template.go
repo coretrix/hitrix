@@ -10,6 +10,7 @@ type FakeTemplateService struct {
 
 func (t *FakeTemplateService) RenderTemplate(html string, data interface{}) (string, error) {
 	args := t.Called(html, data)
+
 	err := args.Get(1)
 	if err == nil {
 		return args.Get(0).(string), nil
@@ -20,6 +21,7 @@ func (t *FakeTemplateService) RenderTemplate(html string, data interface{}) (str
 
 func (t *FakeTemplateService) RenderMandrillTemplate(template string, data interface{}) (string, error) {
 	args := t.Called(template, data)
+
 	err := args.Get(1)
 	if err == nil {
 		return args.Get(0).(string), nil

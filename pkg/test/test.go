@@ -77,6 +77,7 @@ func (env *Environment) handle(buff bytes.Buffer, v interface{}, headers map[str
 		Data   *json.RawMessage
 		Errors *graphqlParser.Errors
 	}
+
 	if err := json.NewDecoder(env.ResponseRecorder.Body).Decode(&out); err != nil {
 		env.t.Fatal(err)
 	}
@@ -116,6 +117,7 @@ func (env *Environment) handleMultiPart(query string, variables interface{},
 		defer func() {
 			_ = file.Close()
 		}()
+
 		if err != nil {
 			env.t.Fatal(err)
 		}
@@ -138,6 +140,7 @@ func (env *Environment) handleMultiPart(query string, variables interface{},
 
 	queryJSON, _ := json.Marshal(map[string]interface{}{"query": query, "variables": variables})
 	err = w.WriteField("operations", string(queryJSON))
+
 	if err != nil {
 		env.t.Fatal(err)
 	}
@@ -161,6 +164,7 @@ func (env *Environment) handleMultiPart(query string, variables interface{},
 		Data   *json.RawMessage
 		Errors *graphqlParser.Errors
 	}
+
 	if err := json.NewDecoder(env.ResponseRecorder.Body).Decode(&out); err != nil {
 		env.t.Fatal(err)
 	}
@@ -184,6 +188,7 @@ func CreateContext(
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	err = os.Setenv("APP_MODE", app.ModeTest)
 	if err != nil {
 		t.Fatal(err)
@@ -216,10 +221,12 @@ func CreateAPIContext(
 	gqlServerInitHandler := func(server *handler.Server) {
 		server.AddTransport(transport.MultipartForm{})
 	}
+
 	err := os.Setenv("TZ", "UTC")
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	err = os.Setenv("APP_MODE", app.ModeTest)
 	if err != nil {
 		t.Fatal(err)
@@ -234,6 +241,7 @@ func CreateAPIContext(
 		).Build()
 
 	defer deferFunc()
+
 	ginTestInstance := hitrix.InitGin(resolvers, ginInitHandler, gqlServerInitHandler)
 
 	ormService := service.DI().OrmEngine()
@@ -273,6 +281,7 @@ func executeAlters(ormService *beeorm.Engine) {
 
 func getRandomString() string {
 	rand.Seed(time.Now().UnixNano())
+
 	b := make([]byte, 10)
 
 	//nolint //G404: Use of weak random number generator (math/rand instead of crypto/rand)
@@ -299,6 +308,7 @@ func dropTables(dbService *beeorm.DB) {
 		"SELECT CONCAT('DROP TABLE IF EXISTS ',table_schema,'.',table_name,';') AS query " +
 			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "')",
 	)
+
 	defer deferF()
 
 	if rows != nil {
@@ -308,6 +318,7 @@ func dropTables(dbService *beeorm.DB) {
 			rows.Scan(&query)
 			queries += query
 		}
+
 		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
 
 		defer def()
@@ -320,6 +331,7 @@ func truncateTables(dbService *beeorm.DB) {
 		"SELECT CONCAT('delete from  ',table_schema,'.',table_name,';' , 'ALTER TABLE ', table_schema,'.',table_name , ' AUTO_INCREMENT = 1;') AS query " +
 			"FROM information_schema.tables WHERE table_schema IN ('" + dbService.GetPoolConfig().GetDatabase() + "');",
 	)
+
 	defer deferF()
 
 	if rows != nil {

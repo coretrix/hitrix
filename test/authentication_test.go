@@ -22,6 +22,7 @@ import (
 func createUser(input map[string]interface{}) *entity.DevPanelUserEntity {
 	ormService := service.DI().OrmEngine()
 	devPanelUserEntity := &entity.DevPanelUserEntity{}
+
 	for field, val := range input {
 		switch field {
 		case "Email":
@@ -30,6 +31,7 @@ func createUser(input map[string]interface{}) *entity.DevPanelUserEntity {
 			devPanelUserEntity.Password = val.(string)
 		}
 	}
+
 	ormService.Flush(devPanelUserEntity)
 
 	return devPanelUserEntity
@@ -230,6 +232,7 @@ func TestAuthenticate(t *testing.T) {
 func TestVerifyAccessToken(t *testing.T) {
 	fakeSMS := &smsMock.FakeSMSSender{}
 	fakeGenerator := &generatorMock.FakeGenerator{}
+
 	t.Run("simple success", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
@@ -378,6 +381,7 @@ func TestRefreshToken(t *testing.T) {
 func TestLogoutCurrentSession(t *testing.T) {
 	fakeSMS := &smsMock.FakeSMSSender{}
 	fakeGenerator := &generatorMock.FakeGenerator{}
+
 	t.Run("simple logout", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
@@ -420,6 +424,7 @@ func TestLogoutCurrentSession(t *testing.T) {
 func TestLogoutAllSessions(t *testing.T) {
 	fakeSMS := &smsMock.FakeSMSSender{}
 	fakeGenerator := &generatorMock.FakeGenerator{}
+
 	t.Run("logout from one session", func(t *testing.T) {
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
@@ -540,10 +545,14 @@ func TestGenerateTokenPair(t *testing.T) {
 
 	ormService := service.DI().OrmEngine()
 	ormService.GetRedis().Set("test_key", "", 10)
+
 	accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, "test_key", 10)
+
 	assert.Nil(t, err)
+
 	fetchedAdminEntity := &entity.DevPanelUserEntity{}
 	payload, err := authenticationService.VerifyAccessToken(ormService, accessToken, fetchedAdminEntity)
+
 	assert.Nil(t, err)
 	assert.Equal(t, "test_key", payload["jti"])
 	assert.Equal(t, fmt.Sprint(currentUser.ID), payload["sub"])

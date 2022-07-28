@@ -23,6 +23,7 @@ func (controller *UploaderController) PostFileAction(c *gin.Context) {
 	isPartial := c.Request.Header.Get("Upload-Concat") == "partial"
 
 	var rec http.ResponseWriter
+
 	switch isPartial {
 	case true:
 		rec = c.Writer
@@ -31,6 +32,7 @@ func (controller *UploaderController) PostFileAction(c *gin.Context) {
 	}
 
 	uploaderService.PostFile(rec, c.Request)
+
 	if isPartial {
 		return
 	}

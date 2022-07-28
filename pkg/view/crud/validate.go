@@ -24,6 +24,7 @@ func ValidateListRequest(request list.RequestDTOList, pageSizeMin, pageSizeMax i
 	if *request.PageSize < pageSizeMin {
 		return nil, fmt.Errorf("page size must be greater than or equal to %v", pageSizeMin)
 	}
+
 	if *request.PageSize > pageSizeMax {
 		return nil, fmt.Errorf("page size must be greater than or equal to %v", pageSizeMax)
 	}

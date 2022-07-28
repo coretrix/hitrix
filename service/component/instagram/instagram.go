@@ -50,6 +50,7 @@ func NewAPIManager(configService config.IConfig, newProviderFunctions ...NewProv
 		if err != nil {
 			return nil, err
 		}
+
 		providers[provider.GetName()] = provider
 		providersByIndex[i] = provider
 	}

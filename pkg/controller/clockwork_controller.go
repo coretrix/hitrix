@@ -19,7 +19,6 @@ func (controller *ClockworkController) GetIndexAction(c *gin.Context) {
 
 		return
 	}
-	profilerService := service.DI().ClockWorkForContext(c.Request.Context())
 
-	c.JSON(http.StatusOK, profilerService.GetSavedData(id))
+	c.JSON(http.StatusOK, service.DI().ClockWorkForContext(c.Request.Context()).GetSavedData(id))
 }

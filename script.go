@@ -45,6 +45,7 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 			return
 		}
 	}
+
 	interval, isInterval := s.(app.Interval)
 	_, isInfinity := s.(app.Infinity)
 
@@ -93,23 +94,28 @@ func listScrips() {
 		output := []string{
 			"NAME | OPTIONS | DESCRIPTION ",
 		}
+
 		for _, defCode := range scripts {
 			def := service.GetServiceRequired(defCode).(app.IScript)
 			options := make([]string, 0)
+
 			interval, is := def.(app.Interval)
 			if is {
 				options = append(options, "interval")
 				duration := "every " + interval.Interval().String()
+
 				_, is := def.(app.IntervalOptional)
 				if is {
 					duration += " with condition"
 				}
+
 				options = append(options, duration)
 			}
 
 			if def.Unique() {
 				options = append(options, "unique")
 			}
+
 			optional, is := def.(app.Optional)
 			if is {
 				options = append(options, "optional")
@@ -119,12 +125,15 @@ func listScrips() {
 					options = append(options, "inactive")
 				}
 			}
+
 			intermediate, is := def.(app.Intermediate)
 			if is && intermediate.IsIntermediate() {
 				options = append(options, "intermediate")
 			}
+
 			output = append(output, strings.Join([]string{defCode, strings.Join(options, ","), def.Description()}, " | "))
 		}
+
 		_, _ = os.Stdout.WriteString(columnize.SimpleFormat(output) + "\n")
 	}
 }
@@ -132,9 +141,11 @@ func listScrips() {
 func (processor *BackgroundProcessor) runScript(s app.IScript) bool {
 	return func() bool {
 		valid := true
+
 		defer func() {
 			if err := recover(); err != nil {
 				var message string
+
 				asErr, is := err.(error)
 				if is {
 					message = asErr.Error()
@@ -181,6 +192,7 @@ func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 
 	ormConfig := service.DI().OrmConfig()
 	entities := ormConfig.GetEntities()
+
 	if _, ok := entities["entity.RequestLoggerEntity"]; !ok {
 		panic("you should register RequestLoggerEntity")
 	}
@@ -211,12 +223,14 @@ func removeAllOldRequestLoggerRows(ormService *beeorm.Engine) {
 		for _, requestLoggerEntity := range requestLoggerEntities {
 			flusher.Delete(requestLoggerEntity)
 		}
+
 		flusher.Flush()
 		log.Printf("%d rows was removed", len(requestLoggerEntities))
 
 		if len(requestLoggerEntities) < pager.PageSize {
 			break
 		}
+
 		pager.IncrementPage()
 	}
 }

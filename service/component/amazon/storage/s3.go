@@ -69,6 +69,7 @@ func (amazonS3 *AmazonS3) getCounter(ormService *beeorm.Engine, bucket string) u
 	amazonS3BucketCounterEntity := &entity.OSSBucketCounterEntity{}
 
 	locker := ormService.GetRedis().GetLocker()
+
 	lock, hasLock := locker.Obtain("locker_amazon_s3_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
 	defer lock.Release()
 
@@ -83,6 +84,7 @@ func (amazonS3 *AmazonS3) getCounter(ormService *beeorm.Engine, bucket string) u
 	} else {
 		amazonS3BucketCounterEntity.Counter = amazonS3BucketCounterEntity.Counter + 1
 	}
+
 	ormService.Flush(amazonS3BucketCounterEntity)
 
 	ttl := lock.TTL()
@@ -124,6 +126,7 @@ func (amazonS3 *AmazonS3) DeleteObject(bucket string, objects ...*Object) bool {
 		Bucket: aws.String(amazonS3.getBucketName(bucket)),
 		Delete: &s3.Delete{Objects: objectIds},
 	}
+
 	deletedObjects, err := amazonS3.client.DeleteObjects(&input)
 	if err != nil {
 		panic("s3BucketObjectsDelete:" + err.Error())

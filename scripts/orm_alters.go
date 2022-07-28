@@ -41,6 +41,7 @@ func (script *ORMAltersScript) Description() string {
 func (script *ORMAltersScript) Run(_ context.Context, exit app.IExit) {
 	ormEngine := service.DI().OrmEngine()
 	alters := ormEngine.GetAlters()
+
 	for _, alter := range alters {
 		if alter.Safe {
 			color.Green("%s\n\n", alter.SQL)
@@ -48,6 +49,7 @@ func (script *ORMAltersScript) Run(_ context.Context, exit app.IExit) {
 			color.Red("%s\n\n", alter.SQL)
 		}
 	}
+
 	if len(alters) > 0 {
 		exit.Error()
 	}

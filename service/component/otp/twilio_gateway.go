@@ -71,9 +71,11 @@ func (t *Twilio) Call(phone *Phone, _ string, customMessage string) (string, str
 
 	createVerificationParams.SetChannel("call")
 	createVerificationParams.SetTo(phone.Number)
+
 	if customMessage != "" {
 		createVerificationParams.SetCustomMessage(customMessage)
 	}
+
 	createVerificationParams.SetTo(phone.Number)
 
 	request, jsonError := t.toJSON(createVerificationParams)

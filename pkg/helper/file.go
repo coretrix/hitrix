@@ -48,8 +48,9 @@ func ExistsInDir(filename, dir string) bool {
 }
 
 func GetTemplateDirectory() string {
-	templateFolder, has := os.LookupEnv("APP_TEMPLATE_FOLDER")
 	var dir string
+
+	templateFolder, has := os.LookupEnv("APP_TEMPLATE_FOLDER")
 	if has {
 		dir = templateFolder
 	} else {
@@ -66,21 +67,26 @@ func CSVToMap(reader *bytes.Buffer) ([]map[string]string, error) {
 
 	var rows []map[string]string
 	var header []string
+
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
 			break
 		}
+
 		if err != nil {
 			return nil, err
 		}
+
 		if header == nil {
 			header = record
 		} else {
 			dict := map[string]string{}
+
 			for i := range header {
 				dict[header[i]] = record[i]
 			}
+
 			rows = append(rows, dict)
 		}
 	}
@@ -131,11 +137,13 @@ func Copy(src, dst string, bufferSize int64) error {
 	defer destination.Close()
 
 	buf := make([]byte, bufferSize)
+
 	for {
 		n, err := source.Read(buf)
 		if err != nil && err != io.EOF {
 			return err
 		}
+
 		if n == 0 {
 			break
 		}

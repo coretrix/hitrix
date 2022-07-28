@@ -58,7 +58,9 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 
 	ormService := service.DI().OrmEngine().Clone()
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
+
 	service.DI().App().Add(1)
+
 	defer service.DI().App().Done()
 
 	for {
@@ -94,7 +96,9 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 
 	ormService := service.DI().OrmEngine().Clone()
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
+
 	service.DI().App().Add(1)
+
 	defer service.DI().App().Done()
 
 	for {
@@ -130,6 +134,7 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 	maxModulo := consumer.GetMaxModulo()
 
 	baseQueueName := ""
+
 	queueNameParts := strings.Split(consumer.GetQueueName(maxModulo), "_")
 	if len(queueNameParts) > 0 {
 		baseQueueName = queueNameParts[0]
@@ -139,6 +144,7 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
 		currentModulo := moduloID
+
 		hitrix.GoroutineWithRestart(func() {
 			queueName := consumer.GetQueueName(currentModulo)
 			consumerGroupName := consumer.GetGroupName(currentModulo, groupNameSuffix)
@@ -194,6 +200,7 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 	baseQueueName := ""
 	queueNameParts := strings.Split(consumer.GetQueueName(maxModulo), "_")
+
 	if len(queueNameParts) > 0 {
 		baseQueueName = queueNameParts[0]
 	}
@@ -202,6 +209,7 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 	for moduloID := 1; moduloID <= maxModulo; moduloID++ {
 		currentModulo := moduloID
+
 		hitrix.GoroutineWithRestart(func() {
 			queueName := consumer.GetQueueName(currentModulo)
 			consumerGroupName := consumer.GetGroupName(currentModulo, groupNameSuffix)
@@ -270,7 +278,9 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 	log.Printf("RunScalableConsumerMany index (%d) initialized (%s)", currentIndex, queueName)
 
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
+
 	service.DI().App().Add(1)
+
 	defer service.DI().App().Done()
 
 	for {
@@ -313,7 +323,9 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 	log.Printf("RunScalableConsumerOne index (%d) initialized (%s)", currentIndex, queueName)
 
 	eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
+
 	service.DI().App().Add(1)
+
 	defer service.DI().App().Done()
 
 	for {
@@ -365,6 +377,7 @@ func addConsumerGroup(redis *beeorm.RedisCache, consumerGroupName string) int {
 	if indexerValue == nil {
 		indexerValue = &indexer{}
 	}
+
 	if indexerValue.ActiveConsumerIndexes == nil {
 		indexerValue.ActiveConsumerIndexes = map[int]*struct{}{}
 	}

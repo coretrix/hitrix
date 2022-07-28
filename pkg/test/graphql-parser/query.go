@@ -35,6 +35,7 @@ func queryArguments(variables map[string]interface{}) string {
 	for k := range variables {
 		keys = append(keys, k)
 	}
+
 	sort.Strings(keys)
 
 	var buf bytes.Buffer
@@ -111,6 +112,7 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 		if reflect.PtrTo(t).Implements(jsonUnmarshaler) {
 			return
 		}
+
 		if !inline {
 			_, err := io.WriteString(w, "{")
 			if err != nil {
@@ -119,26 +121,32 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 		}
 
 		skipComma := false
+
 		for i := 0; i < t.NumField(); i++ {
 			hasStruct := false
+
 			if depth > writeQueryDeepLimit {
 				if !*shownError {
 					*shownError = true
+
 					log.Println("You reached writeQueryDeepLimit constant")
 				}
 
 				continue
 			}
+
 			if i != 0 && !skipComma {
 				_, err := io.WriteString(w, ",")
 				if err != nil {
 					panic(err)
 				}
 			}
+
 			skipComma = false
 			f := t.Field(i)
 			value, ok := f.Tag.Lookup("graphql")
 			fieldName, hasJSON := f.Tag.Lookup("json")
+
 			inlineField := f.Anonymous && !ok
 			if !inlineField {
 				if ok {
@@ -179,12 +187,14 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, depth uint, shownError
 					}
 				}
 			}
+
 			if hasStruct {
 				writeQuery(w, f.Type, inlineField, depth+1, shownError)
 			} else {
 				writeQuery(w, f.Type, inlineField, depth, shownError)
 			}
 		}
+
 		if !inline {
 			_, err := io.WriteString(w, "}")
 			if err != nil {

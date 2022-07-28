@@ -48,6 +48,7 @@ func Seeder(seedsPerProject map[string][]Seed, ormService *beeorm.Engine, appSer
 
 		for _, seed := range seeds {
 			supportCurrentEnv := false
+
 			for _, env := range seed.Environments() {
 				if env == appService.Mode {
 					supportCurrentEnv = true
@@ -63,6 +64,7 @@ func Seeder(seedsPerProject map[string][]Seed, ormService *beeorm.Engine, appSer
 			seederEntity := &entity.SeederEntity{}
 
 			whereStmt := beeorm.NewWhere("`Name` = ?", seed.Name())
+
 			found := ormService.SearchOne(whereStmt, seederEntity)
 			if found {
 				continue

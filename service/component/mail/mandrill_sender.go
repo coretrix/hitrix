@@ -156,9 +156,11 @@ func (s *Mandrill) sendTemplate(
 			{Email: to},
 		},
 	}
+
 	if fromName != "" {
 		message.FromName = fromName
 	}
+
 	if replyTo != "" {
 		message.Headers = map[string]string{
 			"Reply-To": replyTo,

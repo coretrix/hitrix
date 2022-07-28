@@ -49,11 +49,14 @@ func (r *Registry) Build() (*Hitrix, func()) {
 	if flags.Bool("list-scripts") {
 		listScrips()
 	}
+
 	scriptToRun := flags.String("run-script")
 	h := &Hitrix{done: make(chan bool), exit: make(chan int)}
+
 	if scriptToRun != "" {
 		h.runDynamicScrips(globalContext, scriptToRun)
 	}
+
 	h.startupOnBuild()
 
 	return h, func() {
@@ -67,6 +70,7 @@ func (r *Registry) RegisterDevPanel(devPanelUserEntity app.IDevPanelUserEntity, 
 	if devPanelUserEntity == nil {
 		panic("devPanelUserEntity cannot be nil")
 	}
+
 	if router == nil {
 		panic("router cannot be nil")
 	}
@@ -104,6 +108,7 @@ func (r *Registry) initializeIoCHandlers() {
 	}
 
 	flagsRegistry := &app.FlagsRegistry{Flags: make(map[string]interface{})}
+
 	for _, def := range append(defaultDefinitions, r.servicesDefinitionsGlobal...) {
 		if def == nil {
 			continue
@@ -122,10 +127,12 @@ func (r *Registry) initializeIoCHandlers() {
 		if err != nil {
 			panic(err)
 		}
+
 		if def.Flags != nil && !flag.Parsed() {
 			def.Flags(flagsRegistry)
 		}
 	}
+
 	if !flag.Parsed() {
 		flagsRegistry.Bool("force-alters", false, "Execute all alters")
 		flagsRegistry.Bool("pre-deploy", false, "Check for alters and exit")
@@ -134,14 +141,16 @@ func (r *Registry) initializeIoCHandlers() {
 	}
 
 	err := ioCBuilder.Add()
-
 	if err != nil {
 		panic(err)
 	}
+
 	service.SetContainer(ioCBuilder.Build())
 	service.SetRequestServices(r.servicesDefinitionsRequest)
+
 	if !flag.Parsed() {
 		flag.Parse()
 	}
+
 	r.app.Flags = &app.Flags{Registry: flagsRegistry}
 }

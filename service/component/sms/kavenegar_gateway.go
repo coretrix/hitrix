@@ -54,6 +54,7 @@ func (g *KavenegarGateway) SendSMSMessage(message *Message) (string, error) {
 
 func (g *KavenegarGateway) SendCalloutMessage(message *Message) (string, error) {
 	api := kavenegar.New(g.APIKey)
+
 	tts, err := api.Call.MakeTTS(message.Number, message.Text, &kavenegar.CallParam{})
 	if err != nil {
 		return err.Error(), err

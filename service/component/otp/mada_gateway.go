@@ -231,6 +231,7 @@ func validateSmResponse(commandStatus string) error {
 	if commandStatus == "0" {
 		return nil
 	}
+
 	if errorMsg, ok := errorCodes[commandStatus]; ok {
 		return fmt.Errorf("otp Mada[%s]: %s", commandStatus, errorMsg)
 	}

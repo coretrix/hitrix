@@ -42,6 +42,7 @@ func isText(contentType string) bool {
 
 func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, requestEntity *entity.RequestLoggerEntity)) {
 	ormConfig := service.DI().OrmConfig()
+
 	entities := ormConfig.GetEntities()
 	if _, ok := entities["entity.RequestLoggerEntity"]; !ok {
 		panic("you should register RequestLoggerEntity")

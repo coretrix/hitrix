@@ -65,6 +65,7 @@ func RetryOTP(
 		}
 
 		var err error
+
 		otpTrackerEntity.GatewaySendRequest, otpTrackerEntity.GatewaySendResponse, err = gateway.SendOTP(retryDTO.Phone, retryDTO.Code)
 		if err == nil {
 			otpTrackerEntity.GatewaySendStatus = entity.OTPTrackerGatewaySendStatusSent

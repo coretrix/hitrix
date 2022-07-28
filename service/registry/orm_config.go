@@ -71,6 +71,7 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 
 func overwriteORMConfig(appService *app.App, configService config.IConfig, yamlConfig map[string]interface{}) {
 	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
+
 	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
 	if err != nil {
 		panic(err)
@@ -91,10 +92,12 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, yamlC
 	connectionString, has := configService.String("orm.log_db_pool.mysql")
 	if has {
 		mysqlLogConnection := strings.Split(connectionString, "/")
+
 		dbLog, err := sql.Open("mysql", mysqlLogConnection[0]+"/?multiStatements=true")
 		if err != nil {
 			panic(err)
 		}
+
 		defer dbLog.Close()
 
 		newDBLogName := newDBName + "_log"

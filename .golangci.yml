@@ -10,7 +10,7 @@ linters:
     - unparam
     - whitespace
     - revive
-#    - wsl
+    - wsl
     - funlen
     - lll
     - misspell
@@ -19,7 +19,7 @@ linters:
 
 linters-settings:
   funlen:
-    lines: 254 #TODO Krasi: switch to 100
+    lines: 260 #TODO Krasi: switch to 100
     statements: 88 #TODO Krasi: switch to 50
   wsl:
     allow-cuddle-declarations: true

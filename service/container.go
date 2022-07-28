@@ -37,6 +37,7 @@ func SetContainer(c di.Container) {
 	if container != nil {
 		_ = container.Delete()
 	}
+
 	container = c
 }
 
@@ -67,6 +68,7 @@ func getServiceSafe(ctn di.Container, key string) (service interface{}, has bool
 	if err == nil {
 		return service, true, nil
 	}
+
 	_, has = ctn.Definitions()[key]
 	if !has {
 		return nil, false, nil
@@ -101,6 +103,7 @@ func GetServiceFromRequest(ctx context.Context, key string) interface{} {
 
 	if !has {
 		var err error
+
 		for _, s := range servicesDefinitionsRequestList {
 			if s.Name == key {
 				requestService, err = s.Build(c)
@@ -109,6 +112,7 @@ func GetServiceFromRequest(ctx context.Context, key string) interface{} {
 				}
 			}
 		}
+
 		c.Set(key, requestService)
 	}
 

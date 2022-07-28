@@ -33,6 +33,7 @@ func (g *SimpleGenerator) GenerateSha256Hash(input string) string {
 
 func (g *SimpleGenerator) GenerateRandomCode(generator *vcgen.Generator) string {
 	vc := vcgen.New(generator)
+
 	result, err := vc.Run()
 	if err != nil {
 		panic(err)
@@ -58,6 +59,7 @@ func (g *SimpleGenerator) RandomPasswordGenerator(passwordLength int) string {
 		if err != nil {
 			panic(err)
 		}
+
 		password.WriteRune(rune(allCharSet[num.Int64()]))
 	}
 
@@ -74,6 +76,7 @@ func (g *SimpleGenerator) RandomPINCodeGenerator(codeLength int) string {
 		if err != nil {
 			panic(err)
 		}
+
 		code.WriteRune(rune(charSet[num.Int64()]))
 	}
 

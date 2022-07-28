@@ -251,6 +251,7 @@ func (s *Mailjet) GetTemplateHTMLCode(ormService *beeorm.Engine, templateName st
 	redisCache := ormService.GetRedis()
 
 	var templates []resources.TemplateDetailcontent
+
 	err := s.client.Get(&mailjet.Request{
 		Resource: "template",
 		AltID:    templateName,

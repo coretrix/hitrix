@@ -36,6 +36,7 @@ func (p *Facebook) GetUserData(token string) (*UserData, error) {
 	}
 
 	facebookUser := &facebookUserData{}
+
 	err = json.Unmarshal(body, facebookUser)
 	if err != nil {
 		panic(err.Error())

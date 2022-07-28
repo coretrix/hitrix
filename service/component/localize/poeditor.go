@@ -44,6 +44,7 @@ func (l *PoeditorSource) Pull() (pairs map[string]string, err error) {
 
 		return
 	}
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -79,12 +80,14 @@ func (l *PoeditorSource) Push(terms []string) (err error) {
 			"term": k,
 		})
 	}
+
 	b, err := json.Marshal(termsModel)
 	if err != nil {
 		log.Fatal(err)
 
 		return
 	}
+
 	params := url.Values{}
 	params.Add("api_token", l.apiKey)
 	params.Add("id", l.projectID)
@@ -98,6 +101,7 @@ func (l *PoeditorSource) Push(terms []string) (err error) {
 
 		return
 	}
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	resp, err := http.DefaultClient.Do(req)

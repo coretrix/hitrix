@@ -63,9 +63,11 @@ type Crud struct {
 func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchParams {
 	finalPage := 1
 	finalPageSize := 10
+
 	if request.Page != nil && *request.Page > 0 {
 		finalPage = *request.Page
 	}
+
 	if request.PageSize != nil && *request.PageSize > 0 {
 		finalPageSize = *request.PageSize
 	}
@@ -84,20 +86,24 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 	var rangeDateTimeFilters = make([]string, 0)
 	var rangeDateFilters = make([]string, 0)
 	var sortables = make([]string, 0)
+
 	for _, column := range cols {
 		if column.Sortable {
 			sortables = append(sortables, column.Key)
 		}
+
 		if column.Searchable && column.Type == FormatStringType {
 			formatStringSearch = append(formatStringSearch, column.Key)
 
 			continue
 		}
+
 		if column.Searchable {
 			searchable = append(searchable, column.Key)
 
 			continue
 		}
+
 		if column.Filterable {
 			switch column.Type {
 			case StringType:
@@ -369,6 +375,7 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 		if strings.TrimSpace(value) == "" {
 			continue
 		}
+
 		query.QueryRaw(fmt.Sprintf(
 			"@%s:%v* ",
 			field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
@@ -376,15 +383,18 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 	}
 
 	orStatements := make([]string, 0)
+
 	for field, value := range params.SearchOR {
 		if strings.TrimSpace(value) == "" {
 			continue
 		}
+
 		orStatements = append(orStatements, fmt.Sprintf(
 			"(@%s:%v*)",
 			field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
 		))
 	}
+
 	if len(orStatements) > 0 {
 		query.AppendQueryRaw("(" + strings.Join(orStatements, "|") + ")")
 	}
@@ -425,8 +435,10 @@ func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
 			"%s LIKE ?",
 			field,
 		))
+
 		orStatementsVariables = append(orStatementsVariables, value+"%")
 	}
+
 	if len(orStatements) > 0 {
 		where.Append(
 			"AND ("+strings.Join(orStatements, " OR ")+")",
@@ -436,6 +448,7 @@ func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
 
 	if len(params.Sort) == 1 {
 		sortQuery := "ORDER BY "
+
 		for field, mode := range params.Sort {
 			sort := "ASC"
 			if !mode {

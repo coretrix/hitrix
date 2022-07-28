@@ -141,6 +141,7 @@ func (s *Stripe) CreatePaymentIntentMultiparty(
 	} else {
 		paymentIntentParams.Params.Metadata[Env] = s.appService.Mode
 	}
+
 	paymentIntentParams.SetStripeAccount(linkedAccountID)
 
 	return paymentintent.New(paymentIntentParams)
@@ -152,6 +153,7 @@ func (s *Stripe) CreateRefundMultiparty(refundParams *stripe.RefundParams, linke
 	} else {
 		refundParams.Params.Metadata[Env] = s.appService.Mode
 	}
+
 	refundParams.SetStripeAccount(linkedAccountID)
 
 	return refund.New(refundParams)
@@ -188,9 +190,8 @@ func (s *Stripe) ConstructWebhookEvent(reqBody []byte, signature string, webhook
 	if !ok {
 		panic("stripe webhook secret [" + webhookKey + "] not found")
 	}
-	event, err := webhook.ConstructEvent(reqBody, signature, secret)
 
-	return event, err
+	return webhook.ConstructEvent(reqBody, signature, secret)
 }
 
 type IStripe interface {

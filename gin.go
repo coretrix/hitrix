@@ -85,12 +85,14 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 		}
 
 		ginEngine.POST("/query", queryHandler)
+
 		if app.IsInProdMode() {
 			ginEngine.GET("/", middleware.AuthorizeWithQueryParam(), playgroundHandler())
 		} else {
 			ginEngine.GET("/", playgroundHandler())
 		}
 	}
+
 	binding.Validator = helper.NewValidator()
 
 	return ginEngine
@@ -128,6 +130,7 @@ func graphqlHandler(server graphql.ExecutableSchema, gqlServerInitHandler GQLSer
 
 		return errors.New("internal server error")
 	})
+
 	if gqlServerInitHandler != nil {
 		gqlServerInitHandler(h)
 	}

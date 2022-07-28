@@ -34,13 +34,15 @@ func NewCheckout(secretKey string, publicKey *string, environment string, webhoo
 
 func (c *Checkout) RequestPayment(request *payments.Request) *payments.Response {
 	config, err := checkout.Create(c.secretKey, c.publicKey)
+	if err != nil {
+		panic("failed creating checkout client: " + err.Error())
+	}
+
 	idempotencyKey := checkout.NewIdempotencyKey()
 	params := checkout.Params{
 		IdempotencyKey: &idempotencyKey,
 	}
-	if err != nil {
-		panic("failed creating checkout client: " + err.Error())
-	}
+
 	var client = payments.NewClient(*config)
 	response, err := client.Request(request, &params)
 
@@ -94,9 +96,12 @@ func (c *Checkout) DeleteCustomerInstrument(instrumentID string) bool {
 	if err != nil {
 		panic("failed creating checkout client: " + err.Error())
 	}
+
 	client := &http.Client{}
 	req, _ := http.NewRequest("DELETE", *config.URI+"/instruments/"+instrumentID, nil)
+
 	req.Header.Set("Authorization", c.secretKey)
+
 	resp, _ := client.Do(req)
 
 	if resp.StatusCode == 404 {
@@ -115,16 +120,19 @@ func (c *Checkout) GetCustomer(idOrEmail string) (bool, *CustomerResponse) {
 	if err != nil {
 		panic("failed creating checkout client: " + err.Error())
 	}
+
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", *config.URI+"/customers/"+idOrEmail, nil)
+
 	req.Header.Set("Authorization", c.secretKey)
 	req.Header.Set("Content-Type", "application/json")
-	resp, _ := client.Do(req)
 
+	resp, _ := client.Do(req)
 	if resp.StatusCode == 404 {
 		return false, nil
 	} else if resp.StatusCode == 200 {
 		res := &CustomerResponse{}
+
 		err := json.NewDecoder(resp.Body).Decode(res)
 		if err != nil {
 			panic(err)
@@ -132,6 +140,7 @@ func (c *Checkout) GetCustomer(idOrEmail string) (bool, *CustomerResponse) {
 
 		return true, res
 	}
+
 	data, _ := ioutil.ReadAll(resp.Body)
 	panic(fmt.Sprintf("wrong status checkout get customer code: %d, body %s", resp.StatusCode, string(data)))
 }
@@ -141,22 +150,26 @@ func (c *Checkout) SaveGetClient(customerData *SaveCustomerRequest) (created boo
 	if exists {
 		return false, customerRes
 	}
+
 	config, err := checkout.Create(c.secretKey, c.publicKey)
 	if err != nil {
 		panic("failed creating checkout client: " + err.Error())
 	}
+
 	client := &http.Client{}
 	jsonReq, _ := json.Marshal(customerData)
 	req, _ := http.NewRequest("POST", *config.URI+"/customers/", bytes.NewBuffer(jsonReq))
+
 	req.Header.Set("Authorization", c.secretKey)
 	req.Header.Set("Content-Type", "application/json")
-	resp, _ := client.Do(req)
 
+	resp, _ := client.Do(req)
 	if resp.StatusCode == 201 {
 		_, customerRes := c.GetCustomer(customerData.Email)
 
 		return true, customerRes
 	}
+
 	data, _ := ioutil.ReadAll(resp.Body)
 	panic(fmt.Sprintf("wrong status checkout create customer code: %d, body %s", resp.StatusCode, string(data)))
 }
@@ -166,7 +179,9 @@ func (c *Checkout) CreateToken(request *tokens.Request) (string, error) {
 	if err != nil {
 		panic("failed creating checkout client: " + err.Error())
 	}
+
 	token := tokens.NewClient(*config)
+
 	resp, err := token.Request(request)
 	if err != nil {
 		return "", err
@@ -180,7 +195,9 @@ func (c *Checkout) CreateInstrument(request *instruments.Request) (*instruments.
 	if err != nil {
 		panic("failed creating checkout client: " + err.Error())
 	}
+
 	client := instruments.NewClient(*config)
+
 	res, err := client.Create(request)
 	if err != nil {
 		return nil, err
@@ -194,7 +211,9 @@ func (c *Checkout) GetInstrument(sourceID string) (*instruments.Response, error)
 	if err != nil {
 		panic("failed creating checkout client: " + err.Error())
 	}
+
 	client := instruments.NewClient(*config)
+
 	res, err := client.Get(sourceID)
 	if err != nil {
 		return nil, err

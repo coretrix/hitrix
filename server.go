@@ -51,6 +51,7 @@ func (h *Hitrix) RunServer(
 
 	appService := service.DI().App()
 	defer appService.CancelContext()
+
 	if err := srv.Shutdown(appService.GlobalContext); err != nil {
 		log.Println("Server forced to shutdown")
 	}
@@ -68,18 +69,21 @@ func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
 	if len(scripts) == 0 {
 		panic(fmt.Sprintf("unknown script %s", code))
 	}
+
 	for _, defCode := range scripts {
 		if defCode == code {
 			def, has := service.GetServiceOptional(defCode)
 			if !has {
 				panic(fmt.Sprintf("unknown script %s", code))
 			}
+
 			defScript := def.(app.IScript)
 			defScript.Run(ctx, &exit{s: h})
 
 			return
 		}
 	}
+
 	panic(fmt.Sprintf("unknown script %s", code))
 }
 
@@ -111,12 +115,14 @@ func (h *Hitrix) preDeploy() {
 	alters := ormService.GetAlters()
 
 	hasAlters := false
+
 	for _, alter := range alters {
 		if alter.Safe {
 			color.Green("%s\n\n", alter.SQL)
 		} else {
 			color.Red("%s\n\n", alter.SQL)
 		}
+
 		hasAlters = true
 	}
 

@@ -145,6 +145,7 @@ func (t *Authentication) GenerateAndSendOTPEmail(ormService *beeorm.Engine, emai
 	if t.mailService == nil {
 		panic("mail service is not registered")
 	}
+
 	mailService := *t.mailService
 
 	err = mailService.SendTemplateAsync(ormService, &mail.Message{
@@ -179,6 +180,7 @@ func (t *Authentication) VerifyOTPEmail(code string, input *GenerateOTPEmail) er
 	if err != nil {
 		panic("wrong time format")
 	}
+
 	expirationTime := time.Unix(timeInt, 0)
 
 	if expirationTime.Before(t.clockService.Now()) {
@@ -204,6 +206,7 @@ func (t *Authentication) AuthenticateOTP(
 ) (accessToken string, refreshToken string, err error) {
 	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetPhoneFieldName(), phone)
+
 	found := ormService.RedisSearchOne(entity, q)
 	if !found {
 		return "", "", errors.New("invalid credentials")
@@ -223,6 +226,7 @@ func (t *Authentication) AuthenticateOTPEmail(
 ) (accessToken string, refreshToken string, err error) {
 	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetEmailFieldName(), email)
+
 	found := ormService.RedisSearchOne(entity, q)
 	if !found {
 		return "", "", errors.New("invalid credentials")
@@ -243,6 +247,7 @@ func (t *Authentication) Authenticate(
 ) (accessToken string, refreshToken string, err error) {
 	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetUniqueFieldName(), uniqueValue)
+
 	found := ormService.RedisSearchOne(entity, q)
 	if !found {
 		return "", "", errors.New("invalid user/pass")
@@ -267,6 +272,7 @@ func (t *Authentication) AuthenticateEmail(
 ) (accessToken string, refreshToken string, err error) {
 	q := &beeorm.RedisSearchQuery{}
 	q.FilterString(entity.GetEmailFieldName(), email)
+
 	found := ormService.RedisSearchOne(entity, q)
 	if !found {
 		return "", "", errors.New("invalid credentials")
@@ -289,9 +295,11 @@ func (t *Authentication) AuthenticateByID(
 	entity AuthProviderEntity,
 ) (accessToken string, refreshToken string, err error) {
 	exists := ormService.LoadByID(id, entity)
+
 	if !exists {
 		return "", "", errors.New("id_does_not_exists")
 	}
+
 	if !entity.CanAuthenticate() {
 		return "", "", errors.New("cannot authenticate this entity")
 	}
@@ -356,6 +364,7 @@ func (t *Authentication) RefreshToken(ormService *beeorm.Engine, refreshToken st
 
 	//check the access key
 	oldAccessKey := payload["jti"]
+
 	_, has := ormService.GetRedis(t.appService.RedisPools.Persistent).Get(oldAccessKey)
 	if !has {
 		return "", "", errors.New("refresh token not valid")
@@ -386,9 +395,11 @@ func (t *Authentication) LogoutCurrentSession(ormService *beeorm.Engine, accessK
 	cacheService.Del(accessKey)
 
 	tokenListKey := generateUserTokenListKey(getUserIDFromAccessKey(accessKey))
+
 	tokenList, has := cacheService.Get(tokenListKey)
 	if has {
 		var newTokenList = make([]string, 0)
+
 		tokenArr := strings.Split(tokenList, accessListSeparator)
 		if len(tokenArr) != 0 {
 			for i := range tokenArr {
@@ -396,6 +407,7 @@ func (t *Authentication) LogoutCurrentSession(ormService *beeorm.Engine, accessK
 					newTokenList = append(newTokenList, tokenArr[i])
 				}
 			}
+
 			if len(newTokenList) != 0 {
 				cacheService.Set(tokenListKey, strings.Join(newTokenList, accessListSeparator), redis.KeepTTL)
 			}
@@ -414,6 +426,7 @@ func (t *Authentication) LogoutAllSessions(ormService *beeorm.Engine, id uint64)
 			cacheService.Del(tokenArr...)
 		}
 	}
+
 	cacheService.Del(tokenListKey)
 }
 
@@ -445,6 +458,7 @@ func (t *Authentication) generateAndStoreAccessKey(ormService *beeorm.Engine, id
 func (t *Authentication) addUserAccessKeyList(ormService *beeorm.Engine, id uint64, accessKey, oldAccessKey string, ttl int) {
 	key := generateUserTokenListKey(id)
 	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
+
 	res, has := cacheService.Get(key)
 	if !has {
 		cacheService.Set(key, accessKey, ttl)
@@ -475,6 +489,7 @@ func (t *Authentication) addUserAccessKeyList(ormService *beeorm.Engine, id uint
 			}
 		}
 	}
+
 	if len(finalTokenArr) == 0 {
 		cacheService.Del(key)
 	} else {

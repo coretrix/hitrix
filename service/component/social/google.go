@@ -41,6 +41,7 @@ func (p *Google) GetUserData(token string) (*UserData, error) {
 	}
 
 	googleUser := &googleUserData{}
+
 	err = json.Unmarshal(body, googleUser)
 	if err != nil {
 		panic(err.Error())

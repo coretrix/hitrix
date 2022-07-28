@@ -37,8 +37,11 @@ func (l *SimpleLocalizer) T(bucket string, key string) string {
 	if bucket == "" {
 		panic("localization bucket not provided")
 	}
+
 	l.lock.RLock()
+
 	defer l.lock.RUnlock()
+
 	if val, ok := l.pairs[l.genKey(bucket, key)]; ok {
 		return val
 	}
@@ -52,14 +55,18 @@ func (l *SimpleLocalizer) LoadBucketFromMap(bucket string, pairs map[string]stri
 	if bucket == "" {
 		return
 	}
+
 	l.lock.Lock()
 	defer l.lock.Unlock()
+
 	if l.pairs == nil {
 		l.pairs = map[string]string{}
 	}
+
 	if !append {
 		l.removeBucket(bucket)
 	}
+
 	for k, v := range pairs {
 		l.pairs[l.genKey(bucket, k)] = v
 	}
@@ -71,10 +78,12 @@ func (l *SimpleLocalizer) LoadBucketFromFile(bucket string, path string, append 
 		panic("no such file or directory: " + path)
 	}
 	var tempParis map[string]string
+
 	err = json.Unmarshal(jsonBytes, &tempParis)
 	if err != nil {
 		log.Println("translation file not well formated json", err)
 	}
+
 	l.LoadBucketFromMap(bucket, tempParis, append)
 }
 
@@ -83,6 +92,7 @@ func (l *SimpleLocalizer) SaveBucketToFile(bucket string, path string) {
 	if err != nil {
 		panic(err)
 	}
+
 	tempPairs := l.getBucketPairsWithoutPrefix(bucket)
 	jsonBytes, _ := json.MarshalIndent(tempPairs, "", " ")
 
@@ -99,6 +109,7 @@ func (l *SimpleLocalizer) PushBucketToSource(bucket string) (err error) {
 	}
 
 	terms := l.getBucketTermsWithoutPrefix(bucket)
+
 	err = l.source.Push(terms)
 	if err != nil {
 		log.Fatal(err)
@@ -120,6 +131,7 @@ func (l *SimpleLocalizer) PullBucketFromSource(bucket string, append bool) (err 
 
 		return
 	}
+
 	l.LoadBucketFromMap(bucket, terms, append)
 
 	return
@@ -144,10 +156,12 @@ func (l *SimpleLocalizer) getBucketTermsWithoutPrefix(bucket string) (terms []st
 
 func (l *SimpleLocalizer) getBucketPairsWithoutPrefix(bucket string) map[string]string {
 	tempPairs := map[string]string{}
+
 	for k, v := range l.pairs {
 		if !strings.HasPrefix(k, bucket) {
 			continue
 		}
+
 		tempPairs[l.removeKeyPrefix(bucket, k)] = v
 	}
 
@@ -156,12 +170,14 @@ func (l *SimpleLocalizer) getBucketPairsWithoutPrefix(bucket string) map[string]
 
 func (l *SimpleLocalizer) touchFile(path string) error {
 	directoryPath := filepath.Dir(path)
+
 	if _, err := os.Stat(directoryPath); os.IsNotExist(err) {
 		err := os.MkdirAll(directoryPath, 0755)
 		if err != nil {
 			return err
 		}
 	}
+
 	file, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return err
@@ -190,6 +206,7 @@ func NewSimpleLocalizer(errorLogger errorlogger.ErrorLogger, source Source, loca
 	}
 
 	shouldAppend := false
+
 	for _, file := range files {
 		if !strings.HasSuffix(file.Name(), ".json") {
 			continue

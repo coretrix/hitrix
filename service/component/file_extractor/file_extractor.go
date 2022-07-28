@@ -46,8 +46,10 @@ func (l *FileExtractor) ExtractFromFile(pathToread string, expression string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	reg := *regexp.MustCompile(expression)
 	res := reg.FindAllStringSubmatch(fileContent, -1)
+
 	foundsMap := map[string]string{}
 	for i := range res {
 		foundsMap[res[i][1]] = ""
