@@ -2,7 +2,6 @@ package errorlogger
 
 import (
 	"bytes"
-
 	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive
 	"crypto/md5"
 	"encoding/hex"

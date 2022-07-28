@@ -32,6 +32,7 @@ func (h *Hitrix) RunServer(
 	if port == "" {
 		port = fmt.Sprintf("%d", defaultPort)
 	}
+	//nolint //G112: Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: InitGin(server, ginInitHandler, gqlServerInitHandler),
