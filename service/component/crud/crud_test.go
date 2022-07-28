@@ -21,7 +21,6 @@ func columns() []Column {
 			Filterable:     true,
 			FilterValidMap: nil,
 		},
-
 		{
 			Key:            "ArrayNumberType",
 			Type:           ArrayNumberType,

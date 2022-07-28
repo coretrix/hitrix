@@ -46,7 +46,7 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 			}
 
 			if appService.IsInTestMode() {
-				overwriteORMConfig(appService, configService, registry, yamlConfig)
+				overwriteORMConfig(appService, configService, yamlConfig)
 			}
 
 			registry.InitByYaml(yamlConfig)
@@ -69,24 +69,7 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 	}
 }
 
-//func removeDBs(appService *app.App, configService config.IConfig) {
-//	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
-//	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
-//	if err != nil {
-//		panic(err)
-//	}
-//	defer db.Close()
-//
-//	newDBName := "t_" + appService.ParallelTestID
-//
-//	_, err = db.Exec("DROP DATABASE `" + newDBName + "`")
-//
-//	if err != nil {
-//		panic(err)
-//	}
-//}
-
-func overwriteORMConfig(appService *app.App, configService config.IConfig, registry *beeorm.Registry, yamlConfig map[string]interface{}) {
+func overwriteORMConfig(appService *app.App, configService config.IConfig, yamlConfig map[string]interface{}) {
 	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
 	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
 	if err != nil {

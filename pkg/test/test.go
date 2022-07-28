@@ -248,10 +248,7 @@ func CreateAPIContext(
 
 func executeAlters(ormService *beeorm.Engine) {
 	if dbAlters == "" {
-		err := dropTables(ormService.GetMysql())
-		if err != nil {
-			panic(err)
-		}
+		dropTables(ormService.GetMysql())
 
 		for _, alter := range ormService.GetAlters() {
 			dbAlters += alter.SQL
@@ -260,10 +257,7 @@ func executeAlters(ormService *beeorm.Engine) {
 		_, def := ormService.GetMysql().Query(dbAlters)
 		defer def()
 	} else {
-		err := truncateTables(ormService.GetMysql())
-		if err != nil {
-			panic(err)
-		}
+		truncateTables(ormService.GetMysql())
 	}
 
 	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
@@ -299,7 +293,7 @@ func getParallelID() string {
 	}
 }
 
-func dropTables(dbService *beeorm.DB) error {
+func dropTables(dbService *beeorm.DB) {
 	var query string
 	rows, deferF := dbService.Query(
 		"SELECT CONCAT('DROP TABLE IF EXISTS ',table_schema,'.',table_name,';') AS query " +
@@ -318,11 +312,9 @@ func dropTables(dbService *beeorm.DB) error {
 
 		defer def()
 	}
-
-	return nil
 }
 
-func truncateTables(dbService *beeorm.DB) error {
+func truncateTables(dbService *beeorm.DB) {
 	var query string
 	rows, deferF := dbService.Query(
 		"SELECT CONCAT('delete from  ',table_schema,'.',table_name,';' , 'ALTER TABLE ', table_schema,'.',table_name , ' AUTO_INCREMENT = 1;') AS query " +
@@ -341,6 +333,4 @@ func truncateTables(dbService *beeorm.DB) error {
 		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")
 		defer def()
 	}
-
-	return nil
 }

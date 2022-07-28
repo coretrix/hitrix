@@ -3,11 +3,11 @@ linters:
     - forbidigo
     - goimports
     - gci
-#    - gocyclo
+    - gocyclo
     - gosec
     - nolintlint
     - stylecheck
-#    - unparam
+    - unparam
     - whitespace
 #    - revive
 #    - wsl
@@ -19,12 +19,12 @@ linters:
 
 linters-settings:
   funlen:
-    lines: 10000 #TODO Krasi: switch to 100
-    statements: 500 #TODO Krasi: switch to 50
+    lines: 254 #TODO Krasi: switch to 100
+    statements: 88 #TODO Krasi: switch to 50
   wsl:
     allow-cuddle-declarations: true
   gocyclo:
-    min-complexity: 26 #TODO Krasi: switch to 15
+    min-complexity: 67 #TODO Krasi: switch to 15
   goimports:
     local-prefixes: github.com/coretrix/hitrix
   gci:

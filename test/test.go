@@ -14,9 +14,12 @@ import (
 
 func createContextMyApp(
 	t *testing.T,
+	//nolint //`projectName` always receives `"my-app"`
 	projectName string,
+	//nolint //`resolvers` always receives `nil`
 	resolvers graphql.ExecutableSchema,
 	mockGlobalServices []*service.DefinitionGlobal,
+	//nolint //`mockRequestServices` always receives `nil`
 	mockRequestServices []*service.DefinitionRequest,
 ) *test.Environment {
 	defaultGlobalServices := []*service.DefinitionGlobal{
