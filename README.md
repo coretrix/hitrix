@@ -1,4 +1,4 @@
-[![checks & tests](https://github.com/go-gorm/gorm/workflows/tests/badge.svg?branch=master "test status")](https://github.com/coretrix/hitrix/actions)
+[![checks & tests](https://github.com/coretrix/hitrix/actions/workflows/main.yml/badge.svg)](https://github.com/coretrix/hitrix/actions)
 [![codecov](https://codecov.io/gh/coretrix/hitrix/branch/main/graph/badge.svg)](https://codecov.io/gh/coretrix/hitrix)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coretrix/hitrix)](https://goreportcard.com/report/github.com/coretrix/hitrix)
 [![GPL3 license](https://img.shields.io/badge/license-GPL3-brightgreen.svg)](https://opensource.org/licenses/GPL-3.0)
