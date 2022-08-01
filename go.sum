@@ -149,8 +149,8 @@ github.com/cockroachdb/apd/v3 v3.1.0/go.mod h1:6qgPBMXjATAdD/VefbRP9NoSLKjbB4LCo
 github.com/codegangsta/cli v1.20.0/go.mod h1:/qJNoX69yVSKu5o4jLyXAENLRyk1uhi7zkbQ3slBdOA=
 github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
 github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
-github.com/coretrix/clockwork v1.1.0 h1:mDTe8jCiAUq/ozoIjq9y5bAVrIC4X38imQeXQUhgGgc=
-github.com/coretrix/clockwork v1.1.0/go.mod h1:HpUDo6SdLzvophOiyfO+BUJyg114CD1WUHpw06PbnQM=
+github.com/coretrix/clockwork v1.1.1 h1:/w1KcZ17pST2vYhFg1ZgD0ZuDgnIVqQpxXHZvmD88CA=
+github.com/coretrix/clockwork v1.1.1/go.mod h1:HpUDo6SdLzvophOiyfO+BUJyg114CD1WUHpw06PbnQM=
 github.com/corpix/uarand v0.1.1 h1:RMr1TWc9F4n5jiPDzFHtmaUXLKLNUFK0SgCLo4BhX/U=
 github.com/corpix/uarand v0.1.1/go.mod h1:SFKZvkcRoLqVRFZ4u25xPmp6m9ktANfbpXZ7SJ0/FNU=
 github.com/cpuguy83/go-md2man/v2 v2.0.1/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
