@@ -119,6 +119,7 @@ func RequestsLogger(ctx context.Context, userListRequest listDto.RequestDTOList)
 
 	for i, requestLoggerEntity := range requestLoggerEntities {
 		requestLoggerEntityList[i] = &requestlogger.ResponseDTORequestLogger{
+			ID:        requestLoggerEntity.ID,
 			UserID:    requestLoggerEntity.UserID,
 			URL:       requestLoggerEntity.URL,
 			AppName:   requestLoggerEntity.AppName,

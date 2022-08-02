@@ -13,6 +13,7 @@ type ResponseDTORequestLoggerListDevPanel struct {
 }
 
 type ResponseDTORequestLogger struct {
+	ID        uint64
 	UserID    uint64
 	URL       string
 	AppName   string
