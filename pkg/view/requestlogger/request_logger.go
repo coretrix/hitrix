@@ -22,6 +22,16 @@ const (
 func columns() []crud.Column {
 	return []crud.Column{
 		{
+			Key:            "ID",
+			Type:           crud.NumberType,
+			Label:          "ID",
+			Searchable:     false,
+			Sortable:       false,
+			Visible:        true,
+			Filterable:     false,
+			FilterValidMap: nil,
+		},
+		{
 			Key:            "UserID",
 			Type:           crud.NumberType,
 			Label:          "UserID",
