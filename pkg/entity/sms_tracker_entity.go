@@ -26,7 +26,7 @@ type SmsTrackerEntity struct {
 	ID                    uint64
 	Status                string
 	To                    string `orm:"length=15"`
-	Text                  string
+	Text                  string `orm:"length=max"`
 	FromPrimaryGateway    string
 	FromSecondaryGateway  string
 	PrimaryGatewayError   string    `orm:"length=max"`
