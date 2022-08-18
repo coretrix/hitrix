@@ -57,7 +57,6 @@ func TestGenerateOTPEmail(t *testing.T) {
 		fakeGenerator := &generatorMock.FakeGenerator{}
 		fakeGenerator.On("GenerateRandomRangeNumber", min, max).Return(loginCode)
 		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), to, strconv.Itoa(loginCode))).Return("defjiwqwd")
-		ormService := service.DI().OrmEngine()
 
 		createContextMyApp(t, "my-app", nil,
 			[]*service.DefinitionGlobal{
@@ -75,7 +74,10 @@ func TestGenerateOTPEmail(t *testing.T) {
 		)
 
 		fakeMail.On("SendTemplateAsync", to).Return(nil)
+
 		authenticationService := service.DI().Authentication()
+		ormService := service.DI().OrmEngine()
+
 		otpResp, err := authenticationService.GenerateAndSendOTPEmail(ormService, to, template, from, title)
 		assert.Nil(t, err)
 		assert.Equal(t, otpResp.Token, "defjiwqwd")
