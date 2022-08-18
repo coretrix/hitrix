@@ -21,6 +21,7 @@ import (
 	slackgo "github.com/slack-go/slack"
 
 	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/coretrix/hitrix/service/component/sentry"
 	"github.com/coretrix/hitrix/service/component/slack"
 )
 
@@ -49,13 +50,14 @@ type ErrorMessage struct {
 }
 
 type RedisErrorLogger struct {
-	redisStorage *beeorm.RedisCache
-	slackService slack.Slack
-	appService   *app.App
+	redisStorage  *beeorm.RedisCache
+	sentryService sentry.ISentry
+	slackService  slack.Slack
+	appService    *app.App
 }
 
-func NewRedisErrorLogger(appService *app.App, ormService *beeorm.Engine, slackService slack.Slack) ErrorLogger {
-	return &RedisErrorLogger{redisStorage: ormService.GetRedis(), slackService: slackService, appService: appService}
+func NewRedisErrorLogger(appService *app.App, ormService *beeorm.Engine, slackService slack.Slack, sentryService sentry.ISentry) ErrorLogger {
+	return &RedisErrorLogger{redisStorage: ormService.GetRedis(), slackService: slackService, appService: appService, sentryService: sentryService}
 }
 
 func (e *RedisErrorLogger) LogError(errData interface{}) {
@@ -127,6 +129,10 @@ func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
 				},
 			),
 		)
+	}
+
+	if (e.sentryService != nil && !e.appService.IsInLocalMode() && !e.appService.IsInTestMode()) && logg == float64(int64(logg)) {
+		e.sentryService.CaptureMessage(value.Message)
 	}
 }
 
