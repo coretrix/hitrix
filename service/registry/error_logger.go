@@ -19,12 +19,12 @@ func ServiceProviderErrorLogger() *service.DefinitionGlobal {
 			var slackAPIService slack.Slack = nil
 
 			sentryServiceInterface, err := ctn.SafeGet(service.SentryService)
-			if err != nil {
+			if err == nil {
 				sentryService = sentryServiceInterface.(sentry.ISentry)
 			}
 
 			slackAPIServiceInterface, err := ctn.SafeGet(service.SlackService)
-			if err != nil {
+			if err == nil {
 				slackAPIService = slackAPIServiceInterface.(slack.Slack)
 			}
 
