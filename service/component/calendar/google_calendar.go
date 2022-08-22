@@ -13,11 +13,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
-
-	"github.com/coretrix/hitrix/service/component/config"
 )
 
 func NewGoogleCalendar(configService config.IConfig) (ICalendar, error) {
