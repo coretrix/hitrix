@@ -2,7 +2,7 @@ package hitrix
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,7 +15,7 @@ func recovery() gin.HandlerFunc {
 		defer func() {
 			if r := recover(); r != nil {
 				c.Status(http.StatusInternalServerError)
-				c.Request.Body = ioutil.NopCloser(
+				c.Request.Body = io.NopCloser(
 					bytes.NewReader(c.Request.Context().Value(service.RequestBodyKey).([]byte)))
 
 				service.DI().ErrorLogger().LogErrorWithRequest(c, r)

@@ -3,7 +3,6 @@ package localize
 import (
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -73,7 +72,7 @@ func (l *SimpleLocalizer) LoadBucketFromMap(bucket string, pairs map[string]stri
 }
 
 func (l *SimpleLocalizer) LoadBucketFromFile(bucket string, path string, append bool) {
-	jsonBytes, err := ioutil.ReadFile(path)
+	jsonBytes, err := os.ReadFile(path)
 	if err != nil {
 		panic("no such file or directory: " + path)
 	}
@@ -97,7 +96,7 @@ func (l *SimpleLocalizer) SaveBucketToFile(bucket string, path string) {
 	jsonBytes, _ := json.MarshalIndent(tempPairs, "", " ")
 
 	//nolint //G306: Expect WriteFile permissions to be 0600 or less
-	err = ioutil.WriteFile(path, jsonBytes, 0644)
+	err = os.WriteFile(path, jsonBytes, 0644)
 	if err != nil {
 		panic(err)
 	}
@@ -200,7 +199,7 @@ func NewSimpleLocalizer(errorLogger errorlogger.ErrorLogger, source Source, loca
 		errorLogger: errorLogger,
 	}
 
-	files, err := ioutil.ReadDir(localePath)
+	files, err := os.ReadDir(localePath)
 	if err != nil {
 		panic(err)
 	}

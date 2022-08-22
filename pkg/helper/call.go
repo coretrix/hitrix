@@ -7,7 +7,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -64,7 +63,7 @@ func Call(ctx context.Context,
 		return nil, nil, 0, errors.New("error in return response")
 	}
 
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 
 	defer func() {
 		_ = resp.Body.Close()
@@ -118,7 +117,7 @@ func CallXML(ctx context.Context,
 		return nil, nil, 0, err
 	}
 
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 
 	defer func() {
 		_ = resp.Body.Close()

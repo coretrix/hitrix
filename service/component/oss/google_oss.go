@@ -3,8 +3,9 @@ package oss
 import (
 	"encoding/base64"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -43,7 +44,7 @@ func NewGoogleOSS(configService config.IConfig, clockService clock.IClock, publi
 		return nil, err
 	}
 
-	jwtCredentialsJSONString, err := ioutil.ReadFile(credentialsFile)
+	jwtCredentialsJSONString, err := os.ReadFile(credentialsFile)
 
 	if err != nil {
 		return nil, err
@@ -115,7 +116,7 @@ func (ossStorage *GoogleOSS) GetObjectBase64Content(bucket Bucket, object *Objec
 		return "", err
 	}
 
-	content, err := ioutil.ReadAll(reader)
+	content, err := io.ReadAll(reader)
 
 	if err != nil {
 		return "", err
@@ -227,7 +228,7 @@ func (ossStorage *GoogleOSS) getObjectKey(namespace Namespace, storageCounter ui
 	return strconv.FormatUint(storageCounter, 10) + fileExtension
 }
 
-//TODO Remove
+// TODO Remove
 func (ossStorage *GoogleOSS) setObjectContentType(writer *storage.Writer, extension string) {
 	if writer == nil {
 		return

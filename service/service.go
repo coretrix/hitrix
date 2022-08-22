@@ -10,6 +10,7 @@ import (
 	apilogger "github.com/coretrix/hitrix/service/component/api_logger"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/authentication"
+	"github.com/coretrix/hitrix/service/component/calendar"
 	"github.com/coretrix/hitrix/service/component/checkout"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -60,6 +61,7 @@ const (
 	ORMEngineGlobalService  = "orm_engine_global"
 	ORMEngineRequestService = "orm_engine_request"
 	ClockWorkRequestService = "clockwork_request"
+	CalendarService         = "calendar"
 	OSService               = "oss"
 	PasswordService         = "password"
 	SlackService            = "slack"
@@ -248,6 +250,10 @@ func (d *DIContainer) Template() template.ITemplateInterface {
 
 func (d *DIContainer) Gql() gql.IGQLInterface {
 	return GetServiceRequired(GQLService).(gql.IGQLInterface)
+}
+
+func (d *DIContainer) Calendar() calendar.ICalendar {
+	return GetServiceRequired(CalendarService).(calendar.ICalendar)
 }
 
 func (d *DIContainer) Elorus() elorus.IProvider {

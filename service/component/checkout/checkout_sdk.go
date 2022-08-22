@@ -5,7 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/checkout/checkout-sdk-go"
@@ -141,7 +141,7 @@ func (c *Checkout) GetCustomer(idOrEmail string) (bool, *CustomerResponse) {
 		return true, res
 	}
 
-	data, _ := ioutil.ReadAll(resp.Body)
+	data, _ := io.ReadAll(resp.Body)
 	panic(fmt.Sprintf("wrong status checkout get customer code: %d, body %s", resp.StatusCode, string(data)))
 }
 
@@ -170,7 +170,7 @@ func (c *Checkout) SaveGetClient(customerData *SaveCustomerRequest) (created boo
 		return true, customerRes
 	}
 
-	data, _ := ioutil.ReadAll(resp.Body)
+	data, _ := io.ReadAll(resp.Body)
 	panic(fmt.Sprintf("wrong status checkout create customer code: %d, body %s", resp.StatusCode, string(data)))
 }
 

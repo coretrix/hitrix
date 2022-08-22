@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math"
 	"net/http"
 	"strconv"
@@ -134,7 +134,7 @@ func (m *Mada) soapCall(recipientPhoneNumber, otp string) (string, string, error
 	}
 	defer response.Body.Close()
 
-	bodyBytes, err := ioutil.ReadAll(response.Body)
+	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return string(payload), string(bodyBytes), err
 	}

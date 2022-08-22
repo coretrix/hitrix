@@ -1,7 +1,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -84,12 +83,12 @@ func NewConfig(appName, mode, localConfigFolder string) (*Config, error) {
 	c.WithOptions(config.ParseEnv)
 	c.AddDriver(yaml.Driver)
 
-	yamlFileAppConfig, err := ioutil.ReadFile(configFolder + "/" + appName + "/config.yaml")
+	yamlFileAppConfig, err := os.ReadFile(configFolder + "/" + appName + "/config.yaml")
 	if err != nil {
 		return nil, err
 	}
 
-	yamlFileHitrixConfig, err := ioutil.ReadFile(configFolder + "/hitrix.yaml")
+	yamlFileHitrixConfig, err := os.ReadFile(configFolder + "/hitrix.yaml")
 	if err != nil {
 		return nil, err
 	}

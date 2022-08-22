@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"runtime"
@@ -33,7 +32,7 @@ func GetFileExtensionFromBase64Header(base64Header string) (string, error) {
 }
 
 func ExistsInDir(filename, dir string) bool {
-	fileInfo, err := ioutil.ReadDir(dir)
+	fileInfo, err := os.ReadDir(dir)
 	if err != nil {
 		return false
 	}
@@ -95,7 +94,7 @@ func CSVToMap(reader *bytes.Buffer) ([]map[string]string, error) {
 }
 
 func FileExistsInDir(filename, dir string) bool {
-	fileInfo, err := ioutil.ReadDir(dir)
+	fileInfo, err := os.ReadDir(dir)
 	if err != nil {
 		return false
 	}
