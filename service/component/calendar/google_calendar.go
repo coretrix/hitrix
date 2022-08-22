@@ -1,31 +1,54 @@
-package googlecalendar
+package calendar
 
 import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+
+	"golang.org/x/oauth2/google"
+
+	"github.com/coretrix/hitrix/service/component/config"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
+
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
-func NewGoogleCalendar(config *oauth2.Config) *GoogleCalendar {
-	return &GoogleCalendar{
-		Oauth2Config: config,
-		Ctx:          context.Background(),
+func NewGoogleCalendar(configService config.IConfig) (ICalendar, error) {
+	credentialFile, ok := configService.String("calendar.credential_file")
+	if !ok {
+		return nil, errors.New("missing calendar.credential_file")
 	}
-}
 
-type IGoogleCalendar interface {
-	GetAuthLink(state string) string
-	GetStateCodeFromGin(c *gin.Context) (string, string, error)
-	GetTokenFromCode(code string) (*oauth2.Token, error)
-	RefreshToken(token *oauth2.Token) (bool, *oauth2.Token, error)
-	GetCalendars(token *oauth2.Token) ([]*calendar.CalendarListEntry, error)
-	GetCalendarEvents(token *oauth2.Token, calendarID string, args *GetCalendarEventsArgs) ([]*calendar.Event, error)
-	UpsertEvent(token *oauth2.Token, calendarID string, event *calendar.Event) (*calendar.Event, error)
+	scopes, ok := configService.Strings("calendar.scopes")
+	if !ok {
+		return nil, errors.New("missing calendar.scopes")
+	}
+
+	if len(scopes) == 0 {
+		return nil, errors.New("google calendar, scopes list is empty")
+	}
+
+	credentials, err := os.ReadFile(credentialFile)
+	if err != nil {
+		return nil, errors.New("google calendar, unable to read client secret file")
+	}
+
+	oAuth2config, err := google.ConfigFromJSON(credentials, scopes...)
+	if err != nil {
+		log.Fatalf("Unable to parse client secret file to config: %v", err)
+	}
+
+	return &GoogleCalendar{
+		Oauth2Config: oAuth2config,
+		Ctx:          context.Background(),
+	}, nil
 }
 
 type GoogleCalendar struct {

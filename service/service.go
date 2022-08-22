@@ -10,6 +10,7 @@ import (
 	apilogger "github.com/coretrix/hitrix/service/component/api_logger"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/authentication"
+	"github.com/coretrix/hitrix/service/component/calendar"
 	"github.com/coretrix/hitrix/service/component/checkout"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -24,7 +25,6 @@ import (
 	fileextractor "github.com/coretrix/hitrix/service/component/file_extractor"
 	"github.com/coretrix/hitrix/service/component/generator"
 	googleanalytics "github.com/coretrix/hitrix/service/component/google_analytics"
-	googlecalendar "github.com/coretrix/hitrix/service/component/google_calendar"
 	"github.com/coretrix/hitrix/service/component/gql"
 	"github.com/coretrix/hitrix/service/component/html2pdf"
 	"github.com/coretrix/hitrix/service/component/instagram"
@@ -61,7 +61,7 @@ const (
 	ORMEngineGlobalService  = "orm_engine_global"
 	ORMEngineRequestService = "orm_engine_request"
 	ClockWorkRequestService = "clockwork_request"
-	GoogleCalendarService   = "google_calendar"
+	CalendarService         = "calendar"
 	OSService               = "oss"
 	PasswordService         = "password"
 	SlackService            = "slack"
@@ -252,8 +252,8 @@ func (d *DIContainer) Gql() gql.IGQLInterface {
 	return GetServiceRequired(GQLService).(gql.IGQLInterface)
 }
 
-func (d *DIContainer) GoogleCalendar() googlecalendar.IGoogleCalendar {
-	return GetServiceRequired(GoogleCalendarService).(googlecalendar.IGoogleCalendar)
+func (d *DIContainer) Calendar() calendar.ICalendar {
+	return GetServiceRequired(CalendarService).(calendar.ICalendar)
 }
 
 func (d *DIContainer) Elorus() elorus.IProvider {
