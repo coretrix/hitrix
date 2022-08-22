@@ -36,3 +36,8 @@ server:
   timeout_sec: 10
 
 orm_debug: false
+
+google_calendar:
+  credential_file: "./credentials.json"
+  scopes:
+    - "https://www.googleapis.com/auth/calendar"

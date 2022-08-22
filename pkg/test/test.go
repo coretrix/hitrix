@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"mime/multipart"
 	"net/http"
@@ -100,7 +99,7 @@ func (env *Environment) handleMultiPart(query string, variables interface{},
 	w := multipart.NewWriter(&b)
 
 	for name, path := range files {
-		buf, _ := ioutil.ReadFile(path)
+		buf, _ := os.ReadFile(path)
 		kind, _ := filetype.Match(buf)
 
 		h := make(textproto.MIMEHeader)

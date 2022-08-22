@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strings"
 	"time"
 
@@ -229,7 +229,7 @@ func getRawRequestData(c *gin.Context) []byte {
 		}
 	}
 
-	c.Request.Body = ioutil.NopCloser(bytes.NewReader(b))
+	c.Request.Body = io.NopCloser(bytes.NewReader(b))
 
 	return b
 }

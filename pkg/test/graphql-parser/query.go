@@ -7,7 +7,9 @@ import (
 	"log"
 	"reflect"
 	"sort"
-	"strings"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 const writeQueryDeepLimit = 10
@@ -82,7 +84,7 @@ func writeArgumentType(w io.Writer, t reflect.Type, value bool) {
 			panic(err)
 		}
 	default:
-		_, err := io.WriteString(w, strings.Title(t.Name()))
+		_, err := io.WriteString(w, cases.Title(language.AmericanEnglish, cases.NoLower).String(t.Name()))
 		if err != nil {
 			panic(err)
 		}

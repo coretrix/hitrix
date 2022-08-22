@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -33,7 +33,7 @@ func contextToContextMiddleware() gin.HandlerFunc {
 			panic(err)
 		}
 
-		c.Request.Body = ioutil.NopCloser(bytes.NewReader(body))
+		c.Request.Body = io.NopCloser(bytes.NewReader(body))
 
 		ctx := context.WithValue(c.Request.Context(), service.GinKey, c)
 		ctx = context.WithValue(ctx, service.RequestBodyKey, body)
@@ -124,7 +124,7 @@ func graphqlHandler(server graphql.ExecutableSchema, gqlServerInitHandler GQLSer
 
 		ginContext := ctx.Value(service.GinKey).(*gin.Context)
 		requestBody := ctx.Value(service.RequestBodyKey).([]byte)
-		ginContext.Request.Body = ioutil.NopCloser(bytes.NewReader(requestBody))
+		ginContext.Request.Body = io.NopCloser(bytes.NewReader(requestBody))
 
 		service.DI().ErrorLogger().LogErrorWithRequest(ginContext, errors.New(message))
 

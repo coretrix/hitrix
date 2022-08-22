@@ -3,7 +3,6 @@ package social
 import (
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -30,7 +29,7 @@ func (p *Facebook) GetUserData(token string) (*UserData, error) {
 	}
 
 	// read all response body
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}

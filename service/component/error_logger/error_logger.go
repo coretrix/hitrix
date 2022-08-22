@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
@@ -150,7 +149,7 @@ func stack(skip int) []byte {
 		_, _ = fmt.Fprintf(buf, "%s:%d (0x%x)\n", file, line, pc)
 
 		if file != lastFile {
-			data, err := ioutil.ReadFile(file)
+			data, err := os.ReadFile(file)
 			if err != nil {
 				continue
 			}

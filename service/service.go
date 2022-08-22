@@ -24,6 +24,7 @@ import (
 	fileextractor "github.com/coretrix/hitrix/service/component/file_extractor"
 	"github.com/coretrix/hitrix/service/component/generator"
 	googleanalytics "github.com/coretrix/hitrix/service/component/google_analytics"
+	googlecalendar "github.com/coretrix/hitrix/service/component/google_calendar"
 	"github.com/coretrix/hitrix/service/component/gql"
 	"github.com/coretrix/hitrix/service/component/html2pdf"
 	"github.com/coretrix/hitrix/service/component/instagram"
@@ -60,6 +61,7 @@ const (
 	ORMEngineGlobalService  = "orm_engine_global"
 	ORMEngineRequestService = "orm_engine_request"
 	ClockWorkRequestService = "clockwork_request"
+	GoogleCalendarService   = "google_calendar"
 	OSService               = "oss"
 	PasswordService         = "password"
 	SlackService            = "slack"
@@ -248,6 +250,10 @@ func (d *DIContainer) Template() template.ITemplateInterface {
 
 func (d *DIContainer) Gql() gql.IGQLInterface {
 	return GetServiceRequired(GQLService).(gql.IGQLInterface)
+}
+
+func (d *DIContainer) GoogleCalendar() googlecalendar.IGoogleCalendar {
+	return GetServiceRequired(GoogleCalendarService).(googlecalendar.IGoogleCalendar)
 }
 
 func (d *DIContainer) Elorus() elorus.IProvider {

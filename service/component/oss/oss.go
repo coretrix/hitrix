@@ -1,7 +1,7 @@
 package oss
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -209,7 +209,7 @@ func getStorageCounter(ormService *beeorm.Engine, bucketConfig *BucketConfig) ui
 }
 
 func readContentFile(localFile string) ([]byte, string, error) {
-	fileContent, err := ioutil.ReadFile(localFile)
+	fileContent, err := os.ReadFile(localFile)
 
 	if err != nil {
 		return nil, "", err

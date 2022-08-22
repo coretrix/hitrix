@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strconv"
 	"text/template"
@@ -199,7 +199,7 @@ func (amazonS3 *AmazonS3) UploadImageFromFile(ormService *beeorm.Engine, bucket,
 }
 
 func (amazonS3 *AmazonS3) ReadFile(localFile string) ([]byte, string) {
-	fileContent, err := ioutil.ReadFile(localFile)
+	fileContent, err := os.ReadFile(localFile)
 
 	if err != nil {
 		panic(err)

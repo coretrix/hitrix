@@ -1,7 +1,7 @@
 package fileextractor
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -69,7 +69,7 @@ func (l *FileExtractor) readFile(pathToread string) (string, error) {
 	}
 	defer file.Close()
 
-	srcbuf, err := ioutil.ReadAll(file)
+	srcbuf, err := io.ReadAll(file)
 	if err != nil {
 		log.Fatal(err)
 
