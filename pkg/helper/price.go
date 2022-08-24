@@ -45,3 +45,25 @@ func NewPrice(amount float64) Price {
 func NewTotalPrice(amount float64, quantity uint64) Price {
 	return NewPrice(float64(NewPrice(amount).Units()*int64(quantity)) / unit)
 }
+
+func GetPriceDTO(priceValue float64, priceCurrencyISO4217, countryCodeAlpha2 string) *DTOPrice {
+	price := NewPrice(priceValue)
+
+	priceWithCurrency, err := price.StringByLocale(countryCodeAlpha2, priceCurrencyISO4217)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return &DTOPrice{
+		Price:             price.Float(),
+		PriceString:       price.String(),
+		PriceWithCurrency: priceWithCurrency,
+	}
+}
+
+type DTOPrice struct {
+	Price             float64
+	PriceString       string
+	PriceWithCurrency string
+}
