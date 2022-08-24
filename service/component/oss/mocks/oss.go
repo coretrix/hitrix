@@ -69,14 +69,14 @@ func (t *FakeOSSClient) UploadImageFromBase64(_ *beeorm.Engine, bucket oss.Bucke
 	return t.Called(bucket, path, image, extension).Get(0).(oss.Object), nil
 }
 
-func (t *FakeOSSClient) DeleteObject(_ oss.Bucket, _ *oss.Object) error {
-	return nil
+func (t *FakeOSSClient) DeleteObject(bucket oss.Bucket, object *oss.Object) error {
+	return t.Called(bucket, object).Error(0)
 }
 
-func (t *FakeOSSClient) CreateObjectFromKey(_ *beeorm.Engine, _ oss.Bucket, _ string) oss.Object {
-	return oss.Object{}
+func (t *FakeOSSClient) CreateObjectFromKey(_ *beeorm.Engine, bucket oss.Bucket, key string) oss.Object {
+	return t.Called(bucket, key).Get(0).(oss.Object)
 }
 
-func (t *FakeOSSClient) GetBucketConfig(_ oss.Bucket) *oss.BucketConfig {
-	return nil
+func (t *FakeOSSClient) GetBucketConfig(bucket oss.Bucket) *oss.BucketConfig {
+	return t.Called(bucket).Get(0).(*oss.BucketConfig)
 }
