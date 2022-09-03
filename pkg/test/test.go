@@ -98,6 +98,19 @@ func (env *Environment) handleMultiPart(query string, variables interface{},
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
+	queryJSON, _ := json.Marshal(map[string]interface{}{"query": query, "variables": variables})
+	err := w.WriteField("operations", string(queryJSON))
+
+	jsonMap, err := json.Marshal(variablesMap)
+	if err != nil {
+		env.t.Fatal(err)
+	}
+
+	err = w.WriteField("map", string(jsonMap))
+	if err != nil {
+		env.t.Fatal(err)
+	}
+
 	for name, path := range files {
 		buf, _ := os.ReadFile(path)
 		kind, _ := filetype.Match(buf)
@@ -126,19 +139,6 @@ func (env *Environment) handleMultiPart(query string, variables interface{},
 			env.t.Fatal(err)
 		}
 	}
-
-	jsonMap, err := json.Marshal(variablesMap)
-	if err != nil {
-		env.t.Fatal(err)
-	}
-
-	err = w.WriteField("map", string(jsonMap))
-	if err != nil {
-		env.t.Fatal(err)
-	}
-
-	queryJSON, _ := json.Marshal(map[string]interface{}{"query": query, "variables": variables})
-	err = w.WriteField("operations", string(queryJSON))
 
 	if err != nil {
 		env.t.Fatal(err)
