@@ -5,7 +5,7 @@ go 1.17
 require (
 	cloud.google.com/go/storage v1.22.1
 	firebase.google.com/go v3.13.0+incompatible
-	github.com/99designs/gqlgen v0.17.5
+	github.com/99designs/gqlgen v0.17.16
 	github.com/AmirSoleimani/VoucherCodeGenerator v0.0.0-20201014193813-0206853dccb9
 	github.com/aws/aws-sdk-go v1.38.39
 	github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible
@@ -47,10 +47,11 @@ require (
 	github.com/tealeg/xlsx v1.0.5
 	github.com/tus/tusd v1.6.0
 	github.com/twilio/twilio-go v0.15.0
-	github.com/vektah/gqlparser/v2 v2.4.2
+	github.com/vektah/gqlparser/v2 v2.5.0
 	github.com/xorcare/pointer v1.1.0
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5
+	golang.org/x/text v0.3.7
 	google.golang.org/api v0.81.0
 	k8s.io/api v0.20.4
 	k8s.io/apimachinery v0.20.4
@@ -121,7 +122,6 @@ require (
 	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29 // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
 	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
 	google.golang.org/appengine v1.6.7 // indirect
