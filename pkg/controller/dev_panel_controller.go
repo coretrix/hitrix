@@ -249,8 +249,9 @@ func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
 		panic("stream pool is not defined")
 	}
 
-	ormService.GetRedisSearch(appService.RedisPools.Search).ListIndices()
-	response.SuccessResponse(c, ormService.GetRedisSearch(appService.RedisPools.Search).ListIndices())
+	indices := ormService.GetRedisSearch(appService.RedisPools.Search).ListIndices()
+	sort.Strings(indices)
+	response.SuccessResponse(c, indices)
 }
 
 func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context) {
