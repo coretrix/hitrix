@@ -16,7 +16,7 @@ type ISentry interface {
 type v struct {
 }
 
-func Init(dsn, release string, tracesSampleRate *float64) ISentry {
+func Init(dsn, mode, release string, tracesSampleRate *float64) ISentry {
 	tracesSampleRateValue := 0.0
 	if tracesSampleRate != nil {
 		tracesSampleRateValue = *tracesSampleRate
@@ -26,6 +26,7 @@ func Init(dsn, release string, tracesSampleRate *float64) ISentry {
 		Dsn:              dsn,
 		TracesSampleRate: tracesSampleRateValue,
 		Release:          release,
+		Environment:      mode,
 	})
 	if err != nil {
 		panic(err)

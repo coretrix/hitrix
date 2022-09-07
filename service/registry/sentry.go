@@ -3,6 +3,8 @@ package registry
 import (
 	"github.com/sarulabs/di"
 
+	"github.com/coretrix/hitrix/service/component/app"
+
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/sentry"
@@ -28,7 +30,12 @@ func ServiceProviderSentry(tracesSampleRate *float64) *service.DefinitionGlobal 
 				panic("required config value sentry.dsn missing")
 			}
 
-			return sentry.Init(dsn, backendVersionFinal, tracesSampleRate), nil
+			appService := ctn.Get(service.AppService).(*app.App)
+			if appService == nil {
+				panic("`app is nil")
+			}
+
+			return sentry.Init(dsn, appService.Mode, backendVersionFinal, tracesSampleRate), nil
 		},
 	}
 }
