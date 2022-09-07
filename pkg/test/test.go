@@ -98,8 +98,15 @@ func (env *Environment) handleMultiPart(query string, variables interface{},
 	var b bytes.Buffer
 	w := multipart.NewWriter(&b)
 
-	queryJSON, _ := json.Marshal(map[string]interface{}{"query": query, "variables": variables})
-	err := w.WriteField("operations", string(queryJSON))
+	queryJSON, err := json.Marshal(map[string]interface{}{"query": query, "variables": variables})
+	if err != nil {
+		env.t.Fatal(err)
+	}
+
+	err = w.WriteField("operations", string(queryJSON))
+	if err != nil {
+		env.t.Fatal(err)
+	}
 
 	jsonMap, err := json.Marshal(variablesMap)
 	if err != nil {
