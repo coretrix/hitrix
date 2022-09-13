@@ -16,6 +16,10 @@ func (f *FakeSentry) CaptureMessage(message string) {
 	f.Called(message)
 }
 
+func (f *FakeSentry) CaptureException(exception error) {
+	f.Called(exception)
+}
+
 func (f *FakeSentry) Flush(timeout time.Duration) {
 	f.Called(timeout)
 }

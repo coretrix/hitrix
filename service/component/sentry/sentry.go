@@ -9,6 +9,7 @@ import (
 
 type ISentry interface {
 	CaptureMessage(message string)
+	CaptureException(exception error)
 	Flush(timeout time.Duration)
 	StartSpan(ctx context.Context, operation string, options ...sentry.SpanOption) *sentry.Span
 }
@@ -37,6 +38,10 @@ func Init(dsn, mode, release string, tracesSampleRate *float64) ISentry {
 
 func (v *v) CaptureMessage(message string) {
 	sentry.CaptureMessage(message)
+}
+
+func (v *v) CaptureException(exception error) {
+	sentry.CaptureException(exception)
 }
 
 func (v *v) Flush(timeout time.Duration) {

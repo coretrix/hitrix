@@ -131,7 +131,7 @@ func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
 	}
 
 	if (e.sentryService != nil && !e.appService.IsInLocalMode() && !e.appService.IsInTestMode()) && logg == float64(int64(logg)) {
-		e.sentryService.CaptureMessage(value.Message)
+		e.sentryService.CaptureException(fmt.Errorf(value.Message))
 	}
 }
 
