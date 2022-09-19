@@ -49,12 +49,12 @@ func (i *RapidAPIInstagram28) GetAccount(account string) (*Account, error) {
 	}
 
 	response := struct {
-		Status string
+		Status string `json:"status"`
 		Data   struct {
 			User struct {
-				ID       string
+				ID       string `json:"id"`
 				Fullname string `json:"full_name"`
-				Bio      string
+				Bio      string `json:"biography"`
 				Website  string `json:"external_url"`
 				Picture  string `json:"profile_pic_url_hd"`
 				Posts    struct {
@@ -67,14 +67,14 @@ func (i *RapidAPIInstagram28) GetAccount(account string) (*Account, error) {
 					Count int64 `json:"count"`
 				} `json:"edge_follow"`
 				IsPrivate bool `json:"is_private"`
-			}
-		}
+			} `json:"user"`
+		} `json:"data"`
 	}{}
 
 	err = json.Unmarshal(body, &response)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot unmarshal %s : %+v", string(body), err)
 	}
 
 	if response.Data.User.ID == "" {
