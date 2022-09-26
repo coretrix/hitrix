@@ -38,6 +38,10 @@ func (c *OTPRetryConsumer) Consume(_ *beeorm.Engine, event beeorm.Event) error {
 	retryDTO := &otp.RetryDTO{}
 	event.Unserialize(retryDTO)
 
+	if retryDTO == nil || retryDTO.Gateway == "" {
+		return nil
+	}
+
 	otpTrackerEntity := &entity.OTPTrackerEntity{}
 	ormService.LoadByID(retryDTO.OTPTrackerEntityID, otpTrackerEntity)
 
@@ -61,7 +65,7 @@ func RetryOTP(
 
 		gateway, ok := gatewayRegistry[retryDTO.Gateway]
 		if !ok {
-			panic(fmt.Sprintf("gateway %s not found in registry", gateway))
+			panic(fmt.Sprintf("gateway %s not found in registry", retryDTO.Gateway))
 		}
 
 		var err error
