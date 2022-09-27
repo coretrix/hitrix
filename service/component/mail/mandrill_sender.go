@@ -3,6 +3,7 @@ package mail
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/latolukasz/beeorm"
@@ -49,6 +50,17 @@ func NewMandrill(configService config.IConfig) (Sender, error) {
 	}
 
 	return &Mandrill{client: mandrillAPI, defaultFromEmail: fromEmail, fromName: fromName}, nil
+}
+
+func (s *Mandrill) GetTemplateKeyFromConfig(configService config.IConfig, templateName string) (string, error) {
+	configPath := fmt.Sprintf("mail.mandrill.templates.%s", templateName)
+
+	templateKey, ok := configService.String(configPath)
+	if !ok {
+		return "", fmt.Errorf("could not find email template key in config: %s", configPath)
+	}
+
+	return templateKey, nil
 }
 
 func (s *Mandrill) SendTemplate(ormService *beeorm.Engine, message *Message) error {

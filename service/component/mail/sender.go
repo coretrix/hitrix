@@ -9,6 +9,7 @@ import (
 type NewSenderFunc func(configService config.IConfig) (Sender, error)
 
 type Sender interface {
+	GetTemplateKeyFromConfig(configService config.IConfig, templateName string) (string, error)
 	SendTemplate(ormService *beeorm.Engine, message *Message) error
 	SendTemplateAsync(ormService *beeorm.Engine, message *Message) error
 	SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error
