@@ -15,8 +15,8 @@ func ServiceProviderErrorLogger() *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.ErrorLoggerService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			var sentryService sentry.ISentry = nil
-			var slackAPIService slack.Slack = nil
+			var sentryService sentry.ISentry
+			var slackAPIService slack.Slack
 
 			sentryServiceInterface, err := ctn.SafeGet(service.SentryService)
 			if err == nil {

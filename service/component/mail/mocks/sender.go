@@ -4,6 +4,7 @@ import (
 	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/mail"
 )
 
@@ -11,6 +12,11 @@ type Sender struct {
 	mock.Mock
 }
 
+func (m *Sender) GetTemplateKeyFromConfig(_ config.IConfig, templateName string) (string, error) {
+	args := m.Called(templateName)
+
+	return args.Get(1).(string), args.Error(1)
+}
 func (m *Sender) SendTemplate(_ *beeorm.Engine, message *mail.Message) error {
 	return m.Called(message.To).Error(0)
 }

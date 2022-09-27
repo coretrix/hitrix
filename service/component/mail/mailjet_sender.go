@@ -58,6 +58,16 @@ func NewMailjet(configService config.IConfig) (Sender, error) {
 	return &Mailjet{client: mailjetAPI, defaultFromEmail: fromEmail, fromName: fromName, sandboxMode: sandboxMode}, nil
 }
 
+func (s *Mailjet) GetTemplateKeyFromConfig(configService config.IConfig, templateName string) (string, error) {
+	configPath := fmt.Sprintf("mail.mailjet.templates.%s", templateName)
+
+	templateKey, ok := configService.String(configPath)
+	if !ok {
+		return "", fmt.Errorf("could not find email template key in config: %s", configPath)
+	}
+
+	return templateKey, nil
+}
 func (s *Mailjet) SendTemplate(ormService *beeorm.Engine, message *Message) error {
 	return s.sendTemplate(
 		ormService,
