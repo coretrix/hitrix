@@ -15,7 +15,7 @@ type Sender struct {
 func (m *Sender) GetTemplateKeyFromConfig(_ config.IConfig, templateName string) (string, error) {
 	args := m.Called(templateName)
 
-	return args.Get(1).(string), args.Error(1)
+	return args.Get(0).(string), args.Error(1)
 }
 func (m *Sender) SendTemplate(_ *beeorm.Engine, message *mail.Message) error {
 	return m.Called(message.To).Error(0)
