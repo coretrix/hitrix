@@ -13,6 +13,7 @@ const ModeTest = "test"
 const ModeDev = "dev"
 const ModeDemo = "demo"
 const ModeProd = "prod"
+const ModeQA = "qa"
 
 type IDevPanelUserEntity interface {
 	beeorm.Entity
@@ -64,6 +65,10 @@ func (app *App) IsInDevMode() bool {
 
 func (app *App) IsInDemoMode() bool {
 	return app.Mode == ModeDemo
+}
+
+func (app *App) IsInQAMode() bool {
+	return app.Mode == ModeQA
 }
 
 func (app *App) IsInMode(mode string) bool {
