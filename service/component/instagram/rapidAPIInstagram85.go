@@ -54,6 +54,9 @@ func (i *RapidAPIInstagram85) GetAccount(account string) (*Account, error) {
 				Followings int64 `json:"followings"`
 			} `json:"figures"`
 			IsPrivate bool `json:"is_private"`
+			BioLinks  []*struct {
+				URL string `json:"url"`
+			} `json:"bio_links"`
 		} `json:"data"`
 		Code int64 `json:"code"`
 	}{}
@@ -84,6 +87,12 @@ func (i *RapidAPIInstagram85) GetAccount(account string) (*Account, error) {
 		return nil, errors.New("internal_server_error status code not 200")
 	}
 
+	bioLinks := make([]*BioLink, len(response.Data.BioLinks))
+
+	for i, bioLink := range response.Data.BioLinks {
+		bioLinks[i] = &BioLink{URL: bioLink.URL}
+	}
+
 	return &Account{
 		AccountID: response.Data.ID,
 		FullName:  response.Data.Fullname,
@@ -94,6 +103,7 @@ func (i *RapidAPIInstagram85) GetAccount(account string) (*Account, error) {
 		Picture:   response.Data.Picture.HD,
 		IsPrivate: response.Data.IsPrivate,
 		Website:   response.Data.Website,
+		BioLinks:  bioLinks,
 	}, nil
 }
 
