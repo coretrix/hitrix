@@ -16,6 +16,11 @@ type Account struct {
 	Picture   string
 	IsPrivate bool
 	Website   string
+	BioLinks  []*BioLink
+}
+
+type BioLink struct {
+	URL string
 }
 
 type Post struct {

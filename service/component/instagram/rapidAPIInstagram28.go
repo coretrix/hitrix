@@ -67,6 +67,9 @@ func (i *RapidAPIInstagram28) GetAccount(account string) (*Account, error) {
 					Count int64 `json:"count"`
 				} `json:"edge_follow"`
 				IsPrivate bool `json:"is_private"`
+				BioLinks  []*struct {
+					URL string `json:"url"`
+				} `json:"bio_links"`
 			} `json:"user"`
 		} `json:"data"`
 	}{}
@@ -87,6 +90,12 @@ func (i *RapidAPIInstagram28) GetAccount(account string) (*Account, error) {
 		return nil, err
 	}
 
+	bioLinks := make([]*BioLink, len(response.Data.User.BioLinks))
+
+	for i, bioLink := range response.Data.User.BioLinks {
+		bioLinks[i] = &BioLink{URL: bioLink.URL}
+	}
+
 	return &Account{
 		AccountID: userID,
 		FullName:  response.Data.User.Fullname,
@@ -97,6 +106,7 @@ func (i *RapidAPIInstagram28) GetAccount(account string) (*Account, error) {
 		Picture:   response.Data.User.Picture,
 		IsPrivate: response.Data.User.IsPrivate,
 		Website:   response.Data.User.Website,
+		BioLinks:  bioLinks,
 	}, nil
 }
 
