@@ -14,22 +14,21 @@ import (
 )
 
 type SearchParams struct {
-	Page                 int
-	PageSize             int
-	Search               map[string]string
-	SearchOR             map[string]string
-	StringFilters        map[string]string
-	FormatStringFilters  map[string]string
-	ArrayStringFilters   map[string][]string
-	NumberFilters        map[string]int64
-	ArrayNumberFilters   map[string][]int64
-	RangeNumberFilters   map[string][]int64
-	DateTimeFilters      map[string]time.Time
-	DateFilters          map[string]time.Time
-	RangeDateTimeFilters map[string][]time.Time
-	RangeDateFilters     map[string][]time.Time
-	BooleanFilters       map[string]bool
-	Sort                 map[string]bool
+	Page                    int
+	PageSize                int
+	StringORFilters         map[string]string
+	StringExactFilters      map[string]string
+	StringStartsWithFilters map[string]string
+	ArrayStringFilters      map[string][]string
+	NumberFilters           map[string]int64
+	ArrayNumberFilters      map[string][]int64
+	RangeNumberFilters      map[string][]int64
+	DateTimeFilters         map[string]time.Time
+	DateFilters             map[string]time.Time
+	RangeDateTimeFilters    map[string][]time.Time
+	RangeDateFilters        map[string][]time.Time
+	BooleanFilters          map[string]bool
+	Sort                    map[string]bool
 }
 
 type Column struct {
@@ -74,7 +73,7 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 
 	var searchable = make([]string, 0)
 	var stringFilters = make([]string, 0)
-	var formatStringSearch = make([]string, 0)
+	var stringStartsWithSearch = make([]string, 0)
 	var arrayStringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
 	var stringEnumFilters = make(map[string][]FilterValue)
@@ -92,8 +91,8 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 			sortables = append(sortables, column.Key)
 		}
 
-		if column.Searchable && column.Type == FormatStringType {
-			formatStringSearch = append(formatStringSearch, column.Key)
+		if column.Searchable && column.Type == StringStartsWithType {
+			stringStartsWithSearch = append(stringStartsWithSearch, column.Key)
 
 			continue
 		}
@@ -133,7 +132,7 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 	}
 
 	var selectedStringFilters = make(map[string]string)
-	var selectedFormatStringFilters = make(map[string]string)
+	var selectedStringStartsWithFilters = make(map[string]string)
 	var selectedArrayStringFilters = make(map[string][]string)
 	var selectedNumberFilters = make(map[string]int64)
 	var selectedRangeNumberFilters = make(map[string][]int64, 2)
@@ -270,8 +269,8 @@ mainLoop:
 		stringValue, ok := value.(string)
 
 		if ok {
-			if helper.StringInArray(field, formatStringSearch...) {
-				selectedFormatStringFilters[field] = stringValue
+			if helper.StringInArray(field, stringStartsWithSearch...) {
+				selectedStringStartsWithFilters[field] = stringValue
 
 				continue
 			}
@@ -304,22 +303,21 @@ mainLoop:
 	}
 
 	return SearchParams{
-		Page:                 finalPage,
-		PageSize:             finalPageSize,
-		Search:               selectedSearches,
-		SearchOR:             selectedORSearches,
-		StringFilters:        selectedStringFilters,
-		FormatStringFilters:  selectedFormatStringFilters,
-		ArrayStringFilters:   selectedArrayStringFilters,
-		NumberFilters:        selectedNumberFilters,
-		ArrayNumberFilters:   selectedArrayNumberFilters,
-		RangeNumberFilters:   selectedRangeNumberFilters,
-		DateTimeFilters:      selectedDateTimeFilters,
-		DateFilters:          selectedDateFilters,
-		RangeDateTimeFilters: selectedRangeDateTimeFilters,
-		RangeDateFilters:     selectedRangeDateFilters,
-		BooleanFilters:       selectedBooleanFilters,
-		Sort:                 selectedSort,
+		Page:                    finalPage,
+		PageSize:                finalPageSize,
+		StringORFilters:         selectedORSearches,
+		StringExactFilters:      selectedStringFilters,
+		StringStartsWithFilters: selectedStringStartsWithFilters,
+		ArrayStringFilters:      selectedArrayStringFilters,
+		NumberFilters:           selectedNumberFilters,
+		ArrayNumberFilters:      selectedArrayNumberFilters,
+		RangeNumberFilters:      selectedRangeNumberFilters,
+		DateTimeFilters:         selectedDateTimeFilters,
+		DateFilters:             selectedDateFilters,
+		RangeDateTimeFilters:    selectedRangeDateTimeFilters,
+		RangeDateFilters:        selectedRangeDateFilters,
+		BooleanFilters:          selectedBooleanFilters,
+		Sort:                    selectedSort,
 	}
 }
 
@@ -354,11 +352,11 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 		query.FilterDateMinMax(field, value[0], value[1])
 	}
 
-	for field, value := range params.StringFilters {
-		query.FilterTag(field, value)
+	for field, value := range params.StringExactFilters {
+		query.FilterString(field, value)
 	}
 
-	for field, value := range params.FormatStringFilters {
+	for field, value := range params.StringStartsWithFilters {
 		query.QueryFieldPrefixMatch(field, value)
 	}
 
@@ -370,21 +368,9 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 		query.FilterBool(field, value)
 	}
 
-	// TODO : use full text search
-	for field, value := range params.Search {
-		if strings.TrimSpace(value) == "" {
-			continue
-		}
-
-		query.QueryRaw(fmt.Sprintf(
-			"@%s:%v* ",
-			field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
-		))
-	}
-
 	orStatements := make([]string, 0)
 
-	for field, value := range params.SearchOR {
+	for field, value := range params.StringORFilters {
 		if strings.TrimSpace(value) == "" {
 			continue
 		}
@@ -414,7 +400,7 @@ func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
 		where.Append("AND "+field+" = ?", value)
 	}
 
-	for field, value := range params.StringFilters {
+	for field, value := range params.StringExactFilters {
 		where.Append("AND "+field+" = ?", value)
 	}
 
@@ -423,14 +409,14 @@ func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
 	}
 
 	// TODO : use full text search
-	for field, value := range params.Search {
+	for field, value := range params.StringStartsWithFilters {
 		where.Append("AND "+field+" LIKE ?", value+"%")
 	}
 
 	orStatements := make([]string, 0)
 	orStatementsVariables := make([]interface{}, 0)
 
-	for field, value := range params.SearchOR {
+	for field, value := range params.StringORFilters {
 		orStatements = append(orStatements, fmt.Sprintf(
 			"%s LIKE ?",
 			field,

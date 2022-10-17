@@ -116,7 +116,7 @@ func RequestsLogger(ctx context.Context, userListRequest listDto.RequestDTOList)
 	searchParams := crudService.ExtractListParams(cols, request)
 	query := crudService.GenerateListRedisSearchQuery(searchParams)
 
-	if len(searchParams.Search) == 0 && len(searchParams.NumberFilters) == 0 && len(searchParams.StringFilters) == 0 {
+	if len(searchParams.NumberFilters) == 0 && len(searchParams.StringExactFilters) == 0 {
 		query = query.Sort("ID", true)
 	}
 
