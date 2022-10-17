@@ -149,7 +149,7 @@ func TestExtractListParams(t *testing.T) {
 			PageSize: 15,
 
 			StringORFilters:         map[string]string{},
-			StringExactFilters:      map[string]string{},
+			EnumFilters:             map[string]string{},
 			StringStartsWithFilters: map[string]string{},
 			ArrayStringFilters:      map[string][]string{},
 			NumberFilters:           map[string]int64{"NumberType": 1},
@@ -178,7 +178,7 @@ func TestExtractListParams(t *testing.T) {
 			PageSize: 15,
 
 			StringORFilters:         map[string]string{},
-			StringExactFilters:      map[string]string{},
+			EnumFilters:             map[string]string{},
 			StringStartsWithFilters: map[string]string{},
 			ArrayStringFilters:      map[string][]string{},
 			NumberFilters:           map[string]int64{"NumberType": 1},
@@ -206,7 +206,7 @@ func TestExtractListParams(t *testing.T) {
 			PageSize: 15,
 
 			StringORFilters:         map[string]string{},
-			StringExactFilters:      map[string]string{},
+			EnumFilters:             map[string]string{},
 			StringStartsWithFilters: map[string]string{},
 			ArrayStringFilters:      map[string][]string{},
 			NumberFilters:           map[string]int64{},
@@ -234,7 +234,7 @@ func TestExtractListParams(t *testing.T) {
 			PageSize: 15,
 
 			StringORFilters:         map[string]string{},
-			StringExactFilters:      map[string]string{},
+			EnumFilters:             map[string]string{},
 			StringStartsWithFilters: map[string]string{},
 			ArrayStringFilters:      map[string][]string{},
 			NumberFilters:           map[string]int64{},
@@ -262,7 +262,7 @@ func TestExtractListParams(t *testing.T) {
 			PageSize: 15,
 
 			StringORFilters:         map[string]string{},
-			StringExactFilters:      map[string]string{},
+			EnumFilters:             map[string]string{},
 			StringStartsWithFilters: map[string]string{},
 			ArrayStringFilters:      map[string][]string{},
 			NumberFilters:           map[string]int64{},
@@ -290,7 +290,7 @@ func TestExtractListParams(t *testing.T) {
 			PageSize: 15,
 
 			StringORFilters:         map[string]string{},
-			StringExactFilters:      map[string]string{},
+			EnumFilters:             map[string]string{},
 			StringStartsWithFilters: map[string]string{},
 			ArrayStringFilters:      map[string][]string{},
 			NumberFilters:           map[string]int64{"NumberType": int64(1)},

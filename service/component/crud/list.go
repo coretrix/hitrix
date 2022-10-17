@@ -17,7 +17,7 @@ type SearchParams struct {
 	Page                    int
 	PageSize                int
 	StringORFilters         map[string]string
-	StringExactFilters      map[string]string
+	EnumFilters             map[string]string
 	StringStartsWithFilters map[string]string
 	ArrayStringFilters      map[string][]string
 	NumberFilters           map[string]int64
@@ -72,7 +72,7 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 	}
 
 	var searchable = make([]string, 0)
-	var stringFilters = make([]string, 0)
+	var stringExactFilters = make([]string, 0)
 	var stringStartsWithSearch = make([]string, 0)
 	var arrayStringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
@@ -106,7 +106,7 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 		if column.Filterable {
 			switch column.Type {
 			case StringType:
-				stringFilters = append(stringFilters, column.Key)
+				stringExactFilters = append(stringExactFilters, column.Key)
 			case ArrayStringType:
 				arrayStringFilters = append(arrayStringFilters, column.Key)
 			case BooleanType:
@@ -131,7 +131,7 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 		}
 	}
 
-	var selectedStringFilters = make(map[string]string)
+	var selectedEnumFilters = make(map[string]string)
 	var selectedStringStartsWithFilters = make(map[string]string)
 	var selectedArrayStringFilters = make(map[string][]string)
 	var selectedNumberFilters = make(map[string]int64)
@@ -144,7 +144,7 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 	var selectedBooleanFilters = make(map[string]bool)
 	var selectedSort = make(map[string]bool)
 	var selectedSearches = make(map[string]string)
-	var selectedORSearches = make(map[string]string)
+	var selectedORFilters = make(map[string]string)
 
 mainLoop:
 	for field, value := range request.Filter {
@@ -231,11 +231,6 @@ mainLoop:
 			}
 
 			stringValue := value.(string)
-			if helper.StringInArray(field, stringFilters...) {
-				selectedStringFilters[field] = stringValue
-
-				continue mainLoop
-			}
 
 			if helper.StringInArray(field, dateTimeFilters...) {
 				dateTimeValue, _ := time.Parse(helper.TimeLayoutRFC3339Milli, stringValue)
@@ -255,7 +250,7 @@ mainLoop:
 				if field == enumFiledName {
 					for _, filterValue := range stringEnumFilters[enumFiledName] {
 						if filterValue.Key == stringValue {
-							selectedStringFilters[field] = stringValue
+							selectedEnumFilters[field] = stringValue
 
 							continue mainLoop
 						}
@@ -288,7 +283,7 @@ mainLoop:
 
 		if ok && len(stringValue) >= 2 {
 			if helper.StringInArray(field, searchable...) {
-				selectedORSearches[field] = stringValue
+				selectedORFilters[field] = stringValue
 			}
 		}
 	}
@@ -305,8 +300,8 @@ mainLoop:
 	return SearchParams{
 		Page:                    finalPage,
 		PageSize:                finalPageSize,
-		StringORFilters:         selectedORSearches,
-		StringExactFilters:      selectedStringFilters,
+		EnumFilters:             selectedEnumFilters,
+		StringORFilters:         selectedORFilters,
 		StringStartsWithFilters: selectedStringStartsWithFilters,
 		ArrayStringFilters:      selectedArrayStringFilters,
 		NumberFilters:           selectedNumberFilters,
@@ -352,8 +347,8 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 		query.FilterDateMinMax(field, value[0], value[1])
 	}
 
-	for field, value := range params.StringExactFilters {
-		query.FilterString(field, value)
+	for field, value := range params.EnumFilters {
+		query.FilterTag(field, value)
 	}
 
 	for field, value := range params.StringStartsWithFilters {
@@ -400,7 +395,7 @@ func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
 		where.Append("AND "+field+" = ?", value)
 	}
 
-	for field, value := range params.StringExactFilters {
+	for field, value := range params.EnumFilters {
 		where.Append("AND "+field+" = ?", value)
 	}
 

@@ -4,7 +4,7 @@ const (
 	NumberType           = "Number"
 	ArrayNumberType      = "ArrayNumber"
 	RangeNumberType      = "RangeNumber"
-	StringType           = "String"
+	StringType           = "StringExact"
 	StringStartsWithType = "StringStartsWith"
 	ArrayStringType      = "ArrayString"
 	EnumType             = "Enum"
