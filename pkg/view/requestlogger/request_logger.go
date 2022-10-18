@@ -28,7 +28,6 @@ func columns() []crud.Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     false,
 			FilterValidMap: nil,
 		},
 		{
@@ -38,7 +37,6 @@ func columns() []crud.Column {
 			Searchable:     true,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     false,
 			FilterValidMap: nil,
 		},
 		{
@@ -48,7 +46,6 @@ func columns() []crud.Column {
 			Searchable:     true,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     false,
 			FilterValidMap: nil,
 		},
 		{
@@ -58,7 +55,6 @@ func columns() []crud.Column {
 			Searchable:     true,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     false,
 			FilterValidMap: nil,
 		},
 		{
@@ -68,7 +64,6 @@ func columns() []crud.Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     false,
 			FilterValidMap: nil,
 		},
 		{
@@ -78,7 +73,6 @@ func columns() []crud.Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     false,
 			FilterValidMap: nil,
 		},
 		{
@@ -88,7 +82,6 @@ func columns() []crud.Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     false,
 			FilterValidMap: nil,
 		},
 		{
@@ -98,7 +91,6 @@ func columns() []crud.Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     false,
 			FilterValidMap: nil,
 		},
 	}

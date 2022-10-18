@@ -18,7 +18,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       true,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		},
 		{
@@ -28,7 +27,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		},
 		{
@@ -38,7 +36,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		}, {
 			Key:            "StringTypeFilterable",
@@ -47,7 +44,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		}, {
 			Key:            "StringTypeSearchable",
@@ -56,7 +52,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       true,
 			Visible:        true,
-			Filterable:     false,
 			FilterValidMap: nil,
 		}, {
 			Key:            "ArrayStringType",
@@ -65,7 +60,6 @@ func columns() []Column {
 			Searchable:     true,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		}, {
 			Key:            "EnumType",
@@ -74,7 +68,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		}, {
 			Key:            "DateTimeType",
@@ -83,7 +76,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		}, {
 			Key:            "DateType",
@@ -92,7 +84,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		}, {
 			Key:            "RangeDateTimeType",
@@ -101,7 +92,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		}, {
 			Key:            "RangeDateType",
@@ -110,7 +100,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		}, {
 			Key:            "BooleanType",
@@ -119,7 +108,6 @@ func columns() []Column {
 			Searchable:     false,
 			Sortable:       false,
 			Visible:        true,
-			Filterable:     true,
 			FilterValidMap: nil,
 		},
 	}
@@ -131,7 +119,7 @@ func TestExtractListParams(t *testing.T) {
 		searchParam := crud.ExtractListParams(columns(), &ListRequest{
 			Page:     pointer.Int(1),
 			PageSize: pointer.Int(15),
-			Filter: map[string]interface{}{
+			Search: map[string]interface{}{
 				"NumberType": int64(1),
 			},
 		})
@@ -160,7 +148,7 @@ func TestExtractListParams(t *testing.T) {
 		searchParam := crud.ExtractListParams(columns(), &ListRequest{
 			Page:     pointer.Int(1),
 			PageSize: pointer.Int(15),
-			Filter: map[string]interface{}{
+			Search: map[string]interface{}{
 				"NumberType": float64(1),
 			},
 		})
@@ -188,7 +176,7 @@ func TestExtractListParams(t *testing.T) {
 		searchParam := crud.ExtractListParams(columns(), &ListRequest{
 			Page:     pointer.Int(1),
 			PageSize: pointer.Int(15),
-			Filter: map[string]interface{}{
+			Search: map[string]interface{}{
 				"ArrayNumberType": []int64{1, 100, 112},
 			},
 		})
@@ -216,7 +204,7 @@ func TestExtractListParams(t *testing.T) {
 		searchParam := crud.ExtractListParams(columns(), &ListRequest{
 			Page:     pointer.Int(1),
 			PageSize: pointer.Int(15),
-			Filter: map[string]interface{}{
+			Search: map[string]interface{}{
 				"RangeNumberType": []int64{1, 100},
 			},
 		})
@@ -244,7 +232,7 @@ func TestExtractListParams(t *testing.T) {
 		searchParam := crud.ExtractListParams(columns(), &ListRequest{
 			Page:     pointer.Int(1),
 			PageSize: pointer.Int(15),
-			Filter: map[string]interface{}{
+			Search: map[string]interface{}{
 				"RangeNumberType": []int64{1, 100},
 			},
 		})
@@ -272,7 +260,7 @@ func TestExtractListParams(t *testing.T) {
 		searchParam := crud.ExtractListParams(columns(), &ListRequest{
 			Page:     pointer.Int(1),
 			PageSize: pointer.Int(15),
-			Filter: map[string]interface{}{
+			Search: map[string]interface{}{
 				"NumberType": json.Number("1"),
 			},
 		})

@@ -32,7 +32,6 @@ func ValidateListRequest(request list.RequestDTOList, pageSizeMin, pageSizeMax i
 	return &crud.ListRequest{
 		Page:     request.Page,
 		PageSize: request.PageSize,
-		Filter:   request.Filter,
 		Search:   request.Search,
 		SearchOR: request.SearchOR,
 		Sort:     request.Sort,

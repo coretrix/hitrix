@@ -37,7 +37,6 @@ type Column struct {
 	Type           string
 	Searchable     bool
 	Sortable       bool
-	Filterable     bool
 	Visible        bool
 	FilterValidMap []FilterValue
 }
@@ -50,7 +49,6 @@ type FilterValue struct {
 type ListRequest struct {
 	Page     *int
 	PageSize *int
-	Filter   map[string]interface{}
 	Search   map[string]interface{}
 	SearchOR map[string]interface{}
 	Sort     map[string]interface{}
@@ -71,7 +69,6 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 		finalPageSize = *request.PageSize
 	}
 
-	var stringORStartsWithSearch = make([]string, 0)
 	var stringStartsWithSearch = make([]string, 0)
 	var arrayStringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
@@ -90,20 +87,10 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 			sortables = append(sortables, column.Key)
 		}
 
-		if column.Searchable && column.Type == StringType {
-			stringStartsWithSearch = append(stringStartsWithSearch, column.Key)
-
-			continue
-		}
-
 		if column.Searchable {
-			stringORStartsWithSearch = append(stringORStartsWithSearch, column.Key)
-
-			continue
-		}
-
-		if column.Filterable {
 			switch column.Type {
+			case StringType:
+				stringStartsWithSearch = append(stringStartsWithSearch, column.Key)
 			case ArrayStringType:
 				arrayStringFilters = append(arrayStringFilters, column.Key)
 			case BooleanType:
@@ -143,7 +130,7 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 	var selectedORFilters = make(map[string]string)
 
 mainLoop:
-	for field, value := range request.Filter {
+	for field, value := range request.Search {
 		switch reflect.TypeOf(value).Kind() {
 		case reflect.Int64:
 			if helper.StringInArray(field, numberFilters...) {
@@ -253,13 +240,7 @@ mainLoop:
 					}
 				}
 			}
-		}
-	}
 
-	for field, value := range request.Search {
-		stringValue, ok := value.(string)
-
-		if ok {
 			if helper.StringInArray(field, stringStartsWithSearch...) {
 				selectedStringStartsWithFilters[field] = stringValue
 
@@ -272,7 +253,7 @@ mainLoop:
 		stringValue, ok := value.(string)
 
 		if ok && len(stringValue) >= 2 {
-			if helper.StringInArray(field, stringORStartsWithSearch...) {
+			if helper.StringInArray(field, stringStartsWithSearch...) {
 				selectedORFilters[field] = stringValue
 			}
 		}
