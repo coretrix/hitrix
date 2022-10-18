@@ -61,7 +61,7 @@ type Crud struct {
 
 func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchParams {
 	finalPage := 1
-	finalPageSize := 10
+	finalPageSize := 20
 
 	if request.Page != nil && *request.Page > 0 {
 		finalPage = *request.Page
