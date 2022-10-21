@@ -137,7 +137,7 @@ func (i *RapidAPIInstagram28) GetFeed(accountID int64, nextPageToken string) ([]
 					} `json:"page_info"`
 
 					Edges []struct {
-						Node instagram40Post
+						Node instagram28Post
 					}
 				} `json:"edge_owner_to_timeline_media"`
 			}
@@ -171,7 +171,7 @@ func (i *RapidAPIInstagram28) GetFeed(accountID int64, nextPageToken string) ([]
 	return posts, nextPageToken, nil
 }
 
-type instagram40Post struct {
+type instagram28Post struct {
 	ID                 string
 	Type               string `json:"__typename"`
 	DisplayURL         string `json:"display_url"`
@@ -186,12 +186,12 @@ type instagram40Post struct {
 	} `json:"edge_media_to_caption"`
 	EdgeSidecarToChildren struct {
 		Edges []struct {
-			Node instagram40Post
+			Node instagram28Post
 		}
 	} `json:"edge_sidecar_to_children"`
 }
 
-func (p instagram40Post) ToPost() *Post {
+func (p instagram28Post) ToPost() *Post {
 	post := &Post{
 		ID:        p.ID,
 		CreatedAt: p.CreatedTime,
