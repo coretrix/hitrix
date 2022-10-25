@@ -57,3 +57,8 @@ type RequestDTOMerchantSave struct {
 
 Using `binding` you can define all rules needed for the particular validation
 Using `conform` you can trim the value before validation to be applied
+
+
+##### Validation notes
+	RepatriationAfterTyreBlockInMinutes int               `binding:"numeric,gte=0"`
+If you want to support 0 value you should not put `required` tag for the fields because the validator thinks that zero is not a value
