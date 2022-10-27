@@ -18,7 +18,7 @@ type SearchParams struct {
 	PageSize             int
 	StringORFilters      map[string]string
 	StringFilters        map[string]string
-	EnumFilters          map[string]string
+	TagFilters           map[string]string
 	ArrayStringFilters   map[string][]string
 	NumberFilters        map[string]int64
 	ArrayNumberFilters   map[string][]int64
@@ -32,16 +32,22 @@ type SearchParams struct {
 }
 
 type Column struct {
-	Key            string
-	Label          string
-	Type           string
-	Searchable     bool
-	Sortable       bool
-	Visible        bool
-	FilterValidMap []FilterValue
+	Key                      string
+	Label                    string
+	Type                     string
+	Searchable               bool
+	Sortable                 bool
+	Visible                  bool
+	DataStringKeyStringValue []StringKeyStringValue
+	DataIntKeyStringValue    []IntKeyStringValue
 }
 
-type FilterValue struct {
+type IntKeyStringValue struct {
+	Key   uint64
+	Label string
+}
+
+type StringKeyStringValue struct {
 	Key   string
 	Label string
 }
@@ -72,7 +78,8 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 	var stringStartsWithSearch = make([]string, 0)
 	var arrayStringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
-	var stringEnumFilters = make(map[string][]FilterValue)
+	var mapStringStringFilters = make(map[string][]StringKeyStringValue)
+	var mapIntStringFilters = make(map[string][]IntKeyStringValue)
 	var numberFilters = make([]string, 0)
 	var rangeNumberFilters = make([]string, 0)
 	var arrayNumberFilters = make([]string, 0)
@@ -89,33 +96,35 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 
 		if column.Searchable {
 			switch column.Type {
-			case StringType:
+			case InputTypeString:
 				stringStartsWithSearch = append(stringStartsWithSearch, column.Key)
 			case ArrayStringType:
 				arrayStringFilters = append(arrayStringFilters, column.Key)
-			case BooleanType:
+			case CheckboxTypeBoolean:
 				booleanFilters = append(booleanFilters, column.Key)
-			case RangeNumberType:
+			case RangeSliderTypeArrayNumber:
 				rangeNumberFilters = append(rangeNumberFilters, column.Key)
-			case ArrayNumberType:
+			case MultiSelectTypeArrayNumber:
 				arrayNumberFilters = append(arrayNumberFilters, column.Key)
-			case NumberType:
+			case InputTypeNumber:
 				numberFilters = append(numberFilters, column.Key)
-			case EnumType:
-				stringEnumFilters[column.Key] = column.FilterValidMap
-			case DateTimeType:
+			case SelectTypeStringString:
+				mapStringStringFilters[column.Key] = column.DataStringKeyStringValue
+			case SelectTypeIntString:
+				mapIntStringFilters[column.Key] = column.DataIntKeyStringValue
+			case DateTimePickerTypeDateTime:
 				dateTimeFilters = append(dateTimeFilters, column.Key)
-			case DateType:
+			case DatePickerTypeDate:
 				dateFilters = append(dateFilters, column.Key)
-			case RangeDateTimeType:
+			case RangeDateTimePickerTypeArrayDateTime:
 				rangeDateTimeFilters = append(rangeDateTimeFilters, column.Key)
-			case RangeDateType:
+			case RangeDatePickerTypeArrayDate:
 				rangeDateFilters = append(rangeDateFilters, column.Key)
 			}
 		}
 	}
 
-	var selectedEnumFilters = make(map[string]string)
+	var selectedMapStringStringFilters = make(map[string]string)
 	var selectedStringStartsWithFilters = make(map[string]string)
 	var selectedArrayStringFilters = make(map[string][]string)
 	var selectedNumberFilters = make(map[string]int64)
@@ -137,6 +146,18 @@ mainLoop:
 				selectedNumberFilters[field] = value.(int64)
 
 				continue mainLoop
+			}
+
+			for selectFiledName := range mapIntStringFilters {
+				if field == selectFiledName {
+					for _, filterValue := range mapIntStringFilters[selectFiledName] {
+						if int64(filterValue.Key) == value.(int64) {
+							selectedNumberFilters[field] = value.(int64)
+
+							continue mainLoop
+						}
+					}
+				}
 			}
 		case reflect.Float64:
 			if helper.StringInArray(field, numberFilters...) {
@@ -229,11 +250,11 @@ mainLoop:
 				continue mainLoop
 			}
 
-			for enumFiledName := range stringEnumFilters {
-				if field == enumFiledName {
-					for _, filterValue := range stringEnumFilters[enumFiledName] {
+			for selectFiledName := range mapStringStringFilters {
+				if field == selectFiledName {
+					for _, filterValue := range mapStringStringFilters[selectFiledName] {
 						if filterValue.Key == stringValue {
-							selectedEnumFilters[field] = stringValue
+							selectedMapStringStringFilters[field] = stringValue
 
 							continue mainLoop
 						}
@@ -271,7 +292,7 @@ mainLoop:
 	return SearchParams{
 		Page:                 finalPage,
 		PageSize:             finalPageSize,
-		EnumFilters:          selectedEnumFilters,
+		TagFilters:           selectedMapStringStringFilters,
 		StringORFilters:      selectedORFilters,
 		StringFilters:        selectedStringStartsWithFilters,
 		ArrayStringFilters:   selectedArrayStringFilters,
@@ -318,7 +339,7 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 		query.FilterDateMinMax(field, value[0], value[1])
 	}
 
-	for field, value := range params.EnumFilters {
+	for field, value := range params.TagFilters {
 		query.FilterTag(field, value)
 	}
 
@@ -366,7 +387,7 @@ func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
 		where.Append("AND "+field+" = ?", value)
 	}
 
-	for field, value := range params.EnumFilters {
+	for field, value := range params.TagFilters {
 		where.Append("AND "+field+" = ?", value)
 	}
 
