@@ -23,7 +23,7 @@ func columns() []crud.Column {
 	return []crud.Column{
 		{
 			Key:                      "ID",
-			Type:                     crud.InputTypeNumber,
+			FilterType:               crud.InputTypeNumber,
 			Label:                    "ID",
 			Searchable:               false,
 			Sortable:                 false,
@@ -32,7 +32,7 @@ func columns() []crud.Column {
 		},
 		{
 			Key:                      "UserID",
-			Type:                     crud.InputTypeNumber,
+			FilterType:               crud.InputTypeNumber,
 			Label:                    "UserID",
 			Searchable:               true,
 			Sortable:                 false,
@@ -41,7 +41,7 @@ func columns() []crud.Column {
 		},
 		{
 			Key:                      "URL",
-			Type:                     crud.InputTypeString,
+			FilterType:               crud.InputTypeString,
 			Label:                    "URL",
 			Searchable:               true,
 			Sortable:                 false,
@@ -50,7 +50,7 @@ func columns() []crud.Column {
 		},
 		{
 			Key:                      "AppName",
-			Type:                     crud.InputTypeString,
+			FilterType:               crud.InputTypeString,
 			Label:                    "AppName",
 			Searchable:               true,
 			Sortable:                 false,
@@ -59,7 +59,7 @@ func columns() []crud.Column {
 		},
 		{
 			Key:                      "Request",
-			Type:                     crud.InputTypeString,
+			FilterType:               crud.InputTypeString,
 			Label:                    "Request",
 			Searchable:               false,
 			Sortable:                 false,
@@ -68,7 +68,7 @@ func columns() []crud.Column {
 		},
 		{
 			Key:                      "Response",
-			Type:                     crud.InputTypeString,
+			FilterType:               crud.InputTypeString,
 			Label:                    "Response",
 			Searchable:               false,
 			Sortable:                 false,
@@ -77,7 +77,7 @@ func columns() []crud.Column {
 		},
 		{
 			Key:                      "Status",
-			Type:                     crud.InputTypeNumber,
+			FilterType:               crud.InputTypeNumber,
 			Label:                    "Status",
 			Searchable:               false,
 			Sortable:                 false,
@@ -86,7 +86,7 @@ func columns() []crud.Column {
 		},
 		{
 			Key:                      "CreatedAt",
-			Type:                     crud.DateTimePickerTypeDateTime,
+			FilterType:               crud.DateTimePickerTypeDateTime,
 			Label:                    "CreatedAt",
 			Searchable:               false,
 			Sortable:                 false,

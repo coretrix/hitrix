@@ -34,7 +34,7 @@ type SearchParams struct {
 type Column struct {
 	Key                      string
 	Label                    string
-	Type                     string
+	FilterType               string
 	Searchable               bool
 	Sortable                 bool
 	Visible                  bool
@@ -95,7 +95,7 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 		}
 
 		if column.Searchable {
-			switch column.Type {
+			switch column.FilterType {
 			case InputTypeString:
 				stringStartsWithSearch = append(stringStartsWithSearch, column.Key)
 			case ArrayStringType:
