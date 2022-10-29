@@ -194,6 +194,10 @@ module.exports = [
                         text: 'Request logger',
                         link: '/guide/features/request_logger',
                     },
+                    {
+                        text: 'Upload files',
+                        link: '/guide/features/upload_files',
+                    },
                 ],
             },
             {
