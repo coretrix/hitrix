@@ -3,13 +3,13 @@ package file
 import (
 	"context"
 	"fmt"
-	"github.com/coretrix/hitrix/pkg/dto/file"
-	"github.com/coretrix/hitrix/pkg/entity"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/coretrix/hitrix/pkg/dto/file"
+	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/errors"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/oss"

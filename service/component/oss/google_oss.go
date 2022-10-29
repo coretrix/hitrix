@@ -3,7 +3,6 @@ package oss
 import (
 	"encoding/base64"
 	"errors"
-	"github.com/coretrix/hitrix/pkg/entity"
 	"io"
 	"net/http"
 	"os"
@@ -16,6 +15,7 @@ import (
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 
+	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -126,7 +126,8 @@ func (ossStorage *GoogleOSS) GetObjectBase64Content(bucket Bucket, object *entit
 	return base64.StdEncoding.EncodeToString(content), nil
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *GoogleOSS) UploadObjectFromFile(
+	ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error) {
 	fileContent, ext, err := readContentFile(localFile)
 
 	if err != nil {
@@ -168,7 +169,8 @@ func (ossStorage *GoogleOSS) UploadImageFromBase64(
 	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, extension)
 }
 
-func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *GoogleOSS) UploadImageFromFile(
+	ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error) {
 	return ossStorage.UploadObjectFromFile(ormService, bucket, namespace, localFile)
 }
 

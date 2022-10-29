@@ -14,5 +14,4 @@ func FileRouter(ginEngine *gin.Engine) {
 	{
 		fileGroup.POST("upload/", fileController.PostUploadImageAction)
 	}
-
 }

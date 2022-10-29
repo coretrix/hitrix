@@ -1,12 +1,13 @@
 package controller
 
 import (
+	"github.com/gin-gonic/gin"
+
 	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/dto/file"
 	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
 	fileModel "github.com/coretrix/hitrix/pkg/model/file"
 	"github.com/coretrix/hitrix/pkg/response"
-	"github.com/gin-gonic/gin"
 )
 
 type FileController struct {

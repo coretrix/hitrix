@@ -22,7 +22,6 @@ type Upload struct {
 }
 
 type RequestDTOUploadFile struct {
-	//nolint //long tags
 	Namespace string                `form:"namespace" json:"namespace" binding:"required"`
 	File      *multipart.FileHeader `form:"file" json:"file" binding:"required" swaggerignore:"true"`
 }

@@ -11,7 +11,7 @@ type CDNInterface interface {
 	GetImageURLWithTemplate(image string) string
 }
 
-func GetFileTypeCounter(fileOss *oss.Object, bucket oss.Bucket, private bool) *file.File {
+func GetFileTypeCounter(fileOss *entity.FileObject, bucket oss.Bucket, private bool) *file.File {
 	if fileOss == nil {
 		return nil
 	}
@@ -29,7 +29,7 @@ func GetFileTypeCounter(fileOss *oss.Object, bucket oss.Bucket, private bool) *f
 	}
 }
 
-func GetFileTypeCounterWithCDN(fileOss *oss.Object, bucket oss.Bucket, private bool, cdn CDNInterface) *file.File {
+func GetFileTypeCounterWithCDN(fileOss *entity.FileObject, bucket oss.Bucket, private bool, cdn CDNInterface) *file.File {
 	if fileOss == nil {
 		return nil
 	}
