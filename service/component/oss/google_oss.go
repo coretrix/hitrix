@@ -183,7 +183,10 @@ func (ossStorage *GoogleOSS) UploadObjectFromByte(
 ) (entity.FileObject, error) {
 	bucketConfig := ossStorage.buckets[bucket]
 
-	bucketConfig.validateNamespace(namespace)
+	err := bucketConfig.validateNamespace(namespace)
+	if err != nil {
+		return entity.FileObject{}, err
+	}
 
 	storageCounter := getStorageCounter(ormService, ossStorage.buckets[bucket])
 
@@ -194,7 +197,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromByte(
 	//TODO Remove
 	ossStorage.setObjectContentType(ossBucketObject, extension)
 
-	_, err := ossBucketObject.Write(objectContent)
+	_, err = ossBucketObject.Write(objectContent)
 
 	if err != nil {
 		return entity.FileObject{}, err

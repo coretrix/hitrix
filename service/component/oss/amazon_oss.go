@@ -138,7 +138,10 @@ func (ossStorage *AmazonOSS) UploadObjectFromByte(
 ) (entity.FileObject, error) {
 	bucketConfig := ossStorage.buckets[bucket]
 
-	bucketConfig.validateNamespace(namespace)
+	err := bucketConfig.validateNamespace(namespace)
+	if err != nil {
+		return entity.FileObject{}, err
+	}
 
 	storageCounter := getStorageCounter(ormService, bucketConfig)
 
@@ -154,7 +157,7 @@ func (ossStorage *AmazonOSS) UploadObjectFromByte(
 		putObjectInput.ACL = aws.String(bucketConfig.ACL)
 	}
 
-	_, err := ossStorage.client.PutObject(putObjectInput)
+	_, err = ossStorage.client.PutObject(putObjectInput)
 
 	if err != nil {
 		return entity.FileObject{}, err

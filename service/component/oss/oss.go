@@ -1,6 +1,7 @@
 package oss
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -65,12 +66,14 @@ type BucketConfig struct {
 	ACL                      string
 }
 
-func (b *BucketConfig) validateNamespace(namespace Namespace) {
+func (b *BucketConfig) validateNamespace(namespace Namespace) error {
 	_, has := b.Namespaces[namespace]
 
 	if !has {
-		panic("Namespace [" + namespace.String() + "] not found in " + b.Type.String())
+		return errors.New("Namespace [" + namespace.String() + "] not found in " + b.Type.String())
 	}
+
+	return nil
 }
 
 func loadBucketsConfig(configService config.IConfig, publicNamespaces, privateNamespaces []Namespace) map[Bucket]*BucketConfig {
