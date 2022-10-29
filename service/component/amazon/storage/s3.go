@@ -113,7 +113,7 @@ func (amazonS3 *AmazonS3) getBucketName(bucketName string) string {
 	return ""
 }
 
-func (amazonS3 *AmazonS3) DeleteObject(bucket string, objects ...*Object) bool {
+func (amazonS3 *AmazonS3) DeleteObject(bucket string, objects ...*entity.FileObject) bool {
 	objectIds := make([]*s3.ObjectIdentifier, len(objects))
 
 	for i, file := range objects {
@@ -225,7 +225,7 @@ func (amazonS3 *AmazonS3) getPublicUrlsForBucket(bucketName string) string {
 	return ""
 }
 
-func (amazonS3 *AmazonS3) GetObjectCachedURL(bucket string, object *Object) string {
+func (amazonS3 *AmazonS3) GetObjectCachedURL(bucket string, object *entity.FileObject) string {
 	amazonS3.checkBucket(bucket)
 
 	url := amazonS3.getPublicUrlsForBucket(bucket)
@@ -254,7 +254,7 @@ func (amazonS3 *AmazonS3) GetObjectCachedURL(bucket string, object *Object) stri
 	return text
 }
 
-func (amazonS3 *AmazonS3) GetObjectSignedURL(bucket string, object *Object, expiresIn time.Duration) string {
+func (amazonS3 *AmazonS3) GetObjectSignedURL(bucket string, object *entity.FileObject, expiresIn time.Duration) string {
 	amazonS3.checkBucket(bucket)
 
 	bucketByEnv := amazonS3.getBucketName(bucket)
@@ -299,12 +299,12 @@ type Client interface {
 	GetClient() interface{}
 	GetBucketName(bucket string) string
 	CreateObjectFromKey(ormService *beeorm.Engine, bucket, key string) Object
-	GetObjectCachedURL(bucket string, object *Object) string
-	GetObjectSignedURL(bucket string, object *Object, expires time.Duration) string
+	GetObjectCachedURL(bucket string, object *entity.FileObject) string
+	GetObjectSignedURL(bucket string, object *entity.FileObject, expires time.Duration) string
 	UploadObjectFromFile(ormService *beeorm.Engine, bucket, localFile string) Object
 	UploadObjectFromBase64(ormService *beeorm.Engine, bucket, content, extension string) Object
 	UploadObjectFromByte(ormService *beeorm.Engine, bucket string, data []byte, extension string) Object
 	UploadImageFromFile(ormService *beeorm.Engine, bucket, localFile string) Object
 	UploadImageFromBase64(ormService *beeorm.Engine, bucket, image, extension string) Object
-	DeleteObject(bucket string, objects ...*Object) bool
+	DeleteObject(bucket string, objects ...*entity.FileObject) bool
 }

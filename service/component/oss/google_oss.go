@@ -3,6 +3,7 @@ package oss
 import (
 	"encoding/base64"
 	"errors"
+	"github.com/coretrix/hitrix/pkg/entity"
 	"io"
 	"net/http"
 	"os"
@@ -70,7 +71,7 @@ func (ossStorage *GoogleOSS) GetClient() interface{} {
 	return ossStorage.client
 }
 
-func (ossStorage *GoogleOSS) GetObjectURL(bucket Bucket, object *Object) (string, error) {
+func (ossStorage *GoogleOSS) GetObjectURL(bucket Bucket, object *entity.FileObject) (string, error) {
 	cdnURL, err := ossStorage.GetObjectCDNURL(bucket, object)
 
 	if err != nil {
@@ -84,7 +85,7 @@ func (ossStorage *GoogleOSS) GetObjectURL(bucket Bucket, object *Object) (string
 	return ossStorage.GetObjectOSSURL(bucket, object)
 }
 
-func (ossStorage *GoogleOSS) GetObjectOSSURL(bucket Bucket, object *Object) (string, error) {
+func (ossStorage *GoogleOSS) GetObjectOSSURL(bucket Bucket, object *entity.FileObject) (string, error) {
 	ossBucketObjectAttributes, err := ossStorage.client.Bucket(ossStorage.buckets[bucket].Name).Object(object.StorageKey).Attrs(ossStorage.ctx)
 
 	if err != nil {
@@ -94,11 +95,11 @@ func (ossStorage *GoogleOSS) GetObjectOSSURL(bucket Bucket, object *Object) (str
 	return ossBucketObjectAttributes.MediaLink, nil
 }
 
-func (ossStorage *GoogleOSS) GetObjectCDNURL(bucket Bucket, object *Object) (string, error) {
+func (ossStorage *GoogleOSS) GetObjectCDNURL(bucket Bucket, object *entity.FileObject) (string, error) {
 	return getObjectCDNURL(ossStorage.buckets[bucket], object.StorageKey), nil
 }
 
-func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket Bucket, object *Object, expires time.Time) (string, error) {
+func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket Bucket, object *entity.FileObject, expires time.Time) (string, error) {
 	return storage.SignedURL(ossStorage.buckets[bucket].Name,
 		object.StorageKey,
 		&storage.SignedURLOptions{
@@ -109,7 +110,7 @@ func (ossStorage *GoogleOSS) GetObjectSignedURL(bucket Bucket, object *Object, e
 		})
 }
 
-func (ossStorage *GoogleOSS) GetObjectBase64Content(bucket Bucket, object *Object) (string, error) {
+func (ossStorage *GoogleOSS) GetObjectBase64Content(bucket Bucket, object *entity.FileObject) (string, error) {
 	reader, err := ossStorage.client.Bucket(ossStorage.buckets[bucket].Name).Object(object.StorageKey).NewReader(context.Background())
 
 	if err != nil {
@@ -125,11 +126,11 @@ func (ossStorage *GoogleOSS) GetObjectBase64Content(bucket Bucket, object *Objec
 	return base64.StdEncoding.EncodeToString(content), nil
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (Object, error) {
+func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error) {
 	fileContent, ext, err := readContentFile(localFile)
 
 	if err != nil {
-		return Object{}, err
+		return entity.FileObject{}, err
 	}
 
 	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, fileContent, ext)
@@ -141,11 +142,11 @@ func (ossStorage *GoogleOSS) UploadObjectFromBase64(
 	namespace Namespace,
 	base64content,
 	extension string,
-) (Object, error) {
+) (entity.FileObject, error) {
 	byteData, err := base64.StdEncoding.DecodeString(base64content)
 
 	if err != nil {
-		return Object{}, err
+		return entity.FileObject{}, err
 	}
 
 	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, extension)
@@ -157,17 +158,17 @@ func (ossStorage *GoogleOSS) UploadImageFromBase64(
 	namespace Namespace,
 	base64image string,
 	extension string,
-) (Object, error) {
+) (entity.FileObject, error) {
 	byteData, err := base64.StdEncoding.DecodeString(base64image)
 
 	if err != nil {
-		return Object{}, err
+		return entity.FileObject{}, err
 	}
 
 	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, extension)
 }
 
-func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (Object, error) {
+func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error) {
 	return ossStorage.UploadObjectFromFile(ormService, bucket, namespace, localFile)
 }
 
@@ -177,7 +178,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromByte(
 	namespace Namespace,
 	objectContent []byte,
 	extension string,
-) (Object, error) {
+) (entity.FileObject, error) {
 	bucketConfig := ossStorage.buckets[bucket]
 
 	bucketConfig.validateNamespace(namespace)
@@ -194,27 +195,27 @@ func (ossStorage *GoogleOSS) UploadObjectFromByte(
 	_, err := ossBucketObject.Write(objectContent)
 
 	if err != nil {
-		return Object{}, err
+		return entity.FileObject{}, err
 	}
 
 	err = ossBucketObject.Close()
 
 	if err != nil {
-		return Object{}, err
+		return entity.FileObject{}, err
 	}
 
-	return Object{
+	return entity.FileObject{
 		ID:         storageCounter,
 		StorageKey: objectKey,
 	}, nil
 }
 
-func (ossStorage *GoogleOSS) DeleteObject(_ Bucket, _ *Object) error {
+func (ossStorage *GoogleOSS) DeleteObject(_ Bucket, _ *entity.FileObject) error {
 	panic("not implemented")
 }
 
-func (ossStorage *GoogleOSS) CreateObjectFromKey(ormService *beeorm.Engine, bucket Bucket, key string) Object {
-	return Object{
+func (ossStorage *GoogleOSS) CreateObjectFromKey(ormService *beeorm.Engine, bucket Bucket, key string) entity.FileObject {
+	return entity.FileObject{
 		ID:         getStorageCounter(ormService, ossStorage.buckets[bucket]),
 		StorageKey: key,
 	}

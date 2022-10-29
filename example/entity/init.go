@@ -14,6 +14,7 @@ func Init(registry *beeorm.Registry) {
 		&entity.OTPTrackerEntity{},
 		&entity.FeatureFlagEntity{},
 		&entity.RequestLoggerEntity{},
+		&entity.FileEntity{},
 	)
 
 	registry.RegisterEnumStruct("entity.APILogTypeAll", APILogTypeAll)
@@ -23,4 +24,5 @@ func Init(registry *beeorm.Registry) {
 	registry.RegisterEnumStruct("entity.OTPTrackerTypeAll", entity.OTPTrackerTypeAll)
 	registry.RegisterEnumStruct("entity.OTPTrackerGatewaySendStatusAll", entity.OTPTrackerGatewaySendStatusAll)
 	registry.RegisterEnumStruct("entity.OTPTrackerGatewayVerifyStatusAll", entity.OTPTrackerGatewayVerifyStatusAll)
+	registry.RegisterEnumStruct("entity.FileStatusAll", entity.FileStatusAll)
 }

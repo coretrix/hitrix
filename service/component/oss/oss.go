@@ -41,25 +41,19 @@ type NewProviderFunc func(configService config.IConfig, clockService clock.ICloc
 type IProvider interface {
 	GetBucketConfig(bucket Bucket) *BucketConfig
 	GetClient() interface{}
-	GetObjectURL(bucket Bucket, object *Object) (string, error)
-	GetObjectOSSURL(bucket Bucket, object *Object) (string, error)
-	GetObjectCDNURL(bucket Bucket, object *Object) (string, error)
-	GetObjectSignedURL(bucket Bucket, object *Object, expires time.Time) (string, error)
-	GetObjectBase64Content(bucket Bucket, object *Object) (string, error)
-	UploadObjectFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (Object, error)
-	UploadObjectFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, content, extension string) (Object, error)
-	UploadObjectFromByte(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, content []byte, extension string) (Object, error)
-	UploadImageFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (Object, error)
-	UploadImageFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, image, extension string) (Object, error)
-	DeleteObject(bucket Bucket, object *Object) error
+	GetObjectURL(bucket Bucket, object *entity.FileObject) (string, error)
+	GetObjectOSSURL(bucket Bucket, object *entity.FileObject) (string, error)
+	GetObjectCDNURL(bucket Bucket, object *entity.FileObject) (string, error)
+	GetObjectSignedURL(bucket Bucket, object *entity.FileObject, expires time.Time) (string, error)
+	GetObjectBase64Content(bucket Bucket, object *entity.FileObject) (string, error)
+	UploadObjectFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error)
+	UploadObjectFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, content, extension string) (entity.FileObject, error)
+	UploadObjectFromByte(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, content []byte, extension string) (entity.FileObject, error)
+	UploadImageFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error)
+	UploadImageFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, image, extension string) (entity.FileObject, error)
+	DeleteObject(bucket Bucket, object *entity.FileObject) error
 	// CreateObjectFromKey TODO Remove
-	CreateObjectFromKey(ormService *beeorm.Engine, bucket Bucket, key string) Object
-}
-
-type Object struct {
-	ID         uint64
-	StorageKey string
-	Data       interface{}
+	CreateObjectFromKey(ormService *beeorm.Engine, bucket Bucket, key string) entity.FileObject
 }
 
 type BucketConfig struct {

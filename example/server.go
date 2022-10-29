@@ -40,7 +40,7 @@ func main() {
 	).RegisterDIRequestService(
 		registry.ServiceProviderOrmEngineForContext(false),
 	).RegisterRedisPools(&app.RedisPools{Persistent: "default", Cache: "default"}).
-		RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.Router).Build()
+		RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.DevPanelRouter).Build()
 	defer deferFunc()
 
 	b := &hitrix.BackgroundProcessor{Server: s}
