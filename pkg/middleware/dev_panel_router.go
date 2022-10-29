@@ -7,7 +7,7 @@ import (
 	"github.com/coretrix/hitrix/service"
 )
 
-func Router(ginEngine *gin.Engine) {
+func DevPanelRouter(ginEngine *gin.Engine) {
 	_ = service.DI().JWT()
 
 	var devPanel *controller.DevPanelController
