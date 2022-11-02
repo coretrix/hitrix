@@ -37,7 +37,7 @@ type FileEntity struct {
 	beeorm.ORM `orm:"table=files;redisSearch=search_pool"`
 	ID         uint64 `orm:"searchable;sortable"`
 	File       *FileObject
-	Status     string    `orm:"required;enum=entity.FileStatusAll;searchable"`
-	Namespace  string    `orm:"required;unique=Namespace;searchable"`
-	CreatedAt  time.Time `orm:"time=true;searchable"`
+	Status     string    `orm:"required;enum=entity.FileStatusAll"`
+	Namespace  string    `orm:"required;searchable"`
+	CreatedAt  time.Time `orm:"time=true"`
 }

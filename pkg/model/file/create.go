@@ -65,7 +65,7 @@ func CreateFile(ctx context.Context, newFile *file.RequestDTOUploadImage) (*file
 	fileEntity := &entity.FileEntity{
 		File:      &obj,
 		Namespace: newFile.Namespace.String(),
-		Status:    entity.FileStatusProcessed.String(),
+		Status:    entity.FileStatusNew.String(),
 		CreatedAt: service.DI().Clock().Now(),
 	}
 
