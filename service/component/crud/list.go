@@ -236,6 +236,10 @@ mainLoop:
 
 			stringValue := value.(string)
 
+			if stringValue == "" {
+				continue mainLoop
+			}
+
 			if helper.StringInArray(field, dateTimeFilters...) {
 				dateTimeValue, _ := time.Parse(helper.TimeLayoutRFC3339Milli, stringValue)
 				selectedDateTimeFilters[field] = dateTimeValue
@@ -308,7 +312,7 @@ mainLoop:
 	}
 }
 
-//GenerateListRedisSearchQuery TODO : add full text queries when supported by hitrix
+// GenerateListRedisSearchQuery TODO : add full text queries when supported by hitrix
 func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSearchQuery {
 	query := &beeorm.RedisSearchQuery{}
 	for field, value := range params.NumberFilters {
