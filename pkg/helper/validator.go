@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"sync"
+	"time"
 
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
@@ -103,6 +104,10 @@ type CustomValidation struct {
 }
 
 var customValidations = map[string]CustomValidation{
+	"timestamp_gte_now": {
+		ValidatorFunction:  validateTimestampGteNow,
+		TranslationMessage: "value should be greater than now",
+	},
 	"country_code_custom": {
 		ValidatorFunction:  validateCountryCodeAlpha2,
 		TranslationMessage: "not a valid Country Code",
@@ -119,6 +124,13 @@ func validateCountryCodeAlpha2(fl validator.FieldLevel) bool {
 	_, err := query.FindCountryByAlpha(fl.Field().String())
 
 	return err == nil
+}
+
+func validateTimestampGteNow(fl validator.FieldLevel) bool {
+	value := time.UnixMilli(fl.Field().Int())
+	today := time.Now()
+
+	return today.Before(value)
 }
 
 func validatePasswordStrength(minLength int) func(fl validator.FieldLevel) bool {
