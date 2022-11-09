@@ -18,7 +18,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
-	"github.com/coretrix/hitrix/pkg/helper"
+	hitrixBinding "github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/middleware"
 	"github.com/coretrix/hitrix/service"
 )
@@ -93,7 +93,7 @@ func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gql
 		}
 	}
 
-	binding.Validator = helper.NewValidator()
+	binding.Validator = hitrixBinding.NewValidator()
 
 	return ginEngine
 }

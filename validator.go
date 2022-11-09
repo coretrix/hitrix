@@ -7,7 +7,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 
-	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/coretrix/hitrix/pkg/binding"
 )
 
 func ValidateDirective() func(ctx context.Context, obj interface{}, next graphql.Resolver, rules string) (interface{}, error) {
@@ -28,7 +28,7 @@ func ValidateDirective() func(ctx context.Context, obj interface{}, next graphql
 			}
 		}
 
-		errs := helper.NewValidator().Validate(originalValue, rules)
+		errs := binding.NewValidator().Validate(originalValue, rules)
 		if len(errs) > 0 {
 			if len(errs) > 1 {
 				for i := 1; i < len(errs); i++ {

@@ -46,6 +46,10 @@ func SetRequestServices(servicesDefinitionsRequest []*DefinitionRequest) {
 }
 
 func HasService(key string) bool {
+	if container == nil {
+		return false
+	}
+
 	_, has := container.Definitions()[key]
 
 	return has

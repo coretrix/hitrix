@@ -1,4 +1,4 @@
-package helper
+package binding
 
 import (
 	"fmt"
@@ -13,6 +13,7 @@ import (
 	"github.com/pariz/gountries"
 
 	"github.com/coretrix/hitrix/pkg/errors"
+	"github.com/coretrix/hitrix/service"
 )
 
 var (
@@ -60,18 +61,17 @@ func NewValidator() *Validator {
 		uni := ut.New(english, english)
 		translator, _ := uni.GetTranslator("en")
 
-		for ruleName, customValidation := range customValidations {
-			err := validatorInstance.RegisterValidation(ruleName, customValidation.ValidatorFunction)
+		for _, customValidation := range customValidations {
+			err := validatorInstance.RegisterValidation(customValidation.RuleName, customValidation.ValidatorFunction)
 			if err != nil {
 				panic(err)
 			}
-			err = validatorInstance.RegisterTranslation(ruleName, translator, func(ut ut.Translator) error {
-				return ut.Add(ruleName, customValidation.TranslationMessage, false)
-			}, func(ut ut.Translator, fe validator.FieldError) string {
-				t, _ := ut.T(ruleName, fe.Field())
 
-				return t
-			})
+			err = validatorInstance.RegisterTranslation(
+				customValidation.RuleName,
+				translator, customValidation.CustomRegisFunc,
+				customValidation.CustomTransFunc,
+			)
 			if err != nil {
 				panic(err)
 			}
@@ -99,23 +99,51 @@ func (t *Validator) translateError(err error) (errs []error) {
 }
 
 type CustomValidation struct {
-	ValidatorFunction  func(validator.FieldLevel) bool
-	TranslationMessage string
+	RuleName          string
+	ValidatorFunction func(validator.FieldLevel) bool
+	CustomRegisFunc   validator.RegisterTranslationsFunc
+	CustomTransFunc   validator.TranslationFunc
 }
 
-var customValidations = map[string]CustomValidation{
-	"timestamp_gte_now": {
-		ValidatorFunction:  validateTimestampGteNow,
-		TranslationMessage: "value should be greater than now",
+var customValidations = []CustomValidation{
+	{
+		RuleName:          "timestamp_gte_now",
+		ValidatorFunction: validateTimestampGteNow,
+		CustomRegisFunc: func(ut ut.Translator) error {
+			return ut.Add("timestamp_gte_now", "value should be greater than now", true)
+		},
+		CustomTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("timestamp_gte_now", fe.Field())
+
+			return t
+		},
 	},
-	"country_code_custom": {
-		ValidatorFunction:  validateCountryCodeAlpha2,
-		TranslationMessage: "not a valid Country Code",
+	{
+		RuleName:          "country_code_custom",
+		ValidatorFunction: validateCountryCodeAlpha2,
+		CustomRegisFunc: func(ut ut.Translator) error {
+			return ut.Add("country_code_custom", "not a valid Country Code", true)
+		},
+		CustomTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("country_code_custom", fe.Field())
+
+			return t
+		},
 	},
-	"password_strength": {
+	{
+		RuleName:          "password_strength",
 		ValidatorFunction: validatePasswordStrength(8),
-		TranslationMessage: "Not strong enough. Should be more than 8 character, contain" +
-			" at least 1 lowercase, 1 uppercase, 1 number, and 1 special character.",
+		CustomRegisFunc: func(ut ut.Translator) error {
+			return ut.Add(
+				"password_strength",
+				"Not strong enough. Should be more than 8 character, contain at least 1 lowercase, 1 uppercase, 1 number, and 1 special character.",
+				false)
+		},
+		CustomTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
+			t, _ := ut.T("password_strength", fe.Field())
+
+			return t
+		},
 	},
 }
 
@@ -128,7 +156,13 @@ func validateCountryCodeAlpha2(fl validator.FieldLevel) bool {
 
 func validateTimestampGteNow(fl validator.FieldLevel) bool {
 	value := time.UnixMilli(fl.Field().Int())
-	today := time.Now()
+
+	var today time.Time
+	if service.HasService(service.ClockService) {
+		today = service.DI().Clock().Now()
+	} else {
+		today = time.Now().Truncate(time.Second)
+	}
 
 	return today.Before(value)
 }
