@@ -147,23 +147,23 @@ mainLoop:
 
 				continue mainLoop
 			}
-
-			for selectFiledName := range mapIntStringFilters {
-				if field == selectFiledName {
-					for _, filterValue := range mapIntStringFilters[selectFiledName] {
-						if int64(filterValue.Key) == value.(int64) {
-							selectedNumberFilters[field] = value.(int64)
-
-							continue mainLoop
-						}
-					}
-				}
-			}
 		case reflect.Float64:
 			if helper.StringInArray(field, numberFilters...) {
 				selectedNumberFilters[field] = int64(value.(float64))
 
 				continue mainLoop
+			}
+
+			for selectFiledName := range mapIntStringFilters {
+				if field == selectFiledName {
+					for _, filterValue := range mapIntStringFilters[selectFiledName] {
+						if int64(filterValue.Key) == int64(value.(float64)) {
+							selectedNumberFilters[field] = int64(value.(float64))
+
+							continue mainLoop
+						}
+					}
+				}
 			}
 		case reflect.Bool:
 			if helper.StringInArray(field, booleanFilters...) {
