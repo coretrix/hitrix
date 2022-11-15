@@ -42,6 +42,16 @@ func (s *Stripe) CreateAccount(accountParams *stripe.AccountParams) (*stripe.Acc
 	return account.New(accountParams)
 }
 
+func (s *Stripe) UpdateAccount(accountID string, accountParams *stripe.AccountParams) (*stripe.Account, error) {
+	if accountParams.Params.Metadata == nil {
+		accountParams.Params.Metadata = map[string]string{Env: s.appService.Mode}
+	} else {
+		accountParams.Params.Metadata[Env] = s.appService.Mode
+	}
+
+	return account.Update(accountID, accountParams)
+}
+
 func (s *Stripe) GetAccount(accountID string, params *stripe.AccountParams) (*stripe.Account, error) {
 	return account.GetByID(accountID, params)
 }
@@ -196,6 +206,7 @@ func (s *Stripe) ConstructWebhookEvent(reqBody []byte, signature string, webhook
 
 type IStripe interface {
 	CreateAccount(accountParams *stripe.AccountParams) (*stripe.Account, error)
+	UpdateAccount(accountID string, accountParams *stripe.AccountParams) (*stripe.Account, error)
 	GetAccount(accountID string, accountParams *stripe.AccountParams) (*stripe.Account, error)
 	CreateCustomer(customerParams *stripe.CustomerParams) (*stripe.Customer, error)
 	UpdateCustomer(customerID string, customerParams *stripe.CustomerParams) (*stripe.Customer, error)
