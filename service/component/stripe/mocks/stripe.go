@@ -15,6 +15,12 @@ func (t *FakeStripeClient) CreateAccount(accountParams *stripe.AccountParams) (*
 	return args.Get(0).(*stripe.Account), args.Error(1)
 }
 
+func (t *FakeStripeClient) UpdateAccount(accountID string, accountParams *stripe.AccountParams) (*stripe.Account, error) {
+	args := t.Called(accountID, accountParams)
+
+	return args.Get(0).(*stripe.Account), args.Error(1)
+}
+
 func (t *FakeStripeClient) GetAccount(accountID string, accountParams *stripe.AccountParams) (*stripe.Account, error) {
 	args := t.Called(accountID, accountParams)
 
