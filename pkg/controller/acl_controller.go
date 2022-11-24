@@ -19,6 +19,14 @@ import (
 type ACLController struct {
 }
 
+// @Description List resources
+// @Tags ACL
+// @Router /acl/resources/ [get]
+// @Success 200 {object} acl.ResourcesResponseDTO
+// @Failure 400 {object} response.Error
+// @Failure 401 "Unauthorized"
+// @Failure 403 "Forbidden"
+// @Failure 500 "Something bad happened"
 func (controller *ACLController) ListResourcesAction(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
