@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
-
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
 
