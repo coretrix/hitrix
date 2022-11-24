@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"time"
 
+	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
+
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/dto/acl"
 	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/coretrix/hitrix/pkg/errors"
+	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/service"
@@ -27,6 +29,7 @@ type ACLController struct {
 // @Failure 401 "Unauthorized"
 // @Failure 403 "Forbidden"
 // @Failure 500 "Something bad happened"
+// @Security BearerAuth
 func (controller *ACLController) ListResourcesAction(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
@@ -62,6 +65,15 @@ func (controller *ACLController) ListResourcesAction(c *gin.Context) {
 	response.SuccessResponse(c, result)
 }
 
+// @Description List roles
+// @Tags ACL
+// @Router /acl/roles/ [get]
+// @Success 200 {object} acl.RolesResponseDTO
+// @Failure 400 {object} response.Error
+// @Failure 401 "Unauthorized"
+// @Failure 403 "Forbidden"
+// @Failure 500 "Something bad happened"
+// @Security BearerAuth
 func (controller *ACLController) ListRolesAction(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
@@ -80,19 +92,21 @@ func (controller *ACLController) ListRolesAction(c *gin.Context) {
 	response.SuccessResponse(c, result)
 }
 
+// @Description Get role
+// @Tags ACL
+// @Param ID path string true "ID"
+// @Router /acl/role/{ID}/ [get]
+// @Success 200 {object} acl.RoleResponseDTO
+// @Failure 400 {object} response.Error
+// @Failure 401 "Unauthorized"
+// @Failure 403 "Forbidden"
+// @Failure 500 "Something bad happened"
+// @Security BearerAuth
 func (controller *ACLController) GetRoleAction(c *gin.Context) {
 	request := &acl.RoleRequestDTO{}
 
-	if err := binding.ShouldBindURI(c, request); err != nil {
-		fieldError, ok := (err).(errors.FieldErrors)
-		if ok {
-			response.ErrorResponseFields(c, fieldError, nil)
-
-			return
-		}
-
-		response.ErrorResponseGlobal(c, err, nil)
-
+	err := binding.ShouldBindURI(c, request)
+	if errorhandling.HandleError(c, err) {
 		return
 	}
 
@@ -105,7 +119,7 @@ func (controller *ACLController) GetRoleAction(c *gin.Context) {
 	ormService.RedisSearch(&allPrivilegeEntities, query, beeorm.NewPager(1, 4000), "RoleID", "ResourceID", "PermissionIDs")
 
 	if len(allPrivilegeEntities) == 0 {
-		response.ErrorResponseGlobal(c, fmt.Errorf("role with ID: %d not found", request.ID), nil)
+		errorhandling.HandleError(c, fmt.Errorf("role with ID: %d not found", request.ID))
 
 		return
 	}
@@ -136,34 +150,34 @@ func (controller *ACLController) GetRoleAction(c *gin.Context) {
 	response.SuccessResponse(c, result)
 }
 
+// @Description Create role
+// @Tags ACL
+// @Param body body acl.CreateOrUpdateRoleRequestDTO true "Request in body"
+// @Router /acl/role/ [post]
+// @Success 200
+// @Failure 400 {object} response.Error
+// @Failure 401 "Unauthorized"
+// @Failure 403 "Forbidden"
+// @Failure 500 "Something bad happened"
+// @Security BearerAuth
 func (controller *ACLController) CreateRoleAction(c *gin.Context) {
 	request := &acl.CreateOrUpdateRoleRequestDTO{}
 
-	if err := binding.ShouldBindJSON(c, request); err != nil {
-		fieldError, ok := (err).(errors.FieldErrors)
-		if ok {
-			response.ErrorResponseFields(c, fieldError, nil)
-
-			return
-		}
-
-		response.ErrorResponseGlobal(c, err, nil)
-
+	err := binding.ShouldBindJSON(c, request)
+	if errorhandling.HandleError(c, err) {
 		return
 	}
 
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	resourcesMapping, permissionsMapping, err := validateResourcesAndPermissions(ormService, request.Resources)
-	if err != nil {
-		response.ErrorResponseGlobal(c, err, nil)
-
+	if errorhandling.HandleError(c, err) {
 		return
 	}
 
 	now := service.DI().Clock().Now()
 
-	if err := helper.DBTransaction(ormService, func() error {
+	err = helper.DBTransaction(ormService, func() error {
 		flusher := ormService.NewFlusher()
 
 		roleEntity := &entity.RoleEntity{
@@ -178,43 +192,37 @@ func (controller *ACLController) CreateRoleAction(c *gin.Context) {
 		}
 
 		return flusher.FlushWithCheck()
-	}); err != nil {
-		response.ErrorResponseGlobal(c, err.Error(), nil)
-
+	})
+	if errorhandling.HandleError(c, err) {
 		return
 	}
 
 	response.SuccessResponse(c, nil)
 }
 
+// @Description Update role
+// @Tags ACL
+// @Param ID path string true "ID"
+// @Param body body acl.CreateOrUpdateRoleRequestDTO true "Request in body"
+// @Router /acl/role/{ID}/ [put]
+// @Success 200
+// @Failure 400 {object} response.Error
+// @Failure 401 "Unauthorized"
+// @Failure 403 "Forbidden"
+// @Failure 500 "Something bad happened"
+// @Security BearerAuth
 func (controller *ACLController) UpdateRoleAction(c *gin.Context) {
 	roleID := &acl.RoleRequestDTO{}
 
-	if err := binding.ShouldBindURI(c, roleID); err != nil {
-		fieldError, ok := (err).(errors.FieldErrors)
-		if ok {
-			response.ErrorResponseFields(c, fieldError, nil)
-
-			return
-		}
-
-		response.ErrorResponseGlobal(c, err, nil)
-
+	err := binding.ShouldBindURI(c, roleID)
+	if errorhandling.HandleError(c, err) {
 		return
 	}
 
 	request := &acl.CreateOrUpdateRoleRequestDTO{}
 
-	if err := binding.ShouldBindJSON(c, request); err != nil {
-		fieldError, ok := (err).(errors.FieldErrors)
-		if ok {
-			response.ErrorResponseFields(c, fieldError, nil)
-
-			return
-		}
-
-		response.ErrorResponseGlobal(c, err, nil)
-
+	err = binding.ShouldBindJSON(c, request)
+	if errorhandling.HandleError(c, err) {
 		return
 	}
 
@@ -222,15 +230,13 @@ func (controller *ACLController) UpdateRoleAction(c *gin.Context) {
 
 	roleEntity := &entity.RoleEntity{}
 	if !ormService.LoadByID(roleID.ID, roleEntity) {
-		response.ErrorResponseGlobal(c, fmt.Errorf("role with ID: %d not found", roleID.ID), nil)
+		errorhandling.HandleError(c, fmt.Errorf("role with ID: %d not found", roleID.ID))
 
 		return
 	}
 
 	resourcesMapping, permissionsMapping, err := validateResourcesAndPermissions(ormService, request.Resources)
-	if err != nil {
-		response.ErrorResponseGlobal(c, err, nil)
-
+	if errorhandling.HandleError(c, err) {
 		return
 	}
 
@@ -242,7 +248,7 @@ func (controller *ACLController) UpdateRoleAction(c *gin.Context) {
 
 	now := service.DI().Clock().Now()
 
-	if err := helper.DBTransaction(ormService, func() error {
+	err = helper.DBTransaction(ormService, func() error {
 		flusher := ormService.NewFlusher()
 
 		for _, privilegeEntity := range privilegeEntitiesToDelete {
@@ -264,28 +270,29 @@ func (controller *ACLController) UpdateRoleAction(c *gin.Context) {
 		}
 
 		return flusher.FlushWithCheck()
-	}); err != nil {
-		response.ErrorResponseGlobal(c, err.Error(), nil)
-
+	})
+	if errorhandling.HandleError(c, err) {
 		return
 	}
 
 	response.SuccessResponse(c, nil)
 }
 
+// @Description Delete role
+// @Tags ACL
+// @Param ID path string true "ID"
+// @Router /acl/role/{ID}/ [delete]
+// @Success 200
+// @Failure 400 {object} response.Error
+// @Failure 401 "Unauthorized"
+// @Failure 403 "Forbidden"
+// @Failure 500 "Something bad happened"
+// @Security BearerAuth
 func (controller *ACLController) DeleteRoleAction(c *gin.Context) {
 	roleID := &acl.RoleRequestDTO{}
 
-	if err := binding.ShouldBindURI(c, roleID); err != nil {
-		fieldError, ok := (err).(errors.FieldErrors)
-		if ok {
-			response.ErrorResponseFields(c, fieldError, nil)
-
-			return
-		}
-
-		response.ErrorResponseGlobal(c, err, nil)
-
+	err := binding.ShouldBindURI(c, roleID)
+	if errorhandling.HandleError(c, err) {
 		return
 	}
 
@@ -293,7 +300,7 @@ func (controller *ACLController) DeleteRoleAction(c *gin.Context) {
 
 	roleEntity := &entity.RoleEntity{}
 	if !ormService.LoadByID(roleID.ID, roleEntity) {
-		response.ErrorResponseGlobal(c, fmt.Errorf("role with ID: %d not found", roleID.ID), nil)
+		errorhandling.HandleError(c, err)
 
 		return
 	}
@@ -304,7 +311,7 @@ func (controller *ACLController) DeleteRoleAction(c *gin.Context) {
 	privilegeEntitiesToDelete := make([]*entity.PrivilegeEntity, 0)
 	ormService.RedisSearch(&privilegeEntitiesToDelete, query, beeorm.NewPager(1, 1000))
 
-	if err := helper.DBTransaction(ormService, func() error {
+	err = helper.DBTransaction(ormService, func() error {
 		flusher := ormService.NewFlusher()
 
 		flusher.Delete(roleEntity)
@@ -314,9 +321,8 @@ func (controller *ACLController) DeleteRoleAction(c *gin.Context) {
 		}
 
 		return flusher.FlushWithCheck()
-	}); err != nil {
-		response.ErrorResponseGlobal(c, err.Error(), nil)
-
+	})
+	if errorhandling.HandleError(c, err) {
 		return
 	}
 
