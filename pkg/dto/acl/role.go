@@ -27,3 +27,8 @@ type RoleResourceRequestDTO struct {
 type RolePermissionRequestDTO struct {
 	PermissionID uint64 `binding:"required"`
 }
+
+type AssignRoleToUserRequestDTO struct {
+	UserID uint64 `binding:"required"`
+	RoleID uint64 `binding:"required"`
+}
