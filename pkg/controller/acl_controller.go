@@ -250,7 +250,7 @@ func (controller *ACLController) UpdateRoleAction(c *gin.Context) {
 		flusher := ormService.NewFlusher()
 
 		for _, privilegeEntity := range privilegeEntitiesToDelete {
-			flusher.Delete(privilegeEntity)
+			flusher.ForceDelete(privilegeEntity)
 		}
 
 		if err := flusher.FlushWithCheck(); err != nil {
