@@ -107,13 +107,13 @@ type CustomValidation struct {
 
 var customValidations = []CustomValidation{
 	{
-		RuleName:          "timestamp_gte_now",
-		ValidatorFunction: validateTimestampGteNow,
+		RuleName:          "timestamp_gte_today",
+		ValidatorFunction: validateTimestampGteToday,
 		CustomRegisFunc: func(ut ut.Translator) error {
-			return ut.Add("timestamp_gte_now", "value should be greater than now", true)
+			return ut.Add("timestamp_gte_today", "value should be greater than today", true)
 		},
 		CustomTransFunc: func(ut ut.Translator, fe validator.FieldError) string {
-			t, _ := ut.T("timestamp_gte_now", fe.Field())
+			t, _ := ut.T("timestamp_gte_today", fe.Field())
 
 			return t
 		},
@@ -154,14 +154,14 @@ func validateCountryCodeAlpha2(fl validator.FieldLevel) bool {
 	return err == nil
 }
 
-func validateTimestampGteNow(fl validator.FieldLevel) bool {
+func validateTimestampGteToday(fl validator.FieldLevel) bool {
 	value := time.UnixMilli(fl.Field().Int())
 
 	var today time.Time
 	if service.HasService(service.ClockService) {
 		today = service.DI().Clock().Now()
 	} else {
-		today = time.Now().Truncate(time.Second)
+		today = time.Now().Truncate(time.Hour)
 	}
 
 	return today.Before(value)

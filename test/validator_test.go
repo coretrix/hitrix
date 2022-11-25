@@ -26,12 +26,12 @@ func TestCountryCodeValidation(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestTimestampGteNowValidation(t *testing.T) {
-	valueAfterNow := time.Now().AddDate(0, 0, 1)
+func TestTimestampGteTodayValidation(t *testing.T) {
+	now := time.Now()
 	valueBeforeNow := time.Now().AddDate(0, 0, -1)
-	err := binding.NewValidator().Validate(helper.GetTimestamp(&valueBeforeNow), "timestamp_gte_now")
+	err := binding.NewValidator().Validate(helper.GetTimestamp(&valueBeforeNow), "timestamp_gte_today")
 	assert.NotNil(t, err)
 
-	err = binding.NewValidator().Validate(helper.GetTimestamp(&valueAfterNow), "timestamp_gte_now")
+	err = binding.NewValidator().Validate(helper.GetTimestamp(&now), "timestamp_gte_today")
 	assert.Nil(t, err)
 }
