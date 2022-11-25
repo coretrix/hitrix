@@ -327,6 +327,60 @@ func (controller *ACLController) DeleteRoleAction(c *gin.Context) {
 	response.SuccessResponse(c, nil)
 }
 
+// @Description Assign role to user
+// @Tags ACL
+// @Param body body acl.AssignRoleToUserRequestDTO true "Request in body"
+// @Router /acl/assign-role/ [post]
+// @Success 200
+// @Failure 400 {object} response.Error
+// @Failure 401 "Unauthorized"
+// @Failure 403 "Forbidden"
+// @Failure 500 "Something bad happened"
+// @Security BearerAuth
+func (controller *ACLController) PostAssignRoleToUserAction(getUserFunc func() beeorm.Entity) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		request := &acl.AssignRoleToUserRequestDTO{}
+
+		err := binding.ShouldBindJSON(c, request)
+		if errorhandling.HandleError(c, err) {
+			return
+		}
+
+		ormService := service.DI().OrmEngineForContext(c.Request.Context())
+
+		roleEntity := &entity.RoleEntity{}
+		if !ormService.LoadByID(request.RoleID, roleEntity) {
+			errorhandling.HandleError(c, err)
+
+			return
+		}
+
+		userEntity := getUserFunc()
+		if !ormService.LoadByID(request.UserID, userEntity) {
+			errorhandling.HandleError(c, err)
+
+			return
+		}
+
+		userWithSettableRole, ok := userEntity.(UserRoleSetter)
+		if !ok {
+			panic("user entity does not implement UserRoleSetter interface")
+		}
+
+		userWithSettableRole.SetRole(roleEntity)
+
+		userEntityWithNewRole, _ := userWithSettableRole.(beeorm.Entity)
+
+		ormService.Flush(userEntityWithNewRole)
+
+		response.SuccessResponse(c, nil)
+	}
+}
+
+type UserRoleSetter interface {
+	SetRole(roleEntity *entity.RoleEntity)
+}
+
 type resourceDTOsMapping map[uint64]*acl.ResourceResponseDTO
 
 type resourceMapping map[uint64]*entity.ResourceEntity
