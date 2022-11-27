@@ -136,7 +136,7 @@ func (h *Hitrix) preDeploy() {
 func (h *Hitrix) forceAlters() {
 	appService := service.DI().App()
 
-	if !appService.IsInLocalMode() || !appService.IsInQAMode() {
+	if !appService.IsInLocalMode() && !appService.IsInQAMode() {
 		return
 	}
 
