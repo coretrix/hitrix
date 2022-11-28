@@ -57,8 +57,6 @@ func (r *Registry) Build() (*Hitrix, func()) {
 		h.runDynamicScrips(globalContext, scriptToRun)
 	}
 
-	h.startupOnBuild()
-
 	return h, func() {
 		if r := recover(); r != nil {
 			service.DI().ErrorLogger().LogError(r)

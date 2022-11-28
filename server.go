@@ -41,6 +41,8 @@ func (h *Hitrix) RunServer(
 	h.preDeploy()
 	h.forceAlters()
 
+	h.startup()
+
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			panic(err)
@@ -60,6 +62,7 @@ func (h *Hitrix) RunServer(
 func (h *Hitrix) RunBackgroundProcess(callback func(b *BackgroundProcessor)) {
 	h.preDeploy()
 	h.forceAlters()
+	h.startup()
 	callback(&BackgroundProcessor{Server: h})
 	h.await()
 }
@@ -87,7 +90,7 @@ func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
 	panic(fmt.Sprintf("unknown script %s", code))
 }
 
-func (h *Hitrix) startupOnBuild() {
+func (h *Hitrix) startup() {
 	if service.HasService(service.FeatureFlagService) {
 		ormService := service.DI().OrmEngine()
 		clockService := service.DI().Clock()
