@@ -1,8 +1,7 @@
 package featureflag
 
 import (
-	"sync"
-	"time"
+	"fmt"
 
 	"github.com/latolukasz/beeorm"
 
@@ -12,79 +11,56 @@ import (
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 )
 
-type cacheEntity struct {
-	featureFlagEntity *entity.FeatureFlagEntity
-	time              time.Time
-}
 type serviceFeatureFlagWithCache struct {
-	sync.Mutex
 	featureFlagService ServiceFeatureFlagInterface
 	clockService       clock.IClock
-	cache              map[string]*cacheEntity
+	cache              *cache
 }
 
-func NewFeatureFlagWithCacheService(errorLoggerService errorlogger.ErrorLogger, clockService clock.IClock) ServiceFeatureFlagInterface {
+func NewFeatureFlagWithCacheService(errorLoggerService errorlogger.ErrorLogger, clockService clock.IClock, ttl int64) ServiceFeatureFlagInterface {
 	featureFlagService := NewFeatureFlagService(errorLoggerService)
 
+	cacheHandler := &cache{
+		ttl:          ttl,
+		clockService: clockService,
+	}
 	cachedService := &serviceFeatureFlagWithCache{
 		featureFlagService: featureFlagService,
 		clockService:       clockService,
-		cache:              make(map[string]*cacheEntity),
+		cache:              cacheHandler,
 	}
 
 	return cachedService
 }
 
 func (s *serviceFeatureFlagWithCache) IsActive(ormService *beeorm.Engine, name string) bool {
-	if name == "" {
-		panic("name cannot be empty")
-	}
-
-	s.Lock()
-	defer s.Unlock()
-
-	if cacheEntry, has := s.cache[name]; has {
-		if s.clockService.Now().Sub(cacheEntry.time) <= 5*time.Second {
-			return cacheEntry.featureFlagEntity.Enabled && cacheEntry.featureFlagEntity.Registered
-		}
-	}
-
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterString("Name", name)
-
-	featureFlagEntity := &entity.FeatureFlagEntity{}
-
-	found := ormService.RedisSearchOne(featureFlagEntity, query)
-	if !found {
+	featureFlagEntity, has := s.getFeatureFlagEntity(ormService, name)
+	if !has {
 		return false
-	}
-
-	s.cache[name] = &cacheEntity{
-		featureFlagEntity: featureFlagEntity,
-		time:              s.clockService.Now(),
 	}
 
 	return featureFlagEntity.Enabled && featureFlagEntity.Registered
 }
 
 func (s *serviceFeatureFlagWithCache) FailIfIsNotActive(ormService *beeorm.Engine, name string) error {
-	return s.featureFlagService.FailIfIsNotActive(ormService, name)
+	isActive := s.IsActive(ormService, name)
+	if !isActive {
+		return fmt.Errorf("feature (%s) is not active", name)
+	}
+
+	return nil
 }
 
 func (s *serviceFeatureFlagWithCache) Enable(ormService *beeorm.Engine, name string) error {
 	err := s.featureFlagService.Enable(ormService, name)
-	s.Lock()
-	delete(s.cache, name)
-	s.Unlock()
+	s.cache.Delete(name)
 
 	return err
 }
 
 func (s *serviceFeatureFlagWithCache) Disable(ormService *beeorm.Engine, name string) error {
 	err := s.featureFlagService.Disable(ormService, name)
-	s.Lock()
-	delete(s.cache, name)
-	s.Unlock()
+	s.cache.Delete(name)
 
 	return err
 }
@@ -103,4 +79,31 @@ func (s *serviceFeatureFlagWithCache) Register(featureFlags ...IFeatureFlag) {
 
 func (s *serviceFeatureFlagWithCache) Sync(ormService *beeorm.Engine, clockService clock.IClock) {
 	s.featureFlagService.Sync(ormService, clockService)
+}
+
+func (s *serviceFeatureFlagWithCache) getFeatureFlagEntity(ormService *beeorm.Engine, name string) (*entity.FeatureFlagEntity, bool) {
+	if name == "" {
+		panic("name cannot be empty")
+	}
+
+	if featureFlagEntity, has := s.cache.Load(name); has {
+		return featureFlagEntity, true
+	}
+
+	query := beeorm.NewRedisSearchQuery()
+	query.FilterString("Name", name)
+
+	featureFlagEntity := &entity.FeatureFlagEntity{}
+
+	found := ormService.RedisSearchOne(featureFlagEntity, query)
+	if !found {
+		return nil, false
+	}
+
+	s.cache.Store(name, cacheEntry{
+		featureFlagEntity: featureFlagEntity,
+		time:              s.clockService.Now(),
+	})
+
+	return featureFlagEntity, true
 }
