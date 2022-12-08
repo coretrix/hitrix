@@ -1,11 +1,11 @@
 package registry
 
 import (
-	"github.com/coretrix/hitrix/service/component/clock"
-	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/clock"
+	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 )
 
 func ServiceProviderRequestLogger() *service.DefinitionGlobal {
@@ -18,7 +18,8 @@ func ServiceProviderRequestLogger() *service.DefinitionGlobal {
 			if _, ok := entities["entity.RequestLoggerEntity"]; !ok {
 				panic("you should register RequestLoggerEntity")
 			}
-			return requestlogger.NewDbLogger(ctn.Get(service.ClockService).(clock.IClock)), nil
+
+			return requestlogger.NewDBLogger(ctn.Get(service.ClockService).(clock.IClock)), nil
 		},
 	}
 }

@@ -171,6 +171,7 @@ func (h *Hitrix) forceAlters() {
 	}
 
 	log.Println("FORCE ALTERS executed")
+
 	if appService.IsInQAMode() {
 		os.Exit(0)
 	}

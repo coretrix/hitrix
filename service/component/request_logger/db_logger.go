@@ -1,22 +1,24 @@
 package requestlogger
 
 import (
-	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/coretrix/hitrix/service/component/clock"
-	"github.com/latolukasz/beeorm"
 	"net/http"
 	"net/http/httputil"
+
+	"github.com/latolukasz/beeorm"
+
+	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/coretrix/hitrix/service/component/clock"
 )
 
-type DbLogger struct {
+type DBLogger struct {
 	clockService clock.IClock
 }
 
-func NewDbLogger(clockService clock.IClock) IRequestLogger {
-	return &DbLogger{clockService}
+func NewDBLogger(clockService clock.IClock) IRequestLogger {
+	return &DBLogger{clockService}
 }
 
-func (g *DbLogger) LogRequest(ormService *beeorm.Engine, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
+func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
 	content, err := httputil.DumpRequest(request, true)
 
 	if err != nil {
@@ -41,7 +43,7 @@ func (g *DbLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 	return requestLoggerEntity
 }
 
-func (g *DbLogger) LogResponse(ormService *beeorm.Engine, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
+func (g *DBLogger) LogResponse(ormService *beeorm.Engine, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
 	requestLoggerEntity.Status = status
 
 	if len(string(responseBody)) <= 16_000_000 {

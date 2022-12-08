@@ -1,9 +1,11 @@
 package requestlogger
 
 import (
-	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/latolukasz/beeorm"
 	"net/http"
+
+	"github.com/latolukasz/beeorm"
+
+	"github.com/coretrix/hitrix/pkg/entity"
 )
 
 type IRequestLogger interface {

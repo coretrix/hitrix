@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"encoding/json"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -24,18 +25,6 @@ func (l *dbLogger) Handle(data map[string]interface{}) {
 	}
 
 	l.logs = append(l.logs, data)
-}
-
-func isText(contentType string) bool {
-	allowedHeaders := map[string]struct{}{
-		"application/json": {},
-		"text/plain":       {},
-		"text/html":        {},
-	}
-
-	_, ok := allowedHeaders[contentType]
-
-	return ok
 }
 
 func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, requestEntity *entity.RequestLoggerEntity)) {

@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 
 	"github.com/coretrix/clockwork"
 	"github.com/latolukasz/beeorm"
@@ -36,6 +35,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/oss"
 	"github.com/coretrix/hitrix/service/component/otp"
 	"github.com/coretrix/hitrix/service/component/password"
+	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 	"github.com/coretrix/hitrix/service/component/sentry"
 	"github.com/coretrix/hitrix/service/component/setting"
 	"github.com/coretrix/hitrix/service/component/slack"
