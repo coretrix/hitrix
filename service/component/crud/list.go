@@ -147,6 +147,18 @@ mainLoop:
 
 				continue mainLoop
 			}
+
+			for selectFiledName := range mapIntStringFilters {
+				if field == selectFiledName {
+					for _, filterValue := range mapIntStringFilters[selectFiledName] {
+						if int64(filterValue.Key) == value.(int64) {
+							selectedNumberFilters[field] = value.(int64)
+
+							continue mainLoop
+						}
+					}
+				}
+			}
 		case reflect.Float64:
 			if helper.StringInArray(field, numberFilters...) {
 				selectedNumberFilters[field] = int64(value.(float64))
