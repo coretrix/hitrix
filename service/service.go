@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 
 	"github.com/coretrix/clockwork"
 	"github.com/latolukasz/beeorm"
@@ -93,6 +94,7 @@ const (
 	GoogleAnalyticsService  = "google_analytics"
 	KubernetesService       = "kubernetes"
 	SentryService           = "sentry"
+	RequestLoggerService    = "request_logger"
 )
 
 type DIContainer struct {
@@ -274,4 +276,8 @@ func (d *DIContainer) Kubernetes() kubernetes.IProvider {
 
 func (d *DIContainer) Sentry() sentry.ISentry {
 	return GetServiceRequired(SentryService).(sentry.ISentry)
+}
+
+func (d *DIContainer) RequestLogger() requestlogger.IRequestLogger {
+	return GetServiceRequired(RequestLoggerService).(requestlogger.IRequestLogger)
 }

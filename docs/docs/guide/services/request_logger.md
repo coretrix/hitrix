@@ -1,8 +1,26 @@
-# Request logger
+# Request Logger service
 
-Request logger `middleware` allows you to log every request that comes to the `API`
+This service is used for logging all upcoming and outgoing requests
 
-This is really helpful to debug your application
+Register the service into your `main.go` file:
+```go
+registry.ServiceProviderRequestLogger()
+```
+and you should register the entity `RequestLoggerEntity` into the ORM
+
+Access the service:
+```go
+service.DI().RequestLogger()
+```
+
+The functions this service provide are:
+```go
+	LogRequest(ormService *beeorm.Engine, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity
+    LogResponse(ormService *beeorm.Engine, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int)
+```
+They can be used to log any outgoing requests you send
+
+Also you are able to enable middleware which will log all incoming requests
 
 ```go
 middleware.RequestLogger(ginEngine, func(context *gin.Context, requestEntity *entity.RequestLoggerEntity) {
@@ -14,6 +32,7 @@ middleware.RequestLogger(ginEngine, func(context *gin.Context, requestEntity *en
 			}
 		})
 ```
+
 The second parameter (anonymous function) is called `extender` and it is used to save extra param to `request_logger` table like logged user id
 
 If you want to use this `middleware` please do not forget to register the entity `RequestLoggerEntity`

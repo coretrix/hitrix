@@ -153,6 +153,10 @@ module.exports = [
                         text: 'Gql',
                         link: '/guide/services/gql',
                     },
+                    {
+                        text: 'Request Logger',
+                        link: '/guide/services/request_logger',
+                    },
                 ],
             },
             {
@@ -189,10 +193,6 @@ module.exports = [
                     {
                         text: 'Goroutine',
                         link: '/guide/features/goroutine',
-                    },
-                    {
-                        text: 'Request logger',
-                        link: '/guide/features/request_logger',
                     },
                     {
                         text: 'Upload files',

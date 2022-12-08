@@ -2,8 +2,6 @@ package middleware
 
 import (
 	"encoding/json"
-	"net/http/httputil"
-
 	"github.com/gin-gonic/gin"
 
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -50,25 +48,16 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 
 	ginEngine.Use(func(context *gin.Context) {
 		ormService := service.DI().OrmEngineForContext(context.Request.Context())
+		requestLoggerService := service.DI().RequestLogger()
 
-		requestEntity := &entity.RequestLoggerEntity{
-			AppName:   service.DI().App().Name,
-			CreatedAt: service.DI().Clock().Now(),
-		}
+		requestLoggerEntity := requestLoggerService.LogRequest(
+			ormService,
+			service.DI().App().Name,
+			context.Request.URL.String(),
+			context.Request,
+			context.ContentType(),
+		)
 
-		content, err := httputil.DumpRequest(context.Request, true)
-
-		if err != nil {
-			return
-		}
-
-		if isText(context.ContentType()) && len(content) <= 16_000_000 {
-			requestEntity.RequestText = string(content)
-		} else {
-			requestEntity.Request = content
-		}
-
-		ormService.Flush(requestEntity)
 		logger := &dbLogger{}
 		ormService.RegisterQueryLogger(logger, true, true, true)
 		context.Next()
@@ -79,22 +68,12 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 			return
 		}
 
-		extender(context, requestEntity)
+		extender(context, requestLoggerEntity)
 
-		responseBody, has := context.Get(response.ResponseBody)
+		responseBody, _ := context.Get(response.ResponseBody)
+		responseBodyByte, _ := json.Marshal(responseBody)
 
-		if has {
-			responseBodyByte, _ := json.Marshal(responseBody)
-			if len(responseBodyByte) <= 16_000_000 {
-				requestEntity.ResponseText = string(responseBodyByte)
-			} else {
-				requestEntity.Response = responseBodyByte
-			}
-		}
-
-		requestEntity.Log = encoded
-		requestEntity.URL = context.Request.URL.String()
-		requestEntity.Status = context.Writer.Status()
-		ormService.Flush(requestEntity)
+		requestLoggerEntity.Log = encoded
+		requestLoggerService.LogResponse(ormService, requestLoggerEntity, responseBodyByte, context.Writer.Status())
 	})
 }
