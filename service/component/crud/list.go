@@ -60,6 +60,22 @@ type ListRequest struct {
 	Sort     map[string]interface{}
 }
 
+type groupedFilterTypes struct {
+	stringStartsWithSearch []string
+	arrayStringFilters     []string
+	booleanFilters         []string
+	mapStringStringFilters map[string][]StringKeyStringValue
+	mapIntStringFilters    map[string][]IntKeyStringValue
+	numberFilters          []string
+	rangeNumberFilters     []string
+	arrayNumberFilters     []string
+	dateTimeFilters        []string
+	dateFilters            []string
+	rangeDateTimeFilters   []string
+	rangeDateFilters       []string
+	sortables              []string
+}
+
 type Crud struct {
 }
 
@@ -75,6 +91,209 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 		finalPageSize = *request.PageSize
 	}
 
+	filterTypes := groupColumnNamesByFilterType(cols)
+
+	var selectedMapStringStringFilters = make(map[string]string)
+	var selectedStringStartsWithFilters = make(map[string]string)
+	var selectedArrayStringFilters = make(map[string][]string)
+	var selectedNumberFilters = make(map[string]int64)
+	var selectedRangeNumberFilters = make(map[string][]int64, 2)
+	var selectedArrayNumberFilters = make(map[string][]int64)
+	var selectedDateTimeFilters = make(map[string]time.Time)
+	var selectedDateFilters = make(map[string]time.Time)
+	var selectedRangeDateTimeFilters = make(map[string][]time.Time)
+	var selectedRangeDateFilters = make(map[string][]time.Time)
+	var selectedBooleanFilters = make(map[string]bool)
+	var selectedSort = make(map[string]bool)
+	var selectedORFilters = make(map[string]string)
+
+mainLoop:
+	for field, value := range request.Search {
+		switch reflect.TypeOf(value).Kind() {
+		case reflect.Int64:
+			if helper.StringInArray(field, filterTypes.numberFilters...) {
+				selectedNumberFilters[field] = value.(int64)
+
+				continue mainLoop
+			}
+
+			for selectFiledName := range filterTypes.mapIntStringFilters {
+				if field == selectFiledName {
+					for _, filterValue := range filterTypes.mapIntStringFilters[selectFiledName] {
+						if int64(filterValue.Key) == value.(int64) {
+							selectedNumberFilters[field] = value.(int64)
+
+							continue mainLoop
+						}
+					}
+				}
+			}
+		case reflect.Float64:
+			if helper.StringInArray(field, filterTypes.numberFilters...) {
+				selectedNumberFilters[field] = int64(value.(float64))
+
+				continue mainLoop
+			}
+
+			for selectFiledName := range filterTypes.mapIntStringFilters {
+				if field == selectFiledName {
+					for _, filterValue := range filterTypes.mapIntStringFilters[selectFiledName] {
+						if int64(filterValue.Key) == int64(value.(float64)) {
+							selectedNumberFilters[field] = int64(value.(float64))
+
+							continue mainLoop
+						}
+					}
+				}
+			}
+		case reflect.Bool:
+			if helper.StringInArray(field, filterTypes.booleanFilters...) {
+				selectedBooleanFilters[field] = value.(bool)
+
+				continue mainLoop
+			}
+		case reflect.Slice:
+			s := reflect.ValueOf(value)
+
+			if helper.StringInArray(field, filterTypes.rangeNumberFilters...) {
+				if s.Len() != 2 {
+					continue mainLoop
+				}
+
+				minRange, _ := strconv.ParseInt(fmt.Sprintf("%v", s.Index(0)), 10, 64)
+				maxRange, _ := strconv.ParseInt(fmt.Sprintf("%v", s.Index(1)), 10, 64)
+
+				selectedRangeNumberFilters[field] = []int64{minRange, maxRange}
+			} else if helper.StringInArray(field, filterTypes.rangeDateTimeFilters...) {
+				if s.Len() != 2 {
+					continue mainLoop
+				}
+
+				minRange, _ := time.Parse(helper.TimeLayoutRFC3339Milli, fmt.Sprintf("%v", s.Index(0)))
+				maxRange, _ := time.Parse(helper.TimeLayoutRFC3339Milli, fmt.Sprintf("%v", s.Index(1)))
+
+				selectedRangeDateTimeFilters[field] = []time.Time{minRange, maxRange}
+			} else if helper.StringInArray(field, filterTypes.rangeDateFilters...) {
+				if s.Len() != 2 {
+					continue mainLoop
+				}
+
+				minRange, _ := time.Parse(helper.TimeLayoutYMD, fmt.Sprintf("%v", s.Index(0)))
+				maxRange, _ := time.Parse(helper.TimeLayoutYMD, fmt.Sprintf("%v", s.Index(1)))
+
+				selectedRangeDateFilters[field] = []time.Time{minRange, maxRange}
+			} else if helper.StringInArray(field, filterTypes.arrayNumberFilters...) {
+				if s.Len() == 0 {
+					continue mainLoop
+				}
+
+				for i := 0; i < s.Len(); i++ {
+					int64Value, _ := strconv.ParseInt(fmt.Sprintf("%v", s.Index(i)), 10, 64)
+					selectedArrayNumberFilters[field] = append(selectedArrayNumberFilters[field], int64Value)
+				}
+			} else if helper.StringInArray(field, filterTypes.arrayStringFilters...) {
+				if s.Len() == 0 {
+					continue mainLoop
+				}
+				for i := 0; i < s.Len(); i++ {
+					selectedArrayStringFilters[field] = append(selectedArrayStringFilters[field], fmt.Sprintf("%v", s.Index(i)))
+				}
+			}
+
+			continue mainLoop
+
+		case reflect.String:
+			jsonIntValue, ok := value.(json.Number)
+			if ok {
+				jsonInt, err := jsonIntValue.Int64()
+				if err == nil {
+					if helper.StringInArray(field, filterTypes.numberFilters...) {
+						selectedNumberFilters[field] = jsonInt
+
+						continue mainLoop
+					}
+				}
+			}
+
+			stringValue := value.(string)
+
+			if stringValue == "" {
+				continue mainLoop
+			}
+
+			if helper.StringInArray(field, filterTypes.dateTimeFilters...) {
+				dateTimeValue, _ := time.Parse(helper.TimeLayoutRFC3339Milli, stringValue)
+				selectedDateTimeFilters[field] = dateTimeValue
+
+				continue mainLoop
+			}
+
+			if helper.StringInArray(field, filterTypes.dateFilters...) {
+				dateValue, _ := time.Parse(helper.TimeLayoutYMD, stringValue)
+				selectedDateFilters[field] = dateValue
+
+				continue mainLoop
+			}
+
+			for selectFiledName := range filterTypes.mapStringStringFilters {
+				if field == selectFiledName {
+					for _, filterValue := range filterTypes.mapStringStringFilters[selectFiledName] {
+						if filterValue.Key == stringValue {
+							selectedMapStringStringFilters[field] = stringValue
+
+							continue mainLoop
+						}
+					}
+				}
+			}
+
+			if helper.StringInArray(field, filterTypes.stringStartsWithSearch...) {
+				selectedStringStartsWithFilters[field] = stringValue
+
+				continue
+			}
+		}
+	}
+
+	for field, value := range request.SearchOR {
+		stringValue, ok := value.(string)
+
+		if ok && len(stringValue) >= 2 {
+			if helper.StringInArray(field, filterTypes.stringStartsWithSearch...) {
+				selectedORFilters[field] = stringValue
+			}
+		}
+	}
+
+	if len(request.Sort) == 1 {
+		for field, mode := range request.Sort {
+			stringVal, ok := mode.(string)
+			if ok && helper.StringInArray(field, filterTypes.sortables...) && helper.StringInArray(stringVal, "asc", "desc") {
+				selectedSort[field] = stringVal == "asc"
+			}
+		}
+	}
+
+	return SearchParams{
+		Page:                 finalPage,
+		PageSize:             finalPageSize,
+		TagFilters:           selectedMapStringStringFilters,
+		StringORFilters:      selectedORFilters,
+		StringFilters:        selectedStringStartsWithFilters,
+		ArrayStringFilters:   selectedArrayStringFilters,
+		NumberFilters:        selectedNumberFilters,
+		ArrayNumberFilters:   selectedArrayNumberFilters,
+		RangeNumberFilters:   selectedRangeNumberFilters,
+		DateTimeFilters:      selectedDateTimeFilters,
+		DateFilters:          selectedDateFilters,
+		RangeDateTimeFilters: selectedRangeDateTimeFilters,
+		RangeDateFilters:     selectedRangeDateFilters,
+		BooleanFilters:       selectedBooleanFilters,
+		Sort:                 selectedSort,
+	}
+}
+
+func groupColumnNamesByFilterType(cols []Column) groupedFilterTypes {
 	var stringStartsWithSearch = make([]string, 0)
 	var arrayStringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
@@ -124,203 +343,20 @@ func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchPara
 		}
 	}
 
-	var selectedMapStringStringFilters = make(map[string]string)
-	var selectedStringStartsWithFilters = make(map[string]string)
-	var selectedArrayStringFilters = make(map[string][]string)
-	var selectedNumberFilters = make(map[string]int64)
-	var selectedRangeNumberFilters = make(map[string][]int64, 2)
-	var selectedArrayNumberFilters = make(map[string][]int64)
-	var selectedDateTimeFilters = make(map[string]time.Time)
-	var selectedDateFilters = make(map[string]time.Time)
-	var selectedRangeDateTimeFilters = make(map[string][]time.Time)
-	var selectedRangeDateFilters = make(map[string][]time.Time)
-	var selectedBooleanFilters = make(map[string]bool)
-	var selectedSort = make(map[string]bool)
-	var selectedORFilters = make(map[string]string)
-
-mainLoop:
-	for field, value := range request.Search {
-		switch reflect.TypeOf(value).Kind() {
-		case reflect.Int64:
-			if helper.StringInArray(field, numberFilters...) {
-				selectedNumberFilters[field] = value.(int64)
-
-				continue mainLoop
-			}
-
-			for selectFiledName := range mapIntStringFilters {
-				if field == selectFiledName {
-					for _, filterValue := range mapIntStringFilters[selectFiledName] {
-						if int64(filterValue.Key) == value.(int64) {
-							selectedNumberFilters[field] = value.(int64)
-
-							continue mainLoop
-						}
-					}
-				}
-			}
-		case reflect.Float64:
-			if helper.StringInArray(field, numberFilters...) {
-				selectedNumberFilters[field] = int64(value.(float64))
-
-				continue mainLoop
-			}
-
-			for selectFiledName := range mapIntStringFilters {
-				if field == selectFiledName {
-					for _, filterValue := range mapIntStringFilters[selectFiledName] {
-						if int64(filterValue.Key) == int64(value.(float64)) {
-							selectedNumberFilters[field] = int64(value.(float64))
-
-							continue mainLoop
-						}
-					}
-				}
-			}
-		case reflect.Bool:
-			if helper.StringInArray(field, booleanFilters...) {
-				selectedBooleanFilters[field] = value.(bool)
-
-				continue mainLoop
-			}
-		case reflect.Slice:
-			s := reflect.ValueOf(value)
-
-			if helper.StringInArray(field, rangeNumberFilters...) {
-				if s.Len() != 2 {
-					continue mainLoop
-				}
-
-				minRange, _ := strconv.ParseInt(fmt.Sprintf("%v", s.Index(0)), 10, 64)
-				maxRange, _ := strconv.ParseInt(fmt.Sprintf("%v", s.Index(1)), 10, 64)
-
-				selectedRangeNumberFilters[field] = []int64{minRange, maxRange}
-			} else if helper.StringInArray(field, rangeDateTimeFilters...) {
-				if s.Len() != 2 {
-					continue mainLoop
-				}
-
-				minRange, _ := time.Parse(helper.TimeLayoutRFC3339Milli, fmt.Sprintf("%v", s.Index(0)))
-				maxRange, _ := time.Parse(helper.TimeLayoutRFC3339Milli, fmt.Sprintf("%v", s.Index(1)))
-
-				selectedRangeDateTimeFilters[field] = []time.Time{minRange, maxRange}
-			} else if helper.StringInArray(field, rangeDateFilters...) {
-				if s.Len() != 2 {
-					continue mainLoop
-				}
-
-				minRange, _ := time.Parse(helper.TimeLayoutYMD, fmt.Sprintf("%v", s.Index(0)))
-				maxRange, _ := time.Parse(helper.TimeLayoutYMD, fmt.Sprintf("%v", s.Index(1)))
-
-				selectedRangeDateFilters[field] = []time.Time{minRange, maxRange}
-			} else if helper.StringInArray(field, arrayNumberFilters...) {
-				if s.Len() == 0 {
-					continue mainLoop
-				}
-
-				for i := 0; i < s.Len(); i++ {
-					int64Value, _ := strconv.ParseInt(fmt.Sprintf("%v", s.Index(i)), 10, 64)
-					selectedArrayNumberFilters[field] = append(selectedArrayNumberFilters[field], int64Value)
-				}
-			} else if helper.StringInArray(field, arrayStringFilters...) {
-				if s.Len() == 0 {
-					continue mainLoop
-				}
-				for i := 0; i < s.Len(); i++ {
-					selectedArrayStringFilters[field] = append(selectedArrayStringFilters[field], fmt.Sprintf("%v", s.Index(i)))
-				}
-			}
-
-			continue mainLoop
-
-		case reflect.String:
-			jsonIntValue, ok := value.(json.Number)
-			if ok {
-				jsonInt, err := jsonIntValue.Int64()
-				if err == nil {
-					if helper.StringInArray(field, numberFilters...) {
-						selectedNumberFilters[field] = jsonInt
-
-						continue mainLoop
-					}
-				}
-			}
-
-			stringValue := value.(string)
-
-			if stringValue == "" {
-				continue mainLoop
-			}
-
-			if helper.StringInArray(field, dateTimeFilters...) {
-				dateTimeValue, _ := time.Parse(helper.TimeLayoutRFC3339Milli, stringValue)
-				selectedDateTimeFilters[field] = dateTimeValue
-
-				continue mainLoop
-			}
-
-			if helper.StringInArray(field, dateFilters...) {
-				dateValue, _ := time.Parse(helper.TimeLayoutYMD, stringValue)
-				selectedDateFilters[field] = dateValue
-
-				continue mainLoop
-			}
-
-			for selectFiledName := range mapStringStringFilters {
-				if field == selectFiledName {
-					for _, filterValue := range mapStringStringFilters[selectFiledName] {
-						if filterValue.Key == stringValue {
-							selectedMapStringStringFilters[field] = stringValue
-
-							continue mainLoop
-						}
-					}
-				}
-			}
-
-			if helper.StringInArray(field, stringStartsWithSearch...) {
-				selectedStringStartsWithFilters[field] = stringValue
-
-				continue
-			}
-		}
-	}
-
-	for field, value := range request.SearchOR {
-		stringValue, ok := value.(string)
-
-		if ok && len(stringValue) >= 2 {
-			if helper.StringInArray(field, stringStartsWithSearch...) {
-				selectedORFilters[field] = stringValue
-			}
-		}
-	}
-
-	if len(request.Sort) == 1 {
-		for field, mode := range request.Sort {
-			stringVal, ok := mode.(string)
-			if ok && helper.StringInArray(field, sortables...) && helper.StringInArray(stringVal, "asc", "desc") {
-				selectedSort[field] = stringVal == "asc"
-			}
-		}
-	}
-
-	return SearchParams{
-		Page:                 finalPage,
-		PageSize:             finalPageSize,
-		TagFilters:           selectedMapStringStringFilters,
-		StringORFilters:      selectedORFilters,
-		StringFilters:        selectedStringStartsWithFilters,
-		ArrayStringFilters:   selectedArrayStringFilters,
-		NumberFilters:        selectedNumberFilters,
-		ArrayNumberFilters:   selectedArrayNumberFilters,
-		RangeNumberFilters:   selectedRangeNumberFilters,
-		DateTimeFilters:      selectedDateTimeFilters,
-		DateFilters:          selectedDateFilters,
-		RangeDateTimeFilters: selectedRangeDateTimeFilters,
-		RangeDateFilters:     selectedRangeDateFilters,
-		BooleanFilters:       selectedBooleanFilters,
-		Sort:                 selectedSort,
+	return groupedFilterTypes{
+		stringStartsWithSearch: stringStartsWithSearch,
+		arrayStringFilters:     arrayStringFilters,
+		booleanFilters:         booleanFilters,
+		mapStringStringFilters: mapStringStringFilters,
+		mapIntStringFilters:    mapIntStringFilters,
+		numberFilters:          numberFilters,
+		rangeNumberFilters:     rangeNumberFilters,
+		arrayNumberFilters:     arrayNumberFilters,
+		dateTimeFilters:        dateTimeFilters,
+		dateFilters:            dateFilters,
+		rangeDateTimeFilters:   rangeDateTimeFilters,
+		rangeDateFilters:       rangeDateFilters,
+		sortables:              sortables,
 	}
 }
 
