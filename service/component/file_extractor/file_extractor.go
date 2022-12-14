@@ -60,8 +60,8 @@ func (l *FileExtractor) ExtractFromFile(pathToread string, expression string) {
 	}
 }
 
-func (l *FileExtractor) readFile(pathToread string) (string, error) {
-	file, err := os.Open(pathToread)
+func (l *FileExtractor) readFile(pathToRead string) (string, error) {
+	file, err := os.Open(pathToRead)
 	if err != nil {
 		log.Fatal(err)
 
