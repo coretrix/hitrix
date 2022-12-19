@@ -5,7 +5,7 @@ This service is used for storing files into any amazon s3 or google cloud compat
 Register the service into your `main.go`. You need to provide function that init the provider and list of  buckets
 
 ```go
-    registry.ServiceProviderOSS(oss.NewAmazonOSS, oss.Namespaces{"product_images": oss.BucketPublic}),
+registry.ServiceProviderOSS(oss.NewAmazonOSS, oss.Namespaces{"product_images": oss.BucketPublic})
 ```
 
 and you should register the entity `OSSBucketCounterEntity` into the ORM
