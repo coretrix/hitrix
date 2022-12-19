@@ -84,7 +84,7 @@ func writeArgumentType(w io.Writer, t reflect.Type, value bool) {
 			panic(err)
 		}
 	default:
-		_, err := io.WriteString(w, cases.Title(language.AmericanEnglish, cases.NoLower).String(t.Name()))
+		_, err := io.WriteString(w, cases.Title(language.English).String(t.Name()))
 		if err != nil {
 			panic(err)
 		}

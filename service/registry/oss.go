@@ -12,7 +12,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/oss"
 )
 
-func ServiceProviderOSS(newFunc oss.NewProviderFunc, publicNamespaces, privateNamespaces []oss.Namespace) *service.DefinitionGlobal {
+func ServiceProviderOSS(newFunc oss.NewProviderFunc, namespaces oss.Namespaces) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.OSService,
 		Build: func(ctn di.Container) (interface{}, error) {
@@ -27,8 +27,7 @@ func ServiceProviderOSS(newFunc oss.NewProviderFunc, publicNamespaces, privateNa
 			return newFunc(
 				ctn.Get(service.ConfigService).(config.IConfig),
 				ctn.Get(service.ClockService).(clock.IClock),
-				publicNamespaces,
-				privateNamespaces)
+				namespaces)
 		},
 	}
 }

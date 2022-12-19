@@ -15,6 +15,36 @@ import (
 	"github.com/coretrix/hitrix/service/component/config"
 )
 
+type Namespace string
+
+func (n Namespace) String() string {
+	return string(n)
+}
+
+type Namespaces map[Namespace]Bucket
+
+type namespacesConfig map[Namespace]*BucketConfig
+
+func (n namespacesConfig) getBucketConfig(namespace Namespace) (*BucketConfig, error) {
+	bucketConfig, has := n[namespace]
+
+	if !has {
+		return nil, errors.New("Namespace [" + namespace.String() + "] not found!")
+	}
+
+	return bucketConfig, nil
+}
+
+type BucketConfig struct {
+	StorageCounterDatabaseID uint64
+	Type                     Bucket
+	Name                     string
+	CDNURL                   string
+	ACL                      string
+}
+
+type bucketsConfig map[Bucket]*BucketConfig
+
 type Bucket string
 
 const (
@@ -26,64 +56,38 @@ func (b Bucket) String() string {
 	return string(b)
 }
 
-type Namespace string
-
-func (n Namespace) String() string {
-	return string(n)
-}
-
 const (
 	bucketPublicStorageCounterDatabaseID  = 1
 	bucketPrivateStorageCounterDatabaseID = 2
 )
 
-type NewProviderFunc func(configService config.IConfig, clockService clock.IClock, publicNamespaces, privateNamespaces []Namespace) (IProvider, error)
+type NewProviderFunc func(configService config.IConfig, clockService clock.IClock, namespaces Namespaces) (IProvider, error)
 
 type IProvider interface {
 	GetBucketConfig(bucket Bucket) *BucketConfig
 	GetClient() interface{}
-	GetObjectURL(bucket Bucket, object *entity.FileObject) (string, error)
-	GetObjectOSSURL(bucket Bucket, object *entity.FileObject) (string, error)
-	GetObjectCDNURL(bucket Bucket, object *entity.FileObject) (string, error)
-	GetObjectSignedURL(bucket Bucket, object *entity.FileObject, expires time.Time) (string, error)
-	GetObjectBase64Content(bucket Bucket, object *entity.FileObject) (string, error)
-	UploadObjectFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error)
-	UploadObjectFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, content, extension string) (entity.FileObject, error)
-	UploadObjectFromByte(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, content []byte, extension string) (entity.FileObject, error)
-	UploadImageFromFile(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error)
-	UploadImageFromBase64(ormService *beeorm.Engine, bucket Bucket, namespace Namespace, image, extension string) (entity.FileObject, error)
-	DeleteObject(bucket Bucket, object *entity.FileObject) error
-	// CreateObjectFromKey TODO Remove
-	CreateObjectFromKey(ormService *beeorm.Engine, bucket Bucket, key string) entity.FileObject
+	GetObjectURL(namespace Namespace, object *entity.FileObject) (string, error)
+	GetObjectOSSURL(namespace Namespace, object *entity.FileObject) (string, error)
+	GetObjectCDNURL(namespace Namespace, object *entity.FileObject) (string, error)
+	GetObjectSignedURL(namespace Namespace, object *entity.FileObject, expires time.Time) (string, error)
+	GetObjectBase64Content(namespace Namespace, object *entity.FileObject) (string, error)
+	UploadObjectFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error)
+	UploadObjectFromBase64(ormService *beeorm.Engine, namespace Namespace, content, extension string) (entity.FileObject, error)
+	UploadObjectFromByte(ormService *beeorm.Engine, namespace Namespace, content []byte, extension string) (entity.FileObject, error)
+	UploadImageFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error)
+	UploadImageFromBase64(ormService *beeorm.Engine, namespace Namespace, image, extension string) (entity.FileObject, error)
+	DeleteObject(namespace Namespace, object *entity.FileObject) error
 }
 
-type BucketConfig struct {
-	StorageCounterDatabaseID uint64
-	Type                     Bucket
-	Name                     string
-	CDNURL                   string
-	Namespaces               map[Namespace]Namespace
-	ACL                      string
-}
-
-func (b *BucketConfig) validateNamespace(namespace Namespace) error {
-	_, has := b.Namespaces[namespace]
-
-	if !has {
-		return errors.New("Namespace [" + namespace.String() + "] not found in " + b.Type.String())
-	}
-
-	return nil
-}
-
-func loadBucketsConfig(configService config.IConfig, publicNamespaces, privateNamespaces []Namespace) map[Bucket]*BucketConfig {
+func loadConfig(configService config.IConfig, namespaces Namespaces) (bucketsConfig, namespacesConfig) {
 	bucketsConfigDefinitions, ok := configService.Get("oss.buckets")
 
 	if !ok {
 		panic("oss: missing bucket configuration")
 	}
 
-	buckets := map[Bucket]*BucketConfig{}
+	namespacesConfiguration := namespacesConfig{}
+	bucketsConfiguration := bucketsConfig{}
 
 	bucketsConfigs := bucketsConfigDefinitions.(map[interface{}]interface{})
 
@@ -91,31 +95,28 @@ func loadBucketsConfig(configService config.IConfig, publicNamespaces, privateNa
 		bucketConfigs := bucketConfigsI.(map[interface{}]interface{})
 
 		bucketConfig := &BucketConfig{
-			Type:       Bucket(bucket.(string)),
-			Namespaces: map[Namespace]Namespace{},
+			Type: Bucket(bucket.(string)),
 		}
 
 		if bucketConfig.Type == BucketPublic {
 			bucketConfig.StorageCounterDatabaseID = bucketPublicStorageCounterDatabaseID
 
-			if publicNamespaces == nil {
-				panic("oss: missing namespaces for public bucket")
-			}
+			for namespace, bucket := range namespaces {
+				if bucket != BucketPublic {
+					continue
+				}
 
-			for _, publicNamespace := range publicNamespaces {
-				bucketConfig.Namespaces[publicNamespace] = publicNamespace
+				namespacesConfiguration[namespace] = bucketConfig
 			}
-		}
-
-		if bucketConfig.Type == BucketPrivate {
+		} else if bucketConfig.Type == BucketPrivate {
 			bucketConfig.StorageCounterDatabaseID = bucketPrivateStorageCounterDatabaseID
 
-			if privateNamespaces == nil {
-				panic("oss: missing namespaces for private bucket")
-			}
+			for namespace, bucket := range namespaces {
+				if bucket != BucketPrivate {
+					continue
+				}
 
-			for _, privateNamespace := range privateNamespaces {
-				bucketConfig.Namespaces[privateNamespace] = privateNamespace
+				namespacesConfiguration[namespace] = bucketConfig
 			}
 		}
 
@@ -152,14 +153,14 @@ func loadBucketsConfig(configService config.IConfig, publicNamespaces, privateNa
 			panic("invalid key " + key + " for bucket: " + bucketConfig.Type.String())
 		}
 
-		buckets[bucketConfig.Type] = bucketConfig
+		bucketsConfiguration[bucketConfig.Type] = bucketConfig
 	}
 
-	if len(buckets) == 0 {
+	if len(bucketsConfiguration) == 0 {
 		panic("missing buckets configuration")
 	}
 
-	return buckets
+	return bucketsConfiguration, namespacesConfiguration
 }
 
 func getObjectCDNURL(bucketConfig *BucketConfig, storageKey string) string {
@@ -207,7 +208,6 @@ func getStorageCounter(ormService *beeorm.Engine, bucketConfig *BucketConfig) ui
 
 func readContentFile(localFile string) ([]byte, string, error) {
 	fileContent, err := os.ReadFile(localFile)
-
 	if err != nil {
 		return nil, "", err
 	}
@@ -221,7 +221,6 @@ func getBucketConfig(bucketConfig *BucketConfig) *BucketConfig {
 		Type:                     bucketConfig.Type,
 		Name:                     bucketConfig.Name,
 		CDNURL:                   bucketConfig.CDNURL,
-		Namespaces:               bucketConfig.Namespaces,
 		ACL:                      bucketConfig.ACL,
 	}
 }

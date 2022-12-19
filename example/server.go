@@ -8,6 +8,7 @@ import (
 	"github.com/coretrix/hitrix/example/graph"
 	"github.com/coretrix/hitrix/example/graph/generated"
 	model "github.com/coretrix/hitrix/example/model/socket"
+	exampleOSS "github.com/coretrix/hitrix/example/oss"
 	exampleMiddleware "github.com/coretrix/hitrix/example/rest/middleware"
 	"github.com/coretrix/hitrix/pkg/middleware"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -32,7 +33,7 @@ func main() {
 		registry.ServiceProviderOrmRegistry(entity.Init),
 		registry.ServiceProviderOrmEngine(),
 		registry.ServiceProviderClock(),
-		registry.ServiceProviderOSS(oss.NewAmazonOSS, []oss.Namespace{"avatars"}, []oss.Namespace{"invoices"}),
+		registry.ServiceProviderOSS(oss.NewAmazonOSS, exampleOSS.Namespaces),
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(),
 		registry.ServiceProviderSocketRegistry(eventHandlersMap),

@@ -23,10 +23,11 @@ type AmazonOSS struct {
 	client       *s3.S3
 	clockService clock.IClock
 	ctx          context.Context
-	buckets      map[Bucket]*BucketConfig
+	buckets      bucketsConfig
+	namespaces   namespacesConfig
 }
 
-func NewAmazonOSS(configService config.IConfig, clockService clock.IClock, publicNamespaces, privateNamespaces []Namespace) (IProvider, error) {
+func NewAmazonOSS(configService config.IConfig, clockService clock.IClock, namespaces Namespaces) (IProvider, error) {
 	disableSSL := false
 
 	if val, ok := configService.Bool("oss.amazon.disable_ssl"); ok && val {
@@ -65,11 +66,14 @@ func NewAmazonOSS(configService config.IConfig, clockService clock.IClock, publi
 		return nil, err
 	}
 
+	bucketsConfiguration, namespacesConfiguration := loadConfig(configService, namespaces)
+
 	return &AmazonOSS{
 		client:       s3.New(newSession),
 		clockService: clockService,
 		ctx:          context.Background(),
-		buckets:      loadBucketsConfig(configService, publicNamespaces, privateNamespaces),
+		buckets:      bucketsConfiguration,
+		namespaces:   namespacesConfiguration,
 	}, nil
 }
 
@@ -88,9 +92,8 @@ func (ossStorage *AmazonOSS) GetClient() interface{} {
 	return ossStorage.client
 }
 
-func (ossStorage *AmazonOSS) GetObjectURL(bucket Bucket, object *entity.FileObject) (string, error) {
-	cdnURL, err := ossStorage.GetObjectCDNURL(bucket, object)
-
+func (ossStorage *AmazonOSS) GetObjectURL(namespace Namespace, object *entity.FileObject) (string, error) {
+	cdnURL, err := ossStorage.GetObjectCDNURL(namespace, object)
 	if err != nil {
 		return "", err
 	}
@@ -99,46 +102,61 @@ func (ossStorage *AmazonOSS) GetObjectURL(bucket Bucket, object *entity.FileObje
 		return cdnURL, nil
 	}
 
-	return ossStorage.GetObjectOSSURL(bucket, object)
+	return ossStorage.GetObjectOSSURL(namespace, object)
 }
 
-func (ossStorage *AmazonOSS) GetObjectOSSURL(_ Bucket, _ *entity.FileObject) (string, error) {
+func (ossStorage *AmazonOSS) GetObjectOSSURL(_ Namespace, _ *entity.FileObject) (string, error) {
 	panic("not implemented")
 }
 
-func (ossStorage *AmazonOSS) GetObjectCDNURL(bucket Bucket, object *entity.FileObject) (string, error) {
-	return getObjectCDNURL(ossStorage.buckets[bucket], object.StorageKey), nil
+func (ossStorage *AmazonOSS) GetObjectCDNURL(namespace Namespace, object *entity.FileObject) (string, error) {
+	if object == nil {
+		return "", errors.New("nil file object")
+	}
+
+	bucketConfig, err := ossStorage.namespaces.getBucketConfig(namespace)
+	if err != nil {
+		return "", err
+	}
+
+	return getObjectCDNURL(bucketConfig, object.StorageKey), nil
 }
 
-func (ossStorage *AmazonOSS) GetObjectSignedURL(bucket Bucket, object *entity.FileObject, expires time.Time) (string, error) {
+func (ossStorage *AmazonOSS) GetObjectSignedURL(namespace Namespace, object *entity.FileObject, expires time.Time) (string, error) {
+	if object == nil {
+		return "", errors.New("nil file object")
+	}
+
 	now := ossStorage.clockService.Now()
 
 	if now.After(expires) {
 		return "", errors.New("expire time is before now")
 	}
 
+	bucketConfig, err := ossStorage.namespaces.getBucketConfig(namespace)
+	if err != nil {
+		return "", err
+	}
+
 	req, _ := ossStorage.client.GetObjectRequest(&s3.GetObjectInput{
-		Bucket: aws.String(ossStorage.buckets[bucket].Name),
+		Bucket: aws.String(bucketConfig.Name),
 		Key:    aws.String(object.StorageKey)},
 	)
 
 	return req.Presign(expires.Sub(now))
 }
 
-func (ossStorage *AmazonOSS) GetObjectBase64Content(_ Bucket, _ *entity.FileObject) (string, error) {
+func (ossStorage *AmazonOSS) GetObjectBase64Content(_ Namespace, _ *entity.FileObject) (string, error) {
 	panic("not implemented")
 }
 
 func (ossStorage *AmazonOSS) UploadObjectFromByte(
 	ormService *beeorm.Engine,
-	bucket Bucket,
 	namespace Namespace,
 	objectContent []byte,
 	extension string,
 ) (entity.FileObject, error) {
-	bucketConfig := ossStorage.buckets[bucket]
-
-	err := bucketConfig.validateNamespace(namespace)
+	bucketConfig, err := ossStorage.namespaces.getBucketConfig(namespace)
 	if err != nil {
 		return entity.FileObject{}, err
 	}
@@ -158,7 +176,6 @@ func (ossStorage *AmazonOSS) UploadObjectFromByte(
 	}
 
 	_, err = ossStorage.client.PutObject(putObjectInput)
-
 	if err != nil {
 		return entity.FileObject{}, err
 	}
@@ -169,57 +186,55 @@ func (ossStorage *AmazonOSS) UploadObjectFromByte(
 	}, nil
 }
 
-func (ossStorage *AmazonOSS) UploadObjectFromFile(
-	ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error) {
 	fileContent, ext, err := readContentFile(localFile)
-
 	if err != nil {
 		return entity.FileObject{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, fileContent, ext)
+	return ossStorage.UploadObjectFromByte(ormService, namespace, fileContent, ext)
 }
 
 func (ossStorage *AmazonOSS) UploadObjectFromBase64(
 	ormService *beeorm.Engine,
-	bucket Bucket,
 	namespace Namespace,
 	content string,
 	extension string,
 ) (entity.FileObject, error) {
 	byteData, err := base64.StdEncoding.DecodeString(content)
-
 	if err != nil {
 		return entity.FileObject{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, extension)
+	return ossStorage.UploadObjectFromByte(ormService, namespace, byteData, extension)
 }
 
-func (ossStorage *AmazonOSS) UploadImageFromFile(
-	ormService *beeorm.Engine, bucket Bucket, namespace Namespace, localFile string) (entity.FileObject, error) {
-	return ossStorage.UploadObjectFromFile(ormService, bucket, namespace, localFile)
+func (ossStorage *AmazonOSS) UploadImageFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error) {
+	return ossStorage.UploadObjectFromFile(ormService, namespace, localFile)
 }
 
 func (ossStorage *AmazonOSS) UploadImageFromBase64(
 	ormService *beeorm.Engine,
-	bucket Bucket,
 	namespace Namespace,
 	image string,
 	extension string,
 ) (entity.FileObject, error) {
 	byteData, err := base64.StdEncoding.DecodeString(image)
-
 	if err != nil {
 		return entity.FileObject{}, err
 	}
 
-	return ossStorage.UploadObjectFromByte(ormService, bucket, namespace, byteData, extension)
+	return ossStorage.UploadObjectFromByte(ormService, namespace, byteData, extension)
 }
 
-func (ossStorage *AmazonOSS) DeleteObject(bucket Bucket, object *entity.FileObject) error {
-	_, err := ossStorage.client.DeleteObjects(&s3.DeleteObjectsInput{
-		Bucket: aws.String(ossStorage.buckets[bucket].Name),
+func (ossStorage *AmazonOSS) DeleteObject(namespace Namespace, object *entity.FileObject) error {
+	bucketConfig, err := ossStorage.namespaces.getBucketConfig(namespace)
+	if err != nil {
+		return err
+	}
+
+	_, err = ossStorage.client.DeleteObjects(&s3.DeleteObjectsInput{
+		Bucket: aws.String(bucketConfig.Name),
 		Delete: &s3.Delete{Objects: []*s3.ObjectIdentifier{{
 			Key: aws.String(object.StorageKey),
 		}}},
@@ -228,18 +243,6 @@ func (ossStorage *AmazonOSS) DeleteObject(bucket Bucket, object *entity.FileObje
 	return err
 }
 
-func (ossStorage *AmazonOSS) CreateObjectFromKey(ormService *beeorm.Engine, bucket Bucket, key string) entity.FileObject {
-	//TODO remove
-	return entity.FileObject{
-		ID:         getStorageCounter(ormService, ossStorage.buckets[bucket]),
-		StorageKey: key,
-	}
-}
-
 func (ossStorage *AmazonOSS) getObjectKey(namespace Namespace, storageCounter uint64, fileExtension string) string {
-	if namespace != "" {
-		return namespace.String() + "/" + strconv.FormatUint(storageCounter, 10) + fileExtension
-	}
-
-	return strconv.FormatUint(storageCounter, 10) + fileExtension
+	return namespace.String() + "/" + strconv.FormatUint(storageCounter, 10) + fileExtension
 }

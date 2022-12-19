@@ -56,7 +56,7 @@ func CreateFile(ctx context.Context, newFile *file.RequestDTOUploadImage) (*file
 		return nil, errors.HandleCustomErrors(map[string]string{"Namespace": "namespace invalid"})
 	}
 
-	obj, err := service.DI().OSService().UploadImageFromFile(ormService, oss.BucketPublic, namespace, tempFile.Name())
+	obj, err := service.DI().OSService().UploadImageFromFile(ormService, namespace, tempFile.Name())
 
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func CreateFile(ctx context.Context, newFile *file.RequestDTOUploadImage) (*file
 
 	ormService.Flush(fileEntity)
 
-	objectURL, err := service.DI().OSService().GetObjectURL(oss.BucketPublic, fileEntity.File)
+	objectURL, err := service.DI().OSService().GetObjectURL(namespace, fileEntity.File)
 
 	if err != nil {
 		panic(err)
