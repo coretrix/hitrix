@@ -35,7 +35,7 @@ type TimeDifference struct {
 	Years, Months, Days, Hours, Minutes, Seconds int
 }
 
-func GetTimeDifference(from, to time.Time) *TimeDifference {
+func GetTimeDifferenceStruct(from, to time.Time) *TimeDifference {
 	years, months, days, hours, minutes, seconds := timex.Diff(from, to)
 
 	return &TimeDifference{
@@ -48,7 +48,7 @@ func GetTimeDifference(from, to time.Time) *TimeDifference {
 	}
 }
 
-func GetSecondsDifference(from, to time.Time) float64 {
+func GetTimeDifference(from, to time.Time) time.Duration {
 	var delta time.Duration
 	if from.After(to) {
 		delta = from.Sub(to)
@@ -56,7 +56,7 @@ func GetSecondsDifference(from, to time.Time) float64 {
 		delta = to.Sub(from)
 	}
 
-	return delta.Seconds()
+	return delta
 }
 
 func GetWeekDay(dateTime time.Time) uint8 {
@@ -102,7 +102,7 @@ func GetTimeDifferenceHumanBySeconds(seconds float64) string {
 }
 
 func GetTimeDifferenceHuman(startDate, endDate time.Time) string {
-	timeDifference := GetTimeDifference(startDate, endDate)
+	timeDifference := GetTimeDifferenceStruct(startDate, endDate)
 
 	duration := ""
 	if timeDifference.Years > 0 {
