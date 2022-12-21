@@ -4,6 +4,8 @@ orm:
     redis: ENV[DEFAULT_REDIS]
     locker: default
     local_cache: 1000
+  log_db_pool:
+    mysql: ENV[DEFAULT_MYSQL]
   search_pool:
     redis: ENV[DEFAULT_REDIS_SEARCH]
 authentication:

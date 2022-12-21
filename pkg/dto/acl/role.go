@@ -1,7 +1,11 @@
 package acl
 
+import "github.com/coretrix/hitrix/service/component/crud"
+
 type RolesResponseDTO struct {
-	Roles []*RoleResponseDTO
+	Rows    []*RoleResponseDTO
+	Total   int
+	Columns []crud.Column
 }
 
 type RoleResponseDTO struct {

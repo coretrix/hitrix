@@ -2,16 +2,27 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/latolukasz/beeorm"
 
+	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/pkg/controller"
 )
 
-func FileRouter(ginEngine *gin.Engine) {
+func ACLRouter(ginEngine *gin.Engine) {
 	v1Group := ginEngine.Group("/v1/")
 
-	var fileController *controller.FileController
-	fileGroup := v1Group.Group("file/")
+	var aclController *controller.ACLController
 	{
-		fileGroup.POST("upload/", fileController.PostUploadImageAction)
+		aclGroup := v1Group.Group("/acl")
+
+		aclGroup.GET("/resources/", aclController.ListResourcesAction)
+		aclGroup.GET("/role/:ID/", aclController.GetRoleAction)
+		aclGroup.POST("/roles/", aclController.ListRolesAction)
+		aclGroup.POST("/role/", aclController.CreateRoleAction)
+		aclGroup.PUT("/role/:ID/", aclController.UpdateRoleAction)
+		aclGroup.DELETE("/role/:ID/", aclController.DeleteRoleAction)
+		aclGroup.POST("/assign-role/", aclController.PostAssignRoleToUserAction(func() beeorm.Entity {
+			return &entity.AdminUserEntity{}
+		}))
 	}
 }
