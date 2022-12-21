@@ -14,7 +14,7 @@ func TestGetTimeDifference(t *testing.T) {
 	from := time.Date(1986, 3, 7, 17, 30, 15, 0, time.UTC)
 	to := time.Date(2020, 5, 2, 19, 35, 10, 0, time.UTC)
 
-	timeDifference := helper.GetTimeDifference(from, to)
+	timeDifference := helper.GetTimeDifferenceStruct(from, to)
 
 	assert.Equal(t, 34, timeDifference.Years)
 	assert.Equal(t, 1, timeDifference.Months)
@@ -23,7 +23,7 @@ func TestGetTimeDifference(t *testing.T) {
 	assert.Equal(t, 4, timeDifference.Minutes)
 	assert.Equal(t, 55, timeDifference.Seconds)
 
-	timeDifference = helper.GetTimeDifference(to, from)
+	timeDifference = helper.GetTimeDifferenceStruct(to, from)
 
 	assert.Equal(t, 34, timeDifference.Years)
 	assert.Equal(t, 1, timeDifference.Months)
@@ -80,5 +80,5 @@ func TestGetSecondsDifference(t *testing.T) {
 	from := time.Date(2020, 6, 1, 0, 0, 0, 0, location)
 	to := time.Date(2020, 6, 1, 1, 0, 0, 0, location)
 
-	assert.Equal(t, float64(3600), helper.GetSecondsDifference(to, from))
+	assert.Equal(t, float64(3600), helper.GetTimeDifference(to, from).Seconds())
 }
