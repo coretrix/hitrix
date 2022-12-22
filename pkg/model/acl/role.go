@@ -171,9 +171,7 @@ func validateResourcesAndPermissions(ormService *beeorm.Engine, resources []*acl
 	for i, resource := range resources {
 		resourceIDs[i] = resource.ResourceID
 
-		for _, permission := range resource.Permissions {
-			permissionIDs = append(permissionIDs, permission.PermissionID)
-		}
+		permissionIDs = append(permissionIDs, resource.PermissionIDs...)
 	}
 
 	resourcesQuery := beeorm.NewRedisSearchQuery()
@@ -231,14 +229,14 @@ func createPrivileges(
 			CreatedAt:  now,
 		}
 
-		for _, permission := range resource.Permissions {
-			permissionEntity, ok := permissionsMapping[permission.PermissionID]
+		for _, permissionID := range resource.PermissionIDs {
+			permissionEntity, ok := permissionsMapping[permissionID]
 			if !ok {
-				return fmt.Errorf("permission with ID: %d not found in mapping", permission.PermissionID)
+				return fmt.Errorf("permission with ID: %d not found in mapping", permissionID)
 			}
 
 			if permissionEntity.ResourceID.ID != resourceEntity.ID {
-				return fmt.Errorf("permission with ID: %d does not belong to resource with ID: %d", permission.PermissionID, resource.ResourceID)
+				return fmt.Errorf("permission with ID: %d does not belong to resource with ID: %d", permissionID, resource.ResourceID)
 			}
 
 			privilegeEntity.PermissionIDs = append(privilegeEntity.PermissionIDs, permissionEntity)

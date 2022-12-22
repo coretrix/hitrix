@@ -230,15 +230,8 @@ func TestCreateRoleAction(t *testing.T) {
 		Name: "admin",
 		Resources: []*acl.RoleResourceRequestDTO{
 			{
-				ResourceID: resource.ID,
-				Permissions: []*acl.RolePermissionRequestDTO{
-					{
-						PermissionID: permission1.ID,
-					},
-					{
-						PermissionID: permission2.ID,
-					},
-				},
+				ResourceID:    resource.ID,
+				PermissionIDs: []uint64{permission1.ID, permission2.ID},
 			},
 		},
 	}
@@ -290,12 +283,8 @@ func TestUpdateRoleAction(t *testing.T) {
 		Name: "super-admin",
 		Resources: []*acl.RoleResourceRequestDTO{
 			{
-				ResourceID: resource.ID,
-				Permissions: []*acl.RolePermissionRequestDTO{
-					{
-						PermissionID: permission2.ID,
-					},
-				},
+				ResourceID:    resource.ID,
+				PermissionIDs: []uint64{permission2.ID},
 			},
 		},
 	}
