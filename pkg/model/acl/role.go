@@ -2,14 +2,13 @@ package acl
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
-	"time"
-
 	"github.com/coretrix/hitrix/pkg/dto/acl"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
+	"github.com/gin-gonic/gin"
+	"github.com/latolukasz/beeorm"
+	"time"
 )
 
 type UserRoleSetter interface {
