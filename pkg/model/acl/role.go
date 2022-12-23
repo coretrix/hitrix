@@ -2,18 +2,19 @@ package acl
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/latolukasz/beeorm"
+
 	"github.com/coretrix/hitrix/pkg/dto/acl"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
-	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
-	"time"
 )
 
 type UserRoleSetter interface {
 	SetRole(roleEntity *entity.RoleEntity)
-	GetRole() *entity.RoleEntity
 }
 
 func CreateRole(c *gin.Context, request *acl.CreateOrUpdateRoleRequestDTO) error {
