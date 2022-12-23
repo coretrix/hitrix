@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
 
@@ -14,6 +15,21 @@ import (
 )
 
 type ACLController struct {
+}
+
+// @Description Get Logged User resources
+// @Tags ACL
+// @Router /acl/user-resources/ [get]
+// @Success 200 {object} acl.ResourcesResponseDTO
+// @Failure 400 {object} response.Error
+// @Failure 401 "Unauthorized"
+// @Failure 403 "Forbidden"
+// @Failure 500 "Something bad happened"
+// @Security BearerAuth
+func (controller *ACLController) GeUserResourcesAction(getUserFunc func(c context.Context) beeorm.Entity) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		response.SuccessResponse(c, aclView.ListUserResources(c, getUserFunc))
+	}
 }
 
 // @Description List resources
