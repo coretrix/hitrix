@@ -3,9 +3,10 @@ package acl
 import "github.com/coretrix/hitrix/service/component/crud"
 
 type RolesResponseDTO struct {
-	Rows    []*RoleResponseDTO
-	Total   int
-	Columns []crud.Column
+	Rows        []*RoleResponseDTO
+	Total       int
+	Columns     []crud.Column
+	PageContext *ResourcesResponseDTO
 }
 
 type RoleResponseDTO struct {

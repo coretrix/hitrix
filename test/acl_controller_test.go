@@ -108,6 +108,11 @@ func TestListRolesAction(t *testing.T) {
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
 
+	resource1 := CreateResource(flusher, map[string]interface{}{})
+
+	CreatePermission(flusher, map[string]interface{}{"ResourceID": resource1, "Name": "create"})
+	CreatePermission(flusher, map[string]interface{}{"ResourceID": resource1, "Name": "view"})
+
 	CreateRole(flusher, map[string]interface{}{})
 	CreateRole(flusher, map[string]interface{}{"Name": "super-admin"})
 	CreateRole(flusher, map[string]interface{}{"Name": "super-mega-admin"})
@@ -135,6 +140,24 @@ func TestListRolesAction(t *testing.T) {
 			{
 				ID:   2,
 				Name: "super-admin",
+			},
+		},
+		PageContext: &acl.ResourcesResponseDTO{
+			Resources: []*acl.ResourceResponseDTO{
+				{
+					ID:   1,
+					Name: "user",
+					Permissions: []*acl.PermissionResponseDTO{
+						{
+							ID:   1,
+							Name: "create",
+						},
+						{
+							ID:   2,
+							Name: "view",
+						},
+					},
+				},
 			},
 		},
 	}

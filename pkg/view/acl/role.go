@@ -48,8 +48,9 @@ func ListRoles(c *gin.Context, request *crud.ListRequest) *acl.RolesResponseDTO 
 	total := ormService.RedisSearch(&allRoleEntities, query, beeorm.NewPager(searchParams.Page, searchParams.PageSize))
 
 	result := &acl.RolesResponseDTO{
-		Total:   int(total),
-		Columns: cols,
+		Total:       int(total),
+		Columns:     cols,
+		PageContext: ListResources(c),
 	}
 
 	for _, roleEntity := range allRoleEntities {
