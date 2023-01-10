@@ -35,7 +35,7 @@ type Column struct {
 	Key                      string
 	Label                    string
 	FilterType               string
-	FieldType               string
+	FieldType                string
 	Searchable               bool
 	Sortable                 bool
 	Visible                  bool

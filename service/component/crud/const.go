@@ -16,5 +16,5 @@ const (
 )
 
 const (
-	FieldTypeBool                      = "Bool"
+	FieldTypeBool = "Bool"
 )
