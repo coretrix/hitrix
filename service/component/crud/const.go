@@ -14,3 +14,7 @@ const (
 	RangeDatePickerTypeArrayDate         = "RangeDatePickerTypeArrayDate"
 	CheckboxTypeBoolean                  = "CheckboxTypeBoolean"
 )
+
+const (
+	FieldTypeBool                      = "Bool"
+)
