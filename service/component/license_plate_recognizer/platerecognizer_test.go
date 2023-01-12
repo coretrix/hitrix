@@ -1,4 +1,4 @@
-package licenceplaterecognizer
+package licenseplaterecognizer
 
 import (
 	"bufio"
