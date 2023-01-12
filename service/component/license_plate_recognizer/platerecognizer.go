@@ -1,4 +1,4 @@
-package licenceplaterecognizer
+package licenseplaterecognizer
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ type PlateRecognizer struct {
 	APIKey string
 }
 
-func NewPlateRecognizer(apiKey string) LicencePlateRecognizer {
+func NewPlateRecognizer(apiKey string) LicensePlateRecognizer {
 	return &PlateRecognizer{APIKey: apiKey}
 }
 

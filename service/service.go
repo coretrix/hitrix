@@ -30,7 +30,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/instagram"
 	"github.com/coretrix/hitrix/service/component/jwt"
 	"github.com/coretrix/hitrix/service/component/kubernetes"
-	licenceplaterecognizer "github.com/coretrix/hitrix/service/component/license_plate_recognizer"
+	licenseplaterecognizer "github.com/coretrix/hitrix/service/component/license_plate_recognizer"
 	"github.com/coretrix/hitrix/service/component/localize"
 	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/oss"
@@ -96,7 +96,7 @@ const (
 	KubernetesService             = "kubernetes"
 	SentryService                 = "sentry"
 	RequestLoggerService          = "request_logger"
-	LicencePlateRecognizerService = "license_plate_recognizer"
+	LicensePlateRecognizerService = "license_plate_recognizer"
 )
 
 type DIContainer struct {
@@ -284,6 +284,6 @@ func (d *DIContainer) RequestLogger() requestlogger.IRequestLogger {
 	return GetServiceRequired(RequestLoggerService).(requestlogger.IRequestLogger)
 }
 
-func (d *DIContainer) LicencePlateRecognizer() licenceplaterecognizer.LicencePlateRecognizer {
-	return GetServiceRequired(LicencePlateRecognizerService).(licenceplaterecognizer.LicencePlateRecognizer)
+func (d *DIContainer) LicensePlateRecognizer() licenseplaterecognizer.LicensePlateRecognizer {
+	return GetServiceRequired(LicensePlateRecognizerService).(licenseplaterecognizer.LicensePlateRecognizer)
 }
