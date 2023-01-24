@@ -24,6 +24,7 @@ import (
 	featureflag "github.com/coretrix/hitrix/service/component/feature_flag"
 	fileextractor "github.com/coretrix/hitrix/service/component/file_extractor"
 	"github.com/coretrix/hitrix/service/component/generator"
+	"github.com/coretrix/hitrix/service/component/geocoding"
 	googleanalytics "github.com/coretrix/hitrix/service/component/google_analytics"
 	"github.com/coretrix/hitrix/service/component/gql"
 	"github.com/coretrix/hitrix/service/component/html2pdf"
@@ -97,6 +98,7 @@ const (
 	SentryService                 = "sentry"
 	RequestLoggerService          = "request_logger"
 	LicensePlateRecognizerService = "license_plate_recognizer"
+	GeocodingService              = "geocoding"
 )
 
 type DIContainer struct {
@@ -286,4 +288,8 @@ func (d *DIContainer) RequestLogger() requestlogger.IRequestLogger {
 
 func (d *DIContainer) LicensePlateRecognizer() licenseplaterecognizer.LicensePlateRecognizer {
 	return GetServiceRequired(LicensePlateRecognizerService).(licenseplaterecognizer.LicensePlateRecognizer)
+}
+
+func (d *DIContainer) Geocoding() geocoding.IGeocoding {
+	return GetServiceRequired(GeocodingService).(geocoding.IGeocoding)
 }
