@@ -16,7 +16,7 @@ const (
 	GeocodingProviderGoogleMaps = "google_maps"
 )
 
-func ServiceProviderGeocoding(provider string, useCaching bool) *service.DefinitionGlobal {
+func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.GeocodingService,
 		Build: func(ctn di.Container) (interface{}, error) {
@@ -25,12 +25,22 @@ func ServiceProviderGeocoding(provider string, useCaching bool) *service.Definit
 				return nil, fmt.Errorf("provider constructor not found by key: %s", provider)
 			}
 
-			provider, err := providerConstructor(ctn.Get(service.ConfigService).(config.IConfig))
+			configService := ctn.Get(service.ConfigService).(config.IConfig)
+
+			useCaching, okUseCaching := configService.Bool("geocoding.use_caching")
+
+			cacheExpiryDays, okCacheExpiryDays := configService.Int64("geocoding.cache_expiry_days")
+
+			if okUseCaching && !okCacheExpiryDays {
+				return nil, fmt.Errorf("you must specify geocoding.cache_expiry_days")
+			}
+
+			provider, err := providerConstructor(configService)
 			if err != nil {
 				return nil, err
 			}
 
-			return geocoding.NewGeocoding(useCaching, ctn.Get(service.ClockService).(clock.IClock), provider), nil
+			return geocoding.NewGeocoding(useCaching, cacheExpiryDays, ctn.Get(service.ClockService).(clock.IClock), provider), nil
 		},
 	}
 }

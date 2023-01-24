@@ -7,10 +7,16 @@ import (
 )
 
 type GeocodingEntity struct {
-	beeorm.ORM `orm:"table=geocoding;redisCache;redisSearch=search_pool"`
-	ID         uint64    `orm:"sortable"`
-	Lat        float64   `orm:"searchable"`
-	Lng        float64   `orm:"searchable"`
-	Address    string    `orm:"searchable"`
-	CreatedAt  time.Time `orm:"time=true"`
+	beeorm.ORM  `orm:"table=geocoding;redisCache"`
+	ID          uint64
+	Lat         float64
+	Lng         float64
+	Address     string `orm:"required;unique=Address_Language:1"`
+	Language    string `orm:"required;unique=Address_Language:2"`
+	Provider    string
+	RawResponse interface{}
+	ExpiresAt   time.Time `orm:"time=true;index=ExpiresAt"`
+	CreatedAt   time.Time `orm:"time=true"`
+
+	CachedQueryAddressLanguage *beeorm.CachedQuery `queryOne:":Address = ? AND :Language = ?"`
 }

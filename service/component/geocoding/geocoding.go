@@ -2,6 +2,7 @@ package geocoding
 
 import (
 	"context"
+	"time"
 
 	"github.com/latolukasz/beeorm"
 
@@ -10,13 +11,15 @@ import (
 )
 
 type IGeocoding interface {
-	Geocode(ctx context.Context, ormService *beeorm.Engine, address string) ([]*Address, error)
-	ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng) ([]*Address, error)
+	Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language string) (*Address, error)
+	ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string) (*Address, error)
 }
 
 type Address struct {
-	Address  string
-	Location *LatLng
+	FromCache bool
+	Address   string
+	Language  string
+	Location  *LatLng
 }
 
 type LatLng struct {
@@ -25,110 +28,90 @@ type LatLng struct {
 }
 
 type Geocoding struct {
-	useCaching bool
-	clock      clock.IClock
-	provider   Provider
+	useCaching      bool
+	cacheExpiryDays int64
+	clock           clock.IClock
+	provider        Provider
 }
 
-func NewGeocoding(useCaching bool, clock clock.IClock, provider Provider) IGeocoding {
-	return &Geocoding{useCaching: useCaching, clock: clock, provider: provider}
+func NewGeocoding(useCaching bool, cacheExpiryDays int64, clock clock.IClock, provider Provider) IGeocoding {
+	return &Geocoding{useCaching: useCaching, cacheExpiryDays: cacheExpiryDays, clock: clock, provider: provider}
 }
 
-func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, address string) ([]*Address, error) {
+func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language string) (*Address, error) {
 	if g.useCaching {
-		q := beeorm.NewRedisSearchQuery()
-		q.FilterString("Address", address)
-		q.Sort("ID", true)
-
-		geocodingEntities := make([]*entity.GeocodingEntity, 0)
-		ormService.RedisSearch(&geocodingEntities, q, beeorm.NewPager(1, 1000))
-
-		if len(geocodingEntities) != 0 {
-			return adaptEntitiesToAddresses(geocodingEntities), nil
+		geocodingEntity := &entity.GeocodingEntity{}
+		if ormService.CachedSearchOne(geocodingEntity, "CachedQueryAddressLanguage", address, language) {
+			return &Address{
+				FromCache: true,
+				Address:   geocodingEntity.Address,
+				Language:  language,
+				Location: &LatLng{
+					Lat: geocodingEntity.Lat,
+					Lng: geocodingEntity.Lng,
+				},
+			}, nil
 		}
 	}
 
-	addresses, err := g.provider.Geocode(ctx, address)
+	addressResult, rawResponse, err := g.provider.Geocode(ctx, language, address)
 	if err != nil {
 		return nil, err
 	}
 
 	now := g.clock.Now()
 
-	if g.useCaching && len(addresses) != 0 {
-		flusher := ormService.NewFlusher()
-
-		for _, addressResult := range addresses {
-			flusher.Track(&entity.GeocodingEntity{
-				Lat:       addressResult.Location.Lat,
-				Lng:       addressResult.Location.Lng,
-				Address:   addressResult.Address,
-				CreatedAt: now,
-			})
-		}
-
-		flusher.Flush()
+	if g.useCaching {
+		ormService.Flush(&entity.GeocodingEntity{
+			Lat:         addressResult.Location.Lat,
+			Lng:         addressResult.Location.Lng,
+			Address:     addressResult.Address,
+			Language:    language,
+			Provider:    g.provider.GetName(),
+			RawResponse: rawResponse,
+			ExpiresAt:   now.Add(time.Duration(g.cacheExpiryDays) * time.Hour * 24),
+			CreatedAt:   now,
+		})
 	}
 
-	return addresses, nil
+	return addressResult, nil
 }
 
-func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng) ([]*Address, error) {
+func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string) (*Address, error) {
 	if g.useCaching {
-		q := beeorm.NewRedisSearchQuery()
-		q.FilterFloat("Lat", latLng.Lat)
-		q.FilterFloat("Lng", latLng.Lng)
-		q.Sort("ID", true)
-
-		geocodingEntities := make([]*entity.GeocodingEntity, 0)
-		ormService.RedisSearch(&geocodingEntities, q, beeorm.NewPager(1, 1000))
-
-		if len(geocodingEntities) != 0 {
-			return adaptEntitiesToAddresses(geocodingEntities), nil
+		reverseGeocodingEntity := &entity.ReverseGeocodingEntity{}
+		if ormService.CachedSearchOne(reverseGeocodingEntity, "CachedQueryLatLngLanguage", latLng.Lat, latLng.Lng, language) {
+			return &Address{
+				FromCache: true,
+				Address:   reverseGeocodingEntity.Address,
+				Language:  language,
+				Location: &LatLng{
+					Lat: reverseGeocodingEntity.Lat,
+					Lng: reverseGeocodingEntity.Lng,
+				},
+			}, nil
 		}
 	}
 
-	addresses, err := g.provider.ReverseGeocode(ctx, latLng)
+	addressResult, rawResponse, err := g.provider.ReverseGeocode(ctx, latLng, language)
 	if err != nil {
 		return nil, err
 	}
 
 	now := g.clock.Now()
 
-	if g.useCaching && len(addresses) != 0 {
-		flusher := ormService.NewFlusher()
-
-		for _, addressResult := range addresses {
-			flusher.Track(&entity.GeocodingEntity{
-				Lat:       addressResult.Location.Lat,
-				Lng:       addressResult.Location.Lng,
-				Address:   addressResult.Address,
-				CreatedAt: now,
-			})
-		}
-
-		flusher.Flush()
+	if g.useCaching {
+		ormService.Flush(&entity.ReverseGeocodingEntity{
+			Lat:         addressResult.Location.Lat,
+			Lng:         addressResult.Location.Lng,
+			Address:     addressResult.Address,
+			Language:    language,
+			Provider:    g.provider.GetName(),
+			RawResponse: rawResponse,
+			ExpiresAt:   now.Add(time.Duration(g.cacheExpiryDays) * time.Hour * 24),
+			CreatedAt:   now,
+		})
 	}
 
-	return addresses, nil
-}
-
-func adaptEntitiesToAddresses(geocodingEntities []*entity.GeocodingEntity) []*Address {
-	addresses := make([]*Address, len(geocodingEntities))
-
-	for i, geocodingEntity := range geocodingEntities {
-		addresses[i] = adaptEntityToAddress(geocodingEntity)
-	}
-
-	return addresses
-}
-
-func adaptEntityToAddress(geocodingEntity *entity.GeocodingEntity) *Address {
-	return &Address{
-		Address: geocodingEntity.Address,
-		Location: &LatLng{
-			Lat: geocodingEntity.Lat,
-			Lng: geocodingEntity.Lng,
-		},
-	}
+	return addressResult, nil
 }

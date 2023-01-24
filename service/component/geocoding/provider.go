@@ -5,6 +5,7 @@ import (
 )
 
 type Provider interface {
-	Geocode(ctx context.Context, address string) ([]*Address, error)
-	ReverseGeocode(ctx context.Context, latLng *LatLng) ([]*Address, error)
+	Geocode(ctx context.Context, address string, language string) (*Address, interface{}, error)
+	ReverseGeocode(ctx context.Context, latLng *LatLng, language string) (*Address, interface{}, error)
+	GetName() string
 }
