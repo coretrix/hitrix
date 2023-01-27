@@ -12,7 +12,7 @@ type GeocodingEntity struct {
 	Lat         float64
 	Lng         float64
 	Address     string `orm:"required;unique=Address_Language:1"`
-	Language    string `orm:"required;unique=Address_Language:2"`
+	Language    string `orm:"required;enum=entity.LanguageValueAll;unique=Address_Language:2"`
 	Provider    string
 	RawResponse interface{}
 	ExpiresAt   time.Time `orm:"time=true;index=ExpiresAt"`

@@ -19,9 +19,9 @@ func NewGoogleMapsProvider(apiKey string) Provider {
 	return &GoogleMapsProvider{client: client}
 }
 
-func (g *GoogleMapsProvider) Geocode(ctx context.Context, address string, language string) (*Address, interface{}, error) {
+func (g *GoogleMapsProvider) Geocode(ctx context.Context, address string, language Language) (*Address, interface{}, error) {
 	req := &maps.GeocodingRequest{
-		Language: language,
+		Language: string(language),
 		Address:  address,
 	}
 
@@ -51,9 +51,9 @@ func (g *GoogleMapsProvider) Geocode(ctx context.Context, address string, langua
 	}, results, err
 }
 
-func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng, language string) (*Address, interface{}, error) {
+func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng, language Language) (*Address, interface{}, error) {
 	req := &maps.GeocodingRequest{
-		Language: language,
+		Language: string(language),
 		LatLng: &maps.LatLng{
 			Lat: latLng.Lat,
 			Lng: latLng.Lng,

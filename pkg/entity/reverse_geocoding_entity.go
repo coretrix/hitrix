@@ -12,7 +12,7 @@ type ReverseGeocodingEntity struct {
 	Lat         float64 `orm:"required;unique=Lat_Lng_Language:1"`
 	Lng         float64 `orm:"required;unique=Lat_Lng_Language:2"`
 	Address     string
-	Language    string `orm:"required;unique=Lat_Lng_Language:3"`
+	Language    string `orm:"required;enum=entity.LanguageValueAll;unique=Lat_Lng_Language:3"`
 	Provider    string
 	RawResponse interface{}
 	ExpiresAt   time.Time `orm:"time=true;index=ExpiresAt"`
