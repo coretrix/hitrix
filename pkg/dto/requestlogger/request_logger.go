@@ -13,13 +13,14 @@ type ResponseDTORequestLoggerListDevPanel struct {
 }
 
 type ResponseDTORequestLogger struct {
-	ID        uint64
-	UserID    uint64
-	URL       string
-	AppName   string
-	Request   string
-	Response  string
-	Log       *string
-	Status    int
-	CreatedAt time.Time
+	ID              uint64
+	UserID          uint64
+	URL             string
+	AppName         string
+	Request         string
+	Response        string
+	Log             *string
+	Status          int
+	RequestDuration int64
+	CreatedAt       time.Time
 }

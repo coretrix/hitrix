@@ -85,6 +85,15 @@ func columns() []crud.Column {
 			DataStringKeyStringValue: nil,
 		},
 		{
+			Key:                      "RequestDuration",
+			FilterType:               crud.InputTypeNumber,
+			Label:                    "RequestDuration",
+			Searchable:               false,
+			Sortable:                 true,
+			Visible:                  true,
+			DataStringKeyStringValue: nil,
+		},
+		{
 			Key:                      "CreatedAt",
 			FilterType:               crud.DateTimePickerTypeDateTime,
 			Label:                    "CreatedAt",
@@ -108,7 +117,7 @@ func RequestsLogger(ctx context.Context, userListRequest listDto.RequestDTOList)
 	searchParams := crudService.ExtractListParams(cols, request)
 	query := crudService.GenerateListRedisSearchQuery(searchParams)
 
-	if len(searchParams.NumberFilters) == 0 && len(searchParams.TagFilters) == 0 {
+	if len(searchParams.Sort) == 0 {
 		query = query.Sort("ID", true)
 	}
 
@@ -121,15 +130,16 @@ func RequestsLogger(ctx context.Context, userListRequest listDto.RequestDTOList)
 
 	for i, requestLoggerEntity := range requestLoggerEntities {
 		requestLoggerEntityList[i] = &requestlogger.ResponseDTORequestLogger{
-			ID:        requestLoggerEntity.ID,
-			UserID:    requestLoggerEntity.UserID,
-			URL:       requestLoggerEntity.URL,
-			AppName:   requestLoggerEntity.AppName,
-			Request:   requestLoggerEntity.RequestText,
-			Response:  requestLoggerEntity.ResponseText,
-			Log:       pointer.String(string(requestLoggerEntity.Log)),
-			Status:    requestLoggerEntity.Status,
-			CreatedAt: requestLoggerEntity.CreatedAt,
+			ID:              requestLoggerEntity.ID,
+			UserID:          requestLoggerEntity.UserID,
+			URL:             requestLoggerEntity.URL,
+			AppName:         requestLoggerEntity.AppName,
+			Request:         requestLoggerEntity.RequestText,
+			Response:        requestLoggerEntity.ResponseText,
+			Log:             pointer.String(string(requestLoggerEntity.Log)),
+			Status:          requestLoggerEntity.Status,
+			RequestDuration: requestLoggerEntity.RequestDuration,
+			CreatedAt:       requestLoggerEntity.CreatedAt,
 		}
 	}
 
