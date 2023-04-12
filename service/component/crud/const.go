@@ -17,4 +17,5 @@ const (
 
 const (
 	FieldTypeBool = "Bool"
+	FieldTypeCoordinates = "Coordinates"
 )
