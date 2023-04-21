@@ -28,6 +28,6 @@ func (origin Coordinates) DistanceInKm(destination Coordinates) float64 {
 	return d
 }
 
-func (origin Coordinates) distanceInMeters(destination Coordinates) float64 {
+func (origin Coordinates) DistanceInMeters(destination Coordinates) float64 {
 	return origin.DistanceInKm(destination) * 1000
 }
