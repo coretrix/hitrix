@@ -159,7 +159,7 @@ func validateTimestampGteToday(fl validator.FieldLevel) bool {
 
 	var today time.Time
 	if service.HasService(service.ClockService) {
-		today = service.DI().Clock().Now()
+		today = service.DI().Clock().Now().Truncate(time.Hour)
 	} else {
 		today = time.Now().Truncate(time.Hour)
 	}
