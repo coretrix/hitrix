@@ -47,19 +47,19 @@ func (s *SmsTrackerEntity) SetText(text string) {
 	s.Text = text
 }
 
-func (s *SmsTrackerEntity) SetFromPrimaryGateway(primary string) {
+func (s *SmsTrackerEntity) SetFromPrimaryProvider(primary string) {
 	s.FromPrimaryGateway = primary
 }
 
-func (s *SmsTrackerEntity) SetFromSecondaryGateway(secondary string) {
+func (s *SmsTrackerEntity) SetFromSecondaryProvider(secondary string) {
 	s.FromSecondaryGateway = secondary
 }
 
-func (s *SmsTrackerEntity) SetPrimaryGatewayError(primaryError string) {
+func (s *SmsTrackerEntity) SetPrimaryProviderError(primaryError string) {
 	s.PrimaryGatewayError = primaryError
 }
 
-func (s *SmsTrackerEntity) SetSecondaryGatewayError(secondaryError string) {
+func (s *SmsTrackerEntity) SetSecondaryProviderError(secondaryError string) {
 	s.SecondaryGatewayError = secondaryError
 }
 
