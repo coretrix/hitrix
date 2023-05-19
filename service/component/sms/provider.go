@@ -15,7 +15,7 @@ const (
 type NewProviderFunc func(configService config.IConfig, clockService clock.IClock) (IProvider, error)
 
 type IProvider interface {
-	SendSMSMessage(*Message) (string, error)
+	SendSMSMessage(msg *Message) (string, error)
 	GetName() string
 }
 
@@ -26,6 +26,6 @@ type Message struct {
 }
 
 type Provider struct {
-	Primary   string
-	Secondary string
+	Primary   IProvider
+	Secondary IProvider
 }

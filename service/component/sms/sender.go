@@ -10,53 +10,60 @@ import (
 )
 
 type ISender interface {
-	SendMessage(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, message *Message) error
+	SendMessage(ormService *beeorm.Engine, message *Message) error
 }
 
 type Sender struct {
-	Clock             clock.IClock
-	ProviderContainer map[string]IProvider
-	Logger            LogEntity
+	Clock              clock.IClock
+	PrimaryProvider    IProvider
+	SecondaryProvider  IProvider
+	ErrorLoggerService errorlogger.ErrorLogger
 }
 
-func (s *Sender) SendMessage(ormService *beeorm.Engine, errorLoggerService errorlogger.ErrorLogger, message *Message) error {
-	primaryProvider := message.Provider.Primary
-	secondaryProvider := message.Provider.Secondary
+func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error {
+	var primaryProvider IProvider
+	var secondaryProvider IProvider
 
-	primaryGateway, ok := s.ProviderContainer[primaryProvider]
-	if !ok {
+	if message.Provider != nil {
+		primaryProvider = message.Provider.Primary
+		secondaryProvider = message.Provider.Secondary
+	} else {
+		primaryProvider = s.PrimaryProvider
+		secondaryProvider = s.SecondaryProvider
+	}
+
+	if primaryProvider == nil {
 		return fmt.Errorf("primary provider not supported")
 	}
 
-	smsTrackerEntity := s.Logger
+	smsTrackerEntity := &entity.SmsTrackerEntity{}
 	smsTrackerEntity.SetTo(message.Number)
 	smsTrackerEntity.SetType(entity.SMSTrackerTypeCallout)
 	smsTrackerEntity.SetText(message.Text)
-	smsTrackerEntity.SetFromPrimaryProvider(primaryProvider)
+	smsTrackerEntity.SetFromPrimaryProvider(primaryProvider.GetName())
 	smsTrackerEntity.SetSentAt(s.Clock.Now())
 
 	trySecondaryProvider := false
 
-	status, err := primaryGateway.SendSMSMessage(message)
+	status, err := primaryProvider.SendSMSMessage(message)
 	if err != nil {
 		trySecondaryProvider = true
 
 		smsTrackerEntity.SetPrimaryProviderError(err.Error())
-		errorLoggerService.LogError(err)
+		s.ErrorLoggerService.LogError(err)
 	}
 
 	if trySecondaryProvider {
-		secondaryGateway, ok := s.ProviderContainer[secondaryProvider]
-		if !ok {
+		if secondaryProvider == nil {
 			return fmt.Errorf("secondary provider not supported")
 		}
 
-		smsTrackerEntity.SetFromSecondaryProvider(secondaryProvider)
+		smsTrackerEntity.SetFromSecondaryProvider(secondaryProvider.GetName())
 
-		status, err = secondaryGateway.SendSMSMessage(message)
+		status, err = secondaryProvider.SendSMSMessage(message)
 		if err != nil {
 			smsTrackerEntity.SetSecondaryProviderError(err.Error())
-			errorLoggerService.LogError(err)
+			s.ErrorLoggerService.LogError(err)
 		}
 	}
 
