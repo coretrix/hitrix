@@ -209,6 +209,16 @@ func (ossStorage *AmazonOSS) UploadObjectFromBase64(
 	return ossStorage.UploadObjectFromByte(ormService, namespace, byteData, extension)
 }
 
+func (ossStorage *AmazonOSS) GetBucketConfigNamespace(namespace Namespace) (*BucketConfig, error) {
+	bucketConfig, err := ossStorage.namespaces.getBucketConfig(namespace)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bucketConfig, nil
+}
+
 func (ossStorage *AmazonOSS) UploadImageFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error) {
 	return ossStorage.UploadObjectFromFile(ormService, namespace, localFile)
 }

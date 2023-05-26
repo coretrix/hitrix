@@ -8,11 +8,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
-	"net/http"
-	"time"
 )
 
 const LinkMobility = "link-mobility"
@@ -123,5 +124,6 @@ func genHMAC256(ciphertext, key []byte) []byte {
 	mac := hmac.New(sha256.New, key)
 	mac.Write(ciphertext)
 	hmacSum := mac.Sum(nil)
+
 	return hmacSum
 }

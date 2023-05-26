@@ -16,7 +16,7 @@ const (
 )
 
 const (
-	FieldTypeBool = "Bool"
+	FieldTypeBool        = "Bool"
 	FieldTypeCoordinates = "Coordinates"
-	FieldTypeDateTime = "DateTime"
+	FieldTypeDateTime    = "DateTime"
 )

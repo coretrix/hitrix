@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/coretrix/hitrix/pkg/dto/file"
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -17,6 +18,8 @@ import (
 
 func CreateFile(ctx context.Context, newFile *file.RequestDTOUploadImage) (*file.File, error) {
 	ormService := service.DI().OrmEngineForContext(ctx)
+
+	now := service.DI().Clock().Now()
 
 	ext := strings.Replace(filepath.Ext(newFile.Image.Filename), ".", "", 1)
 
@@ -71,7 +74,20 @@ func CreateFile(ctx context.Context, newFile *file.RequestDTOUploadImage) (*file
 
 	ormService.Flush(fileEntity)
 
-	objectURL, err := service.DI().OSService().GetObjectURL(namespace, fileEntity.File)
+	bucketConfig, err := service.DI().OSService().GetBucketConfigNamespace(namespace)
+
+	if err != nil {
+		panic(err)
+	}
+
+	objectURL := ""
+
+	switch bucketConfig.Type {
+	case oss.BucketPublic:
+		objectURL, err = service.DI().OSService().GetObjectURL(namespace, fileEntity.File)
+	case oss.BucketPrivate:
+		objectURL, err = service.DI().OSService().GetObjectSignedURL(namespace, fileEntity.File, now.Add(12*time.Hour)) // TODO make this time dynamic
+	}
 
 	if err != nil {
 		panic(err)

@@ -2,6 +2,7 @@ package sms
 
 import (
 	"fmt"
+
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
