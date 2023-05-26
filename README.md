@@ -1,10 +1,39 @@
+# Hitrix
+
 [![checks & tests](https://github.com/coretrix/hitrix/actions/workflows/main.yml/badge.svg)](https://github.com/coretrix/hitrix/actions)
 [![codecov](https://codecov.io/gh/coretrix/hitrix/branch/main/graph/badge.svg)](https://codecov.io/gh/coretrix/hitrix)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coretrix/hitrix)](https://goreportcard.com/report/github.com/coretrix/hitrix)
 [![GPL3 license](https://img.shields.io/badge/license-GPL3-brightgreen.svg)](https://opensource.org/licenses/GPL-3.0)
 
-# [Official documentation](https://coretrix.github.io/hitrix/)
+Hitrix is a framework written in Go based on Gin. 
+ It is for web and console applications and provides set of reusable services and features.
 
+### Installation
+Please follow our [Official documentation](https://coretrix.github.io/hitrix/)
+
+
+### The key services and features of Hitrix are:
+- Config service
+- ORM service to access database
+- Redis Search layer on top of mysql 
+- Redis Stream for queues
+- OSS service
+- Error logger service
+- Mail provider service
+- Authentication service
+- Feature flag service
+- Clockwork service
+- Background scripts
+- Integration test engine
+- Seeder
+- Validator
+- etc...
+
+------------
+
+#### Hitrix exposes API for special [DEV-PANEL](https://github.com/coretrix/dev-frontend) web frontend where you can manage all your queues, error log, performance, mysql alters and so on. You can fully manage your application using our dev panel
+
+------------
 ### For Contributors
 Every new feature or change already existing feature should be described into the documentation.
 To change the documentation you need to execute next steps:
