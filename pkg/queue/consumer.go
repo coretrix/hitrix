@@ -80,12 +80,12 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 			time.Sleep(obtainLockRetryDuration)
 
 			continue
-		} else {
-			log.Println("eventsConsumer.Consume returned true")
-			log.Printf("RunConsumerMany exited (%s)", queueName)
-
-			break
 		}
+
+		log.Println("eventsConsumer.Consume returned true")
+		log.Printf("RunConsumerMany exited (%s)", queueName)
+
+		break
 	}
 }
 
@@ -121,11 +121,11 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 			time.Sleep(obtainLockRetryDuration)
 
 			continue
-		} else {
-			log.Println("eventsConsumer.Consume returned true")
-
-			break
 		}
+
+		log.Println("eventsConsumer.Consume returned true")
+
+		break
 	}
 	log.Printf("RunConsumerOne exited (%s)", queueName)
 }
@@ -180,12 +180,11 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 					time.Sleep(obtainLockRetryDuration)
 
 					continue
-				} else {
-					log.Printf("eventsConsumer.Consume returned true for goroutine %d (%s)", currentModulo, queueName)
-					log.Printf("RunConsumerOneByModulo exited (%s)", baseQueueName)
-
-					break
 				}
+				log.Printf("eventsConsumer.Consume returned true for goroutine %d (%s)", currentModulo, queueName)
+				log.Printf("RunConsumerOneByModulo exited (%s)", baseQueueName)
+
+				break
 			}
 
 			log.Printf("RunConsumerOneByModulo goroutine %d (%s) exited", currentModulo, queueName)
@@ -242,12 +241,12 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 					time.Sleep(obtainLockRetryDuration)
 
 					continue
-				} else {
-					log.Printf("eventsConsumer.Consume returned true for goroutine %d (%s)", currentModulo, queueName)
-					log.Printf("RunConsumerManyByModulo exited (%s)", baseQueueName)
-
-					break
 				}
+
+				log.Printf("eventsConsumer.Consume returned true for goroutine %d (%s)", currentModulo, queueName)
+				log.Printf("RunConsumerManyByModulo exited (%s)", baseQueueName)
+
+				break
 			}
 
 			log.Printf("RunConsumerManyByModulo goroutine %d (%s) exited", currentModulo, queueName)
@@ -301,11 +300,11 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 			time.Sleep(obtainLockRetryDuration)
 
 			continue
-		} else {
-			log.Println("eventsConsumer.ConsumeMany returned true")
-
-			break
 		}
+
+		log.Println("eventsConsumer.ConsumeMany returned true")
+
+		break
 	}
 
 	removeConsumerGroup(eventsConsumer, redis, consumerGroupName, currentIndex)
@@ -349,11 +348,11 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 			time.Sleep(obtainLockRetryDuration)
 
 			continue
-		} else {
-			log.Println("eventsConsumer.ConsumeMany returned true")
-
-			break
 		}
+
+		log.Println("eventsConsumer.ConsumeMany returned true")
+
+		break
 	}
 
 	removeConsumerGroup(eventsConsumer, redis, consumerGroupName, currentIndex)

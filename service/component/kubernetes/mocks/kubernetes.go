@@ -22,7 +22,7 @@ func (k *FakeKubernetes) AddIngress(
 	secretName string,
 	serviceName string,
 	servicePortName string,
-	annotations map[string]string,
+	_ map[string]string,
 ) error {
 	args := k.Called(ctx, domain, secretName, serviceName, servicePortName)
 

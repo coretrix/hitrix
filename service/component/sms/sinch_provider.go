@@ -5,12 +5,12 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/coretrix/hitrix/service/component/config"
 	"net/http"
 	"time"
 
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service/component/clock"
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 const (
@@ -31,14 +31,17 @@ func NewSinchProvider(configService config.IConfig, clockService clock.IClock) (
 	if !ok {
 		return nil, errors.New("missing sms.sinch.app_id")
 	}
+
 	appSecret, ok := configService.String("sms.sinch.app_secret")
 	if !ok {
 		return nil, errors.New("missing sms.sinch.app_secret")
 	}
+
 	msgURL, ok := configService.String("sms.sinch.msg_url")
 	if !ok {
 		return nil, errors.New("missing sms.sinch.msg_url")
 	}
+
 	fromNumberSinch, ok := configService.String("sms.sinch.from_number")
 	if !ok {
 		return nil, errors.New("missing sms.sinch.from_number")

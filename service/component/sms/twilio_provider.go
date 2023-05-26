@@ -2,9 +2,11 @@ package sms
 
 import (
 	"errors"
+
+	"github.com/kevinburke/twilio-go"
+
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
-	"github.com/kevinburke/twilio-go"
 )
 
 const Twilio = "twilio"

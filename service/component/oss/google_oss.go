@@ -117,6 +117,16 @@ func (ossStorage *GoogleOSS) GetObjectCDNURL(namespace Namespace, object *entity
 	return getObjectCDNURL(bucketConfig, object.StorageKey), nil
 }
 
+func (ossStorage *GoogleOSS) GetBucketConfigNamespace(namespace Namespace) (*BucketConfig, error) {
+	bucketConfig, err := ossStorage.namespaces.getBucketConfig(namespace)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return bucketConfig, nil
+}
+
 func (ossStorage *GoogleOSS) GetObjectSignedURL(namespace Namespace, object *entity.FileObject, expires time.Time) (string, error) {
 	if object == nil {
 		return "", errors.New("nil file object")

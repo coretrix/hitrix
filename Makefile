@@ -2,7 +2,7 @@ export GO111MODULE=on
 
 format-check: ## Format the code and run linters
 	@if test ! -e ./bin/golangci-lint; then \
-		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.50.1; \
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.52.0; \
 	fi
 	@./bin/golangci-lint run --fix
 

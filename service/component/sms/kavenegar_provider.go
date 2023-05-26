@@ -3,10 +3,11 @@ package sms
 import (
 	"errors"
 	"fmt"
-	"github.com/coretrix/hitrix/service/component/clock"
-	"github.com/coretrix/hitrix/service/component/config"
 
 	"github.com/kavenegar/kavenegar-go"
+
+	"github.com/coretrix/hitrix/service/component/clock"
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 const Kavenegar = "kavenegar"
@@ -19,10 +20,13 @@ type KavenegarProvider struct {
 func NewKavenegarProvider(configService config.IConfig, _ clock.IClock) (IProvider, error) {
 	// register kavenegar
 	apiKey, ok := configService.String("sms.kavenegar.api_key")
+
 	if !ok {
 		return nil, errors.New("missing sms.kavenegar.api_key")
 	}
+
 	sender, ok := configService.String("sms.kavenegar.sender")
+
 	if !ok {
 		return nil, errors.New("missing sms.kavenegar.sender")
 	}

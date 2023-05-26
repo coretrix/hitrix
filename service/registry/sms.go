@@ -2,13 +2,14 @@ package registry
 
 import (
 	"errors"
-	"github.com/coretrix/hitrix/service/component/config"
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+
 	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/clock"
+	"github.com/coretrix/hitrix/service/component/config"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/coretrix/hitrix/service/component/sms"
 )
 
