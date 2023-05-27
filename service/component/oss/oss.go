@@ -71,7 +71,7 @@ type IProvider interface {
 	GetObjectCDNURL(namespace Namespace, object *entity.FileObject) (string, error)
 	GetObjectSignedURL(namespace Namespace, object *entity.FileObject, expires time.Time) (string, error)
 	GetObjectBase64Content(namespace Namespace, object *entity.FileObject) (string, error)
-	GetBucketConfigNamespace(namespace Namespace) (*BucketConfig, error)
+	GetNamespaceBucketConfig(namespace Namespace) (*BucketConfig, error)
 	UploadObjectFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error)
 	UploadObjectFromBase64(ormService *beeorm.Engine, namespace Namespace, content, extension string) (entity.FileObject, error)
 	UploadObjectFromByte(ormService *beeorm.Engine, namespace Namespace, content []byte, extension string) (entity.FileObject, error)

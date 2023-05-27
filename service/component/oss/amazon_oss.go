@@ -209,7 +209,7 @@ func (ossStorage *AmazonOSS) UploadObjectFromBase64(
 	return ossStorage.UploadObjectFromByte(ormService, namespace, byteData, extension)
 }
 
-func (ossStorage *AmazonOSS) GetBucketConfigNamespace(namespace Namespace) (*BucketConfig, error) {
+func (ossStorage *AmazonOSS) GetNamespaceBucketConfig(namespace Namespace) (*BucketConfig, error) {
 	bucketConfig, err := ossStorage.namespaces.getBucketConfig(namespace)
 
 	if err != nil {

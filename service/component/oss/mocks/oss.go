@@ -79,3 +79,7 @@ func (t *FakeOSSClient) CreateObjectFromKey(_ *beeorm.Engine, namespace oss.Name
 func (t *FakeOSSClient) GetBucketConfig(bucket oss.Bucket) *oss.BucketConfig {
 	return t.Called(bucket).Get(0).(*oss.BucketConfig)
 }
+
+func (t *FakeOSSClient) GetNamespaceBucketConfig(namespace oss.Namespace) (*oss.BucketConfig, error) {
+	return t.Called(namespace).Get(0).(*oss.BucketConfig), nil
+}

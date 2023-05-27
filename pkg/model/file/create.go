@@ -74,7 +74,7 @@ func CreateFile(ctx context.Context, newFile *file.RequestDTOUploadImage) (*file
 
 	ormService.Flush(fileEntity)
 
-	bucketConfig, err := service.DI().OSService().GetBucketConfigNamespace(namespace)
+	bucketConfig, err := service.DI().OSService().GetNamespaceBucketConfig(namespace)
 
 	if err != nil {
 		panic(err)
@@ -86,7 +86,7 @@ func CreateFile(ctx context.Context, newFile *file.RequestDTOUploadImage) (*file
 	case oss.BucketPublic:
 		objectURL, err = service.DI().OSService().GetObjectURL(namespace, fileEntity.File)
 	case oss.BucketPrivate:
-		objectURL, err = service.DI().OSService().GetObjectSignedURL(namespace, fileEntity.File, now.Add(12*time.Hour)) // TODO make this time dynamic
+		objectURL, err = service.DI().OSService().GetObjectSignedURL(namespace, fileEntity.File, now.Add(30*time.Minute)) // TODO make this time dynamic
 	}
 
 	if err != nil {
