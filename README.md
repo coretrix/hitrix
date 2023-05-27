@@ -6,7 +6,8 @@
 [![GPL3 license](https://img.shields.io/badge/license-GPL3-brightgreen.svg)](https://opensource.org/licenses/GPL-3.0)
 
 Hitrix is a framework written in Go based on Gin. 
- It is for web and console applications and provides set of reusable services and features.
+ It is for web and console applications and provides set of reusable services and features needed for every project 
+so you can focus only on delivering business requirements
 
 ### Installation
 Please follow our [Official documentation](https://coretrix.github.io/hitrix/)
