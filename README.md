@@ -15,6 +15,7 @@ Please follow our [Official documentation](https://coretrix.github.io/hitrix/)
 ### The key services and features of Hitrix are:
 - Config service
 - ORM service to access database
+- Redis Cache layer on top of mysql
 - Redis Search layer on top of mysql 
 - Redis Stream for queues
 - OSS service
