@@ -2,9 +2,7 @@ package sms
 
 import (
 	"fmt"
-
 	"github.com/latolukasz/beeorm"
-
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
