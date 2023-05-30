@@ -60,24 +60,24 @@ func (g *MobicaProvider) GetName() string {
 	return Mobica
 }
 
-type Sms struct {
+type sms struct {
 	Route    string `json:"route"`
 	SmartCut uint8  `json:"smart_cut"`
 	Message  string `json:"message"`
 	From     string `json:"from"`
 }
 
-type MobicaMsg struct {
+type mobicaMsg struct {
 	Phone string `json:"phone"`
-	Sms   Sms    `json:"sms"`
+	Sms   sms    `json:"sms"`
 	User  string `json:"user"`
 	Pass  string `json:"pass"`
 }
 
 func (g *MobicaProvider) SendSMSMessage(message *Message) (string, error) {
-	body := &MobicaMsg{
+	body := &mobicaMsg{
 		Phone: message.Number,
-		Sms: Sms{
+		Sms: sms{
 			Route:    g.Route,
 			SmartCut: 1,
 			Message:  message.Text,

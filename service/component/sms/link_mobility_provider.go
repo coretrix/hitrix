@@ -3,8 +3,8 @@ package sms
 import (
 	"context"
 	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
+	"encoding/hex"
+	"crypto/sha512"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -104,13 +104,30 @@ func (g *LinkMobilityProvider) SendSMSMessage(message *Message) (string, error) 
 		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
 	}
 
+	responseBodyJson := &struct {
+		Meta struct {
+			Code int `json:"code"`
+		}  `json:"meta"`
+	}{}
+
+	err = json.Unmarshal(responseBody, responseBodyJson)
+	if err != nil {
+		return failure, fmt.Errorf("cannot unmarshal response Response: %s", string(responseBody))
+
+	}
+
+	if responseBodyJson.Meta.Code != 200 {
+		return failure, fmt.Errorf("unexpected status code Response: %s", string(responseBody))
+	}
+
+
 	return success, nil
 }
 
 func (g *LinkMobilityProvider) getHeaders(body []*linkMobilityMsg) map[string]string {
 	bodyByte, _ := json.Marshal(body)
-	hmacSignature := genHMAC256(bodyByte, []byte(g.Secret))
-	signature := base64.StdEncoding.EncodeToString(hmacSignature)
+	hmacSignature := genHMAC512(bodyByte, []byte(g.Secret))
+	signature := hex.EncodeToString(hmacSignature)
 
 	return map[string]string{
 		"Content-Type": "application/json",
@@ -120,8 +137,8 @@ func (g *LinkMobilityProvider) getHeaders(body []*linkMobilityMsg) map[string]st
 	}
 }
 
-func genHMAC256(ciphertext, key []byte) []byte {
-	mac := hmac.New(sha256.New, key)
+func genHMAC512(ciphertext, secret []byte) []byte {
+	mac := hmac.New(sha512.New, secret)
 	mac.Write(ciphertext)
 	hmacSum := mac.Sum(nil)
 
