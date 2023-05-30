@@ -2,6 +2,7 @@ package sms
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -33,15 +34,9 @@ func NewMobicaProvider(configService config.IConfig, _ clock.IClock) (IProvider,
 		return nil, errors.New("missing sms.mobica.password")
 	}
 
-	route, ok := configService.String("sms.mobica.route")
-	if !ok {
-		return nil, errors.New("missing sms.mobica.route")
-	}
+	route, _ := configService.String("sms.mobica.route")
 
-	from, ok := configService.String("sms.mobica.from")
-	if !ok {
-		return nil, errors.New("missing sms.mobica.from")
-	}
+	from, _ := configService.String("sms.mobica.from")
 
 	endpoint, ok := configService.String("sms.mobica.endpoint")
 	if !ok {
@@ -65,31 +60,31 @@ func (g *MobicaProvider) GetName() string {
 	return Mobica
 }
 
-type sms struct {
-	route    string
-	smartCut uint8
-	message  string
-	from     string
+type Sms struct {
+	Route    string `json:"route"`
+	SmartCut uint8  `json:"smart_cut"`
+	Message  string `json:"message"`
+	From     string `json:"from"`
 }
 
-type mobicaMsg struct {
-	phone string
-	sms   sms
-	user  string
-	pass  string
+type MobicaMsg struct {
+	Phone string `json:"phone"`
+	Sms   Sms    `json:"sms"`
+	User  string `json:"user"`
+	Pass  string `json:"pass"`
 }
 
 func (g *MobicaProvider) SendSMSMessage(message *Message) (string, error) {
-	body := &mobicaMsg{
-		phone: message.Number,
-		sms: sms{
-			route:    g.Route,
-			smartCut: 1,
-			message:  message.Text,
-			from:     g.From,
+	body := &MobicaMsg{
+		Phone: message.Number,
+		Sms: Sms{
+			Route:    g.Route,
+			SmartCut: 1,
+			Message:  message.Text,
+			From:     g.From,
 		},
-		user: g.Email,
-		pass: g.Password,
+		User: g.Email,
+		Pass: g.Password,
 	}
 
 	headers := g.getHeaders()
@@ -108,6 +103,21 @@ func (g *MobicaProvider) SendSMSMessage(message *Message) (string, error) {
 
 	if code != http.StatusOK {
 		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
+	}
+
+	responseBodyJson := &struct {
+		Status int    `json:"status"`
+		Desc   string `json:"desc"`
+	}{}
+
+	err = json.Unmarshal(responseBody, responseBodyJson)
+	if err != nil {
+		return failure, fmt.Errorf("cannot unmarshal response Response: %s", string(responseBody))
+
+	}
+
+	if responseBodyJson.Status != 1004 {
+		return failure, fmt.Errorf("unexpected status code Response: %s", string(responseBody))
 	}
 
 	return success, nil

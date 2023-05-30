@@ -39,7 +39,7 @@ func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error 
 
 	smsTrackerEntity := &entity.SmsTrackerEntity{}
 	smsTrackerEntity.SetTo(message.Number)
-	smsTrackerEntity.SetType(entity.SMSTrackerTypeCallout)
+	smsTrackerEntity.SetType(entity.SMSTrackerTypeSMS)
 	smsTrackerEntity.SetText(message.Text)
 	smsTrackerEntity.SetFromPrimaryProvider(primaryProvider.GetName())
 	smsTrackerEntity.SetSentAt(s.Clock.Now())
