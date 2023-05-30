@@ -68,7 +68,7 @@ type sms struct {
 }
 
 type mobicaMsg struct {
-	Phone string `json:"phone"`
+	Phone string `json:"phone"`//it supports comma separated phones
 	Sms   sms    `json:"sms"`
 	User  string `json:"user"`
 	Pass  string `json:"pass"`
