@@ -14,8 +14,8 @@ type ISender interface {
 }
 
 type Sender struct {
-	ConfigService              config.IConfig
-	ClockService              clock.IClock
+	ConfigService      config.IConfig
+	ClockService       clock.IClock
 	ErrorLoggerService errorlogger.ErrorLogger
 	PrimaryProvider    IProvider
 	SecondaryProvider  IProvider
@@ -46,12 +46,12 @@ func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error 
 
 	trySecondaryProvider := false
 
-	fakeMode, _ := s.ConfigService.Bool("sms.fake_mode")
+	sandBoxMode, _ := s.ConfigService.Bool("sms.sandbox_mode")
 
 	var status string
 	var err error
 
-	if !fakeMode {
+	if !sandBoxMode {
 		status, err = primaryProvider.SendSMSMessage(message)
 		if err != nil {
 			trySecondaryProvider = true
