@@ -2,10 +2,11 @@ package sms
 
 import (
 	"fmt"
-	"github.com/latolukasz/beeorm"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
+	"github.com/coretrix/hitrix/service/component/config"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+	"github.com/latolukasz/beeorm"
 )
 
 type ISender interface {
@@ -13,10 +14,11 @@ type ISender interface {
 }
 
 type Sender struct {
-	Clock              clock.IClock
+	ConfigService              config.IConfig
+	ClockService              clock.IClock
+	ErrorLoggerService errorlogger.ErrorLogger
 	PrimaryProvider    IProvider
 	SecondaryProvider  IProvider
-	ErrorLoggerService errorlogger.ErrorLogger
 }
 
 func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error {
@@ -40,16 +42,25 @@ func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error 
 	smsTrackerEntity.SetType(entity.SMSTrackerTypeSMS)
 	smsTrackerEntity.SetText(message.Text)
 	smsTrackerEntity.SetFromPrimaryProvider(primaryProvider.GetName())
-	smsTrackerEntity.SetSentAt(s.Clock.Now())
+	smsTrackerEntity.SetSentAt(s.ClockService.Now())
 
 	trySecondaryProvider := false
 
-	status, err := primaryProvider.SendSMSMessage(message)
-	if err != nil {
-		trySecondaryProvider = true
+	fakeMode, _ := s.ConfigService.Bool("sms.fake_mode")
 
-		smsTrackerEntity.SetPrimaryProviderError(err.Error())
-		s.ErrorLoggerService.LogError(err)
+	var status string
+	var err error
+
+	if !fakeMode {
+		status, err = primaryProvider.SendSMSMessage(message)
+		if err != nil {
+			trySecondaryProvider = true
+
+			smsTrackerEntity.SetPrimaryProviderError(err.Error())
+			s.ErrorLoggerService.LogError(err)
+		}
+	} else {
+		status = success
 	}
 
 	if trySecondaryProvider {

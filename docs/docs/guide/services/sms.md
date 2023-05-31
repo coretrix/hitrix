@@ -35,6 +35,7 @@ type Message struct {
 ##### configs
 ```yaml
 sms:
+  fake_mode: false
   twilio:
     sid: ENV[SMS_TWILIO_SID]
     token: ENV[SMS_TWILIO_TOKEN]
@@ -60,3 +61,5 @@ sms:
     endpoint: ENV[SMS_LINK_MOBILITY_ENDPOINT]
     shortcode: ENV[SMS_LINK_MOBILITY_SHORTCODE]
 ```
+
+If you set `fake_mode=true` we won't send real sms to the customer
