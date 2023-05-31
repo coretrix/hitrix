@@ -148,7 +148,7 @@ func (t *Authentication) GenerateAndSendOTPEmail(ormService *beeorm.Engine, emai
 
 	mailService := *t.mailService
 
-	err = mailService.SendTemplateAsync(ormService, &mail.Message{
+	err = mailService.SendTemplate(ormService, &mail.Message{
 		From:         from,
 		To:           email,
 		Subject:      title,

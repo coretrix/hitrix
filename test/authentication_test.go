@@ -73,7 +73,7 @@ func TestGenerateOTPEmail(t *testing.T) {
 			nil,
 		)
 
-		fakeMail.On("SendTemplateAsync", to).Return(nil)
+		fakeMail.On("SendTemplate", to).Return(nil)
 
 		authenticationService := service.DI().Authentication()
 		ormService := service.DI().OrmEngine()
