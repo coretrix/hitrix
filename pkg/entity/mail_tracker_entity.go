@@ -35,6 +35,6 @@ type MailTrackerEntity struct {
 	TemplateFile string
 	TemplateData string `orm:"length=max"`
 	SenderError  string
-	SentAt       *time.Time `orm:"time"`
 	ReadAt       *time.Time `orm:"time"`
+	CreatedAt    time.Time  `orm:"time"`
 }

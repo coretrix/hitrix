@@ -69,7 +69,7 @@ type Authentication struct {
 	errorLoggerService   errorlogger.ErrorLogger
 	appService           *app.App
 	jwtService           *jwt.JWT
-	mailService          *mail.Sender
+	mailService          *mail.ISender
 	socialServiceMapping map[string]social.IUserData
 	generatorService     generator.IGenerator
 	clockService         clock.IClock
@@ -89,7 +89,7 @@ func NewAuthenticationService(
 	clockService clock.IClock,
 	passwordService password.IPassword,
 	jwtService *jwt.JWT,
-	mailService *mail.Sender,
+	mailService *mail.ISender,
 	socialServiceMapping map[string]social.IUserData,
 	uuidService uuid.IUUID,
 ) *Authentication {

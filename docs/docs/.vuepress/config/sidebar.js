@@ -83,12 +83,8 @@ module.exports = [
                         link: '/guide/services/google_analytics',
                     },
                     {
-                        text: 'Mandrill - Transactional emails',
-                        link: '/guide/services/mandrill',
-                    },
-                    {
-                        text: 'Mailjet - Transactional emails',
-                        link: '/guide/services/mailjet',
+                        text: 'Transactional email sender',
+                        link: '/guide/services/mail',
                     },
                     {
                         text: 'JWT',

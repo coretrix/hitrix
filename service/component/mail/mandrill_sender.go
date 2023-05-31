@@ -1,22 +1,13 @@
 package mail
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"time"
-
-	"github.com/latolukasz/beeorm"
-	"github.com/mattbaird/gochimp"
-	"github.com/xorcare/pointer"
-
-	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/config"
+	"github.com/mattbaird/gochimp"
 )
 
 const (
-	mandrillTemplateCachePrefix = "mandrill_template_"
-
 	// ref: https://github.com/shawnmclean/Mandrill-dotnet/blob/05f26c917264751a903e3bcf83ca7153b5656526/src/Mandrill/Models/EmailMessage.cs#L19
 	mergeLanguageHandlebars = "handlebars"
 )
@@ -27,7 +18,7 @@ type Mandrill struct {
 	fromName         string
 }
 
-func NewMandrill(configService config.IConfig) (Sender, error) {
+func NewMandrill(configService config.IConfig) (IProvider, error) {
 	apiKey, ok := configService.String("mail.mandrill.api_key")
 	if !ok {
 		return nil, errors.New("mail.mandrill.api_key is missing")
@@ -63,9 +54,8 @@ func (s *Mandrill) GetTemplateKeyFromConfig(configService config.IConfig, templa
 	return templateKey, nil
 }
 
-func (s *Mandrill) SendTemplate(ormService *beeorm.Engine, message *Message) error {
+func (s *Mandrill) SendTemplate(message *Message) error {
 	return s.sendTemplate(
-		ormService,
 		message.From,
 		message.FromName,
 		message.To,
@@ -73,25 +63,10 @@ func (s *Mandrill) SendTemplate(ormService *beeorm.Engine, message *Message) err
 		message.Subject,
 		message.TemplateName,
 		message.TemplateData,
-		nil,
-		false)
+		nil)
 }
 
-func (s *Mandrill) SendTemplateAsync(ormService *beeorm.Engine, message *Message) error {
-	return s.sendTemplate(
-		ormService,
-		message.From,
-		message.FromName,
-		message.To,
-		message.ReplyTo,
-		message.Subject,
-		message.TemplateName,
-		message.TemplateData,
-		nil,
-		true)
-}
-
-func (s *Mandrill) SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error {
+func (s *Mandrill) SendTemplateWithAttachments(message *MessageAttachment) error {
 	var attachments []gochimp.Attachment
 	if message.Attachments != nil {
 		attachments = make([]gochimp.Attachment, len(message.Attachments))
@@ -105,7 +80,6 @@ func (s *Mandrill) SendTemplateWithAttachments(ormService *beeorm.Engine, messag
 	}
 
 	return s.sendTemplate(
-		ormService,
 		message.From,
 		message.FromName,
 		message.To,
@@ -113,38 +87,10 @@ func (s *Mandrill) SendTemplateWithAttachments(ormService *beeorm.Engine, messag
 		message.Subject,
 		message.TemplateName,
 		message.TemplateData,
-		attachments,
-		false)
-}
-
-func (s *Mandrill) SendTemplateWithAttachmentsAsync(ormService *beeorm.Engine, message *MessageAttachment) error {
-	var attachments []gochimp.Attachment
-	if message.Attachments != nil {
-		attachments = make([]gochimp.Attachment, len(message.Attachments))
-		for i, attachment := range message.Attachments {
-			attachments[i] = gochimp.Attachment{
-				Type:    attachment.ContentType,
-				Name:    attachment.Filename,
-				Content: attachment.Base64Content,
-			}
-		}
-	}
-
-	return s.sendTemplate(
-		ormService,
-		message.From,
-		message.FromName,
-		message.To,
-		message.ReplyTo,
-		message.Subject,
-		message.TemplateName,
-		message.TemplateData,
-		attachments,
-		true)
+		attachments)
 }
 
 func (s *Mandrill) sendTemplate(
-	ormService *beeorm.Engine,
 	from string,
 	fromName string,
 	to string,
@@ -153,7 +99,6 @@ func (s *Mandrill) sendTemplate(
 	templateName string,
 	templateData interface{},
 	attachments []gochimp.Attachment,
-	async bool,
 ) error {
 	if from == "" {
 		from = s.defaultFromEmail
@@ -179,25 +124,6 @@ func (s *Mandrill) sendTemplate(
 		}
 	}
 
-	mailTrackerEntity := &entity.MailTrackerEntity{
-		Status:       entity.MailTrackerStatusNew,
-		From:         from,
-		To:           to,
-		Subject:      subject,
-		TemplateFile: templateName,
-	}
-
-	templateDataAsByte, err := json.Marshal(templateData)
-	if err != nil {
-		mailTrackerEntity.SenderError = "Cannot marshal TemplateData"
-		mailTrackerEntity.Status = entity.MailTrackerStatusError
-		ormService.Flush(mailTrackerEntity)
-
-		return err
-	}
-
-	mailTrackerEntity.TemplateData = string(templateDataAsByte)
-
 	var templateContent []gochimp.Var
 
 	if templateData != nil {
@@ -207,58 +133,34 @@ func (s *Mandrill) sendTemplate(
 	}
 
 	message.AddMergeVar(gochimp.MergeVars{Recipient: to, Vars: templateContent})
-	responses, err := s.client.MessageSendTemplate(templateName, templateContent, message, async)
+	responses, err := s.client.MessageSendTemplate(templateName, templateContent, message, false)
 
 	if err != nil {
-		mailTrackerEntity.SenderError = err.Error()
-		mailTrackerEntity.Status = entity.MailTrackerStatusError
-		ormService.Flush(mailTrackerEntity)
-
 		return err
 	}
 
 	if responses != nil {
+		var errAsString string
+
 		for _, response := range responses {
 			if response.RejectedReason != "" {
-				mailTrackerEntity.SenderError += response.RejectedReason + " | "
+				errAsString += response.RejectedReason + " | "
 			}
 		}
 
-		if mailTrackerEntity.SenderError != "" {
-			mailTrackerEntity.Status = entity.MailTrackerStatusError
-			ormService.Flush(mailTrackerEntity)
-
-			return errors.New(mailTrackerEntity.SenderError)
+		if errAsString != "" {
+			return errors.New(errAsString)
 		}
 	}
-
-	if async {
-		mailTrackerEntity.Status = entity.MailTrackerStatusQueued
-	} else {
-		mailTrackerEntity.Status = entity.MailTrackerStatusSuccess
-	}
-
-	mailTrackerEntity.SentAt = pointer.Time(time.Now())
-	ormService.Flush(mailTrackerEntity)
 
 	return nil
 }
 
-func (s *Mandrill) GetTemplateHTMLCode(ormService *beeorm.Engine, templateName string, ttl int) (string, error) {
-	key := mandrillTemplateCachePrefix + templateName
-	redisCache := ormService.GetRedis()
-
-	htmlCode, has := redisCache.Get(key)
-	if has {
-		return htmlCode, nil
-	}
-
+func (s *Mandrill) GetTemplateHTMLCode(templateName string) (string, error) {
 	template, err := s.client.TemplateInfo(templateName)
 	if err != nil {
 		return "", err
 	}
-
-	redisCache.Set(key, template.Code, ttl)
 
 	return template.Code, nil
 }

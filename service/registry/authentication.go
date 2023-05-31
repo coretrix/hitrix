@@ -65,11 +65,11 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 			jwtService := ctn.Get(service.JWTService).(*jwt.JWT)
 			clockService := ctn.Get(service.ClockService).(clock.IClock)
 
-			var mailService *mail.Sender
+			var mailService *mail.ISender
 			mailServiceHitrix, err := ctn.SafeGet(service.MailService)
 
 			if err == nil && mailServiceHitrix != nil {
-				convertedMail := mailServiceHitrix.(mail.Sender)
+				convertedMail := mailServiceHitrix.(mail.ISender)
 				mailService = &convertedMail
 			}
 

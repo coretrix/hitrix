@@ -7,7 +7,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/mail"
 )
 
-func ServiceProviderMockMail(mock mail.Sender) *service.DefinitionGlobal {
+func ServiceProviderMockMail(mock mail.ISender) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.MailService,
 		Build: func(ctn di.Container) (interface{}, error) {

@@ -198,8 +198,8 @@ func (d *DIContainer) Authentication() *authentication.Authentication {
 	return GetServiceRequired(AuthenticationService).(*authentication.Authentication)
 }
 
-func (d *DIContainer) Mail() mail.Sender {
-	return GetServiceRequired(MailService).(mail.Sender)
+func (d *DIContainer) Mail() mail.ISender {
+	return GetServiceRequired(MailService).(mail.ISender)
 }
 
 func (d *DIContainer) Google() *social.Google {
