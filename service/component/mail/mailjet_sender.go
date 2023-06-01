@@ -3,10 +3,12 @@ package mail
 import (
 	"errors"
 	"fmt"
-	"github.com/coretrix/hitrix/service/component/config"
+	"strconv"
+
 	"github.com/mailjet/mailjet-apiv3-go/resources"
 	"github.com/mailjet/mailjet-apiv3-go/v3"
-	"strconv"
+
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 type Mailjet struct {

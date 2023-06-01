@@ -27,8 +27,8 @@ func ServiceProviderSMS(primaryNewFunc sms.NewProviderFunc, secondaryNewFunc sms
 			clockService := ctn.Get(service.ClockService).(clock.IClock)
 
 			sender := &sms.Sender{
-				ConfigService:              configService,
-				ClockService:              clockService,
+				ConfigService:      configService,
+				ClockService:       clockService,
 				ErrorLoggerService: ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger),
 			}
 

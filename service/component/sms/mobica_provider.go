@@ -68,7 +68,7 @@ type sms struct {
 }
 
 type mobicaMsg struct {
-	Phone string `json:"phone"`//it supports comma separated phones
+	Phone string `json:"phone"` //it supports comma separated phones
 	Sms   sms    `json:"sms"`
 	User  string `json:"user"`
 	Pass  string `json:"pass"`
@@ -105,18 +105,17 @@ func (g *MobicaProvider) SendSMSMessage(message *Message) (string, error) {
 		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
 	}
 
-	responseBodyJson := &struct {
+	responseBodyJSON := &struct {
 		Status int    `json:"status"`
 		Desc   string `json:"desc"`
 	}{}
 
-	err = json.Unmarshal(responseBody, responseBodyJson)
+	err = json.Unmarshal(responseBody, responseBodyJSON)
 	if err != nil {
 		return failure, fmt.Errorf("cannot unmarshal response Response: %s", string(responseBody))
-
 	}
 
-	if responseBodyJson.Status != 1004 {
+	if responseBodyJSON.Status != 1004 {
 		return failure, fmt.Errorf("unexpected status code Response: %s", string(responseBody))
 	}
 
