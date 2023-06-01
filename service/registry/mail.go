@@ -2,13 +2,14 @@ package registry
 
 import (
 	"errors"
-	"github.com/coretrix/hitrix/service/component/clock"
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+
 	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/coretrix/hitrix/service/component/mail"
 )
 
@@ -32,9 +33,9 @@ func ServiceProviderMail(newFunc mail.NewSenderFunc) *service.DefinitionGlobal {
 			}
 
 			return &mail.Sender{
-				ConfigService:              configService,
-				ClockService:              clockService,
-				Provider: provider,
+				ConfigService:      configService,
+				ClockService:       clockService,
+				Provider:           provider,
 				ErrorLoggerService: ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger),
 			}, nil
 		},

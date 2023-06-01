@@ -2,11 +2,13 @@ package mail
 
 import (
 	"encoding/json"
+
+	"github.com/latolukasz/beeorm"
+
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
-	"github.com/latolukasz/beeorm"
 )
 
 type ISender interface {
@@ -38,11 +40,10 @@ type MessageAttachment struct {
 }
 
 type Sender struct {
-	ConfigService config.IConfig
-	ClockService  clock.IClock
+	ConfigService      config.IConfig
+	ClockService       clock.IClock
 	ErrorLoggerService errorlogger.ErrorLogger
-	Provider      IProvider
-
+	Provider           IProvider
 }
 
 func (s *Sender) GetTemplateKeyFromConfig(templateName string) (string, error) {
@@ -70,7 +71,6 @@ func (s *Sender) SendTemplate(ormService *beeorm.Engine, message *Message) error
 			s.ErrorLoggerService.LogError(err)
 
 			return err
-
 		}
 	}
 
@@ -110,7 +110,6 @@ func (s *Sender) SendTemplateWithAttachments(ormService *beeorm.Engine, message 
 			s.ErrorLoggerService.LogError(err)
 
 			return err
-
 		}
 	}
 
