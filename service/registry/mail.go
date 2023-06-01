@@ -2,7 +2,8 @@ package registry
 
 import (
 	"errors"
-
+	"github.com/coretrix/hitrix/service/component/clock"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
@@ -22,7 +23,20 @@ func ServiceProviderMail(newFunc mail.NewSenderFunc) *service.DefinitionGlobal {
 				return nil, errors.New("you should register MailTrackerEntity")
 			}
 
-			return newFunc(ctn.Get(service.ConfigService).(config.IConfig))
+			configService := ctn.Get(service.ConfigService).(config.IConfig)
+			clockService := ctn.Get(service.ClockService).(clock.IClock)
+
+			provider, err := newFunc(ctn.Get(service.ConfigService).(config.IConfig))
+			if err != nil {
+				return nil, err
+			}
+
+			return &mail.Sender{
+				ConfigService:              configService,
+				ClockService:              clockService,
+				Provider: provider,
+				ErrorLoggerService: ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger),
+			}, nil
 		},
 	}
 }
