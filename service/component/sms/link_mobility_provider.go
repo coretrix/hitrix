@@ -3,8 +3,8 @@ package sms
 import (
 	"context"
 	"crypto/hmac"
-	"encoding/hex"
 	"crypto/sha512"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -104,22 +104,20 @@ func (g *LinkMobilityProvider) SendSMSMessage(message *Message) (string, error) 
 		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
 	}
 
-	responseBodyJson := &struct {
+	responseBodyJSON := &struct {
 		Meta struct {
 			Code int `json:"code"`
-		}  `json:"meta"`
+		} `json:"meta"`
 	}{}
 
-	err = json.Unmarshal(responseBody, responseBodyJson)
+	err = json.Unmarshal(responseBody, responseBodyJSON)
 	if err != nil {
 		return failure, fmt.Errorf("cannot unmarshal response Response: %s", string(responseBody))
-
 	}
 
-	if responseBodyJson.Meta.Code != 200 {
+	if responseBodyJSON.Meta.Code != 200 {
 		return failure, fmt.Errorf("unexpected status code Response: %s", string(responseBody))
 	}
-
 
 	return success, nil
 }

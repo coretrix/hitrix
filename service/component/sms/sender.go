@@ -2,11 +2,13 @@ package sms
 
 import (
 	"fmt"
+
+	"github.com/latolukasz/beeorm"
+
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
-	"github.com/latolukasz/beeorm"
 )
 
 type ISender interface {

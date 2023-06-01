@@ -3,8 +3,10 @@ package mail
 import (
 	"errors"
 	"fmt"
-	"github.com/coretrix/hitrix/service/component/config"
+
 	"github.com/mattbaird/gochimp"
+
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 const (

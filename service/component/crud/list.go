@@ -48,6 +48,16 @@ type IntKeyStringValue struct {
 	Label string
 }
 
+type ExportConfig struct {
+	Handler          ExportHandler
+	ID               string
+	AllowedExtraArgs []string
+	Resource         string
+	Permissions      []string
+}
+
+type ExportHandler func(*beeorm.Engine, *ListRequest, uint64, map[string]string) (error, []string, [][]interface{})
+
 type StringKeyStringValue struct {
 	Key   string
 	Label string
@@ -78,6 +88,7 @@ type groupedFilterTypes struct {
 }
 
 type Crud struct {
+	ExportConfigs []ExportConfig
 }
 
 func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchParams {
@@ -488,4 +499,111 @@ func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
 	}
 
 	return where
+}
+
+func (c *Crud) GetExportHandler(id string) (ExportHandler, bool) {
+	for _, config := range c.ExportConfigs {
+		if config.ID == id {
+			return config.Handler, true
+		}
+	}
+
+	return nil, false
+}
+
+func (c *Crud) GetExportConfig(id string) (*ExportConfig, bool) {
+	for _, config := range c.ExportConfigs {
+		if config.ID == id {
+			return &config, true
+		}
+	}
+
+	return nil, false
+}
+
+func GetExporterDataCrud(columns []Column, rows interface{}) ([]string, [][]interface{}) {
+	exportColumns := make([]string, 0)
+
+	for _, column := range columns {
+		if column.Visible {
+			exportColumns = append(exportColumns, column.Label)
+		}
+	}
+
+	var convertedRows []interface{}
+
+	convertSlice(&convertedRows, rows)
+
+	res := make([][]interface{}, 0)
+
+	for _, row := range convertedRows {
+		data := make([]interface{}, 0)
+
+		for _, column := range columns {
+			if column.Visible {
+				v := reflect.ValueOf(row)
+				val := reflect.Indirect(v).FieldByName(column.Key)
+
+				if val.Kind() == reflect.Pointer {
+					if val.IsNil() {
+						data = append(data, "")
+
+						continue
+					}
+
+					val = reflect.Indirect(val)
+				}
+
+				switch val.Kind() {
+				case reflect.Bool:
+					if val.Bool() {
+						data = append(data, "True")
+					} else {
+						data = append(data, "False")
+					}
+
+					continue
+				}
+
+				switch column.FieldType {
+				case FieldTypeDateTime:
+					date := time.UnixMilli(val.Int())
+					data = append(data, date.Format(helper.TimeLayoutYMDHM))
+				case FieldTypeCoordinates:
+					data = append(
+						data,
+						fmt.Sprintf(
+							"%v,%v",
+							val.FieldByName("Latitude").Float(),
+							val.FieldByName("Longitude").Float(),
+						),
+					)
+				default:
+					if val.CanUint() {
+						data = append(data, val.Uint())
+					} else if val.CanFloat() {
+						data = append(data, val.Float())
+					} else if val.CanInt() {
+						data = append(data, val.Int())
+					} else {
+						data = append(data, val.String())
+					}
+				}
+			}
+		}
+
+		res = append(res, data)
+	}
+
+	return exportColumns, res
+}
+
+func convertSlice(pdst interface{}, src interface{}) {
+	dstv := reflect.ValueOf(pdst).Elem()
+	srcv := reflect.ValueOf(src)
+	dstv.Set(reflect.MakeSlice(dstv.Type(), srcv.Len(), srcv.Len()))
+
+	for i := 0; i < srcv.Len(); i++ {
+		dstv.Index(i).Set(reflect.ValueOf(srcv.Index(i).Interface()))
+	}
 }

@@ -15,18 +15,15 @@ import (
 
 func createContextMyApp(
 	t *testing.T,
-	//nolint //`projectName` always receives `"my-app"`
-	projectName string,
-	//nolint //`resolvers` always receives `nil`
-	resolvers graphql.ExecutableSchema,
+	projectName string, //nolint //`projectName` always receives `"my-app"`
+	resolvers graphql.ExecutableSchema, //nolint //`resolvers` always receives `nil`
 	mockGlobalServices []*service.DefinitionGlobal,
-	//nolint //`mockRequestServices` always receives `nil`
-	mockRequestServices []*service.DefinitionRequest,
+	mockRequestServices []*service.DefinitionRequest, //nolint //`resolvers` always receives `nil`
 ) *test.Environment {
 	defaultGlobalServices := []*service.DefinitionGlobal{
 		registry.ServiceProviderConfigDirectory("../example/config"),
 		registry.ServiceProviderOrmRegistry(entity.Init),
-		registry.ServiceProviderCrud(),
+		registry.ServiceProviderCrud(nil),
 		registry.ServiceProviderOrmEngine(),
 	}
 

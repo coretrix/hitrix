@@ -2,10 +2,12 @@ package mail
 
 import (
 	"encoding/json"
+
+	"github.com/latolukasz/beeorm"
+
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
-	"github.com/latolukasz/beeorm"
 )
 
 type ISender interface {
@@ -63,7 +65,6 @@ func (s *Sender) SendTemplate(ormService *beeorm.Engine, message *Message) error
 			ormService.Flush(mailTrackerEntity)
 
 			return err
-
 		}
 	}
 
@@ -99,7 +100,6 @@ func (s *Sender) SendTemplateWithAttachments(ormService *beeorm.Engine, message 
 			ormService.Flush(mailTrackerEntity)
 
 			return err
-
 		}
 	}
 
