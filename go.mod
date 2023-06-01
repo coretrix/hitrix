@@ -1,6 +1,6 @@
 module github.com/coretrix/hitrix
 
-go 1.17
+go 1.19
 
 require (
 	cloud.google.com/go/storage v1.22.1
