@@ -323,7 +323,7 @@ func TestUpdateRoleAction(t *testing.T) {
 	assert.Equal(t, privilegeEntity.RoleID.ID, uint64(1))
 	assert.Equal(t, privilegeEntity.RoleID.Name, "super-admin")
 	assert.Equal(t, privilegeEntity.ResourceID.ID, uint64(1))
-	assert.Equal(t, privilegeEntity.PermissionIDs[0].ID, uint64(1))
+	assert.Equal(t, privilegeEntity.PermissionIDs[0].ID, permission2.ID)
 	assert.Equal(t, len(privilegeEntity.PermissionIDs), 1)
 
 	fakeClock.AssertExpectations(t)
