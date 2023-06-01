@@ -90,3 +90,196 @@ return &model.UserList{
     Columns: crud.ColumnConvertorToGQL(cols),
     }, nil
 ```
+
+### Use CRUD with our export service
+
+You can mix our crud service with our exporter service to add a quick and painless exporting system to your project
+
+In order to do that you can follow these steps
+
+**1 - Making your currently list view function private and creating another function for passing to gin router**
+
+for example here we renamed "List" to "list" and we created a new "ListRequest" function and we're passing it 
+to gin router instead of "List"
+
+```go
+
+func Columns() []hitrixCrud.Column {
+    return []hitrixCrud.Column{
+        {
+            Key:        "ID",
+            Label:      "ID",
+            Searchable: false,
+            Sortable:   true,
+            Visible:    true,
+        },
+        {
+            Key:        "Name",
+            FilterType: hitrixCrud.InputTypeString,
+            Label:      "Name",
+            Searchable: true,
+            Sortable:   false,
+            Visible:    true,
+        },
+    }
+}
+
+type ListRow struct {
+    ID        uint64
+    Name      string
+}
+
+
+func ListRequest(ctx context.Context, request *hitrixCrud.ListRequest) (*city.ResponseDTOList, error) {
+	// You should pass this function to the gin router
+	return list(service.DI().OrmEngineForContext(ctx), request)
+}
+
+func list(ormService *beeorm.Engine, request *hitrixCrud.ListRequest) (*city.ResponseDTOList, error) {
+	
+	// this is the function that handles the getting and making the payload fot the crud that is going to be used
+	// for both list (endpoint) and exporting
+	
+	cols := Columns()
+	crudService := service.DI().Crud()
+
+	searchParams := crudService.ExtractListParams(cols, request)
+	query := crudService.GenerateListRedisSearchQuery(searchParams)
+
+	var cityEntities []*entity.CityEntity
+	
+	// your logic for getting entities from database with the query generated from crud
+
+	rows := make([]ListRow, len(cityEntities))
+
+	// you logic for creating rows for your crud
+
+	return &ResponseDTOList{
+		Rows:        rows,
+		Total:       int(total),
+		Columns:     cols,
+		PageContext: getPageContext(ormService),
+	}, nil
+}
+```
+
+**2 - Creating a new handler for exporting the data obtained from "list" function**
+
+```go
+func ListExport(ormService *beeorm.Engine, request *hitrixCrud.ListRequest, _ uint64, _ map[string]string) (error, []string, [][]interface{}) {
+	
+	// This function handles the data for exporting
+	
+	exportColumns := make([]string, 0) // excel or csv Columns for passing to our exporter service
+	allExportData := make([][]interface{}, 0) // data for passing to our exporter service
+
+	pager := beeorm.NewPager(1, 1000)
+
+	for {
+		
+		// loop for getting all the data out of the list function, bypassing the pagination
+		
+		request.Page = &pager.CurrentPage
+		request.PageSize = &pager.PageSize
+
+		res, err := list(ormService, request)
+
+		if err != nil {
+			return err, nil, nil
+		}
+		
+		// GetExporterDataCrud converts any given rows which in example is []city.ListRow to
+		// exporter service columns and data as types of []string, [][]interface, exactly the data you need for passing to our
+		// exporting system
+		
+		columns, exportData := hitrixCrud.GetExporterDataCrud(Columns(), res.Rows)
+
+		for _, exportDataRow := range exportData {
+			allExportData = append(allExportData, exportDataRow)
+		}
+
+		exportColumns = columns
+
+		if len(res.Rows) < pager.PageSize {
+			break
+		}
+
+		pager.IncrementPage()
+	}
+
+	return nil, exportColumns, allExportData
+}
+```
+
+**3 - Creating the config and passing it to the service**
+
+we pass the `ListExport` function that we created above to the config
+
+```go
+const (
+    CityExportID                = "cities"
+)
+
+var RegisteredExportConfigs = []crud.ExportConfig{
+	{
+		Handler:          cityView.ListExport,
+		ID:               CityExportID,
+		AllowedExtraArgs: nil,
+		Resource:         "city",
+		Permissions:      []string{"read"},
+	},
+}
+
+RegisterDIGlobalService(
+    ...
+    hitrixRegistry.ServiceProviderCrud(RegisteredExportConfigs),
+    ...
+)
+
+```
+
+**4 - Getting export ready data from crud**
+
+Imagine we have these two cities in our database
+
+```json
+[
+  {
+    "ID": 1,
+    "Name": "Sofia"
+  },
+  {
+    "ID": 2,
+    "Name": "New York"
+  }
+]
+```
+
+We use the crud method to get config/handler and export our data
+
+```go
+handler, exists := crudService.GetExportHandler(CityExportID) // getting the handler
+
+err, columns, data := handler(
+    ormService,
+    &hitrixCrud.ListRequest{},
+    1, // user requesting the export
+    nil, 
+)
+
+print(columns)    // would print []string{"ID", "Name"}
+print(data) // would print [][]interface{}{[]interface{"1", "Sofia"}, []interface{"2", "New York"}}
+
+```
+
+and you can easily pass this data to our exporter service, for example:
+
+```go
+excelBytes, err := exporterService.XLSXExportToByte("cities", columns, data)
+```
+
+and if you like to check the permissions you can get the whole config like this
+
+```go
+config, exists := crudService.GetExportConfig(CityExportID) // getting the config
+```
