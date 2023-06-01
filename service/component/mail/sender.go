@@ -2,12 +2,11 @@ package mail
 
 import (
 	"encoding/json"
-
-	"github.com/latolukasz/beeorm"
-
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+	"github.com/latolukasz/beeorm"
 )
 
 type ISender interface {
@@ -41,30 +40,37 @@ type MessageAttachment struct {
 type Sender struct {
 	ConfigService config.IConfig
 	ClockService  clock.IClock
-	provider      IProvider
+	ErrorLoggerService errorlogger.ErrorLogger
+	Provider      IProvider
+
 }
 
 func (s *Sender) GetTemplateKeyFromConfig(templateName string) (string, error) {
-	return s.provider.GetTemplateKeyFromConfig(s.ConfigService, templateName)
+	return s.Provider.GetTemplateKeyFromConfig(s.ConfigService, templateName)
 }
 
 func (s *Sender) SendTemplate(ormService *beeorm.Engine, message *Message) error {
 	mailTrackerEntity, err := s.createTrackingEntity(ormService, message)
 	if err != nil {
+		s.ErrorLoggerService.LogError(err)
+
 		return err
 	}
 
 	fakeMode, _ := s.ConfigService.Bool("mail.fake_mode")
 
 	if !fakeMode {
-		err = s.provider.SendTemplate(message)
+		err = s.Provider.SendTemplate(message)
 		if err != nil {
 			mailTrackerEntity.SenderError = err.Error()
 			mailTrackerEntity.Status = entity.MailTrackerStatusError
 
 			ormService.Flush(mailTrackerEntity)
 
+			s.ErrorLoggerService.LogError(err)
+
 			return err
+
 		}
 	}
 
@@ -86,20 +92,25 @@ func (s *Sender) SendTemplateWithAttachments(ormService *beeorm.Engine, message 
 		TemplateData: message.TemplateData,
 	})
 	if err != nil {
+		s.ErrorLoggerService.LogError(err)
+
 		return err
 	}
 
 	fakeMode, _ := s.ConfigService.Bool("mail.fake_mode")
 
 	if !fakeMode {
-		err = s.provider.SendTemplateWithAttachments(message)
+		err = s.Provider.SendTemplateWithAttachments(message)
 		if err != nil {
 			mailTrackerEntity.SenderError = err.Error()
 			mailTrackerEntity.Status = entity.MailTrackerStatusError
 
 			ormService.Flush(mailTrackerEntity)
 
+			s.ErrorLoggerService.LogError(err)
+
 			return err
+
 		}
 	}
 
@@ -111,7 +122,7 @@ func (s *Sender) SendTemplateWithAttachments(ormService *beeorm.Engine, message 
 }
 
 func (s *Sender) GetTemplateHTMLCode(templateName string) (string, error) {
-	return s.provider.GetTemplateHTMLCode(templateName)
+	return s.Provider.GetTemplateHTMLCode(templateName)
 }
 
 func (s *Sender) createTrackingEntity(ormService *beeorm.Engine, message *Message) (*entity.MailTrackerEntity, error) {
@@ -130,6 +141,8 @@ func (s *Sender) createTrackingEntity(ormService *beeorm.Engine, message *Messag
 		mailTrackerEntity.Status = entity.MailTrackerStatusError
 
 		ormService.Flush(mailTrackerEntity)
+
+		s.ErrorLoggerService.LogError(err)
 
 		return mailTrackerEntity, err
 	}
