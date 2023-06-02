@@ -36,6 +36,12 @@ func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 				return nil, fmt.Errorf("you must specify geocoding.cache_expiry_days")
 			}
 
+			cacheLatLngFloatingPointPrecision, okCacheLatLngFloatingPointCutPrecision := configService.Int("geocoding.cache_lat_lng_floating_point_precision")
+
+			if !okUseCaching && okCacheLatLngFloatingPointCutPrecision {
+				return nil, fmt.Errorf("you must enable geocoding.use_caching")
+			}
+
 			if useCaching {
 				ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
 				entities := ormConfig.GetEntities()
@@ -53,7 +59,14 @@ func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 				return nil, err
 			}
 
-			return geocoding.NewGeocoding(useCaching, cacheExpiryDays, ctn.Get(service.ClockService).(clock.IClock), provider), nil
+			return geocoding.NewGeocoding(
+				useCaching,
+				cacheExpiryDays,
+				cacheLatLngFloatingPointPrecision,
+				okCacheLatLngFloatingPointCutPrecision,
+				ctn.Get(service.ClockService).(clock.IClock),
+				provider,
+			), nil
 		},
 	}
 }
