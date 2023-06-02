@@ -3,6 +3,7 @@ package registry
 import (
 	"errors"
 	"fmt"
+	"github.com/latolukasz/beeorm"
 
 	"github.com/sarulabs/di"
 
@@ -33,6 +34,14 @@ func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 
 			if okUseCaching && !okCacheExpiryDays {
 				return nil, fmt.Errorf("you must specify geocoding.cache_expiry_days")
+			}
+
+			if useCaching {
+				ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
+				entities := ormConfig.GetEntities()
+				if _, ok := entities["entity.GeocodingEntity"]; !ok {
+					return nil, errors.New("you should register GeocodingEntity")
+				}
 			}
 
 			provider, err := providerConstructor(configService)
