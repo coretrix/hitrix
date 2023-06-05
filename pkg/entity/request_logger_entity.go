@@ -13,9 +13,7 @@ type RequestLoggerEntity struct {
 	UserID          uint64 `orm:"searchable"`
 	AppName         string `orm:"required;searchable"`
 	Request         []byte `orm:"mediumblob"`
-	RequestText     string `orm:"length=max"`
 	Response        []byte `orm:"mediumblob"`
-	ResponseText    string `orm:"length=max"`
 	Log             []byte `orm:"mediumblob"`
 	Status          int
 	RequestDuration int64     `orm:"sortable"`

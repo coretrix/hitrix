@@ -28,14 +28,13 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 	requestLoggerEntity := &entity.RequestLoggerEntity{
 		URL:       url,
 		AppName:   appName,
-		Request:   content,
 		CreatedAt: g.clockService.Now(),
 	}
 
 	if isText(contentType) && len(content) <= 16_000_000 {
-		requestLoggerEntity.RequestText = string(content)
-	} else {
 		requestLoggerEntity.Request = content
+	} else {
+		requestLoggerEntity.Request = []byte("__TOO_LARGE__")
 	}
 
 	ormService.Flush(requestLoggerEntity)
@@ -47,9 +46,9 @@ func (g *DBLogger) LogResponse(ormService *beeorm.Engine, requestLoggerEntity *e
 	requestLoggerEntity.Status = status
 
 	if len(string(responseBody)) <= 16_000_000 {
-		requestLoggerEntity.ResponseText = string(responseBody)
-	} else {
 		requestLoggerEntity.Response = responseBody
+	} else {
+		requestLoggerEntity.Response = []byte("__TOO_LARGE__")
 	}
 
 	ormService.Flush(requestLoggerEntity)
