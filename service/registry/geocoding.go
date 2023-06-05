@@ -3,8 +3,8 @@ package registry
 import (
 	"errors"
 	"fmt"
-	"github.com/latolukasz/beeorm"
 
+	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"

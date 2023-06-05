@@ -3,12 +3,12 @@ package geocoding
 import (
 	"context"
 	"fmt"
-	"github.com/coretrix/hitrix/pkg/helper"
 	"time"
 
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service/component/clock"
 )
 
