@@ -13,6 +13,7 @@ import (
 	"github.com/coretrix/hitrix/pkg/middleware"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/oss"
+	"github.com/coretrix/hitrix/service/component/password"
 	"github.com/coretrix/hitrix/service/component/socket"
 	"github.com/coretrix/hitrix/service/registry"
 )
@@ -35,7 +36,7 @@ func main() {
 		registry.ServiceProviderClock(),
 		registry.ServiceProviderOSS(oss.NewAmazonOSS, exampleOSS.Namespaces),
 		registry.ServiceProviderJWT(),
-		registry.ServiceProviderPassword(),
+		registry.ServiceProviderPassword(password.NewSimpleManager),
 		registry.ServiceProviderSocketRegistry(eventHandlersMap),
 		registry.ServiceProviderOTP(),
 	).RegisterDIRequestService(

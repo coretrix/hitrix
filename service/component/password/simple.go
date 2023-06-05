@@ -3,12 +3,18 @@ package password
 import (
 	"crypto/sha256"
 	"encoding/base64"
+
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
-type Manager struct {
+type SimpleManager struct {
 }
 
-func (p *Manager) VerifyPassword(password string, hash string) bool {
+func NewSimpleManager(_ config.IConfig) IPassword {
+	return &SimpleManager{}
+}
+
+func (p *SimpleManager) VerifyPassword(password string, hash string) bool {
 	passwordHash, err := p.HashPassword(password)
 
 	if err != nil {
@@ -18,7 +24,7 @@ func (p *Manager) VerifyPassword(password string, hash string) bool {
 	return passwordHash == hash
 }
 
-func (p *Manager) HashPassword(password string) (string, error) {
+func (p *SimpleManager) HashPassword(password string) (string, error) {
 	sha256Hash := sha256.New()
 	_, err := sha256Hash.Write([]byte(password))
 

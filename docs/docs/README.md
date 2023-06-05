@@ -90,7 +90,7 @@ func main() {
 		registry.ServiceProviderOrmRegistry(entity.Init), //register our ORM and pass function where we set some configurations 
 		registry.ServiceProviderOrmEngine(), //register our ORM engine for background processes
 		registry.ServiceProviderJWT(), //register JWT DI service
-		registry.ServiceProviderPassword(), //register pasword DI service
+		registry.ServiceProviderPassword(password.NewSimpleManager), //register pasword DI service
 	).RegisterDIRequestService(
 		registry.ServiceProviderOrmEngineForContext(false), //register our ORM engine per context used in foreground processes 
 	).RegisterRedisPools(&app.RedisPools{Persistent: "your pool here"}).

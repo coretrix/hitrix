@@ -14,6 +14,7 @@ import (
 	clockMock "github.com/coretrix/hitrix/service/component/clock/mocks"
 	generatorMock "github.com/coretrix/hitrix/service/component/generator/mocks"
 	mocks2 "github.com/coretrix/hitrix/service/component/mail/mocks"
+	"github.com/coretrix/hitrix/service/component/password"
 	smsMock "github.com/coretrix/hitrix/service/component/sms/mocks"
 	"github.com/coretrix/hitrix/service/registry"
 	"github.com/coretrix/hitrix/service/registry/mocks"
@@ -62,7 +63,7 @@ func TestGenerateOTPEmail(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				mocks.ServiceProviderMockSMS(fakeSMS),
 				mocks.ServiceProviderMockMail(fakeMail),
@@ -103,7 +104,7 @@ func TestVerifyOTPEmail(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				mocks.ServiceProviderMockGenerator(fakeGenerator),
 				mocks.ServiceProviderMockClock(fakeClock),
@@ -137,7 +138,7 @@ func TestAuthenticate(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
 				registry.ServiceProviderClock(),
@@ -172,7 +173,7 @@ func TestAuthenticate(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
 				registry.ServiceProviderClock(),
@@ -205,7 +206,7 @@ func TestAuthenticate(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
 				registry.ServiceProviderClock(),
@@ -240,7 +241,7 @@ func TestVerifyAccessToken(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
 				registry.ServiceProviderClock(),
@@ -276,7 +277,7 @@ func TestVerifyAccessToken(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
 				registry.ServiceProviderClock(),
@@ -316,7 +317,7 @@ func TestRefreshToken(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
 				registry.ServiceProviderClock(),
@@ -350,7 +351,7 @@ func TestRefreshToken(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
 				registry.ServiceProviderClock(),
@@ -389,7 +390,7 @@ func TestLogoutCurrentSession(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
 				registry.ServiceProviderClock(),
@@ -432,7 +433,7 @@ func TestLogoutAllSessions(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
 				registry.ServiceProviderClock(),
@@ -473,7 +474,7 @@ func TestLogoutAllSessions(t *testing.T) {
 			[]*service.DefinitionGlobal{
 				registry.ServiceProviderErrorLogger(),
 				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(),
+				registry.ServiceProviderPassword(password.NewSimpleManager),
 				registry.ServiceProviderUUID(),
 				registry.ServiceProviderAuthentication(),
 				registry.ServiceProviderClock(),
@@ -525,7 +526,7 @@ func TestGenerateTokenPair(t *testing.T) {
 		[]*service.DefinitionGlobal{
 			registry.ServiceProviderErrorLogger(),
 			registry.ServiceProviderJWT(),
-			registry.ServiceProviderPassword(),
+			registry.ServiceProviderPassword(password.NewSimpleManager),
 			registry.ServiceProviderUUID(),
 			registry.ServiceProviderAuthentication(),
 			registry.ServiceProviderClock(),

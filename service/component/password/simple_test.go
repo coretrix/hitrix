@@ -9,7 +9,7 @@ import (
 )
 
 func TestHashPasswordTrue(t *testing.T) {
-	passwordService := &password.Manager{}
+	passwordService := &password.SimpleManager{}
 
 	hash, err := passwordService.HashPassword("Str0NGPa$$W0rD!")
 
@@ -18,7 +18,7 @@ func TestHashPasswordTrue(t *testing.T) {
 }
 
 func TestHashPasswordFalse(t *testing.T) {
-	passwordService := &password.Manager{}
+	passwordService := &password.SimpleManager{}
 
 	hash, err := passwordService.HashPassword("Str0NGPa$$W0rD!1")
 
@@ -27,13 +27,13 @@ func TestHashPasswordFalse(t *testing.T) {
 }
 
 func TestVerifyPasswordTrue(t *testing.T) {
-	passwordService := &password.Manager{}
+	passwordService := &password.SimpleManager{}
 
 	assert.True(t, passwordService.VerifyPassword("Str0NGPa$$W0rD!", "eh71ZMSd5oCpYTaazon8jc53bo0sMiWSPmPVuMVB9mU="))
 }
 
 func TestVerifyPasswordFalse(t *testing.T) {
-	passwordService := &password.Manager{}
+	passwordService := &password.SimpleManager{}
 
 	assert.False(t, passwordService.VerifyPassword("Str0NGPa$$W0rD!", ""))
 }
