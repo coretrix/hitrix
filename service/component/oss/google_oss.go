@@ -233,13 +233,11 @@ func (ossStorage *GoogleOSS) UploadObjectFromByte(
 	ossStorage.setObjectContentType(ossBucketObject, extension)
 
 	_, err = ossBucketObject.Write(objectContent)
-
 	if err != nil {
 		return entity.FileObject{}, err
 	}
 
 	err = ossBucketObject.Close()
-
 	if err != nil {
 		return entity.FileObject{}, err
 	}
@@ -250,8 +248,13 @@ func (ossStorage *GoogleOSS) UploadObjectFromByte(
 	}, nil
 }
 
-func (ossStorage *GoogleOSS) DeleteObject(_ Namespace, _ *entity.FileObject) error {
-	panic("not implemented")
+func (ossStorage *GoogleOSS) DeleteObject(namespace Namespace, object *entity.FileObject) error {
+	bucketConfig, err := ossStorage.namespaces.getBucketConfig(namespace)
+	if err != nil {
+		return err
+	}
+
+	return ossStorage.client.Bucket(bucketConfig.Name).Object(object.StorageKey).Delete(ossStorage.ctx)
 }
 
 func (ossStorage *GoogleOSS) getObjectKey(namespace Namespace, storageCounter uint64, fileExtension string) string {
