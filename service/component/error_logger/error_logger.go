@@ -2,6 +2,9 @@ package errorlogger
 
 import (
 	"bytes"
+	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
+	"strconv"
+
 	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive
 	"crypto/md5"
 	"encoding/hex"
@@ -9,7 +12,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"net/http"
 	"net/http/httputil"
 	"os"
 	"runtime"
@@ -36,7 +38,7 @@ var (
 type ErrorLogger interface {
 	LogErrorWithRequest(c *gin.Context, errData interface{})
 	LogError(dataFromRecover interface{})
-	log(errData interface{}, request *http.Request)
+	log(errData interface{}, c *gin.Context)
 }
 
 type ErrorMessage struct {
@@ -64,10 +66,10 @@ func (e *RedisErrorLogger) LogError(errData interface{}) {
 }
 
 func (e *RedisErrorLogger) LogErrorWithRequest(c *gin.Context, errData interface{}) {
-	e.log(errData, c.Request)
+	e.log(errData, c)
 }
 
-func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
+func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context) {
 	var msg string
 
 	err, ok := errData.(error)
@@ -94,12 +96,17 @@ func (e *RedisErrorLogger) log(errData interface{}, request *http.Request) {
 		Stack:   stack,
 	}
 
-	if request != nil {
-		binaryRequest, _ := httputil.DumpRequest(request, true)
+	if c != nil {
+		requestID, has := c.Get(requestlogger.ID)
+		if has {
+			value.Request = []byte("X-Request-ID: " + strconv.FormatUint(requestID, 10) + "\n\n")
+		}
+
+		binaryRequest, _ := httputil.DumpRequest(c.Request, true)
 		if len(binaryRequest) > 2000 {
-			value.Request = binaryRequest[0:2000]
+			value.Request = append(value.Request, binaryRequest[0:2000]...)
 		} else {
-			value.Request = binaryRequest
+			value.Request = append(value.Request, binaryRequest...)
 		}
 	}
 
