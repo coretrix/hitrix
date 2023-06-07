@@ -3,8 +3,6 @@ package errorlogger
 import (
 	"bytes"
 	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
-	"strconv"
-
 	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive
 	"crypto/md5"
 	"encoding/hex"
@@ -99,7 +97,7 @@ func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context) {
 	if c != nil {
 		requestID, has := c.Get(requestlogger.ID)
 		if has {
-			value.Request = []byte("X-Request-ID: " + strconv.FormatUint(requestID, 10) + "\n\n")
+			value.Request = []byte("X-Request-ID: " + string(requestID) + "\n\n")
 		}
 
 		binaryRequest, _ := httputil.DumpRequest(c.Request, true)
