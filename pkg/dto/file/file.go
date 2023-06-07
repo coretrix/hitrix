@@ -10,6 +10,7 @@ import (
 type File struct {
 	ID        uint64
 	URL       string
+	Filename  string
 	Namespace oss.Namespace
 	IDType    IDType
 }

@@ -96,6 +96,7 @@ func CreateFile(ctx context.Context, newFile *file.RequestDTOUploadImage) (*file
 	return &file.File{
 		ID:        fileEntity.ID,
 		URL:       objectURL,
+		Filename:  newFile.Image.Filename,
 		Namespace: oss.Namespace(fileEntity.Namespace),
 		IDType:    file.IDTypeFileID,
 	}, nil
