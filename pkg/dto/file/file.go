@@ -55,18 +55,18 @@ type RequestDTOUploadImage struct {
 type IDType string
 
 const (
-	FileIDTypeCounterID IDType = "counter_id"
-	FileIDTypeFileID    IDType = "file_id"
+	IDTypeOSSCounterID IDType = "oss_counter_id"
+	IDTypeFileID       IDType = "file_id"
 )
 
 var AllFileIDType = []IDType{
-	FileIDTypeCounterID,
-	FileIDTypeFileID,
+	IDTypeOSSCounterID,
+	IDTypeFileID,
 }
 
 func (f IDType) IsValid() bool {
 	switch f {
-	case FileIDTypeCounterID, FileIDTypeFileID:
+	case IDTypeOSSCounterID, IDTypeFileID:
 		return true
 	}
 
