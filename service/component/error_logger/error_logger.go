@@ -97,7 +97,7 @@ func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context) {
 	if c != nil {
 		requestID, has := c.Get(requestlogger.ID)
 		if has {
-			value.Request = []byte("X-Request-ID: " + string(requestID) + "\n\n")
+			value.Request = []byte("X-Request-ID: " + fmt.Sprint(requestID) + "\n\n")
 		}
 
 		binaryRequest, _ := httputil.DumpRequest(c.Request, true)
