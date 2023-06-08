@@ -2,6 +2,7 @@ package sms
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/latolukasz/beeorm"
 
@@ -12,7 +13,7 @@ import (
 )
 
 type ISender interface {
-	SendMessage(ormService *beeorm.Engine, message *Message) error
+	SendMessage(ormService *beeorm.Engine, message *Message, params map[string]interface{}) error
 }
 
 type Sender struct {
@@ -23,7 +24,7 @@ type Sender struct {
 	SecondaryProvider  IProvider
 }
 
-func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error {
+func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message, params map[string]interface{}) error {
 	var primaryProvider IProvider
 	var secondaryProvider IProvider
 
@@ -39,10 +40,16 @@ func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error 
 		return fmt.Errorf("primary provider not supported")
 	}
 
+	text := message.Text
+
+	for paramName, value := range params {
+		text = strings.Replace(text, fmt.Sprintf("[[%s]]", paramName), fmt.Sprintf("%v", value), -1)
+	}
+
 	smsTrackerEntity := &entity.SmsTrackerEntity{}
 	smsTrackerEntity.SetTo(message.Number)
 	smsTrackerEntity.SetType(entity.SMSTrackerTypeSMS)
-	smsTrackerEntity.SetText(message.Text)
+	smsTrackerEntity.SetText(text)
 	smsTrackerEntity.SetFromPrimaryProvider(primaryProvider.GetName())
 	smsTrackerEntity.SetSentAt(s.ClockService.Now())
 
