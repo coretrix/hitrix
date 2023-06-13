@@ -51,6 +51,10 @@ func (g *DBLogger) LogResponse(ormService *beeorm.Engine, requestLoggerEntity *e
 		requestLoggerEntity.Response = []byte("__TOO_LARGE__")
 	}
 
+	if len(string(requestLoggerEntity.Log)) > 16_000_000 {
+		requestLoggerEntity.Log = []byte("__TOO_LARGE__")
+	}
+
 	ormService.Flush(requestLoggerEntity)
 }
 
