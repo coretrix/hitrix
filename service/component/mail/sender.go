@@ -58,20 +58,17 @@ func (s *Sender) SendTemplate(ormService *beeorm.Engine, message *Message) error
 		return err
 	}
 
-	fakeMode, _ := s.ConfigService.Bool("mail.fake_mode")
 
-	if !fakeMode {
-		err = s.Provider.SendTemplate(message)
-		if err != nil {
-			mailTrackerEntity.SenderError = err.Error()
-			mailTrackerEntity.Status = entity.MailTrackerStatusError
+	err = s.Provider.SendTemplate(message)
+	if err != nil {
+		mailTrackerEntity.SenderError = err.Error()
+		mailTrackerEntity.Status = entity.MailTrackerStatusError
 
-			ormService.Flush(mailTrackerEntity)
+		ormService.Flush(mailTrackerEntity)
 
-			s.ErrorLoggerService.LogError(err)
+		s.ErrorLoggerService.LogError(err)
 
-			return err
-		}
+		return err
 	}
 
 	mailTrackerEntity.Status = entity.MailTrackerStatusSuccess
@@ -97,20 +94,16 @@ func (s *Sender) SendTemplateWithAttachments(ormService *beeorm.Engine, message 
 		return err
 	}
 
-	fakeMode, _ := s.ConfigService.Bool("mail.fake_mode")
+	err = s.Provider.SendTemplateWithAttachments(message)
+	if err != nil {
+		mailTrackerEntity.SenderError = err.Error()
+		mailTrackerEntity.Status = entity.MailTrackerStatusError
 
-	if !fakeMode {
-		err = s.Provider.SendTemplateWithAttachments(message)
-		if err != nil {
-			mailTrackerEntity.SenderError = err.Error()
-			mailTrackerEntity.Status = entity.MailTrackerStatusError
+		ormService.Flush(mailTrackerEntity)
 
-			ormService.Flush(mailTrackerEntity)
+		s.ErrorLoggerService.LogError(err)
 
-			s.ErrorLoggerService.LogError(err)
-
-			return err
-		}
+		return err
 	}
 
 	mailTrackerEntity.Status = entity.MailTrackerStatusSuccess

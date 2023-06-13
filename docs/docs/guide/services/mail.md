@@ -11,7 +11,6 @@ Also, you should put your credentials and other configs in your config file
 
 ```yml
 mail:
-  fake_mode: false
   mailjet:
     api_key_public: ...
     api_key_private: ...
@@ -24,7 +23,7 @@ mail:
     from_name: coretrix.com
 ```
 
-If you set `fake_mode=true` we won't send real sms to the customer
+If you set `sandbox_mode=true` we won't send real email to the customer
 
 Access the service:
 ```go
