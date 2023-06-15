@@ -17,7 +17,7 @@ const (
 type Mandrill struct {
 	client           *gochimp.MandrillAPI
 	defaultFromEmail string
-	fromName         string
+	defaultFromName  string
 }
 
 func NewMandrill(configService config.IConfig) (IProvider, error) {
@@ -42,7 +42,7 @@ func NewMandrill(configService config.IConfig) (IProvider, error) {
 		panic(err)
 	}
 
-	return &Mandrill{client: mandrillAPI, defaultFromEmail: fromEmail, fromName: fromName}, nil
+	return &Mandrill{client: mandrillAPI, defaultFromEmail: fromEmail, defaultFromName: fromName}, nil
 }
 
 func (s *Mandrill) GetTemplateKeyFromConfig(configService config.IConfig, templateName string) (string, error) {
@@ -102,22 +102,15 @@ func (s *Mandrill) sendTemplate(
 	templateData interface{},
 	attachments []gochimp.Attachment,
 ) error {
-	if from == "" {
-		from = s.defaultFromEmail
-	}
-
 	message := gochimp.Message{
 		MergeLanguage: mergeLanguageHandlebars,
 		Subject:       subject,
+		FromName:      fromName,
 		FromEmail:     from,
 		Attachments:   attachments,
 		To: []gochimp.Recipient{
 			{Email: to},
 		},
-	}
-
-	if fromName != "" {
-		message.FromName = fromName
 	}
 
 	if replyTo != "" {
@@ -165,4 +158,12 @@ func (s *Mandrill) GetTemplateHTMLCode(templateName string) (string, error) {
 	}
 
 	return template.Code, nil
+}
+
+func (s *Mandrill) GetDefaultFromEmail() string {
+	return s.defaultFromEmail
+}
+
+func (s *Mandrill) GetDefaultFromName() string {
+	return s.defaultFromName
 }

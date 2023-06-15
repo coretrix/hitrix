@@ -14,7 +14,7 @@ import (
 type Mailjet struct {
 	client           *mailjet.Client
 	defaultFromEmail string
-	fromName         string
+	defaultFromName  string
 	sandboxMode      bool
 }
 
@@ -34,7 +34,7 @@ func NewMailjet(configService config.IConfig) (IProvider, error) {
 		return nil, errors.New("mail.mailjet.default_from_email is missing")
 	}
 
-	fromName, ok := configService.String("mail.mailjet.from_name")
+	fromName, ok := configService.String("mail.mailjet.default_from_name")
 	if !ok {
 		return nil, errors.New("mail.mailjet.from_name is missing")
 	}
@@ -46,7 +46,7 @@ func NewMailjet(configService config.IConfig) (IProvider, error) {
 
 	mailjetAPI := mailjet.NewMailjetClient(apiKeyPublic, apiKeyPrivate)
 
-	return &Mailjet{client: mailjetAPI, defaultFromEmail: fromEmail, fromName: fromName, sandboxMode: sandboxMode}, nil
+	return &Mailjet{client: mailjetAPI, sandboxMode: sandboxMode, defaultFromEmail: fromEmail, defaultFromName: fromName}, nil
 }
 
 func (s *Mailjet) GetTemplateKeyFromConfig(configService config.IConfig, templateName string) (string, error) {
@@ -59,6 +59,7 @@ func (s *Mailjet) GetTemplateKeyFromConfig(configService config.IConfig, templat
 
 	return templateKey, nil
 }
+
 func (s *Mailjet) SendTemplate(message *Message) error {
 	return s.sendTemplate(
 		message.From,
@@ -107,10 +108,6 @@ func (s *Mailjet) sendTemplate(
 	templateData interface{},
 	attachments []mailjet.AttachmentV31,
 ) error {
-	if from == "" {
-		from = s.defaultFromEmail
-	}
-
 	templateID, err := strconv.ParseInt(templateName, 10, 64)
 	if err != nil {
 		return err
@@ -193,4 +190,12 @@ func (s *Mailjet) GetTemplateHTMLCode(templateName string) (string, error) {
 	template := templates[0]
 
 	return template.HtmlPart, nil
+}
+
+func (s *Mailjet) GetDefaultFromEmail() string {
+	return s.defaultFromEmail
+}
+
+func (s *Mailjet) GetDefaultFromName() string {
+	return s.defaultFromName
 }

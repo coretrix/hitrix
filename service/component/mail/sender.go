@@ -51,13 +51,20 @@ func (s *Sender) GetTemplateKeyFromConfig(templateName string) (string, error) {
 }
 
 func (s *Sender) SendTemplate(ormService *beeorm.Engine, message *Message) error {
+	if message.From == "" {
+		message.From = s.Provider.GetDefaultFromEmail()
+	}
+
+	if message.FromName == "" {
+		message.From = s.Provider.GetDefaultFromName()
+	}
+
 	mailTrackerEntity, err := s.createTrackingEntity(ormService, message)
 	if err != nil {
 		s.ErrorLoggerService.LogError(err)
 
 		return err
 	}
-
 
 	err = s.Provider.SendTemplate(message)
 	if err != nil {
