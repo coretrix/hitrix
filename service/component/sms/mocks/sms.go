@@ -4,7 +4,6 @@ import (
 	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/mock"
 
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/coretrix/hitrix/service/component/sms"
 )
 
