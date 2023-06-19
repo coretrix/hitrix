@@ -12,6 +12,6 @@ type FakeSMSSender struct {
 	mock.Mock
 }
 
-func (f *FakeSMSSender) SendMessage(_ *beeorm.Engine, _ errorlogger.ErrorLogger, message *sms.Message) error {
+func (f *FakeSMSSender) SendMessage(_ *beeorm.Engine, message *sms.Message) error {
 	return f.Called(message).Error(0)
 }
