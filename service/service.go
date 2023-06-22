@@ -90,6 +90,7 @@ const (
 	SettingService                = "setting"
 	FeatureFlagService            = "feature_flag"
 	TemplateService               = "template"
+	TranslationService            = "translation"
 	GQLService                    = "gql"
 	ElorusService                 = "elorus"
 	InstagramService              = "instagram"
