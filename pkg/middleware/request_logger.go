@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"encoding/json"
-	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +9,7 @@ import (
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/service"
+	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 )
 
 type dbLogger struct {
@@ -54,7 +54,7 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 
 		context.Set(requestlogger.ID, requestLoggerEntity.ID)
 		context.Header("X-Request-ID", strconv.FormatUint(requestLoggerEntity.ID, 10))
-		
+
 		logger := &dbLogger{}
 		ormService.RegisterQueryLogger(logger, true, true, true)
 		context.Next()
