@@ -2,7 +2,6 @@ package errorlogger
 
 import (
 	"bytes"
-	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive
 	"crypto/md5"
 	"encoding/hex"
@@ -20,6 +19,7 @@ import (
 	slackgo "github.com/slack-go/slack"
 
 	"github.com/coretrix/hitrix/service/component/app"
+	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 	"github.com/coretrix/hitrix/service/component/sentry"
 	"github.com/coretrix/hitrix/service/component/slack"
 )

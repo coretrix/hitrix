@@ -32,10 +32,10 @@ func GetFileTypeCounterWithCDN(fileObject *entity.FileObject, namespace oss.Name
 	}
 
 	return &file.File{
-		ID:     fileObject.ID,
+		ID:       fileObject.ID,
 		Filename: fileObject.StorageKey,
-		URL:    cdn.GetImageURLWithTemplate(objectURL),
-		IDType: file.IDTypeOSSCounterID,
+		URL:      cdn.GetImageURLWithTemplate(objectURL),
+		IDType:   file.IDTypeOSSCounterID,
 	}
 }
 

@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/coretrix/hitrix/pkg/helper"
@@ -19,15 +20,15 @@ import (
 const LinkMobility = "link-mobility"
 
 type LinkMobilityProvider struct {
-	Service   string
+	Service   int
 	Key       string
 	Secret    string
 	Endpoint  string
-	Shortcode string
+	Shortcode int
 }
 
 func NewLinkMobilityProvider(configService config.IConfig, _ clock.IClock) (IProvider, error) {
-	service, ok := configService.String("sms.link_mobility.service")
+	service, ok := configService.Int("sms.link_mobility.service")
 	if !ok {
 		return nil, errors.New("missing sms.link_mobility.service")
 	}
@@ -47,7 +48,7 @@ func NewLinkMobilityProvider(configService config.IConfig, _ clock.IClock) (IPro
 		return nil, errors.New("missing sms.link_mobility.endpoint")
 	}
 
-	shortcode, ok := configService.String("sms.link_mobility.shortcode")
+	shortcode, ok := configService.Int("sms.link_mobility.shortcode")
 	if !ok {
 		return nil, errors.New("missing sms.link_mobility.shortcode")
 	}
@@ -78,8 +79,8 @@ type linkMobilityMsg struct {
 
 func (g *LinkMobilityProvider) SendSMSMessage(message *Message) (string, error) {
 	row := &linkMobilityMsg{
-		ServiceID: g.Service,
-		From:      g.Shortcode,
+		ServiceID: strconv.Itoa(g.Service),
+		From:      strconv.Itoa(g.Shortcode),
 		To:        message.Number,
 		Message:   message.Text,
 	}
