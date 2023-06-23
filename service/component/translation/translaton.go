@@ -2,12 +2,12 @@ package translation
 
 import (
 	"fmt"
-	"github.com/coretrix/hitrix/service/component/app"
 	"strings"
 
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/coretrix/hitrix/service/component/app"
 )
 
 type ITranslationService interface {

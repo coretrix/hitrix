@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"github.com/coretrix/hitrix/service/component/translation"
 
 	"github.com/coretrix/clockwork"
 	"github.com/latolukasz/beeorm"
@@ -47,6 +46,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/socket"
 	"github.com/coretrix/hitrix/service/component/stripe"
 	"github.com/coretrix/hitrix/service/component/template"
+	"github.com/coretrix/hitrix/service/component/translation"
 	"github.com/coretrix/hitrix/service/component/uploader"
 	"github.com/coretrix/hitrix/service/component/uuid"
 )
