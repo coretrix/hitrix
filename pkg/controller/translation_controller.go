@@ -29,7 +29,7 @@ type TranslationController struct {
 // @Success 200 {object} translation.ResponseDTOList
 // @Failure 400 {object} response.Error
 // @Failure 500 "Something bad happened"
-func (controller *TranslationController) PostTranslation(c *gin.Context) {
+func (controller *TranslationController) PostTranslationListAction(c *gin.Context) {
 	request := list.RequestDTOList{}
 
 	err := binding.ShouldBindJSON(c, &request)
