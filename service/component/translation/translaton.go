@@ -34,8 +34,9 @@ func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.Tran
 
 	found = ormService.CachedSearchOne(
 		translationTextEntity,
-		"CachedQueryKey",
-		key)
+		"CachedQueryLangKey",
+		lang.String(),
+		key.String())
 
 	if !found {
 		if !u.appService.IsInTestMode() {
