@@ -2,12 +2,12 @@ package translation
 
 import (
 	"fmt"
+	"github.com/coretrix/hitrix/service/component/app"
 	"strings"
 
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/coretrix/hitrix/service"
 )
 
 type ITranslationService interface {
@@ -21,10 +21,11 @@ type ITranslationService interface {
 }
 
 type translationService struct {
+	appService *app.App
 }
 
-func NewTranslationService() ITranslationService {
-	return &translationService{}
+func NewTranslationService(appService *app.App) ITranslationService {
+	return &translationService{appService}
 }
 
 func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.TranslationTextLang, key entity.TranslationTextKey) string {
@@ -37,7 +38,7 @@ func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.Tran
 		key)
 
 	if !found {
-		if !service.DI().App().IsInTestMode() {
+		if !u.appService.IsInTestMode() {
 			translationTextEntity.Status = entity.TranslationStatusNew.String()
 			translationTextEntity.Lang = lang.String()
 			translationTextEntity.Key = key.String()

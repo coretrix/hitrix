@@ -2,6 +2,7 @@ package registry
 
 import (
 	"errors"
+	"github.com/coretrix/hitrix/service/component/app"
 
 	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
@@ -21,7 +22,7 @@ func ServiceProviderTranslation() *service.DefinitionGlobal {
 				return nil, errors.New("you should register TranslationTextEntity")
 			}
 
-			return translation.NewTranslationService(), nil
+			return translation.NewTranslationService(ctn.Get(service.AppService).(*app.App)), nil
 		},
 	}
 }
