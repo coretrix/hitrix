@@ -28,7 +28,7 @@ type ResponseTranslation struct {
 	Text string
 }
 
-type ResponseDTOTranslation struct {
+type ResponseDTOList struct {
 	Rows    []*ListRow
 	Total   int
 	Columns []crud.Column

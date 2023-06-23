@@ -68,7 +68,7 @@ func columns() []crud.Column {
 	}
 }
 
-func List(ctx context.Context, userListRequest listDto.RequestDTOList) (*translation.ResponseDTOTranslation, error) {
+func List(ctx context.Context, userListRequest listDto.RequestDTOList) (*translation.ResponseDTOList, error) {
 	request, err := crudView.ValidateListRequest(userListRequest, pageSizeMin, pageSizeMax)
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func List(ctx context.Context, userListRequest listDto.RequestDTOList) (*transla
 		}
 	}
 
-	return &translation.ResponseDTOTranslation{
+	return &translation.ResponseDTOList{
 		Rows:    rows,
 		Total:   int(total),
 		Columns: cols,
