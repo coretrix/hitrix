@@ -39,11 +39,9 @@ func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.Tran
 		key.String())
 
 	if !found {
-		if !u.appService.IsInTestMode() {
-			translationTextEntity.Status = entity.TranslationStatusNew.String()
-			translationTextEntity.Lang = lang.String()
-			translationTextEntity.Key = key.String()
-		}
+		translationTextEntity.Status = entity.TranslationStatusNew.String()
+		translationTextEntity.Lang = lang.String()
+		translationTextEntity.Key = key.String()
 
 		ormService.Flush(translationTextEntity)
 
