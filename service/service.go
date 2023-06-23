@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/coretrix/hitrix/service/component/translation"
 
 	"github.com/coretrix/clockwork"
 	"github.com/latolukasz/beeorm"
@@ -293,4 +294,8 @@ func (d *DIContainer) LicensePlateRecognizer() licenseplaterecognizer.LicensePla
 
 func (d *DIContainer) Geocoding() geocoding.IGeocoding {
 	return GetServiceRequired(GeocodingService).(geocoding.IGeocoding)
+}
+
+func (d *DIContainer) Translation() translation.ITranslationService {
+	return GetServiceRequired(TranslationService).(translation.ITranslationService)
 }
