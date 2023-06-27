@@ -22,10 +22,11 @@ type RequestDTOTranslationID struct {
 }
 
 type ResponseTranslation struct {
-	ID   uint64
-	Lang string
-	Key  string
-	Text string
+	ID        uint64
+	Lang      string
+	Key       string
+	Text      string
+	Variables string
 }
 
 type ResponseDTOList struct {
@@ -35,10 +36,9 @@ type ResponseDTOList struct {
 }
 
 type ListRow struct {
-	ID        uint64
-	Status    string
-	Lang      string
-	Key       string
-	Variables string
-	Text      string
+	ID     uint64
+	Status string
+	Lang   string
+	Key    string
+	Text   string
 }

@@ -2,8 +2,6 @@ package translation
 
 import (
 	"context"
-	"strings"
-
 	"github.com/latolukasz/beeorm"
 
 	listDto "github.com/coretrix/hitrix/pkg/dto/list"
@@ -101,12 +99,11 @@ func List(ctx context.Context, userListRequest listDto.RequestDTOList) (*transla
 
 	for i, translationTextEntity := range translationTextEntities {
 		rows[i] = &translation.ListRow{
-			ID:        translationTextEntity.ID,
-			Status:    translationTextEntity.Status,
-			Lang:      translationTextEntity.Lang,
-			Key:       translationTextEntity.Key,
-			Variables: strings.Join(translationTextEntity.Vars, " "),
-			Text:      translationTextEntity.Text,
+			ID:     translationTextEntity.ID,
+			Status: translationTextEntity.Status,
+			Lang:   translationTextEntity.Lang,
+			Key:    translationTextEntity.Key,
+			Text:   translationTextEntity.Text,
 		}
 	}
 

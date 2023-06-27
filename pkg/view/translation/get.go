@@ -3,6 +3,7 @@ package translation
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/coretrix/hitrix/pkg/dto/translation"
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -24,9 +25,10 @@ func Get(ctx context.Context, id uint64) (*translation.ResponseTranslation, erro
 	}
 
 	return &translation.ResponseTranslation{
-		ID:   translationEntity.ID,
-		Lang: translationEntity.Lang,
-		Key:  translationEntity.Key,
-		Text: translationEntity.Text,
+		ID:        translationEntity.ID,
+		Lang:      translationEntity.Lang,
+		Key:       translationEntity.Key,
+		Text:      translationEntity.Text,
+		Variables: strings.Join(translationEntity.Vars, " "),
 	}, nil
 }
