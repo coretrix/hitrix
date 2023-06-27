@@ -35,9 +35,10 @@ type ResponseDTOList struct {
 }
 
 type ListRow struct {
-	ID     uint64
-	Status string
-	Lang   string
-	Key    string
-	Text   string
+	ID        uint64
+	Status    string
+	Lang      string
+	Key       string
+	Variables string
+	Text      string
 }

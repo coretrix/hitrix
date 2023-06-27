@@ -7,7 +7,7 @@ import (
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
-	"github.com/coretrix/hitrix/service/component/app"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/coretrix/hitrix/service/component/translation"
 )
 
@@ -22,7 +22,7 @@ func ServiceProviderTranslation() *service.DefinitionGlobal {
 				return nil, errors.New("you should register TranslationTextEntity")
 			}
 
-			return translation.NewTranslationService(ctn.Get(service.AppService).(*app.App)), nil
+			return translation.NewTranslationService(ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger)), nil
 		},
 	}
 }

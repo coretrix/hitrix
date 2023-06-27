@@ -2,12 +2,15 @@ package translation
 
 import (
 	"fmt"
+	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/coretrix/hitrix/pkg/helper"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 )
 
 type ITranslationService interface {
@@ -21,18 +24,17 @@ type ITranslationService interface {
 }
 
 type translationService struct {
-	appService *app.App
+	errorLoggerService errorlogger.ErrorLogger
 }
 
-func NewTranslationService(appService *app.App) ITranslationService {
-	return &translationService{appService}
+func NewTranslationService(errorLoggerService errorlogger.ErrorLogger) ITranslationService {
+	return &translationService{errorLoggerService}
 }
 
 func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.TranslationTextLang, key entity.TranslationTextKey) string {
-	var found bool
 	translationTextEntity := &entity.TranslationTextEntity{}
 
-	found = ormService.CachedSearchOne(
+	found := ormService.CachedSearchOne(
 		translationTextEntity,
 		"CachedQueryLangKey",
 		lang.String(),
@@ -55,12 +57,56 @@ func (u *translationService) GetTextWithVars(
 	ormService *beeorm.Engine,
 	lang entity.TranslationTextLang,
 	key entity.TranslationTextKey,
-	variables map[string]interface{}) string {
-	text := u.GetText(ormService, lang, key)
+	variables map[string]interface{},
+) string {
+	keys := make([]string, 0, len(variables))
+
+	for k := range variables {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	translationTextEntity := &entity.TranslationTextEntity{}
+
+	found := ormService.CachedSearchOne(
+		translationTextEntity,
+		"CachedQueryLangKey",
+		lang.String(),
+		key.String())
+
+	if !found {
+		translationTextEntity.Status = entity.TranslationStatusNew.String()
+		translationTextEntity.Lang = lang.String()
+		translationTextEntity.Key = key.String()
+		translationTextEntity.Vars = keys
+
+		ormService.Flush(translationTextEntity)
+
+		return key.String()
+	}
+
+	if !helper.EqualString(translationTextEntity.Vars, keys) {
+		translationTextEntity.Vars = keys
+		ormService.FlushLazy(translationTextEntity)
+	}
+
+	text := translationTextEntity.Text
 
 	for paramName, value := range variables {
 		text = strings.Replace(text, fmt.Sprintf("[[%s]]", paramName), fmt.Sprintf("%v", value), -1)
 	}
+
+	re := regexp.MustCompile(`\[\[(.*?)\]\]`)
+	subMatchAll := re.FindAllString(text, -1)
+
+	u.errorLoggerService.LogError(
+		fmt.Sprintf(
+			"not assigned vars (%s) for translation key `%s`",
+			strings.Join(subMatchAll, ", "),
+			key.String(),
+		),
+	)
 
 	return text
 }

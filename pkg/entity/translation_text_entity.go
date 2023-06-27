@@ -44,6 +44,7 @@ type TranslationTextEntity struct {
 	Key        string `orm:"required;unique=Lang_Key:2;searchable"`
 	Status     string `orm:"required;enum=entity.TranslationStatusAll;searchable"`
 	Text       string `orm:"length=max"`
+	Vars       []string
 
 	CachedQueryLangKey *beeorm.CachedQuery `queryOne:":Lang = ? AND :Key = ?"`
 }
