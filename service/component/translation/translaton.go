@@ -91,6 +91,10 @@ func (u *translationService) GetTextWithVars(
 		ormService.FlushLazy(translationTextEntity)
 	}
 
+	if translationTextEntity.Status == entity.TranslationStatusNew.String() {
+		return key.String()
+	}
+
 	text := translationTextEntity.Text
 
 	for paramName, value := range variables {
