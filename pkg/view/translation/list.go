@@ -64,13 +64,6 @@ func columns() []crud.Column {
 			Sortable:   false,
 			Visible:    true,
 		},
-		{
-			Key:        "Variables",
-			Label:      "Variables",
-			Searchable: false,
-			Sortable:   false,
-			Visible:    true,
-		},
 	}
 }
 
