@@ -50,6 +50,10 @@ func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.Tran
 		return key.String()
 	}
 
+	if translationTextEntity.Status == entity.TranslationStatusNew.String() {
+		return key.String()
+	}
+
 	return translationTextEntity.Text
 }
 
