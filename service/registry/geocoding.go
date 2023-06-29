@@ -49,8 +49,8 @@ func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 					return nil, errors.New("you should register GeocodingEntity")
 				}
 
-				if _, ok := entities["entity.ReverseGeocodingEntity"]; !ok {
-					return nil, errors.New("you should register ReverseGeocodingEntity")
+				if _, ok := entities["entity.GeocodingReverseEntity"]; !ok {
+					return nil, errors.New("you should register GeocodingReverseEntity")
 				}
 			}
 

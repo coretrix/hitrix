@@ -40,7 +40,7 @@ func (script *RemoveExpiredGeocodingsScript) Run(_ context.Context, _ app.IExit)
 
 	where = beeorm.NewWhere("ExpiresAt < ?", now)
 
-	reverseGeocodingEntities := make([]*entity.ReverseGeocodingEntity, 0)
+	reverseGeocodingEntities := make([]*entity.GeocodingReverseEntity, 0)
 	ormService.Search(where, beeorm.NewPager(1, 10000), &reverseGeocodingEntities)
 
 	flusher = ormService.NewFlusher()
