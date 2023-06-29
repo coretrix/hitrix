@@ -3,12 +3,13 @@ package geocoding
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service/component/clock"
 )
 
@@ -110,8 +111,16 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 	cacheLng := latLng.Lng
 
 	if g.useCacheLatLngFloatingPointPrecision {
-		cacheLat = helper.ToFixed(cacheLat, g.cacheLatLngFloatingPointPrecision)
-		cacheLng = helper.ToFixed(cacheLng, g.cacheLatLngFloatingPointPrecision)
+		var err error
+		cacheLat, err = g.cutCoordinates(cacheLat, g.cacheLatLngFloatingPointPrecision)
+		if err != nil {
+			return nil, err
+		}
+
+		cacheLng, err = g.cutCoordinates(cacheLng, g.cacheLatLngFloatingPointPrecision)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if g.useCaching {
@@ -150,4 +159,11 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 	}
 
 	return addressResult, nil
+}
+
+func (g *Geocoding) cutCoordinates(float float64, precision int) (float64, error) {
+	asString := fmt.Sprintf("%.8f", float)
+	asStringParts := strings.Split(asString, ".")
+
+	return strconv.ParseFloat(asString[0:len(asStringParts[0])+1+precision], 64)
 }
