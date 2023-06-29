@@ -54,10 +54,6 @@ func (pr *PlateRecognizer) RecognizeFromImage(base64image string) ([]string, err
 		return nil, err
 	}
 
-	if len(result.Plates) == 0 {
-		return nil, fmt.Errorf("service returned 0 license plates")
-	}
-
 	returnData := make([]string, len(result.Plates))
 
 	for i, plate := range result.Plates {
