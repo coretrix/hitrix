@@ -270,10 +270,7 @@ func (t *Authentication) AuthenticateEmail(
 	password string,
 	entity EmailAuthEntity,
 ) (accessToken string, refreshToken string, err error) {
-	q := &beeorm.RedisSearchQuery{}
-	q.FilterString(entity.GetEmailFieldName(), email)
-
-	found := ormService.RedisSearchOne(entity, q)
+	found := ormService.CachedSearchOne(entity, "CachedQueryEmail", email)
 	if !found {
 		return "", "", errors.New("invalid credentials")
 	}
