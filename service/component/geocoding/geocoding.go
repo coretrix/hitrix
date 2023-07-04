@@ -113,6 +113,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 	if g.useCacheLatLngFloatingPointPrecision {
 		var err error
 		cacheLat, err = g.cutCoordinates(cacheLat, g.cacheLatLngFloatingPointPrecision)
+
 		if err != nil {
 			return nil, err
 		}
