@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	fcmConfigEnvName = "FIREBASE_CONFIG"
+	fcmConfigEnvName        = "FIREBASE_CONFIG"
+	googleAuthConfigEnvName = "GOOGLE_APPLICATION_CREDENTIALS"
 )
 
 func ServiceProviderFCM() *service.DefinitionGlobal {
@@ -29,6 +30,11 @@ func ServiceProviderFCM() *service.DefinitionGlobal {
 						// specified config file doesn't exists
 						credentialsFile := configService.GetFolderPath() + "/.fcm.json"
 						err := os.Setenv(fcmConfigEnvName, credentialsFile)
+						if err != nil {
+							return nil, err
+						}
+
+						err = os.Setenv(googleAuthConfigEnvName, credentialsFile)
 						if err != nil {
 							return nil, err
 						}
