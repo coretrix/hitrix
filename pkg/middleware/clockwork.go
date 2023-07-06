@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 	"time"
 
@@ -101,12 +102,17 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 				q += tableSchema.GetTableName() + ":" + originalKeyArray[1] + " "
 			}
 		case "GET":
+			log.Print(queries)
 			originalKeyArray := strings.Split(queries, ":")
 			if len(originalKeyArray) == 0 {
 				originalKeyArray = strings.Split(queries, "_")
+				log.Print(originalKeyArray)
+
 			}
+			log.Print(originalKeyArray)
 
 			tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
+			log.Print(tableSchema)
 
 			q += tableSchema.GetTableName() + ":" + originalKeyArray[1]
 
