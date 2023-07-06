@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"strings"
 	"time"
 
@@ -81,7 +80,7 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 
 			for _, originalKey := range originalKeys {
 				originalKeyArray := strings.Split(originalKey, ":")
-				if len(originalKeyArray) == 0 {
+				if len(originalKeyArray) == 1 {
 					originalKeyArray = strings.Split(originalKey, "_")
 				}
 
@@ -93,7 +92,7 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 			keyValues := strings.Split(queries, " ")
 			for _, keyValue := range keyValues {
 				originalKeyArray := strings.Split(keyValue, ":")
-				if len(originalKeyArray) == 0 {
+				if len(originalKeyArray) == 1 {
 					originalKeyArray = strings.Split(keyValue, "_")
 				}
 
@@ -102,24 +101,19 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 				q += tableSchema.GetTableName() + ":" + originalKeyArray[1] + " "
 			}
 		case "GET":
-			log.Print(queries)
 			originalKeyArray := strings.Split(queries, ":")
-			if len(originalKeyArray) == 0 {
+			if len(originalKeyArray) == 1 {
 				originalKeyArray = strings.Split(queries, "_")
-				log.Print(originalKeyArray)
-
 			}
-			log.Print(originalKeyArray)
 
 			tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
-			log.Print(tableSchema)
 
 			q += tableSchema.GetTableName() + ":" + originalKeyArray[1]
 
 		case "SET":
 			keyValue := strings.Split(queries, " ")
 			originalKeyArray := strings.Split(keyValue[0], ":")
-			if len(originalKeyArray) == 0 {
+			if len(originalKeyArray) == 1 {
 				originalKeyArray = strings.Split(keyValue[0], "_")
 			}
 
