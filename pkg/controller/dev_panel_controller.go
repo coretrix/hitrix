@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"github.com/coretrix/hitrix/pkg/dto/indexes"
 	"os"
 	"sort"
 	"strings"
@@ -251,7 +252,22 @@ func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
 
 	indices := ormService.GetRedisSearch(appService.RedisPools.Search).ListIndices()
 	sort.Strings(indices)
-	response.SuccessResponse(c, indices)
+
+	indexList := make([]indexes.Index, len(indices))
+
+	for i, indexName := range indices {
+		info := ormService.GetRedisSearch(appService.RedisPools.Search).Info(indexName)
+		indexList[i] = indexes.Index{
+			Name:      indexName,
+			TotalDocs: info.NumDocs,
+			TotalSize: uint64(info.DocTableSizeMB + info.KeyTableSizeMB + info.SortableValuesSizeMB + info.InvertedSzMB + info.OffsetVectorsSzMB),
+		}
+	}
+
+	result := indexes.ResponseDTOList{
+		Indexes: indexList,
+	}
+	response.SuccessResponse(c, result)
 }
 
 func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context) {
