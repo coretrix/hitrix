@@ -54,6 +54,19 @@ func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.Tran
 		return key.String()
 	}
 
+	re := regexp.MustCompile(`\[\[(.*?)\]\]`)
+	subMatchAll := re.FindAllString(translationTextEntity.Text, -1)
+
+	if len(subMatchAll) > 0 {
+		u.errorLoggerService.LogError(
+			fmt.Sprintf(
+				"not assigned vars (%s) for translation key `%s`",
+				strings.Join(subMatchAll, ", "),
+				key.String(),
+			),
+		)
+	}
+
 	return translationTextEntity.Text
 }
 
