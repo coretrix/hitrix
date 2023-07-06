@@ -80,6 +80,10 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 
 			for _, originalKey := range originalKeys {
 				originalKeyArray := strings.Split(originalKey, ":")
+				if len(originalKeyArray) == 0 {
+					originalKeyArray = strings.Split(originalKey, "_")
+				}
+
 				tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
 
 				q += tableSchema.GetTableName() + ":" + originalKeyArray[1] + " "
@@ -87,14 +91,21 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 		case "MSET":
 			keyValues := strings.Split(queries, " ")
 			for _, keyValue := range keyValues {
-				tableAndIDPair := strings.Split(keyValue, ":")
-				if len(tableAndIDPair) == 2 {
-					tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(tableAndIDPair[0])
-					q += tableSchema.GetTableName() + ":" + tableAndIDPair[1] + " "
+				originalKeyArray := strings.Split(keyValue, ":")
+				if len(originalKeyArray) == 0 {
+					originalKeyArray = strings.Split(keyValue, "_")
 				}
+
+				tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
+
+				q += tableSchema.GetTableName() + ":" + originalKeyArray[1] + " "
 			}
 		case "GET":
 			originalKeyArray := strings.Split(queries, ":")
+			if len(originalKeyArray) == 0 {
+				originalKeyArray = strings.Split(queries, "_")
+			}
+
 			tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
 
 			q += tableSchema.GetTableName() + ":" + originalKeyArray[1]
@@ -102,6 +113,10 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 		case "SET":
 			keyValue := strings.Split(queries, " ")
 			originalKeyArray := strings.Split(keyValue[0], ":")
+			if len(originalKeyArray) == 0 {
+				originalKeyArray = strings.Split(keyValue[0], "_")
+			}
+
 			tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
 
 			q += tableSchema.GetTableName() + ":" + originalKeyArray[1] + " "
