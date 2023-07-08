@@ -8,6 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/coretrix/hitrix/service/component/translation"
+
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/helper"
@@ -88,7 +91,26 @@ type groupedFilterTypes struct {
 }
 
 type Crud struct {
-	ExportConfigs []ExportConfig
+	ExportConfigs      []ExportConfig
+	TranslationService translation.ITranslationService
+}
+
+func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []Column) {
+	for _, col := range cols {
+		col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
+
+		if col.DataIntKeyStringValue != nil {
+			for _, row := range col.DataIntKeyStringValue {
+				row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
+			}
+		}
+
+		if col.DataStringKeyStringValue != nil {
+			for _, row := range col.DataStringKeyStringValue {
+				row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
+			}
+		}
+	}
 }
 
 func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchParams {

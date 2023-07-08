@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"github.com/coretrix/hitrix/pkg/dto/indexes"
 	"os"
 	"sort"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"github.com/latolukasz/beeorm/tools"
 
 	"github.com/coretrix/hitrix/pkg/binding"
+	"github.com/coretrix/hitrix/pkg/dto/indexes"
 	"github.com/coretrix/hitrix/pkg/dto/list"
 	"github.com/coretrix/hitrix/pkg/entity"
 	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
