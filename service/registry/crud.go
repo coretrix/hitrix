@@ -7,7 +7,6 @@ import (
 
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/crud"
-	"github.com/coretrix/hitrix/service/component/translation"
 )
 
 func ServiceProviderCrud(exportConfigs []crud.ExportConfig) *service.DefinitionGlobal {

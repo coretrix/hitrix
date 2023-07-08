@@ -8,12 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/coretrix/hitrix/service/component/translation"
-
 	"github.com/latolukasz/beeorm"
 
+	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/coretrix/hitrix/service/component/translation"
 )
 
 type SearchParams struct {
