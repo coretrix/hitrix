@@ -26,7 +26,7 @@ type CreateOrUpdateRoleRequestDTO struct {
 
 type RoleResourceRequestDTO struct {
 	ResourceID    uint64   `binding:"required"`
-	PermissionIDs []uint64 `binding:"required,min=1"`
+	PermissionIDs []uint64 `binding:"required"`
 }
 
 type RolePermissionRequestDTO struct {
