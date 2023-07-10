@@ -218,6 +218,10 @@ func createPrivileges(
 	now time.Time,
 ) error {
 	for _, resource := range resources {
+		if len(resource.PermissionIDs) == 0 {
+			continue
+		}
+
 		resourceEntity, ok := resourcesMapping[resource.ResourceID]
 		if !ok {
 			return fmt.Errorf("resource with ID: %d not found in mapping", resource.ResourceID)
