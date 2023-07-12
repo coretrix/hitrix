@@ -84,6 +84,7 @@ const (
 	MailService                   = "mail"
 	GoogleService                 = "google"
 	FacebookService               = "facebook"
+	AppleService                  = "apple"
 	CrudService                   = "crud"
 	UUIDService                   = "uuid"
 	OTPService                    = "otp"

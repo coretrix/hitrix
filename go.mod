@@ -7,6 +7,7 @@ require (
 	firebase.google.com/go v3.13.0+incompatible
 	github.com/99designs/gqlgen v0.17.16
 	github.com/AmirSoleimani/VoucherCodeGenerator v0.0.0-20201014193813-0206853dccb9
+	github.com/Timothylock/go-signin-with-apple v0.2.0
 	github.com/aws/aws-sdk-go v1.38.39
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bojanz/currency v1.0.2
@@ -84,6 +85,7 @@ require (
 	github.com/gobwas/ws v1.1.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -115,6 +117,8 @@ require (
 	github.com/shamaton/msgpack v1.2.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/tideland/golib v4.24.2+incompatible // indirect
+	github.com/tideland/gorest v2.15.5+incompatible // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/vimeo/go-util v1.2.0 // indirect
