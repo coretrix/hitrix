@@ -1,6 +1,7 @@
 package social
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -17,7 +18,7 @@ type facebookUserData struct {
 type Facebook struct {
 }
 
-func (p *Facebook) GetUserData(token string) (*UserData, error) {
+func (p *Facebook) GetUserData(_ context.Context, token string) (*UserData, error) {
 	resp, err := http.Get("https://graph.facebook.com/me?access_token=" +
 		url.QueryEscape(token))
 	defer func(body io.ReadCloser) {
@@ -48,3 +49,5 @@ func (p *Facebook) GetUserData(token string) (*UserData, error) {
 		Email:     facebookUser.Email,
 	}, nil
 }
+
+func (p *Facebook) SetIsAndroid(_ bool) {}

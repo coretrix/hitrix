@@ -32,6 +32,7 @@ const (
 
 	SocialLoginGoogle   = "google"
 	SocialLoginFacebook = "facebook"
+	SocialLoginApple    = "apple"
 )
 
 type AuthenticatableEntity interface {

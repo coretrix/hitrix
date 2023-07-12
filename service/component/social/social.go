@@ -1,7 +1,10 @@
 package social
 
+import "context"
+
 type IUserData interface {
-	GetUserData(token string) (*UserData, error)
+	GetUserData(ctx context.Context, token string) (*UserData, error)
+	SetIsAndroid(isAndroid bool)
 }
 
 type UserData struct {

@@ -1,0 +1,87 @@
+package social
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/Timothylock/go-signin-with-apple/apple"
+)
+
+type Apple struct {
+	isAndroid       bool
+	teamID          string
+	clientID        string
+	androidClientID string
+	keyID           string
+	privateKey      string
+}
+
+func NewAppleSocial(
+	teamID string,
+	clientID string,
+	androidClientID string,
+	keyID string,
+	privateKey string,
+) IUserData {
+	return &Apple{
+		teamID:          teamID,
+		clientID:        clientID,
+		androidClientID: androidClientID,
+		keyID:           keyID,
+		privateKey:      privateKey,
+	}
+}
+
+func (a *Apple) GetUserData(ctx context.Context, token string) (*UserData, error) {
+	if a.isAndroid && a.androidClientID == "" {
+		return nil, fmt.Errorf("you must set androidClientID")
+	}
+	if !a.isAndroid && a.clientID == "" {
+		return nil, fmt.Errorf("you must set clientID")
+	}
+
+	clientID := a.clientID
+	if a.isAndroid {
+		clientID = a.androidClientID
+	}
+
+	secret, err := apple.GenerateClientSecret(a.privateKey, a.teamID, clientID, a.keyID)
+	if err != nil {
+		return nil, err
+	}
+
+	client := apple.New()
+
+	req := apple.AppValidationTokenRequest{
+		ClientID:     clientID,
+		ClientSecret: secret,
+		Code:         token,
+	}
+
+	var resp apple.ValidationResponse
+
+	err = client.VerifyAppToken(ctx, req, &resp)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.Error != "" {
+		return nil, fmt.Errorf(resp.Error)
+	}
+
+	claim, err := apple.GetClaims(resp.IDToken)
+	if err != nil {
+		return nil, err
+	}
+
+	emailClaim, ok := (*claim)["email"]
+	if !ok {
+		return nil, fmt.Errorf("apple returned claims with 'email' missling")
+	}
+
+	return &UserData{Email: emailClaim.(string)}, nil
+}
+
+func (a *Apple) SetIsAndroid(isAndroid bool) {
+	a.isAndroid = isAndroid
+}

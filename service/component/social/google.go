@@ -1,6 +1,7 @@
 package social
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -18,7 +19,7 @@ type googleUserData struct {
 type Google struct {
 }
 
-func (p *Google) GetUserData(token string) (*UserData, error) {
+func (p *Google) GetUserData(_ context.Context, token string) (*UserData, error) {
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=" +
 		url.QueryEscape(token))
 	defer func(body io.ReadCloser) {
@@ -53,3 +54,5 @@ func (p *Google) GetUserData(token string) (*UserData, error) {
 		Email:     googleUser.Email,
 	}, nil
 }
+
+func (p *Google) SetIsAndroid(_ bool) {}

@@ -95,6 +95,16 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 				socialServiceMapping[authentication.SocialLoginFacebook] = googleService.(social.IUserData)
 			}
 
+			supportSocialLoginApple, ok := configService.Bool("authentication.support_social_login_apple")
+			if ok && supportSocialLoginApple {
+				appleService, err := ctn.SafeGet(service.AppleService)
+				if err != nil {
+					panic("apple service not loaded")
+				}
+
+				socialServiceMapping[authentication.SocialLoginApple] = appleService.(social.IUserData)
+			}
+
 			if appService.RedisPools == nil || appService.RedisPools.Persistent == "" {
 				panic("redis persistent needs to be set")
 			}

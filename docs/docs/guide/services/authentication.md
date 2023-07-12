@@ -24,6 +24,8 @@ service.DI().Authentication()
 
 `FacebookService` # optional , when you need to support facebook login
 
+`AppleService` # optional , when you need to support apple login
+
 ```go
 func Authenticate(ormService *beeorm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {}
 func VerifyAccessToken(ormService *beeorm.Engine, accessToken string, entity beeorm.Entity) error {}
