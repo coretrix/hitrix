@@ -11,8 +11,7 @@ type Social struct {
 	mock.Mock
 }
 
-func (m *Social) GetUserData(_ context.Context, token string) (*social.UserData, error) {
-	return m.Called(token).Get(0).(*social.UserData), m.Called(token).Error(1)
+func (m *Social) GetUserData(_ context.Context, token string, isAndroid bool) (*social.UserData, error) {
+	args := m.Called(token, isAndroid)
+	return args.Get(0).(*social.UserData), args.Error(1)
 }
-
-func (m *Social) SetIsAndroid(_ bool) {}

@@ -18,7 +18,7 @@ type facebookUserData struct {
 type Facebook struct {
 }
 
-func (p *Facebook) GetUserData(_ context.Context, token string) (*UserData, error) {
+func (p *Facebook) GetUserData(_ context.Context, token string, _ bool) (*UserData, error) {
 	resp, err := http.Get("https://graph.facebook.com/me?access_token=" +
 		url.QueryEscape(token))
 	defer func(body io.ReadCloser) {
