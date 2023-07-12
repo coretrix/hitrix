@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math"
@@ -191,13 +192,13 @@ func (t *Authentication) VerifyOTPEmail(code string, input *GenerateOTPEmail) er
 	return nil
 }
 
-func (t *Authentication) VerifySocialLogin(source, token string) (*social.UserData, error) {
+func (t *Authentication) VerifySocialLogin(ctx context.Context, source, token string, isAndroid bool) (*social.UserData, error) {
 	socialProvider, ok := t.socialServiceMapping[source]
 	if !ok {
 		return nil, errors.New("not supported social provider: " + source)
 	}
 
-	return socialProvider.GetUserData(token)
+	return socialProvider.GetUserData(ctx, token, isAndroid)
 }
 
 func (t *Authentication) AuthenticateOTP(

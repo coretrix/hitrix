@@ -8,7 +8,6 @@ import (
 )
 
 type Apple struct {
-	isAndroid       bool
 	teamID          string
 	clientID        string
 	androidClientID string
@@ -32,16 +31,16 @@ func NewAppleSocial(
 	}
 }
 
-func (a *Apple) GetUserData(ctx context.Context, token string) (*UserData, error) {
-	if a.isAndroid && a.androidClientID == "" {
+func (a *Apple) GetUserData(ctx context.Context, token string, isAndroid bool) (*UserData, error) {
+	if isAndroid && a.androidClientID == "" {
 		return nil, fmt.Errorf("you must set androidClientID")
 	}
-	if !a.isAndroid && a.clientID == "" {
+	if !isAndroid && a.clientID == "" {
 		return nil, fmt.Errorf("you must set clientID")
 	}
 
 	clientID := a.clientID
-	if a.isAndroid {
+	if isAndroid {
 		clientID = a.androidClientID
 	}
 
@@ -80,8 +79,4 @@ func (a *Apple) GetUserData(ctx context.Context, token string) (*UserData, error
 	}
 
 	return &UserData{Email: emailClaim.(string)}, nil
-}
-
-func (a *Apple) SetIsAndroid(isAndroid bool) {
-	a.isAndroid = isAndroid
 }

@@ -29,7 +29,7 @@ service.DI().Authentication()
 ```go
 func Authenticate(ormService *beeorm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {}
 func VerifyAccessToken(ormService *beeorm.Engine, accessToken string, entity beeorm.Entity) error {}
-func VerifySocialLogin(source, token string)
+func VerifySocialLogin(ctx context.Context, source, token string, isAndroid bool)
 func RefreshToken(ormService *beeorm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {}
 func LogoutCurrentSession(ormService *beeorm.Engine, accessKey string){}
 func LogoutAllSessions(ormService *beeorm.Engine, id uint64)
