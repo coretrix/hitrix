@@ -35,6 +35,7 @@ func (a *Apple) GetUserData(ctx context.Context, token string, isAndroid bool) (
 	if isAndroid && a.androidClientID == "" {
 		return nil, fmt.Errorf("you must set androidClientID")
 	}
+
 	if !isAndroid && a.clientID == "" {
 		return nil, fmt.Errorf("you must set clientID")
 	}
