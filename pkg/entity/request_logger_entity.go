@@ -12,9 +12,9 @@ type RequestLoggerEntity struct {
 	URL             string `orm:"searchable;length=500"`
 	UserID          uint64 `orm:"searchable"`
 	AppName         string `orm:"required;searchable"`
-	Request         []byte `orm:"blob"`
-	Response        []byte `orm:"blob"`
-	Log             []byte `orm:"blob"`
+	Request         []byte `orm:"mediumblob"`
+	Response        []byte `orm:"mediumblob"`
+	Log             []byte `orm:"mediumblob"`
 	Status          int
 	RequestDuration int64     `orm:"sortable"`
 	CreatedAt       time.Time `orm:"time=true;searchable"`
