@@ -30,27 +30,29 @@ func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 
 			useCaching, okUseCaching := configService.Bool("geocoding.use_caching")
 
-			cacheExpiryDays, okCacheExpiryDays := configService.Int64("geocoding.cache_expiry_days")
+			cacheTTLMinDays := 0
+			cacheTTLMaxDays := 0
 
-			if okUseCaching && !okCacheExpiryDays {
-				return nil, fmt.Errorf("you must specify geocoding.cache_expiry_days")
-			}
-
-			cacheLatLngFloatingPointPrecision, okCacheLatLngFloatingPointCutPrecision := configService.Int("geocoding.cache_lat_lng_floating_point_precision")
-
-			if !okUseCaching && okCacheLatLngFloatingPointCutPrecision {
-				return nil, fmt.Errorf("you must enable geocoding.use_caching")
-			}
-
-			if useCaching {
+			if okUseCaching && useCaching {
 				ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
 				entities := ormConfig.GetEntities()
-				if _, ok := entities["entity.GeocodingEntity"]; !ok {
-					return nil, errors.New("you should register GeocodingEntity")
+				if _, ok := entities["entity.GeocodingCacheEntity"]; !ok {
+					return nil, errors.New("you should register GeocodingCacheEntity")
 				}
 
-				if _, ok := entities["entity.GeocodingReverseEntity"]; !ok {
-					return nil, errors.New("you should register GeocodingReverseEntity")
+				if _, ok := entities["entity.GeocodingReverseCacheEntity"]; !ok {
+					return nil, errors.New("you should register GeocodingReverseCacheEntity")
+				}
+
+				var has bool
+				cacheTTLMinDays, has = configService.Int("geocoding.cache_ttl_min_days")
+				if !has {
+					return nil, fmt.Errorf("you must specify geocoding.cache_ttl_min_days")
+				}
+
+				cacheTTLMaxDays, has = configService.Int("geocoding.cache_ttl_max_days")
+				if !has {
+					return nil, fmt.Errorf("you must specify geocoding.cache_ttl_max_days")
 				}
 			}
 
@@ -61,9 +63,8 @@ func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 
 			return geocoding.NewGeocoding(
 				useCaching,
-				cacheExpiryDays,
-				cacheLatLngFloatingPointPrecision,
-				okCacheLatLngFloatingPointCutPrecision,
+				cacheTTLMinDays,
+				cacheTTLMaxDays,
 				ctn.Get(service.ClockService).(clock.IClock),
 				provider,
 			), nil

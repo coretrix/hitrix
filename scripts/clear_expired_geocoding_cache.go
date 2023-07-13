@@ -11,15 +11,16 @@ import (
 	"github.com/coretrix/hitrix/service/component/app"
 )
 
-type RemoveExpiredGeocodingsScript struct {
+type ClearExpiredGeocodingCache struct {
 }
 
-func (script *RemoveExpiredGeocodingsScript) Run(_ context.Context, _ app.IExit) {
+func (script *ClearExpiredGeocodingCache) Run(_ context.Context, _ app.IExit) {
 	now := service.DI().Clock().Now()
 
 	fiveAM := time.Date(now.Year(), now.Month(), now.Day(), 5, 0, 0, 0, now.Location())
 
 	if now.After(fiveAM) {
+		//TODO sleep few hours
 		return
 	}
 
@@ -27,7 +28,7 @@ func (script *RemoveExpiredGeocodingsScript) Run(_ context.Context, _ app.IExit)
 
 	where := beeorm.NewWhere("ExpiresAt < ?", now)
 
-	geocodingEntities := make([]*entity.GeocodingEntity, 0)
+	geocodingEntities := make([]*entity.GeocodingCacheEntity, 0)
 	ormService.Search(where, beeorm.NewPager(1, 10000), &geocodingEntities)
 
 	flusher := ormService.NewFlusher()
@@ -40,26 +41,26 @@ func (script *RemoveExpiredGeocodingsScript) Run(_ context.Context, _ app.IExit)
 
 	where = beeorm.NewWhere("ExpiresAt < ?", now)
 
-	reverseGeocodingEntities := make([]*entity.GeocodingReverseEntity, 0)
+	reverseGeocodingEntities := make([]*entity.ReverseGeocodingCacheEntity, 0)
 	ormService.Search(where, beeorm.NewPager(1, 10000), &reverseGeocodingEntities)
 
 	flusher = ormService.NewFlusher()
 
-	for _, reverseGeocodingEntity := range reverseGeocodingEntities {
-		flusher.Delete(reverseGeocodingEntity)
+	for _, ReverseGeocodingCacheEntity := range reverseGeocodingEntities {
+		flusher.Delete(ReverseGeocodingCacheEntity)
 	}
 
 	flusher.Flush()
 }
 
-func (script *RemoveExpiredGeocodingsScript) Interval() time.Duration {
+func (script *ClearExpiredGeocodingCache) Interval() time.Duration {
 	return time.Hour * 3
 }
 
-func (script *RemoveExpiredGeocodingsScript) Unique() bool {
+func (script *ClearExpiredGeocodingCache) Unique() bool {
 	return true
 }
 
-func (script *RemoveExpiredGeocodingsScript) Description() string {
-	return "remove expired geocodings"
+func (script *ClearExpiredGeocodingCache) Description() string {
+	return "clear expired geocoding cache"
 }

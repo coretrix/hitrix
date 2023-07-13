@@ -29,3 +29,9 @@ func (f *FakeGeocoding) ReverseGeocode(
 
 	return args.Get(0).(*geocoding.Address), args.Error(1)
 }
+
+func (f *FakeGeocoding) CutCoordinates(float float64, precision int) (float64, error) {
+	args := f.Called(float, precision)
+
+	return args.Get(0).(float64), args.Error(1)
+}

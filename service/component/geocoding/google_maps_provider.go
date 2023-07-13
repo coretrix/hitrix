@@ -20,17 +20,17 @@ func NewGoogleMapsProvider(apiKey string) Provider {
 }
 
 func (g *GoogleMapsProvider) Geocode(ctx context.Context, address string, language Language) (*Address, interface{}, error) {
-	req := &maps.GeocodingRequest{
-		Language: string(language),
-		Address:  address,
-	}
-
-	results, err := g.client.Geocode(ctx, req)
+	response, err := g.client.Geocode(
+		ctx,
+		&maps.GeocodingRequest{
+			Language: string(language),
+			Address:  address,
+		})
 	if err != nil {
 		return nil, nil, err
 	}
 
-	if len(results) == 0 {
+	if len(response) == 0 {
 		return &Address{
 			Address:  address,
 			Language: language,
@@ -38,54 +38,55 @@ func (g *GoogleMapsProvider) Geocode(ctx context.Context, address string, langua
 				Lat: 0,
 				Lng: 0,
 			},
-		}, results, err
+		}, response, nil
 	}
 
 	return &Address{
-		Address:  results[0].FormattedAddress,
+		Found:    true,
+		Address:  response[0].FormattedAddress,
 		Language: language,
 		Location: &LatLng{
-			Lat: results[0].Geometry.Location.Lat,
-			Lng: results[0].Geometry.Location.Lng,
+			Lat: response[0].Geometry.Location.Lat,
+			Lng: response[0].Geometry.Location.Lng,
 		},
-	}, results, err
+	}, response, nil
 }
 
 func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng, language Language) (*Address, interface{}, error) {
-	req := &maps.GeocodingRequest{
-		Language: string(language),
-		LatLng: &maps.LatLng{
-			Lat: latLng.Lat,
-			Lng: latLng.Lng,
-		},
-	}
-
-	results, err := g.client.ReverseGeocode(ctx, req)
+	response, err := g.client.ReverseGeocode(
+		ctx,
+		&maps.GeocodingRequest{
+			Language: string(language),
+			LatLng: &maps.LatLng{
+				Lat: latLng.Lat,
+				Lng: latLng.Lng,
+			},
+		})
 	if err != nil {
 		return nil, nil, err
 	}
 
-	if len(results) == 0 {
+	if len(response) == 0 {
 		return &Address{
-			Address:  "",
 			Language: language,
 			Location: &LatLng{
 				Lat: latLng.Lat,
 				Lng: latLng.Lng,
 			},
-		}, results, err
+		}, response, nil
 	}
 
 	return &Address{
-		Address:  results[0].FormattedAddress,
+		Found:    true,
+		Address:  response[0].FormattedAddress,
 		Language: language,
 		Location: &LatLng{
-			Lat: results[0].Geometry.Location.Lat,
-			Lng: results[0].Geometry.Location.Lng,
+			Lat: response[0].Geometry.Location.Lat,
+			Lng: response[0].Geometry.Location.Lng,
 		},
-	}, results, err
+	}, response, nil
 }
 
 func (g *GoogleMapsProvider) GetName() string {
-	return "google maps"
+	return "google_maps"
 }

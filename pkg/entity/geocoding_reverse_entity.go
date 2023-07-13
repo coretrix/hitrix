@@ -6,11 +6,11 @@ import (
 	"github.com/latolukasz/beeorm"
 )
 
-type GeocodingReverseEntity struct {
-	beeorm.ORM  `orm:"table=geocoding_reverse;redisCache"`
+type ReverseGeocodingCacheEntity struct {
+	beeorm.ORM  `orm:"table=geocoding_reverse_cache;redisCache"`
 	ID          uint64
-	Lat         float64 `orm:"required;unique=Lat_Lng_Language:1"`
-	Lng         float64 `orm:"required;unique=Lat_Lng_Language:2"`
+	Lat         float64 `orm:"decimal=8,5;required;unique=Lat_Lng_Language:1"`
+	Lng         float64 `orm:"decimal=8,5;required;unique=Lat_Lng_Language:2"`
 	Address     string
 	Language    string `orm:"required;enum=entity.LanguageValueAll;unique=Lat_Lng_Language:3"`
 	Provider    string
