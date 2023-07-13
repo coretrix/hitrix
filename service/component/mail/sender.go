@@ -56,7 +56,7 @@ func (s *Sender) SendTemplate(ormService *beeorm.Engine, message *Message) error
 	}
 
 	if message.FromName == "" {
-		message.From = s.Provider.GetDefaultFromName()
+		message.FromName = s.Provider.GetDefaultFromName()
 	}
 
 	mailTrackerEntity, err := s.createTrackingEntity(ormService, message)

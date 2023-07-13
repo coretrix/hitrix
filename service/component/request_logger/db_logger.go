@@ -45,13 +45,13 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 func (g *DBLogger) LogResponse(ormService *beeorm.Engine, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
 	requestLoggerEntity.Status = status
 
-	if len(string(responseBody)) <= 16_000_000 {
+	if len(string(responseBody))*4 <= 32000 {
 		requestLoggerEntity.Response = responseBody
 	} else {
 		requestLoggerEntity.Response = []byte("__TOO_LARGE__")
 	}
 
-	if len(string(requestLoggerEntity.Log)) > 16_000_000 {
+	if len(string(requestLoggerEntity.Log))*4 > 32000 {
 		requestLoggerEntity.Log = []byte("__TOO_LARGE__")
 	}
 
