@@ -2,6 +2,9 @@ package mocks
 
 import (
 	"context"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/mock"
@@ -31,7 +34,8 @@ func (f *FakeGeocoding) ReverseGeocode(
 }
 
 func (f *FakeGeocoding) CutCoordinates(float float64, precision int) (float64, error) {
-	args := f.Called(float, precision)
+	asString := fmt.Sprintf("%.8f", float)
+	asStringParts := strings.Split(asString, ".")
 
-	return args.Get(0).(float64), args.Error(1)
+	return strconv.ParseFloat(asString[0:len(asStringParts[0])+1+precision], 64)
 }
