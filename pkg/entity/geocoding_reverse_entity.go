@@ -6,7 +6,7 @@ import (
 	"github.com/latolukasz/beeorm"
 )
 
-type ReverseGeocodingCacheEntity struct {
+type GeocodingReverseCacheEntity struct {
 	beeorm.ORM  `orm:"table=geocoding_reverse_cache;redisCache"`
 	ID          uint64
 	Lat         float64 `orm:"decimal=8,5;required;unique=Lat_Lng_Language:1"`

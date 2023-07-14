@@ -133,7 +133,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 	}
 
 	if g.useCaching {
-		ReverseGeocodingCacheEntity := &entity.ReverseGeocodingCacheEntity{}
+		ReverseGeocodingCacheEntity := &entity.GeocodingReverseCacheEntity{}
 		if ormService.CachedSearchOne(ReverseGeocodingCacheEntity, "CachedQueryLatLngLanguage", cacheLat, cacheLng, language) {
 			return &Address{
 				Found:     true,
@@ -156,7 +156,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 	if g.useCaching && geocodedAddress.Found {
 		now := g.clock.Now()
 
-		ormService.Flush(&entity.ReverseGeocodingCacheEntity{
+		ormService.Flush(&entity.GeocodingReverseCacheEntity{
 			Lat:         cacheLat,
 			Lng:         cacheLng,
 			Address:     strings.TrimSpace(geocodedAddress.Address),
