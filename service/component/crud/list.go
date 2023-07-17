@@ -34,15 +34,17 @@ type SearchParams struct {
 }
 
 type Column struct {
-	Key                      string
-	Label                    string
-	FilterType               string
-	FieldType                string
-	Searchable               bool
-	Sortable                 bool
-	Visible                  bool
-	DataStringKeyStringValue []StringKeyStringValue
-	DataIntKeyStringValue    []IntKeyStringValue
+	Key                               string
+	Label                             string
+	FilterType                        string
+	FieldType                         string
+	Searchable                        bool
+	Sortable                          bool
+	Visible                           bool
+	FilterDependencyField             string                            `json:",omitempty"`
+	DataMapStringStringKeyStringValue map[string][]StringKeyStringValue `json:",omitempty"`
+	DataStringKeyStringValue          []StringKeyStringValue            `json:",omitempty"`
+	DataIntKeyStringValue             []IntKeyStringValue               `json:",omitempty"`
 }
 
 type IntKeyStringValue struct {
