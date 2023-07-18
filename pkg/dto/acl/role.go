@@ -5,7 +5,7 @@ import "github.com/coretrix/hitrix/service/component/crud"
 type RolesResponseDTO struct {
 	Rows        []*RoleResponseDTO
 	Total       int
-	Columns     []crud.Column
+	Columns     []*crud.Column
 	PageContext *ResourcesResponseDTO
 }
 

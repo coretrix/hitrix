@@ -19,8 +19,8 @@ const (
 	pageSizeMax = 100
 )
 
-func columns() []crud.Column {
-	return []crud.Column{
+func columns() []*crud.Column {
+	return []*crud.Column{
 		{
 			Key:                      "ID",
 			FilterType:               crud.InputTypeNumber,

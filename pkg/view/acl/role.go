@@ -12,8 +12,8 @@ import (
 	"github.com/coretrix/hitrix/service/component/crud"
 )
 
-func RolesColumns() []crud.Column {
-	return []crud.Column{
+func RolesColumns() []*crud.Column {
+	return []*crud.Column{
 		{
 			Key:        "ID",
 			Label:      "ID",

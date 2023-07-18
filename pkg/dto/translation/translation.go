@@ -32,7 +32,7 @@ type ResponseTranslation struct {
 type ResponseDTOList struct {
 	Rows    []*ListRow
 	Total   int
-	Columns []crud.Column
+	Columns []*crud.Column
 }
 
 type ListRow struct {

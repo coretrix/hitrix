@@ -9,7 +9,7 @@ import (
 type ResponseDTORequestLoggerListDevPanel struct {
 	Rows    []*ResponseDTORequestLogger
 	Total   int
-	Columns []crud.Column
+	Columns []*crud.Column
 }
 
 type ResponseDTORequestLogger struct {

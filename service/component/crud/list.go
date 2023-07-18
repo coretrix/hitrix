@@ -96,7 +96,7 @@ type Crud struct {
 	TranslationService translation.ITranslationService
 }
 
-func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []Column) []Column {
+func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []*Column) []*Column {
 	for _, col := range cols {
 		col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
 
@@ -116,7 +116,7 @@ func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.Translati
 	return cols
 }
 
-func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchParams {
+func (c *Crud) ExtractListParams(cols []*Column, request *ListRequest) SearchParams {
 	finalPage := 1
 	finalPageSize := 20
 
@@ -330,7 +330,7 @@ mainLoop:
 	}
 }
 
-func groupColumnNamesByFilterType(cols []Column) groupedFilterTypes {
+func groupColumnNamesByFilterType(cols []*Column) groupedFilterTypes {
 	var stringStartsWithSearch = make([]string, 0)
 	var arrayStringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
@@ -546,7 +546,7 @@ func (c *Crud) GetExportConfig(id string) (*ExportConfig, bool) {
 	return nil, false
 }
 
-func GetExporterDataCrud(columns []Column, rows interface{}) ([]string, [][]interface{}) {
+func GetExporterDataCrud(columns []*Column, rows interface{}) ([]string, [][]interface{}) {
 	exportColumns := make([]string, 0)
 
 	for _, column := range columns {

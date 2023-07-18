@@ -9,8 +9,8 @@ import (
 	"github.com/xorcare/pointer"
 )
 
-func columns() []Column {
-	return []Column{
+func columns() []*Column {
+	return []*Column{
 		{
 			Key:                      "InputTypeNumber",
 			FilterType:               InputTypeNumber,
