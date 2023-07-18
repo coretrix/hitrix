@@ -96,7 +96,7 @@ type Crud struct {
 	TranslationService translation.ITranslationService
 }
 
-func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []Column) {
+func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []Column) []Column {
 	for _, col := range cols {
 		col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
 
@@ -112,6 +112,8 @@ func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.Translati
 			}
 		}
 	}
+
+	return cols
 }
 
 func (c *Crud) ExtractListParams(cols []Column, request *ListRequest) SearchParams {
