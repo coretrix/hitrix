@@ -60,7 +60,7 @@ type ExportConfig struct {
 	Permissions      []string
 }
 
-type ExportHandler func(*beeorm.Engine, *ListRequest, uint64, map[string]string) ([]string, [][]interface{}, error)
+type ExportHandler func(entity.TranslationTextLang, *beeorm.Engine, *ListRequest, uint64, map[string]string) ([]string, [][]interface{}, error)
 
 type StringKeyStringValue struct {
 	Key   string
