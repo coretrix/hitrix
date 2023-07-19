@@ -111,6 +111,14 @@ func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.Translati
 				row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
 			}
 		}
+
+		if col.DataMapStringStringKeyStringValue != nil {
+			for _, group := range col.DataMapStringStringKeyStringValue {
+				for _, row := range group {
+					row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
+				}
+			}
+		}
 	}
 
 	return cols
