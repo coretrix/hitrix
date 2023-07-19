@@ -78,16 +78,16 @@ func List(ctx context.Context, userListRequest listDto.RequestDTOList) (*transla
 	crudService := service.DI().Crud()
 
 	searchParams := crudService.ExtractListParams(cols, request)
-	query := crudService.GenerateListRedisSearchQuery(searchParams)
+	query := crudService.GenerateListMysqlQuery(searchParams)
 
 	if len(searchParams.Sort) == 0 {
-		query = query.Sort("ID", true)
+		query.Append("ORDER BY ID DESC")
 	}
 
 	ormService := service.DI().OrmEngineForContext(ctx)
 	var translationTextEntities []*entity.TranslationTextEntity
 
-	total := ormService.RedisSearch(&translationTextEntities, query, beeorm.NewPager(searchParams.Page, searchParams.PageSize))
+	total := ormService.SearchWithCount(query, beeorm.NewPager(searchParams.Page, searchParams.PageSize), &translationTextEntities)
 
 	rows := make([]*translation.ListRow, len(translationTextEntities))
 
