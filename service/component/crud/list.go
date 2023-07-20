@@ -41,7 +41,7 @@ type Column struct {
 	Searchable                        bool
 	Sortable                          bool
 	Visible                           bool
-	TranslationEnabled                bool
+	TranslationDataEnabled            bool
 	FilterDependencyField             string                             `json:",omitempty"`
 	DataMapStringStringKeyStringValue map[string][]*StringKeyStringValue `json:",omitempty"`
 	DataStringKeyStringValue          []*StringKeyStringValue            `json:",omitempty"`
@@ -99,28 +99,26 @@ type Crud struct {
 
 func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []*Column) []*Column {
 	for _, col := range cols {
-		if !col.TranslationEnabled {
-			continue
-		}
-
 		col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
 
-		if col.DataIntKeyStringValue != nil {
-			for _, row := range col.DataIntKeyStringValue {
-				row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
-			}
-		}
-
-		if col.DataStringKeyStringValue != nil {
-			for _, row := range col.DataStringKeyStringValue {
-				row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
-			}
-		}
-
-		if col.DataMapStringStringKeyStringValue != nil {
-			for _, group := range col.DataMapStringStringKeyStringValue {
-				for _, row := range group {
+		if col.TranslationDataEnabled {
+			if col.DataIntKeyStringValue != nil {
+				for _, row := range col.DataIntKeyStringValue {
 					row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
+				}
+			}
+
+			if col.DataStringKeyStringValue != nil {
+				for _, row := range col.DataStringKeyStringValue {
+					row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
+				}
+			}
+
+			if col.DataMapStringStringKeyStringValue != nil {
+				for _, group := range col.DataMapStringStringKeyStringValue {
+					for _, row := range group {
+						row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
+					}
 				}
 			}
 		}
