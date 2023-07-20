@@ -59,7 +59,6 @@ func columns() []*crud.Column {
 		},
 		{
 			Key:        "Text",
-			FilterType: crud.InputTypeString,
 			Label:      "Text",
 			Searchable: false,
 			Sortable:   false,

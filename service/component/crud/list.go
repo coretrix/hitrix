@@ -486,20 +486,20 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
 	where := beeorm.NewWhere("1")
 	for field, value := range params.NumberFilters {
-		where.Append("AND "+field+" = ?", value)
+		where.Append("AND `"+field+"` = ?", value)
 	}
 
 	for field, value := range params.TagFilters {
-		where.Append("AND "+field+" = ?", value)
+		where.Append("AND `"+field+"` = ?", value)
 	}
 
 	for field, value := range params.BooleanFilters {
-		where.Append("AND "+field+" = ?", value)
+		where.Append("AND `"+field+"` = ?", value)
 	}
 
 	// TODO : use full text search
 	for field, value := range params.StringFilters {
-		where.Append("AND "+field+" LIKE ?", value+"%")
+		where.Append("AND `"+field+"` LIKE ?", value+"%")
 	}
 
 	orStatements := make([]string, 0)
@@ -507,7 +507,7 @@ func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
 
 	for field, value := range params.StringORFilters {
 		orStatements = append(orStatements, fmt.Sprintf(
-			"%s LIKE ?",
+			"`%s` LIKE ?",
 			field,
 		))
 
@@ -530,7 +530,7 @@ func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
 				sort = "DESC"
 			}
 
-			sortQuery += field + " " + sort
+			sortQuery += "`" + field + "` " + sort
 		}
 
 		where.Append(sortQuery)
