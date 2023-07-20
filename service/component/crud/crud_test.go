@@ -68,7 +68,7 @@ func columns() []*Column {
 			Searchable: true,
 			Sortable:   false,
 			Visible:    true,
-			DataStringKeyStringValue: []StringKeyStringValue{{
+			DataStringKeyStringValue: []*StringKeyStringValue{{
 				Key:   "active",
 				Label: "Active",
 			}},
@@ -79,7 +79,7 @@ func columns() []*Column {
 			Searchable: true,
 			Sortable:   false,
 			Visible:    true,
-			DataIntKeyStringValue: []IntKeyStringValue{{
+			DataIntKeyStringValue: []*IntKeyStringValue{{
 				Key:   1,
 				Label: "Sofia",
 			}},

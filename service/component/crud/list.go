@@ -42,10 +42,10 @@ type Column struct {
 	Sortable                          bool
 	Visible                           bool
 	TranslationDisabled               bool
-	FilterDependencyField             string                            `json:",omitempty"`
-	DataMapStringStringKeyStringValue map[string][]StringKeyStringValue `json:",omitempty"`
-	DataStringKeyStringValue          []StringKeyStringValue            `json:",omitempty"`
-	DataIntKeyStringValue             []IntKeyStringValue               `json:",omitempty"`
+	FilterDependencyField             string                             `json:",omitempty"`
+	DataMapStringStringKeyStringValue map[string][]*StringKeyStringValue `json:",omitempty"`
+	DataStringKeyStringValue          []*StringKeyStringValue            `json:",omitempty"`
+	DataIntKeyStringValue             []*IntKeyStringValue               `json:",omitempty"`
 }
 
 type IntKeyStringValue struct {
@@ -80,8 +80,8 @@ type groupedFilterTypes struct {
 	stringStartsWithSearch []string
 	arrayStringFilters     []string
 	booleanFilters         []string
-	mapStringStringFilters map[string][]StringKeyStringValue
-	mapIntStringFilters    map[string][]IntKeyStringValue
+	mapStringStringFilters map[string][]*StringKeyStringValue
+	mapIntStringFilters    map[string][]*IntKeyStringValue
 	numberFilters          []string
 	rangeNumberFilters     []string
 	arrayNumberFilters     []string
@@ -347,8 +347,8 @@ func groupColumnNamesByFilterType(cols []*Column) groupedFilterTypes {
 	var stringStartsWithSearch = make([]string, 0)
 	var arrayStringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
-	var mapStringStringFilters = make(map[string][]StringKeyStringValue)
-	var mapIntStringFilters = make(map[string][]IntKeyStringValue)
+	var mapStringStringFilters = make(map[string][]*StringKeyStringValue)
+	var mapIntStringFilters = make(map[string][]*IntKeyStringValue)
 	var numberFilters = make([]string, 0)
 	var rangeNumberFilters = make([]string, 0)
 	var arrayNumberFilters = make([]string, 0)

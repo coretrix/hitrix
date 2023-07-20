@@ -36,7 +36,7 @@ func columns() []*crud.Column {
 			Searchable: true,
 			Sortable:   false,
 			Visible:    true,
-			DataStringKeyStringValue: []crud.StringKeyStringValue{
+			DataStringKeyStringValue: []*crud.StringKeyStringValue{
 				{Key: entity.TranslationStatusNew.String(), Label: entity.TranslationStatusNew.String()},
 				{Key: entity.TranslationStatusTranslated.String(), Label: entity.TranslationStatusTranslated.String()},
 			},
