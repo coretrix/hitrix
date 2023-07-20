@@ -41,7 +41,7 @@ type Column struct {
 	Searchable                        bool
 	Sortable                          bool
 	Visible                           bool
-	TranslationDisabled               bool
+	TranslationEnabled                bool
 	FilterDependencyField             string                             `json:",omitempty"`
 	DataMapStringStringKeyStringValue map[string][]*StringKeyStringValue `json:",omitempty"`
 	DataStringKeyStringValue          []*StringKeyStringValue            `json:",omitempty"`
@@ -99,7 +99,7 @@ type Crud struct {
 
 func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []*Column) []*Column {
 	for _, col := range cols {
-		if col.TranslationDisabled {
+		if !col.TranslationEnabled {
 			continue
 		}
 
