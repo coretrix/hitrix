@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/mailjet/mailjet-apiv3-go/resources"
 	"github.com/mailjet/mailjet-apiv3-go/v3"
@@ -12,10 +13,11 @@ import (
 )
 
 type Mailjet struct {
-	client           *mailjet.Client
-	defaultFromEmail string
-	defaultFromName  string
-	sandboxMode      bool
+	client            *mailjet.Client
+	defaultFromEmail  string
+	defaultFromName   string
+	sandboxMode       bool
+	whitelistedEmails []string
 }
 
 func NewMailjet(configService config.IConfig) (IProvider, error) {
@@ -44,9 +46,11 @@ func NewMailjet(configService config.IConfig) (IProvider, error) {
 		return nil, errors.New("mail.mailjet.sandbox_mode is missing")
 	}
 
+	whitelistedEmails, _ := configService.Strings("mail.mailjet.whitelisted_emails")
+
 	mailjetAPI := mailjet.NewMailjetClient(apiKeyPublic, apiKeyPrivate)
 
-	return &Mailjet{client: mailjetAPI, sandboxMode: sandboxMode, defaultFromEmail: fromEmail, defaultFromName: fromName}, nil
+	return &Mailjet{client: mailjetAPI, sandboxMode: sandboxMode, whitelistedEmails: whitelistedEmails, defaultFromEmail: fromEmail, defaultFromName: fromName}, nil
 }
 
 func (s *Mailjet) GetTemplateKeyFromConfig(configService config.IConfig, templateName string) (string, error) {
@@ -142,6 +146,15 @@ func (s *Mailjet) sendTemplate(
 	message := &mailjet.MessagesV31{
 		Info:        []mailjet.InfoMessagesV31{messageInfo},
 		SandBoxMode: s.sandboxMode,
+	}
+
+	if s.sandboxMode && len(s.whitelistedEmails) > 0 {
+		for _, email := range s.whitelistedEmails {
+			if strings.HasSuffix(to, email) {
+				message.SandBoxMode = false
+				break
+			}
+		}
 	}
 
 	results, err := s.client.SendMailV31(message)
