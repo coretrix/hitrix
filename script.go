@@ -2,6 +2,8 @@ package hitrix
 
 import (
 	"fmt"
+	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/coretrix/hitrix/service/component/config"
 	"log"
 	"os"
 	"strings"
@@ -197,11 +199,13 @@ func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 		panic("you should register RequestLoggerEntity")
 	}
 
+	configService := service.DI().Config()
+
 	GoroutineWithRestart(func() {
 		log.Println("starting request logger cleaner")
 
 		for {
-			removeAllOldRequestLoggerRows(ormService)
+			removeAllOldRequestLoggerRows(ormService, configService)
 
 			log.Println("sleeping request logger cleaner")
 			time.Sleep(time.Minute * 30)
@@ -209,15 +213,20 @@ func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 	})
 }
 
-func removeAllOldRequestLoggerRows(ormService *beeorm.Engine) {
+func removeAllOldRequestLoggerRows(ormService *beeorm.Engine, configService config.IConfig) {
 	pager := beeorm.NewPager(1, 1000)
 
+	ttlInDays, has := configService.Int("request_logger.ttl_in_days")
+
+	if !has {
+		ttlInDays = 30
+	}
+
 	for {
-		query := beeorm.NewRedisSearchQuery()
-		query.FilterDateLess("CreatedAt", service.DI().Clock().Now().AddDate(0, -1, 0))
+		where := beeorm.NewWhere("CreatedAt < ?", service.DI().Clock().Now().AddDate(0, 0, -ttlInDays).Format(helper.TimeLayoutYMDHMS))
 
 		var requestLoggerEntities []*entity.RequestLoggerEntity
-		ormService.RedisSearch(&requestLoggerEntities, query, pager)
+		ormService.Search(where, pager, &requestLoggerEntities)
 
 		flusher := ormService.NewFlusher()
 		for _, requestLoggerEntity := range requestLoggerEntities {

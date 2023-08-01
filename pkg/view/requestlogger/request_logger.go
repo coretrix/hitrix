@@ -115,16 +115,20 @@ func RequestsLogger(ctx context.Context, userListRequest listDto.RequestDTOList)
 	crudService := service.DI().Crud()
 
 	searchParams := crudService.ExtractListParams(cols, request)
-	query := crudService.GenerateListRedisSearchQuery(searchParams)
+	query := crudService.GenerateListMysqlQuery(searchParams)
 
 	if len(searchParams.Sort) == 0 {
-		query = query.Sort("ID", true)
+		query.Append("ORDER BY ID DESC")
 	}
 
 	ormService := service.DI().OrmEngineForContext(ctx)
 	var requestLoggerEntities []*entity.RequestLoggerEntity
 
-	total := ormService.RedisSearch(&requestLoggerEntities, query, beeorm.NewPager(searchParams.Page, searchParams.PageSize))
+	total := ormService.SearchWithCount(
+		query,
+		beeorm.NewPager(searchParams.Page, searchParams.PageSize),
+		&requestLoggerEntities,
+	)
 
 	requestLoggerEntityList := make([]*requestlogger.ResponseDTORequestLogger, len(requestLoggerEntities))
 
@@ -145,7 +149,7 @@ func RequestsLogger(ctx context.Context, userListRequest listDto.RequestDTOList)
 
 	return &requestlogger.ResponseDTORequestLoggerListDevPanel{
 		Rows:    requestLoggerEntityList,
-		Total:   int(total),
+		Total:   total,
 		Columns: cols,
 	}, nil
 }
