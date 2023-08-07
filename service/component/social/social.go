@@ -7,6 +7,7 @@ type IUserData interface {
 }
 
 type UserData struct {
+	ID        string
 	FirstName string
 	LastName  string
 	Avatar    string
