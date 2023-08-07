@@ -74,10 +74,15 @@ func (a *Apple) GetUserData(ctx context.Context, token string, isAndroid bool) (
 		return nil, err
 	}
 
+	idClaim, ok := (*claim)["sub"]
+	if !ok {
+		return nil, fmt.Errorf("apple returned claims with 'sub' missling")
+	}
+
 	emailClaim, ok := (*claim)["email"]
 	if !ok {
 		return nil, fmt.Errorf("apple returned claims with 'email' missling")
 	}
 
-	return &UserData{Email: emailClaim.(string)}, nil
+	return &UserData{ID: idClaim.(string), Email: emailClaim.(string)}, nil
 }

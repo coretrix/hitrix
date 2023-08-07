@@ -10,6 +10,7 @@ import (
 )
 
 type googleUserData struct {
+	ID        string `json:"id"`
 	Email     string `json:"email"`
 	LastName  string `json:"family_name"`
 	FirstName string `json:"given_name"`
@@ -48,6 +49,7 @@ func (p *Google) GetUserData(_ context.Context, token string, _ bool) (*UserData
 	}
 
 	return &UserData{
+		ID:        googleUser.ID,
 		FirstName: googleUser.FirstName,
 		LastName:  googleUser.LastName,
 		Avatar:    googleUser.Picture,

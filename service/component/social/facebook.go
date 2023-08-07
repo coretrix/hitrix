@@ -9,10 +9,11 @@ import (
 )
 
 type facebookUserData struct {
-	FirstName string
-	LastName  string
-	Avatar    string
-	Email     string
+	ID        string `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Avatar    string `json:"avatar"`
+	Email     string `json:"email"`
 }
 
 type Facebook struct {
@@ -43,6 +44,7 @@ func (p *Facebook) GetUserData(_ context.Context, token string, _ bool) (*UserDa
 	}
 
 	return &UserData{
+		ID:        facebookUser.ID,
 		FirstName: facebookUser.FirstName,
 		LastName:  facebookUser.LastName,
 		Avatar:    facebookUser.Avatar,
