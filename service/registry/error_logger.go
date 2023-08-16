@@ -1,9 +1,9 @@
 package registry
 
 import (
-	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
@@ -30,7 +30,7 @@ func ServiceProviderErrorLogger() *service.DefinitionGlobal {
 
 			return errorlogger.NewRedisErrorLogger(
 				ctn.Get(service.AppService).(*app.App),
-				ctn.Get(service.ORMEngineGlobalService).(*beeorm.Engine),
+				ctn.Get(service.ORMEngineGlobalService).(*datalayer.DataLayer),
 				slackAPIService,
 				sentryService,
 			), nil

@@ -165,7 +165,7 @@ func (h *Hitrix) forceAlters() {
 		defer def()
 	}
 
-	altersSearch := ormService.GetRedisSearchIndexAlters()
+	altersSearch := ormService.GetRedisSearchAlters()
 	for _, alter := range altersSearch {
 		alter.Execute()
 	}

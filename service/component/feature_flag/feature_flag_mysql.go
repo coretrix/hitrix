@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/latolukasz/beeorm"
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
+	"github.com/latolukasz/beeorm/v2"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/clock"
@@ -32,12 +34,12 @@ func NewFeatureFlagService(errorLoggerService errorlogger.ErrorLogger) ServiceFe
 	}
 }
 
-func (s *serviceFeatureFlag) IsActive(ormService *beeorm.Engine, name string) bool {
+func (s *serviceFeatureFlag) IsActive(ormService *datalayer.DataLayer, name string) bool {
 	if name == "" {
 		panic("name cannot be empty")
 	}
 
-	query := beeorm.NewRedisSearchQuery()
+	query := redisearch.NewRedisSearchQuery()
 	query.FilterString("Name", name)
 
 	featureFlagEntity := &entity.FeatureFlagEntity{}
@@ -50,7 +52,7 @@ func (s *serviceFeatureFlag) IsActive(ormService *beeorm.Engine, name string) bo
 	return featureFlagEntity.Enabled && featureFlagEntity.Registered
 }
 
-func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *datalayer.DataLayer, name string) error {
 	isActive := s.IsActive(ormService, name)
 	if !isActive {
 		return fmt.Errorf("feature (%s) is not active", name)
@@ -59,12 +61,12 @@ func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *beeorm.Engine, name s
 	return nil
 }
 
-func (s *serviceFeatureFlag) Enable(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlag) Enable(ormService *datalayer.DataLayer, name string) error {
 	if name == "" {
 		panic("name cannot be empty")
 	}
 
-	query := beeorm.NewRedisSearchQuery()
+	query := redisearch.NewRedisSearchQuery()
 	query.FilterString("Name", name)
 
 	featureFlagEntity := &entity.FeatureFlagEntity{}
@@ -80,12 +82,12 @@ func (s *serviceFeatureFlag) Enable(ormService *beeorm.Engine, name string) erro
 	return nil
 }
 
-func (s *serviceFeatureFlag) Disable(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlag) Disable(ormService *datalayer.DataLayer, name string) error {
 	if name == "" {
 		panic("name cannot be empty")
 	}
 
-	query := beeorm.NewRedisSearchQuery()
+	query := redisearch.NewRedisSearchQuery()
 	query.FilterString("Name", name)
 
 	featureFlagEntity := &entity.FeatureFlagEntity{}
@@ -101,13 +103,13 @@ func (s *serviceFeatureFlag) Disable(ormService *beeorm.Engine, name string) err
 	return nil
 }
 
-func (s *serviceFeatureFlag) getAllActive(ormService *beeorm.Engine, pager *beeorm.Pager) []IFeatureFlag {
-	query := beeorm.NewRedisSearchQuery()
+func (s *serviceFeatureFlag) getAllActive(ormService *datalayer.DataLayer, pager *beeorm.Pager) []IFeatureFlag {
+	query := redisearch.NewRedisSearchQuery()
 	query.FilterBool("Registered", true)
 	query.FilterBool("Enabled", true)
 
 	var featureFlagEntities []*entity.FeatureFlagEntity
-	ormService.RedisSearch(&featureFlagEntities, query, pager)
+	ormService.RedisSearchMany(query, pager, &featureFlagEntities)
 
 	activeFeatureFlags := make([]IFeatureFlag, 0)
 
@@ -124,7 +126,7 @@ func (s *serviceFeatureFlag) getAllActive(ormService *beeorm.Engine, pager *beeo
 	return activeFeatureFlags
 }
 
-func (s *serviceFeatureFlag) GetScriptsSingleInstance(ormService *beeorm.Engine) []app.IScript {
+func (s *serviceFeatureFlag) GetScriptsSingleInstance(ormService *datalayer.DataLayer) []app.IScript {
 	activeFeatureFlags := s.getAllActive(ormService, beeorm.NewPager(1, 1000))
 
 	allScripts := make([]app.IScript, 0)
@@ -135,7 +137,7 @@ func (s *serviceFeatureFlag) GetScriptsSingleInstance(ormService *beeorm.Engine)
 	return allScripts
 }
 
-func (s *serviceFeatureFlag) GetScriptsMultiInstance(ormService *beeorm.Engine) []app.IScript {
+func (s *serviceFeatureFlag) GetScriptsMultiInstance(ormService *datalayer.DataLayer) []app.IScript {
 	activeFeatureFlags := s.getAllActive(ormService, beeorm.NewPager(1, 1000))
 
 	allScripts := make([]app.IScript, 0)
@@ -158,7 +160,7 @@ func (s *serviceFeatureFlag) Register(featureFlags ...IFeatureFlag) {
 	}
 }
 
-func (s *serviceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.IClock) {
+func (s *serviceFeatureFlag) Sync(ormService *datalayer.DataLayer, clockService clock.IClock) {
 	var featureFlagEntities []*entity.FeatureFlagEntity
 	var lastID uint64
 

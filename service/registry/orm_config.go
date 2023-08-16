@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -21,7 +21,6 @@ type ORMRegistryInitFunc func(registry *beeorm.Registry)
 var sequence int
 
 func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlobal {
-	var defferFunc func()
 	var err error
 	var ormConfig beeorm.ValidatedRegistry
 	var appService *app.App
@@ -51,26 +50,25 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 
 			registry.InitByYaml(yamlConfig)
 
-			if appService.IsInTestMode() {
-				registry.ForceEntityLogInAllEntities("")
-			}
+			// TODO: check why is removed
+			//if appService.IsInTestMode() {
+			//registry.ForceEntityLogInAllEntities("")
+			//}
 
 			init(registry)
 
-			ormConfig, defferFunc, err = registry.Validate()
+			ormConfig, err = registry.Validate()
 
 			return ormConfig, err
 		},
 		Close: func(obj interface{}) error {
-			defferFunc()
-
 			return nil
 		},
 	}
 }
 
 func overwriteORMConfig(appService *app.App, configService config.IConfig, yamlConfig map[string]interface{}) {
-	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql"), "/")
+	mysqlConnection := strings.Split(configService.MustString("orm.default.mysql.uri"), "/")
 
 	db, err := sql.Open("mysql", mysqlConnection[0]+"/?multiStatements=true")
 	if err != nil {
@@ -87,9 +85,14 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, yamlC
 		panic(err)
 	}
 
-	yamlConfig["default"].(map[interface{}]interface{})["mysql"] = mysqlConnection[0] + "/" + newDBName
+	yamlConfig["default"].(map[interface{}]interface{})["mysql"] = map[interface{}]interface{}{
+		"uri": mysqlConnection[0] +
+			"/" +
+			newDBName +
+			"?multiStatements=true",
+	}
 
-	connectionString, has := configService.String("orm.log_db_pool.mysql")
+	connectionString, has := configService.String("orm.log_db_pool.mysql.uri")
 	if has {
 		mysqlLogConnection := strings.Split(connectionString, "/")
 
@@ -108,7 +111,12 @@ func overwriteORMConfig(appService *app.App, configService config.IConfig, yamlC
 			panic(err)
 		}
 
-		yamlConfig["log_db_pool"].(map[interface{}]interface{})["mysql"] = mysqlLogConnection[0] + "/" + newDBLogName
+		yamlConfig["log_db_pool"].(map[interface{}]interface{})["mysql"] = map[interface{}]interface{}{
+			"uri": mysqlLogConnection[0] +
+				"/" +
+				newDBLogName +
+				"?multiStatements=true",
+		}
 	}
 
 	for _, value := range yamlConfig {

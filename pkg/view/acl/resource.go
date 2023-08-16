@@ -3,8 +3,9 @@ package acl
 import (
 	"sort"
 
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 
 	"github.com/coretrix/hitrix/pkg/dto/acl"
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -14,11 +15,11 @@ import (
 func ListResources(c *gin.Context) *acl.ResourcesResponseDTO {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	query := beeorm.NewRedisSearchQuery()
+	query := redisearch.NewRedisSearchQuery()
 	query.Sort("ID", false)
 
 	allPermissionEntities := make([]*entity.PermissionEntity, 0)
-	ormService.RedisSearch(&allPermissionEntities, query, beeorm.NewPager(1, 4000), "ResourceID")
+	ormService.RedisSearchMany(query, beeorm.NewPager(1, 4000), &allPermissionEntities, "ResourceID")
 
 	resourceDTOsMapping := resourceDTOsMapping{}
 
@@ -67,11 +68,24 @@ func ListUserResources(c *gin.Context, getUserFunc func(c *gin.Context) beeorm.E
 		panic("user entity does not implement UserRoleSetter interface")
 	}
 
-	query := beeorm.NewRedisSearchQuery()
+	query := redisearch.NewRedisSearchQuery()
 	query.FilterUint("RoleID", userWithGettableRole.GetRole().ID)
 
 	privilegeEntities := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearch(&privilegeEntities, query, beeorm.NewPager(1, 4000), "ResourceID", "PermissionIDs")
+	ormService.RedisSearchMany(query, beeorm.NewPager(1, 4000), &privilegeEntities, "ResourceID")
+
+	for _, privilege := range privilegeEntities {
+		permissionIDs := make([]uint64, len(privilege.PermissionIDs))
+
+		for i, permission := range privilege.PermissionIDs {
+			permissionIDs[i] = permission.ID
+		}
+
+		permissionEntities := make([]*entity.PermissionEntity, 0)
+		ormService.LoadByIDs(permissionIDs, &permissionEntities)
+
+		privilege.PermissionIDs = permissionEntities
+	}
 
 	resourceDTOsMapping := resourceDTOsMapping{}
 

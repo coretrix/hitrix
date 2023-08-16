@@ -1,18 +1,19 @@
 package registry
 
 import (
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 	"github.com/sarulabs/di"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
 )
 
-func ServiceProviderOrmEngine() *service.DefinitionGlobal {
+func ServiceProviderOrmEngine(searchPool ...string) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
-		Name: "orm_engine_global",
-
+		Name: service.ORMEngineGlobalService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			ormConfigService, err := ctn.SafeGet(service.ORMConfigService)
 			if err != nil {
@@ -28,14 +29,22 @@ func ServiceProviderOrmEngine() *service.DefinitionGlobal {
 				ormEngine.EnableQueryDebug()
 			}
 
-			return ormEngine, nil
+			dataLayer := &datalayer.DataLayer{
+				Engine: ormEngine,
+			}
+
+			if len(searchPool) != 0 && searchPool[0] != "" {
+				dataLayer.RedisSearch = redisearch.NewRedisSearch(service.DI().App().GlobalContext, ormEngine, searchPool[0])
+			}
+
+			return dataLayer, nil
 		},
 	}
 }
 
-func ServiceProviderOrmEngineForContext(enableGraphQLDataLoader bool) *service.DefinitionRequest {
+func ServiceProviderOrmEngineForContext(enableGraphQLDataLoader bool, searchPool ...string) *service.DefinitionRequest {
 	return &service.DefinitionRequest{
-		Name: "orm_engine_request",
+		Name: service.ORMEngineRequestService,
 		Build: func(c *gin.Context) (interface{}, error) {
 			ormConfigService := service.DI().OrmConfig()
 
@@ -51,7 +60,15 @@ func ServiceProviderOrmEngineForContext(enableGraphQLDataLoader bool) *service.D
 				ormEngine.EnableQueryDebug()
 			}
 
-			return ormEngine, nil
+			dataLayer := &datalayer.DataLayer{
+				Engine: ormEngine,
+			}
+
+			if len(searchPool) != 0 && searchPool[0] != "" {
+				dataLayer.RedisSearch = redisearch.NewRedisSearch(c, ormEngine, searchPool[0])
+			}
+
+			return dataLayer, nil
 		},
 	}
 }

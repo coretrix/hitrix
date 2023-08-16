@@ -3,8 +3,7 @@ package mail
 import (
 	"encoding/json"
 
-	"github.com/latolukasz/beeorm"
-
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -13,8 +12,8 @@ import (
 
 type ISender interface {
 	GetTemplateKeyFromConfig(templateName string) (string, error)
-	SendTemplate(ormService *beeorm.Engine, message *Message) error
-	SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error
+	SendTemplate(ormService *datalayer.DataLayer, message *Message) error
+	SendTemplateWithAttachments(ormService *datalayer.DataLayer, message *MessageAttachment) error
 	GetTemplateHTMLCode(templateName string) (string, error)
 }
 
@@ -50,7 +49,7 @@ func (s *Sender) GetTemplateKeyFromConfig(templateName string) (string, error) {
 	return s.Provider.GetTemplateKeyFromConfig(s.ConfigService, templateName)
 }
 
-func (s *Sender) SendTemplate(ormService *beeorm.Engine, message *Message) error {
+func (s *Sender) SendTemplate(ormService *datalayer.DataLayer, message *Message) error {
 	if message.From == "" {
 		message.From = s.Provider.GetDefaultFromEmail()
 	}
@@ -85,7 +84,7 @@ func (s *Sender) SendTemplate(ormService *beeorm.Engine, message *Message) error
 	return nil
 }
 
-func (s *Sender) SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error {
+func (s *Sender) SendTemplateWithAttachments(ormService *datalayer.DataLayer, message *MessageAttachment) error {
 	mailTrackerEntity, err := s.createTrackingEntity(ormService, &Message{
 		From:         message.From,
 		FromName:     message.FromName,
@@ -124,7 +123,7 @@ func (s *Sender) GetTemplateHTMLCode(templateName string) (string, error) {
 	return s.Provider.GetTemplateHTMLCode(templateName)
 }
 
-func (s *Sender) createTrackingEntity(ormService *beeorm.Engine, message *Message) (*entity.MailTrackerEntity, error) {
+func (s *Sender) createTrackingEntity(ormService *datalayer.DataLayer, message *Message) (*entity.MailTrackerEntity, error) {
 	mailTrackerEntity := &entity.MailTrackerEntity{
 		Status:       entity.MailTrackerStatusNew,
 		From:         message.From,

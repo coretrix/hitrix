@@ -1,9 +1,10 @@
 package mock
 
 import (
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/clock"
@@ -14,43 +15,43 @@ type FakeServiceFeatureFlag struct {
 	mock.Mock
 }
 
-func (s *FakeServiceFeatureFlag) IsActive(_ *beeorm.Engine, name string) bool {
+func (s *FakeServiceFeatureFlag) IsActive(_ *datalayer.DataLayer, name string) bool {
 	called := s.Called(name)
 
 	return called.Bool(0)
 }
 
-func (s *FakeServiceFeatureFlag) FailIfIsNotActive(_ *beeorm.Engine, name string) error {
+func (s *FakeServiceFeatureFlag) FailIfIsNotActive(_ *datalayer.DataLayer, name string) error {
 	called := s.Called(name)
 
 	return called.Error(0)
 }
 
-func (s *FakeServiceFeatureFlag) Enable(_ *beeorm.Engine, name string) error {
+func (s *FakeServiceFeatureFlag) Enable(_ *datalayer.DataLayer, name string) error {
 	called := s.Called(name)
 
 	return called.Error(0)
 }
 
-func (s *FakeServiceFeatureFlag) Disable(_ *beeorm.Engine, name string) error {
+func (s *FakeServiceFeatureFlag) Disable(_ *datalayer.DataLayer, name string) error {
 	called := s.Called(name)
 
 	return called.Error(0)
 }
 
-func (s *FakeServiceFeatureFlag) GetAll(_ *beeorm.Engine, pager *beeorm.Pager) []*entity.FeatureFlagEntity {
+func (s *FakeServiceFeatureFlag) GetAll(_ *datalayer.DataLayer, pager *beeorm.Pager) []*entity.FeatureFlagEntity {
 	called := s.Called(pager)
 
 	return called.Get(0).([]*entity.FeatureFlagEntity)
 }
 
-func (s *FakeServiceFeatureFlag) GetScriptsSingleInstance(ormService *beeorm.Engine) []app.IScript {
+func (s *FakeServiceFeatureFlag) GetScriptsSingleInstance(ormService *datalayer.DataLayer) []app.IScript {
 	called := s.Called(ormService)
 
 	return called.Get(0).([]app.IScript)
 }
 
-func (s *FakeServiceFeatureFlag) GetScriptsMultiInstance(ormService *beeorm.Engine) []app.IScript {
+func (s *FakeServiceFeatureFlag) GetScriptsMultiInstance(ormService *datalayer.DataLayer) []app.IScript {
 	called := s.Called(ormService)
 
 	return called.Get(0).([]app.IScript)
@@ -60,6 +61,6 @@ func (s *FakeServiceFeatureFlag) Register(featureFlags ...featureflag.IFeatureFl
 	s.Called(featureFlags)
 }
 
-func (s *FakeServiceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.IClock) {
+func (s *FakeServiceFeatureFlag) Sync(ormService *datalayer.DataLayer, clockService clock.IClock) {
 	s.Called(ormService, clockService)
 }

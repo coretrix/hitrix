@@ -27,13 +27,13 @@ service.DI().Authentication()
 `AppleService` # optional , when you need to support apple login
 
 ```go
-func Authenticate(ormService *beeorm.Engine, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {}
-func VerifyAccessToken(ormService *beeorm.Engine, accessToken string, entity beeorm.Entity) error {}
+func Authenticate(ormService *datalayer.DataLayer, uniqueValue string, password string, entity AuthProviderEntity) (accessToken string, refreshToken string, err error) {}
+func VerifyAccessToken(ormService *datalayer.DataLayer, accessToken string, entity beeorm.Entity) error {}
 func VerifySocialLogin(ctx context.Context, source, token string, isAndroid bool)
-func RefreshToken(ormService *beeorm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {}
-func LogoutCurrentSession(ormService *beeorm.Engine, accessKey string){}
-func LogoutAllSessions(ormService *beeorm.Engine, id uint64)
-func AuthenticateOTP(ormService *beeorm.Engine, phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error){}
+func RefreshToken(ormService *datalayer.DataLayer, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {}
+func LogoutCurrentSession(ormService *datalayer.DataLayer, accessKey string){}
+func LogoutAllSessions(ormService *datalayer.DataLayer, id uint64)
+func AuthenticateOTP(ormService *datalayer.DataLayer, phone string, entity OTPProviderEntity) (accessToken string, refreshToken string, err error){}
 ```
 1. The `Authenticate` function will take an uniqueValue such as Email or Mobile, a plain password, and generates accessToken and refreshToken.
    You will also need to pass your entity as third argument, and it will give you the specific user entity related to provided access token

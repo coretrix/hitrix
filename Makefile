@@ -2,7 +2,7 @@ export GO111MODULE=on
 
 format-check: ## Format the code and run linters
 	@if test ! -e ./bin/golangci-lint; then \
-		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.52.0; \
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.54.1; \
 	fi
 	@./bin/golangci-lint run --fix
 
@@ -14,4 +14,7 @@ init:
 	cd ./example && go run github.com/99designs/gqlgen init
 
 hitrix:
-	./example/docker/services.sh hitrix
+	./example/docker/services.sh server
+
+single-instance-cron:
+	./example/docker/services.sh single-instance-cron

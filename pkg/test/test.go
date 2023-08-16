@@ -19,9 +19,10 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/gin-gonic/gin"
 	"github.com/h2non/filetype"
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 
 	"github.com/coretrix/hitrix"
+	"github.com/coretrix/hitrix/datalayer"
 	graphqlParser "github.com/coretrix/hitrix/pkg/test/graphql-parser"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -260,7 +261,7 @@ func CreateAPIContext(
 	return &Environment{t: t, Hitrix: testSpringInstance, GinEngine: ginTestInstance, Cxt: c, ResponseRecorder: resp}
 }
 
-func executeAlters(ormService *beeorm.Engine) {
+func executeAlters(ormService *datalayer.DataLayer) {
 	if dbAlters == "" {
 		dropTables(ormService.GetMysql())
 
@@ -279,7 +280,7 @@ func executeAlters(ormService *beeorm.Engine) {
 		ormService.GetRedis().FlushAll()
 	}
 
-	altersSearch := ormService.GetRedisSearchIndexAlters()
+	altersSearch := ormService.GetRedisSearchAlters()
 	for _, alter := range altersSearch {
 		alter.Execute()
 	}
@@ -323,6 +324,10 @@ func dropTables(dbService *beeorm.DB) {
 		for rows.Next() {
 			rows.Scan(&query)
 			queries += query
+		}
+
+		if queries == "" {
+			return
 		}
 
 		_, def := dbService.Query("SET FOREIGN_KEY_CHECKS=0;" + queries + "SET FOREIGN_KEY_CHECKS=1")

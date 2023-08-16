@@ -4,8 +4,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"github.com/latolukasz/beeorm"
-
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 )
@@ -18,7 +17,8 @@ func NewDBLogger(clockService clock.IClock) IRequestLogger {
 	return &DBLogger{clockService}
 }
 
-func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
+//nolint // info
+func (g *DBLogger) LogRequest(ormService *datalayer.DataLayer, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
 	content, err := httputil.DumpRequest(request, true)
 
 	if err != nil {
@@ -42,7 +42,8 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 	return requestLoggerEntity
 }
 
-func (g *DBLogger) LogResponse(ormService *beeorm.Engine, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
+// nolint //info
+func (g *DBLogger) LogResponse(ormService *datalayer.DataLayer, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
 	requestLoggerEntity.Status = status
 
 	if len(responseBody) > 0 && len(string(responseBody))*4 <= 64000 {

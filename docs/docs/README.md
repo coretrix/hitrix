@@ -134,7 +134,7 @@ If you want to use our dev panel and to be able to manage alters, error log, red
 package entity
 
 import (
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 )
 
 type DevPanelUserEntity struct {
@@ -160,7 +160,7 @@ After that you should register it to the `entity.Init` function
 ```go
 package entity
 
-import "github.com/latolukasz/beeorm"
+import "github.com/latolukasz/beeorm/v2"
 
 func Init(registry *beeorm.Registry) {
 	registry.RegisterEntity(

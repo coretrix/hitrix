@@ -11,7 +11,7 @@ import (
 )
 
 func TestApiLogger(t *testing.T) {
-	createContextMyApp(t, "my-app", nil,
+	createContextMyApp(t, "server", nil,
 		[]*service.DefinitionGlobal{
 			registry.ServiceProviderAPILogger(&entity.APILogEntity{}),
 		},

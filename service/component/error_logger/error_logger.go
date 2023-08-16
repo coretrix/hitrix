@@ -15,9 +15,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 	slackgo "github.com/slack-go/slack"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/service/component/app"
 	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 	"github.com/coretrix/hitrix/service/component/sentry"
@@ -49,13 +50,13 @@ type ErrorMessage struct {
 }
 
 type RedisErrorLogger struct {
-	redisStorage  *beeorm.RedisCache
+	redisStorage  beeorm.RedisCache
 	sentryService sentry.ISentry
 	slackService  slack.Slack
 	appService    *app.App
 }
 
-func NewRedisErrorLogger(appService *app.App, ormService *beeorm.Engine, slackService slack.Slack, sentryService sentry.ISentry) ErrorLogger {
+func NewRedisErrorLogger(appService *app.App, ormService *datalayer.DataLayer, slackService slack.Slack, sentryService sentry.ISentry) ErrorLogger {
 	return &RedisErrorLogger{redisStorage: ormService.GetRedis(), slackService: slackService, appService: appService, sentryService: sentryService}
 }
 

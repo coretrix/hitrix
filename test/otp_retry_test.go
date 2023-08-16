@@ -20,7 +20,7 @@ func TestOTPRetry(t *testing.T) {
 	clock := &mockClockComponent.FakeSysClock{}
 	clock.On("Now").Return(time.Unix(1, 0))
 
-	createContextMyApp(t, "my-app", nil,
+	createContextMyApp(t, "server", nil,
 		[]*service.DefinitionGlobal{
 			mockClockRegistry.ServiceProviderMockClock(clock),
 		},
@@ -82,7 +82,7 @@ func TestOTPWithMultipleRetry(t *testing.T) {
 	clock := &mockClockComponent.FakeSysClock{}
 	clock.On("Now").Return(time.Unix(1, 0))
 
-	createContextMyApp(t, "my-app", nil,
+	createContextMyApp(t, "server", nil,
 		[]*service.DefinitionGlobal{
 			mockClockRegistry.ServiceProviderMockClock(clock),
 		},
@@ -147,7 +147,7 @@ func TestOTPRetryWithMaxReached(t *testing.T) {
 	clock := &mockClockComponent.FakeSysClock{}
 	clock.On("Now").Return(time.Unix(1, 0))
 
-	createContextMyApp(t, "my-app", nil,
+	createContextMyApp(t, "server", nil,
 		[]*service.DefinitionGlobal{
 			mockClockRegistry.ServiceProviderMockClock(clock),
 		},

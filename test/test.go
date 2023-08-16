@@ -5,7 +5,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 
-	"github.com/coretrix/hitrix/example/entity"
+	"github.com/coretrix/hitrix/example/entity/initialize"
+	"github.com/coretrix/hitrix/example/redis"
 	"github.com/coretrix/hitrix/example/rest/middleware"
 	"github.com/coretrix/hitrix/pkg/test"
 	"github.com/coretrix/hitrix/service"
@@ -22,13 +23,13 @@ func createContextMyApp(
 ) *test.Environment {
 	defaultGlobalServices := []*service.DefinitionGlobal{
 		registry.ServiceProviderConfigDirectory("../example/config"),
-		registry.ServiceProviderOrmRegistry(entity.Init),
+		registry.ServiceProviderOrmRegistry(initialize.Init),
 		registry.ServiceProviderCrud(nil),
-		registry.ServiceProviderOrmEngine(),
+		registry.ServiceProviderOrmEngine(redis.SearchPool),
 	}
 
 	defaultRequestServices := []*service.DefinitionRequest{
-		registry.ServiceProviderOrmEngineForContext(false),
+		registry.ServiceProviderOrmEngineForContext(false, redis.SearchPool),
 	}
 
 	return test.CreateAPIContext(t,
@@ -39,6 +40,11 @@ func createContextMyApp(
 		defaultRequestServices,
 		mockGlobalServices,
 		mockRequestServices,
-		&app.RedisPools{Cache: "default", Persistent: "default"},
+		&app.RedisPools{
+			Cache:      redis.DefaultPool,
+			Persistent: redis.DefaultPool,
+			Stream:     redis.StreamsPool,
+			Search:     redis.SearchPool,
+		},
 	)
 }

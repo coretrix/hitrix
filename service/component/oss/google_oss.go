@@ -10,11 +10,11 @@ import (
 	"time"
 
 	"cloud.google.com/go/storage"
-	"github.com/latolukasz/beeorm"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service/component/clock"
@@ -171,7 +171,7 @@ func (ossStorage *GoogleOSS) GetObjectBase64Content(namespace Namespace, object 
 	return base64.StdEncoding.EncodeToString(content), nil
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error) {
 	fileContent, ext, err := readContentFile(localFile)
 	if err != nil {
 		return entity.FileObject{}, err
@@ -181,7 +181,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *beeorm.Engine, nam
 }
 
 func (ossStorage *GoogleOSS) UploadObjectFromBase64(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	namespace Namespace,
 	base64content,
 	extension string,
@@ -195,7 +195,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromBase64(
 }
 
 func (ossStorage *GoogleOSS) UploadImageFromBase64(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	namespace Namespace,
 	base64image string,
 	extension string,
@@ -208,12 +208,12 @@ func (ossStorage *GoogleOSS) UploadImageFromBase64(
 	return ossStorage.UploadObjectFromByte(ormService, namespace, byteData, extension)
 }
 
-func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error) {
 	return ossStorage.UploadObjectFromFile(ormService, namespace, localFile)
 }
 
 func (ossStorage *GoogleOSS) UploadObjectFromByte(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	namespace Namespace,
 	objectContent []byte,
 	extension string,
@@ -223,7 +223,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromByte(
 		return entity.FileObject{}, err
 	}
 
-	storageCounter := getStorageCounter(ormService, bucketConfig)
+	storageCounter := getStorageCounter(ossStorage.ctx, ormService, bucketConfig)
 
 	objectKey := ossStorage.getObjectKey(namespace, storageCounter, extension)
 

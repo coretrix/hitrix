@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/latolukasz/beeorm"
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/coretrix/hitrix/example/entity"
@@ -11,11 +11,11 @@ import (
 )
 
 func TestRedisSearch(t *testing.T) {
-	createContextMyApp(t, "my-app", nil, nil, nil)
+	createContextMyApp(t, "server", nil, nil, nil)
 
 	ormService := service.DI().OrmEngine()
 
-	query := &beeorm.RedisSearchQuery{}
+	query := &redisearch.RedisSearchQuery{}
 	query.FilterString("Email", "test@coretrix.com")
 
 	newDevPanelUserEntity := &entity.DevPanelUserEntity{

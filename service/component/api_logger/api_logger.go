@@ -3,13 +3,15 @@ package apilogger
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
+
+	"github.com/coretrix/hitrix/datalayer"
 )
 
 type IAPILogger interface {
-	LogStart(ormService *beeorm.Engine, logType string, request interface{})
-	LogError(ormService *beeorm.Engine, message string, response interface{})
-	LogSuccess(ormService *beeorm.Engine, response interface{})
+	LogStart(ormService *datalayer.DataLayer, logType string, request interface{})
+	LogError(ormService *datalayer.DataLayer, message string, response interface{})
+	LogSuccess(ormService *datalayer.DataLayer, response interface{})
 }
 
 type ILogEntity interface {

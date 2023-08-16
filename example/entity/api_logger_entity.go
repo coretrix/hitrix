@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 )
 
 const (
@@ -71,4 +71,8 @@ func (e *APILogEntity) SetMessage(value string) {
 
 func (e *APILogEntity) SetCreatedAt(value time.Time) {
 	e.CreatedAt = value
+}
+
+func (e *APILogEntity) GetID() uint64 {
+	return e.ID
 }

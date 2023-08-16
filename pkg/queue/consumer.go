@@ -7,9 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 
 	"github.com/coretrix/hitrix"
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/service"
 )
 
@@ -19,26 +20,26 @@ const (
 
 type ConsumerOneByModulo interface {
 	GetMaxModulo() int
-	Consume(ormService *beeorm.Engine, event beeorm.Event) error
+	Consume(ormService *datalayer.DataLayer, event beeorm.Event) error
 	GetQueueName(moduloID int) string
 	GetGroupName(moduloID int, suffix *string) string
 }
 
 type ConsumerManyByModulo interface {
 	GetMaxModulo() int
-	Consume(ormService *beeorm.Engine, events []beeorm.Event) error
+	Consume(ormService *datalayer.DataLayer, events []beeorm.Event) error
 	GetQueueName(moduloID int) string
 	GetGroupName(moduloID int, suffix *string) string
 }
 
 type ConsumerOne interface {
-	Consume(ormService *beeorm.Engine, event beeorm.Event) error
+	Consume(ormService *datalayer.DataLayer, event beeorm.Event) error
 	GetQueueName() string
 	GetGroupName(suffix *string) string
 }
 
 type ConsumerMany interface {
-	Consume(ormService *beeorm.Engine, events []beeorm.Event) error
+	Consume(ormService *datalayer.DataLayer, events []beeorm.Event) error
 	GetQueueName() string
 	GetGroupName(suffix *string) string
 }
@@ -367,7 +368,7 @@ type indexer struct {
 	ActiveConsumerIndexes map[int]*struct{}
 }
 
-func addConsumerGroup(redis *beeorm.RedisCache, consumerGroupName string) int {
+func addConsumerGroup(redis beeorm.RedisCache, consumerGroupName string) int {
 	indexerValue, err := getConsumerGroupIndexer(redis, consumerGroupName)
 	if err != nil {
 		panic(err)
@@ -392,7 +393,7 @@ func addConsumerGroup(redis *beeorm.RedisCache, consumerGroupName string) int {
 	return indexerValue.LatestIndex
 }
 
-func removeConsumerGroup(consumer beeorm.EventsConsumer, redis *beeorm.RedisCache, consumerGroupName string, indexToRemove int) {
+func removeConsumerGroup(consumer beeorm.EventsConsumer, redis beeorm.RedisCache, consumerGroupName string, indexToRemove int) {
 	indexerValue, err := getConsumerGroupIndexer(redis, consumerGroupName)
 	if err != nil {
 		panic(err)
@@ -422,7 +423,7 @@ func removeConsumerGroup(consumer beeorm.EventsConsumer, redis *beeorm.RedisCach
 	}
 }
 
-func setConsumerGroupIndexer(redis *beeorm.RedisCache, consumerGroupName string, indexer *indexer) error {
+func setConsumerGroupIndexer(redis beeorm.RedisCache, consumerGroupName string, indexer *indexer) error {
 	marshaled, err := json.Marshal(indexer)
 	if err != nil {
 		return err
@@ -433,7 +434,7 @@ func setConsumerGroupIndexer(redis *beeorm.RedisCache, consumerGroupName string,
 	return err
 }
 
-func getConsumerGroupIndexer(redis *beeorm.RedisCache, consumerGroupName string) (*indexer, error) {
+func getConsumerGroupIndexer(redis beeorm.RedisCache, consumerGroupName string) (*indexer, error) {
 	marshaled, has := redis.HGet(consumerGroupsKey, consumerGroupName)
 	if !has {
 		return nil, nil

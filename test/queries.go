@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 
 	"github.com/coretrix/hitrix/example/entity"
 	entityHitrix "github.com/coretrix/hitrix/pkg/entity"

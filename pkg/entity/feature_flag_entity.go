@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 )
 
 type FeatureFlagEntity struct {

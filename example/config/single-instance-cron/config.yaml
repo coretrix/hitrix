@@ -1,0 +1,21 @@
+orm:
+  default:
+    mysql:
+      uri: ENV[DEFAULT_MYSQL]
+    redis: ENV[DEFAULT_REDIS]
+    locker: default
+    local_cache: 1000
+  log_db_pool:
+    mysql:
+      uri: ENV[DEFAULT_MYSQL_LOG]
+  streams_pool:
+    redis: ENV[DEFAULT_REDIS_STREAMS]
+  search_pool:
+    redis: ENV[DEFAULT_REDIS_SEARCH]
+authentication:
+  secret: "a-deep-dark-secret"
+  support_otp: true
+  otp_length: 5
+cors:
+  - http://localhost:9001 # This is the default port of https://github.com/coretrix/dev-frontend repository
+  - http://localhost:63342 # websocket test
