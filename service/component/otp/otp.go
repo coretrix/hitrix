@@ -117,7 +117,7 @@ func (o *OTP) SendSMS(ormService *datalayer.ORM, phone *Phone) (string, error) {
 		ormService.Flush(otpTrackerEntity)
 
 		if err == nil {
-			ormService.GetRedis().Set(o.getRedisKey(phone), otpTrackerEntity.ID, helper.Hour)
+			ormService.GetRedis().Set(o.getRedisKey(phone), otpTrackerEntity.ID, helper.Hour*time.Second)
 
 			break
 		} else if o.RetryOTP {
@@ -161,7 +161,7 @@ func (o *OTP) Call(ormService *datalayer.ORM, phone *Phone, customMessage string
 		ormService.Flush(otpTrackerEntity)
 
 		if err == nil {
-			ormService.GetRedis().Set(o.getRedisKey(phone), otpTrackerEntity.ID, helper.Hour)
+			ormService.GetRedis().Set(o.getRedisKey(phone), otpTrackerEntity.ID, helper.Hour*time.Second)
 
 			break
 		}

@@ -42,7 +42,7 @@ func GenerateDevTokenAndRefreshToken(ormService *datalayer.ORM, userID uint64) (
 			md5.Sum([]byte(token)),
 		),
 		token,
-		expireTimeToken,
+		expireTimeToken*time.Second,
 	)
 	// #nosec
 	redisService.Set(
@@ -51,7 +51,7 @@ func GenerateDevTokenAndRefreshToken(ormService *datalayer.ORM, userID uint64) (
 			md5.Sum([]byte(refreshToken)),
 		),
 		refreshToken,
-		expireTimeRefreshToken,
+		expireTimeRefreshToken*time.Second,
 	)
 
 	return token, refreshToken, nil

@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm/v2"
 
@@ -23,7 +25,7 @@ func (controller *ReadinessController) GetReadinessAction(c *gin.Context) {
 		return
 	}
 
-	ormService.GetRedis().Set("ping", 1, helper.Minute)
+	ormService.GetRedis().Set("ping", 1, helper.Minute*time.Second)
 
 	_, has = ormService.GetRedis().Get("ping")
 	if !has {
