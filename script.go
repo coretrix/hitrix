@@ -2,8 +2,6 @@ package hitrix
 
 import (
 	"fmt"
-	"github.com/coretrix/hitrix/pkg/helper"
-	"github.com/coretrix/hitrix/service/component/config"
 	"log"
 	"os"
 	"strings"
@@ -13,8 +11,10 @@ import (
 	"github.com/ryanuber/columnize"
 
 	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 type BackgroundProcessor struct {

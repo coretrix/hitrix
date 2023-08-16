@@ -50,7 +50,13 @@ func NewMailjet(configService config.IConfig) (IProvider, error) {
 
 	mailjetAPI := mailjet.NewMailjetClient(apiKeyPublic, apiKeyPrivate)
 
-	return &Mailjet{client: mailjetAPI, sandboxMode: sandboxMode, whitelistedEmails: whitelistedEmails, defaultFromEmail: fromEmail, defaultFromName: fromName}, nil
+	return &Mailjet{
+			client:            mailjetAPI,
+			sandboxMode:       sandboxMode,
+			whitelistedEmails: whitelistedEmails,
+			defaultFromEmail:  fromEmail,
+			defaultFromName:   fromName},
+		nil
 }
 
 func (s *Mailjet) GetTemplateKeyFromConfig(configService config.IConfig, templateName string) (string, error) {
@@ -152,6 +158,7 @@ func (s *Mailjet) sendTemplate(
 		for _, email := range s.whitelistedEmails {
 			if strings.HasSuffix(to, email) {
 				message.SandBoxMode = false
+
 				break
 			}
 		}
