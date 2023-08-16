@@ -261,7 +261,7 @@ func TestVerifyAccessToken(t *testing.T) {
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService := service.DI().OrmEngine()
-		ormService.GetRedis().Set(accessKey, "", 10)
+		ormService.GetRedis().Set(accessKey, "", 10*time.Second)
 
 		authenticationService := service.DI().Authentication()
 		token, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
@@ -297,7 +297,7 @@ func TestVerifyAccessToken(t *testing.T) {
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService := service.DI().OrmEngine()
-		ormService.GetRedis().Set(accessKey, "", 10)
+		ormService.GetRedis().Set(accessKey, "", 10*time.Second)
 
 		authenticationService := service.DI().Authentication()
 		token, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
@@ -337,7 +337,7 @@ func TestRefreshToken(t *testing.T) {
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService := service.DI().OrmEngine()
-		ormService.GetRedis().Set(accessKey, "", 10)
+		ormService.GetRedis().Set(accessKey, "", 10*time.Second)
 
 		authenticationService := service.DI().Authentication()
 		refresh, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
@@ -371,7 +371,7 @@ func TestRefreshToken(t *testing.T) {
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService := service.DI().OrmEngine()
-		ormService.GetRedis().Set(accessKey, "", 10)
+		ormService.GetRedis().Set(accessKey, "", 10*time.Second)
 
 		authenticationService := service.DI().Authentication()
 		refresh, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
@@ -410,7 +410,7 @@ func TestLogoutCurrentSession(t *testing.T) {
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService := service.DI().OrmEngine()
-		ormService.GetRedis().Set(accessKey, "", 10)
+		ormService.GetRedis().Set(accessKey, "", 10*time.Second)
 
 		authenticationService := service.DI().Authentication()
 		accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
@@ -453,10 +453,10 @@ func TestLogoutAllSessions(t *testing.T) {
 
 		accessKey := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService := service.DI().OrmEngine()
-		ormService.GetRedis().Set(accessKey, "", 10)
+		ormService.GetRedis().Set(accessKey, "", 10*time.Second)
 
 		accessListKey := fmt.Sprintf("USER_KEYS:%d", currentUser.ID)
-		ormService.GetRedis().Set(accessListKey, accessKey, 10)
+		ormService.GetRedis().Set(accessListKey, accessKey, 10*time.Second)
 
 		authenticationService := service.DI().Authentication()
 		accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey, 10)
@@ -495,11 +495,11 @@ func TestLogoutAllSessions(t *testing.T) {
 		accessKey1 := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		accessKey2 := fmt.Sprintf("ACCESS:%d:%s", currentUser.ID, service.DI().UUID().Generate())
 		ormService := service.DI().OrmEngine()
-		ormService.GetRedis().Set(accessKey1, "", 10)
-		ormService.GetRedis().Set(accessKey2, "", 10)
+		ormService.GetRedis().Set(accessKey1, "", 10*time.Second)
+		ormService.GetRedis().Set(accessKey2, "", 10*time.Second)
 
 		accessListKey := fmt.Sprintf("USER_KEYS:%d", currentUser.ID)
-		ormService.GetRedis().Set(accessListKey, accessKey1+";"+accessKey2, 10)
+		ormService.GetRedis().Set(accessListKey, accessKey1+";"+accessKey2, 10*time.Second)
 
 		authenticationService := service.DI().Authentication()
 		accessToken1, err := authenticationService.GenerateTokenPair(currentUser.ID, accessKey1, 10)
@@ -547,7 +547,7 @@ func TestGenerateTokenPair(t *testing.T) {
 	authenticationService := service.DI().Authentication()
 
 	ormService := service.DI().OrmEngine()
-	ormService.GetRedis().Set("test_key", "", 10)
+	ormService.GetRedis().Set("test_key", "", 10*time.Second)
 
 	accessToken, err := authenticationService.GenerateTokenPair(currentUser.ID, "test_key", 10)
 
