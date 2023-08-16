@@ -26,7 +26,6 @@ func createContextMyApp(
 		registry.ServiceProviderOrmRegistry(initialize.Init),
 		registry.ServiceProviderCrud(nil),
 		registry.ServiceProviderOrmEngine(redis.SearchPool),
-		registry.ServiceProviderErrorLogger(),
 	}
 
 	defaultRequestServices := []*service.DefinitionRequest{
