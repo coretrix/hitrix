@@ -4,8 +4,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/latolukasz/beeorm"
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 )
 
@@ -17,12 +18,12 @@ func NewSettingService() ServiceSettingInterface {
 	return &serviceSetting{cache: map[string]*entity.SettingsEntity{}}
 }
 
-func (s *serviceSetting) Get(ormService *beeorm.Engine, key string) (*entity.SettingsEntity, bool) {
+func (s *serviceSetting) Get(ormService *datalayer.DataLayer, key string) (*entity.SettingsEntity, bool) {
 	if cachedEntity, exists := s.cache[key]; exists {
 		return cachedEntity, true
 	}
 
-	query := beeorm.NewRedisSearchQuery()
+	query := redisearch.NewRedisSearchQuery()
 	query.FilterString("Key", key)
 
 	settingEntity := &entity.SettingsEntity{}
@@ -39,7 +40,7 @@ func (s *serviceSetting) Get(ormService *beeorm.Engine, key string) (*entity.Set
 	return settingEntity, true
 }
 
-func (s *serviceSetting) GetString(ormService *beeorm.Engine, key string) (string, bool) {
+func (s *serviceSetting) GetString(ormService *datalayer.DataLayer, key string) (string, bool) {
 	setting, found := s.Get(ormService, key)
 	if found {
 		return setting.Value, true
@@ -48,7 +49,7 @@ func (s *serviceSetting) GetString(ormService *beeorm.Engine, key string) (strin
 	return "", false
 }
 
-func (s *serviceSetting) GetInt(ormService *beeorm.Engine, key string) (int, bool) {
+func (s *serviceSetting) GetInt(ormService *datalayer.DataLayer, key string) (int, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return 0, false
@@ -62,7 +63,7 @@ func (s *serviceSetting) GetInt(ormService *beeorm.Engine, key string) (int, boo
 	return int(i), true
 }
 
-func (s *serviceSetting) GetUint(ormService *beeorm.Engine, key string) (uint, bool) {
+func (s *serviceSetting) GetUint(ormService *datalayer.DataLayer, key string) (uint, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return 0, false
@@ -76,7 +77,7 @@ func (s *serviceSetting) GetUint(ormService *beeorm.Engine, key string) (uint, b
 	return uint(i), true
 }
 
-func (s *serviceSetting) GetInt64(ormService *beeorm.Engine, key string) (int64, bool) {
+func (s *serviceSetting) GetInt64(ormService *datalayer.DataLayer, key string) (int64, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return 0, false
@@ -90,7 +91,7 @@ func (s *serviceSetting) GetInt64(ormService *beeorm.Engine, key string) (int64,
 	return i, true
 }
 
-func (s *serviceSetting) GetUint64(ormService *beeorm.Engine, key string) (uint64, bool) {
+func (s *serviceSetting) GetUint64(ormService *datalayer.DataLayer, key string) (uint64, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return 0, false
@@ -104,7 +105,7 @@ func (s *serviceSetting) GetUint64(ormService *beeorm.Engine, key string) (uint6
 	return i, true
 }
 
-func (s *serviceSetting) GetFloat64(ormService *beeorm.Engine, key string) (float64, bool) {
+func (s *serviceSetting) GetFloat64(ormService *datalayer.DataLayer, key string) (float64, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return 0, false
@@ -118,7 +119,7 @@ func (s *serviceSetting) GetFloat64(ormService *beeorm.Engine, key string) (floa
 	return i, true
 }
 
-func (s *serviceSetting) GetBool(ormService *beeorm.Engine, key string) (bool, bool) {
+func (s *serviceSetting) GetBool(ormService *datalayer.DataLayer, key string) (bool, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return false, false

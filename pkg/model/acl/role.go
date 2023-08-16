@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/dto/acl"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
@@ -63,11 +65,11 @@ func UpdateRole(c *gin.Context, roleID *acl.RoleRequestDTO, request *acl.CreateO
 		return err
 	}
 
-	query := beeorm.NewRedisSearchQuery()
+	query := redisearch.NewRedisSearchQuery()
 	query.FilterUint("RoleID", roleEntity.ID)
 
 	privilegeEntitiesToDelete := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearch(&privilegeEntitiesToDelete, query, beeorm.NewPager(1, 1000))
+	ormService.RedisSearchMany(query, beeorm.NewPager(1, 1000), &privilegeEntitiesToDelete)
 
 	now := service.DI().Clock().Now()
 
@@ -75,7 +77,7 @@ func UpdateRole(c *gin.Context, roleID *acl.RoleRequestDTO, request *acl.CreateO
 		flusher := ormService.NewFlusher()
 
 		for _, privilegeEntity := range privilegeEntitiesToDelete {
-			flusher.ForceDelete(privilegeEntity)
+			flusher.Delete(privilegeEntity)
 		}
 
 		if err := flusher.FlushWithCheck(); err != nil {
@@ -109,11 +111,11 @@ func DeleteRole(c *gin.Context, roleID *acl.RoleRequestDTO) error {
 		return fmt.Errorf("role with ID: %d not found", roleID.ID)
 	}
 
-	query := beeorm.NewRedisSearchQuery()
+	query := redisearch.NewRedisSearchQuery()
 	query.FilterUint("RoleID", roleEntity.ID)
 
 	privilegeEntitiesToDelete := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearch(&privilegeEntitiesToDelete, query, beeorm.NewPager(1, 1000))
+	ormService.RedisSearchMany(query, beeorm.NewPager(1, 1000), &privilegeEntitiesToDelete)
 
 	err := helper.DBTransaction(ormService, func() error {
 		flusher := ormService.NewFlusher()
@@ -164,7 +166,8 @@ type resourceMapping map[uint64]*entity.ResourceEntity
 
 type permissionMapping map[uint64]*entity.PermissionEntity
 
-func validateResourcesAndPermissions(ormService *beeorm.Engine, resources []*acl.RoleResourceRequestDTO) (resourceMapping, permissionMapping, error) {
+//nolint // info
+func validateResourcesAndPermissions(ormService *datalayer.DataLayer, resources []*acl.RoleResourceRequestDTO) (resourceMapping, permissionMapping, error) {
 	resourceIDs := make([]uint64, len(resources))
 	permissionIDs := make([]uint64, 0)
 
@@ -174,21 +177,21 @@ func validateResourcesAndPermissions(ormService *beeorm.Engine, resources []*acl
 		permissionIDs = append(permissionIDs, resource.PermissionIDs...)
 	}
 
-	resourcesQuery := beeorm.NewRedisSearchQuery()
+	resourcesQuery := redisearch.NewRedisSearchQuery()
 	resourcesQuery.FilterUint("ID", resourceIDs...)
 
 	resourceEntities := make([]*entity.ResourceEntity, 0)
-	ormService.RedisSearch(&resourceEntities, resourcesQuery, beeorm.NewPager(1, 1000))
+	ormService.RedisSearchMany(resourcesQuery, beeorm.NewPager(1, 1000), &resourceEntities)
 
 	if len(resourceEntities) != len(resourceIDs) {
 		return nil, nil, fmt.Errorf("some of the provided resources is not found")
 	}
 
-	permissionsQuery := beeorm.NewRedisSearchQuery()
+	permissionsQuery := redisearch.NewRedisSearchQuery()
 	permissionsQuery.FilterUint("ID", permissionIDs...)
 
 	permissionEntities := make([]*entity.PermissionEntity, 0)
-	ormService.RedisSearch(&permissionEntities, permissionsQuery, beeorm.NewPager(1, 4000))
+	ormService.RedisSearchMany(permissionsQuery, beeorm.NewPager(1, 4000), &permissionEntities)
 
 	if len(permissionEntities) != len(permissionIDs) {
 		return nil, nil, fmt.Errorf("some of the provided permissions is not found")

@@ -7,9 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 	"github.com/ryanuber/columnize"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
@@ -173,17 +174,33 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 	appService := service.DI().App()
 
 	GoroutineWithRestart(func() {
-		log.Println("starting orm background consumer")
+		log.Println("starting orm garbage collector consumer")
 
-		asyncConsumer := beeorm.NewBackgroundConsumer(ormService)
+		asyncConsumer := beeorm.NewStreamGarbageCollectorConsumer(ormService.Engine)
 		for {
 			if asyncConsumer.Digest(appService.GlobalContext) {
-				log.Println("orm background consumer exited successfully")
+				log.Println("orm garbage collector consumer exited successfully")
 
 				break
 			}
 
-			log.Println("orm background consumer count not obtain lock, sleeping for 30 seconds")
+			log.Println("orm garbage collector could not obtain lock, sleeping for 30 seconds")
+			time.Sleep(time.Second * 30)
+		}
+	})
+
+	GoroutineWithRestart(func() {
+		log.Println("starting orm lazy flush consumer")
+
+		asyncConsumer := beeorm.NewLazyFlushConsumer(ormService.Engine)
+		for {
+			if asyncConsumer.Digest(appService.GlobalContext) {
+				log.Println("orm lazy flush consumer exited successfully")
+
+				break
+			}
+
+			log.Println("orm lazy flush consumer could not obtain lock, sleeping for 30 seconds")
 			time.Sleep(time.Second * 30)
 		}
 	})
@@ -213,7 +230,7 @@ func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 	})
 }
 
-func removeAllOldRequestLoggerRows(ormService *beeorm.Engine, configService config.IConfig) {
+func removeAllOldRequestLoggerRows(ormService *datalayer.DataLayer, configService config.IConfig) {
 	pager := beeorm.NewPager(1, 1000)
 
 	ttlInDays, has := configService.Int("request_logger.ttl_in_days")

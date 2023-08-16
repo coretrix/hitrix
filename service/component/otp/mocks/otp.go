@@ -1,9 +1,9 @@
 package mocks
 
 import (
-	beeorm "github.com/latolukasz/beeorm"
 	mock "github.com/stretchr/testify/mock"
 
+	"github.com/coretrix/hitrix/datalayer"
 	otp "github.com/coretrix/hitrix/service/component/otp"
 )
 
@@ -11,18 +11,18 @@ type OTPService struct {
 	mock.Mock
 }
 
-func (o *OTPService) Call(ormService *beeorm.Engine, phone *otp.Phone, customMessage string) (string, error) {
+func (o *OTPService) Call(ormService *datalayer.DataLayer, phone *otp.Phone, customMessage string) (string, error) {
 	ret := o.Called(ormService, phone, customMessage)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(*beeorm.Engine, *otp.Phone, string) string); ok {
+	if rf, ok := ret.Get(0).(func(*datalayer.DataLayer, *otp.Phone, string) string); ok {
 		r0 = rf(ormService, phone, customMessage)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*beeorm.Engine, *otp.Phone, string) error); ok {
+	if rf, ok := ret.Get(1).(func(*datalayer.DataLayer, *otp.Phone, string) error); ok {
 		r1 = rf(ormService, phone, customMessage)
 	} else {
 		r1 = ret.Error(1)
@@ -31,18 +31,18 @@ func (o *OTPService) Call(ormService *beeorm.Engine, phone *otp.Phone, customMes
 	return r0, r1
 }
 
-func (o *OTPService) SendSMS(ormService *beeorm.Engine, phone *otp.Phone) (string, error) {
+func (o *OTPService) SendSMS(ormService *datalayer.DataLayer, phone *otp.Phone) (string, error) {
 	ret := o.Called(ormService, phone)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(*beeorm.Engine, *otp.Phone) string); ok {
+	if rf, ok := ret.Get(0).(func(*datalayer.DataLayer, *otp.Phone) string); ok {
 		r0 = rf(ormService, phone)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*beeorm.Engine, *otp.Phone) error); ok {
+	if rf, ok := ret.Get(1).(func(*datalayer.DataLayer, *otp.Phone) error); ok {
 		r1 = rf(ormService, phone)
 	} else {
 		r1 = ret.Error(1)
@@ -51,25 +51,25 @@ func (o *OTPService) SendSMS(ormService *beeorm.Engine, phone *otp.Phone) (strin
 	return r0, r1
 }
 
-func (o *OTPService) VerifyOTP(ormService *beeorm.Engine, phone *otp.Phone, code string) (bool, bool, error) {
+func (o *OTPService) VerifyOTP(ormService *datalayer.DataLayer, phone *otp.Phone, code string) (bool, bool, error) {
 	ret := o.Called(ormService, phone, code)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(*beeorm.Engine, *otp.Phone, string) bool); ok {
+	if rf, ok := ret.Get(0).(func(*datalayer.DataLayer, *otp.Phone, string) bool); ok {
 		r0 = rf(ormService, phone, code)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 bool
-	if rf, ok := ret.Get(1).(func(*beeorm.Engine, *otp.Phone, string) bool); ok {
+	if rf, ok := ret.Get(1).(func(*datalayer.DataLayer, *otp.Phone, string) bool); ok {
 		r1 = rf(ormService, phone, code)
 	} else {
 		r1 = ret.Get(1).(bool)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(*beeorm.Engine, *otp.Phone, string) error); ok {
+	if rf, ok := ret.Get(2).(func(*datalayer.DataLayer, *otp.Phone, string) error); ok {
 		r2 = rf(ormService, phone, code)
 	} else {
 		r2 = ret.Error(2)

@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 
 	hitrixEntity "github.com/coretrix/hitrix/pkg/entity"
 )

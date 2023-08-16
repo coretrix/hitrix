@@ -3,12 +3,14 @@ package helper
 import (
 	"fmt"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
+
+	"github.com/coretrix/hitrix/datalayer"
 )
 
 type transaction func() error
 
-func DBTransaction(ormService *beeorm.Engine, callback transaction) error {
+func DBTransaction(ormService *datalayer.DataLayer, callback transaction) error {
 	dbService := ormService.GetMysql()
 
 	dbService.Begin()

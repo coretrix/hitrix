@@ -1,6 +1,7 @@
 package oss
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -8,8 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/latolukasz/beeorm"
-
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -72,11 +72,11 @@ type IProvider interface {
 	GetObjectSignedURL(namespace Namespace, object *entity.FileObject, expires time.Time) (string, error)
 	GetObjectBase64Content(namespace Namespace, object *entity.FileObject) (string, error)
 	GetNamespaceBucketConfig(namespace Namespace) (*BucketConfig, error)
-	UploadObjectFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error)
-	UploadObjectFromBase64(ormService *beeorm.Engine, namespace Namespace, content, extension string) (entity.FileObject, error)
-	UploadObjectFromByte(ormService *beeorm.Engine, namespace Namespace, content []byte, extension string) (entity.FileObject, error)
-	UploadImageFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error)
-	UploadImageFromBase64(ormService *beeorm.Engine, namespace Namespace, image, extension string) (entity.FileObject, error)
+	UploadObjectFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error)
+	UploadObjectFromBase64(ormService *datalayer.DataLayer, namespace Namespace, content, extension string) (entity.FileObject, error)
+	UploadObjectFromByte(ormService *datalayer.DataLayer, namespace Namespace, content []byte, extension string) (entity.FileObject, error)
+	UploadImageFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error)
+	UploadImageFromBase64(ormService *datalayer.DataLayer, namespace Namespace, image, extension string) (entity.FileObject, error)
 	DeleteObject(namespace Namespace, object *entity.FileObject) error
 }
 
@@ -174,7 +174,7 @@ func getObjectCDNURL(bucketConfig *BucketConfig, storageKey string) string {
 	return replacer.Replace(bucketConfig.CDNURL)
 }
 
-func getStorageCounter(ormService *beeorm.Engine, bucketConfig *BucketConfig) uint64 {
+func getStorageCounter(ctx context.Context, ormService *datalayer.DataLayer, bucketConfig *BucketConfig) uint64 {
 	bucketID := bucketConfig.StorageCounterDatabaseID
 
 	ossBucketCounterEntity := &entity.OSSBucketCounterEntity{}
@@ -182,7 +182,7 @@ func getStorageCounter(ormService *beeorm.Engine, bucketConfig *BucketConfig) ui
 	locker := ormService.GetRedis().GetLocker()
 	lockerKey := "locker_oss_counters_bucket_" + strconv.FormatUint(bucketID, 10)
 
-	lock, hasLock := locker.Obtain(lockerKey, 2*time.Second, 5*time.Second)
+	lock, hasLock := locker.Obtain(ctx, lockerKey, 2*time.Second, 5*time.Second)
 	defer lock.Release()
 
 	if !hasLock {
@@ -200,7 +200,7 @@ func getStorageCounter(ormService *beeorm.Engine, bucketConfig *BucketConfig) ui
 
 	ormService.Flush(ossBucketCounterEntity)
 
-	if lock.TTL() == 0 {
+	if lock.TTL(ctx) == 0 {
 		panic("lock lost for :" + lockerKey)
 	}
 

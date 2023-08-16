@@ -1,15 +1,18 @@
 package locker
 
 import (
+	"context"
 	"errors"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 	tusd "github.com/tus/tusd/pkg/handler"
+
+	"github.com/coretrix/hitrix/datalayer"
 )
 
 type RedisLocker struct {
-	ormService *beeorm.Engine
+	ormService *datalayer.DataLayer
 }
 
 func (locker *RedisLocker) NewLock(id string) (tusd.Lock, error) {
@@ -18,12 +21,12 @@ func (locker *RedisLocker) NewLock(id string) (tusd.Lock, error) {
 
 type redisLock struct {
 	id        string
-	redis     *beeorm.RedisCache
+	redis     beeorm.RedisCache
 	redisLock *beeorm.Lock
 }
 
 func (lock *redisLock) Lock() error {
-	redisLock, obtained := lock.redis.GetLocker().Obtain("tusd:upload:lock:"+lock.id, time.Hour*24, time.Second*2)
+	redisLock, obtained := lock.redis.GetLocker().Obtain(context.Background(), "tusd:upload:lock:"+lock.id, time.Hour*24, time.Second*2)
 	if !obtained {
 		return errors.New("cannot obtain lock")
 	}

@@ -3,8 +3,9 @@ package acl
 import (
 	"fmt"
 
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 
 	"github.com/coretrix/hitrix/pkg/dto/acl"
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -45,7 +46,7 @@ func ListRoles(c *gin.Context, request *crud.ListRequest) *acl.RolesResponseDTO 
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	allRoleEntities := make([]*entity.RoleEntity, 0)
-	total := ormService.RedisSearch(&allRoleEntities, query, beeorm.NewPager(searchParams.Page, searchParams.PageSize))
+	total := ormService.RedisSearchMany(query, beeorm.NewPager(searchParams.Page, searchParams.PageSize), &allRoleEntities)
 
 	result := &acl.RolesResponseDTO{
 		Total:       int(total),
@@ -66,11 +67,24 @@ func ListRoles(c *gin.Context, request *crud.ListRequest) *acl.RolesResponseDTO 
 func GetRole(c *gin.Context, request *acl.RoleRequestDTO) (*acl.RoleResponseDTO, error) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	query := beeorm.NewRedisSearchQuery()
+	query := redisearch.NewRedisSearchQuery()
 	query.FilterUint("RoleID", request.ID)
 
 	allPrivilegeEntities := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearch(&allPrivilegeEntities, query, beeorm.NewPager(1, 4000), "RoleID", "ResourceID", "PermissionIDs")
+	ormService.RedisSearchMany(query, beeorm.NewPager(1, 4000), &allPrivilegeEntities, "RoleID", "ResourceID")
+
+	for _, privilege := range allPrivilegeEntities {
+		permissionIDs := make([]uint64, len(privilege.PermissionIDs))
+
+		for i, permission := range privilege.PermissionIDs {
+			permissionIDs[i] = permission.ID
+		}
+
+		permissionEntities := make([]*entity.PermissionEntity, 0)
+		ormService.LoadByIDs(permissionIDs, &permissionEntities)
+
+		privilege.PermissionIDs = permissionEntities
+	}
 
 	if len(allPrivilegeEntities) == 0 {
 		return nil, fmt.Errorf("role with ID: %d not found", request.ID)

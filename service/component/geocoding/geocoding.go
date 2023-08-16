@@ -12,15 +12,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/latolukasz/beeorm"
-
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 )
 
 type IGeocoding interface {
-	Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language Language) (*Address, error)
-	ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language Language) (*Address, error)
+	Geocode(ctx context.Context, ormService *datalayer.DataLayer, address string, language Language) (*Address, error)
+	ReverseGeocode(ctx context.Context, ormService *datalayer.DataLayer, latLng *LatLng, language Language) (*Address, error)
 	CutCoordinates(float float64, precision int) (float64, error)
 }
 
@@ -61,7 +60,7 @@ func NewGeocoding(
 	}
 }
 
-func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language Language) (*Address, error) {
+func (g *Geocoding) Geocode(ctx context.Context, ormService *datalayer.DataLayer, address string, language Language) (*Address, error) {
 	languageEnum, ok := languageToEnumMapping[language]
 	if !ok {
 		return nil, fmt.Errorf("language %s not supported", language)
@@ -109,7 +108,7 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 	return geocodedAddress, nil
 }
 
-func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language Language) (*Address, error) {
+func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *datalayer.DataLayer, latLng *LatLng, language Language) (*Address, error) {
 	languageEnum, ok := languageToEnumMapping[language]
 	if !ok {
 		return nil, fmt.Errorf("language %s not supported", language)

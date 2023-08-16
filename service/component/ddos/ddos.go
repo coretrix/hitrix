@@ -2,18 +2,19 @@ package ddos
 
 import (
 	"strconv"
+	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 )
 
 type IDDOS interface {
-	ProtectManyAttempts(redis *beeorm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool
+	ProtectManyAttempts(redis beeorm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool
 }
 
 type DDOS struct {
 }
 
-func (t *DDOS) ProtectManyAttempts(redis *beeorm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool {
+func (t *DDOS) ProtectManyAttempts(redis beeorm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool {
 	attempts, has := redis.Get("ddos_" + protectCriterion)
 	count := 0
 
@@ -30,7 +31,7 @@ func (t *DDOS) ProtectManyAttempts(redis *beeorm.RedisCache, protectCriterion st
 		return false
 	}
 
-	redis.Set("ddos_"+protectCriterion, count+1, ttl)
+	redis.Set("ddos_"+protectCriterion, count+1, time.Second*time.Duration(ttl))
 
 	return true
 }

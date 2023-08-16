@@ -1,11 +1,15 @@
 orm:
   default:
-    mysql: ENV[DEFAULT_MYSQL]
+    mysql:
+      uri: ENV[DEFAULT_MYSQL]
     redis: ENV[DEFAULT_REDIS]
     locker: default
     local_cache: 1000
   log_db_pool:
-    mysql: ENV[DEFAULT_MYSQL]
+    mysql:
+      uri: ENV[DEFAULT_MYSQL_LOG]
+  streams_pool:
+    redis: ENV[DEFAULT_REDIS_STREAMS]
   search_pool:
     redis: ENV[DEFAULT_REDIS_SEARCH]
 authentication:

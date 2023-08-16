@@ -1,8 +1,6 @@
 package entity
 
-import (
-	"github.com/latolukasz/beeorm"
-)
+import "github.com/latolukasz/beeorm/v2"
 
 const (
 	SettingsValueTypeText     = "text"

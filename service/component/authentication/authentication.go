@@ -10,9 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-redis/redis/v8"
-	"github.com/latolukasz/beeorm"
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
+	"github.com/latolukasz/beeorm/v2"
+	"github.com/redis/go-redis/v9"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/component/clock"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
@@ -125,7 +127,7 @@ type GenerateOTPEmail struct {
 	Token          string
 }
 
-func (t *Authentication) GenerateAndSendOTPEmail(ormService *beeorm.Engine, email, template, from, title string) (*GenerateOTPEmail, error) {
+func (t *Authentication) GenerateAndSendOTPEmail(ormService *datalayer.DataLayer, email, template, from, title string) (*GenerateOTPEmail, error) {
 	_, err := mail2.ParseAddress(email)
 
 	if err != nil {
@@ -202,11 +204,11 @@ func (t *Authentication) VerifySocialLogin(ctx context.Context, source, token st
 }
 
 func (t *Authentication) AuthenticateOTP(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	phone string,
 	entity OTPProviderEntity,
 ) (accessToken string, refreshToken string, err error) {
-	q := &beeorm.RedisSearchQuery{}
+	q := &redisearch.RedisSearchQuery{}
 	q.FilterString(entity.GetPhoneFieldName(), phone)
 
 	found := ormService.RedisSearchOne(entity, q)
@@ -222,11 +224,11 @@ func (t *Authentication) AuthenticateOTP(
 }
 
 func (t *Authentication) AuthenticateOTPEmail(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	email string,
 	entity OTPProviderEntity,
 ) (accessToken string, refreshToken string, err error) {
-	q := &beeorm.RedisSearchQuery{}
+	q := &redisearch.RedisSearchQuery{}
 	q.FilterString(entity.GetEmailFieldName(), email)
 
 	found := ormService.RedisSearchOne(entity, q)
@@ -242,12 +244,12 @@ func (t *Authentication) AuthenticateOTPEmail(
 }
 
 func (t *Authentication) Authenticate(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	uniqueValue string,
 	password string,
 	entity AuthProviderEntity,
 ) (accessToken string, refreshToken string, err error) {
-	q := &beeorm.RedisSearchQuery{}
+	q := &redisearch.RedisSearchQuery{}
 	q.FilterString(entity.GetUniqueFieldName(), uniqueValue)
 
 	found := ormService.RedisSearchOne(entity, q)
@@ -267,7 +269,7 @@ func (t *Authentication) Authenticate(
 }
 
 func (t *Authentication) AuthenticateEmail(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	email string,
 	password string,
 	entity EmailAuthEntity,
@@ -289,7 +291,7 @@ func (t *Authentication) AuthenticateEmail(
 }
 
 func (t *Authentication) AuthenticateByID(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	id uint64,
 	entity AuthProviderEntity,
 ) (accessToken string, refreshToken string, err error) {
@@ -306,7 +308,7 @@ func (t *Authentication) AuthenticateByID(
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) generateUserTokens(ormService *beeorm.Engine, ID uint64) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) generateUserTokens(ormService *datalayer.DataLayer, ID uint64) (accessToken string, refreshToken string, err error) {
 	accessKey := t.generateAndStoreAccessKey(ormService, ID, t.refreshTokenTTL)
 
 	accessToken, err = t.GenerateTokenPair(ID, accessKey, t.accessTokenTTL)
@@ -324,7 +326,7 @@ func (t *Authentication) generateUserTokens(ormService *beeorm.Engine, ID uint64
 	return accessToken, refreshToken, nil
 }
 
-func (t *Authentication) VerifyAccessToken(ormService *beeorm.Engine, accessToken string, entity beeorm.Entity) (map[string]string, error) {
+func (t *Authentication) VerifyAccessToken(ormService *datalayer.DataLayer, accessToken string, entity beeorm.Entity) (map[string]string, error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, accessToken, t.clockService.Now().Unix())
 	if err != nil {
 		return nil, err
@@ -350,7 +352,8 @@ func (t *Authentication) VerifyAccessToken(ormService *beeorm.Engine, accessToke
 	return payload, nil
 }
 
-func (t *Authentication) RefreshToken(ormService *beeorm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
+//nolint // info
+func (t *Authentication) RefreshToken(ormService *datalayer.DataLayer, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, refreshToken, t.clockService.Now().Unix())
 	if err != nil {
 		return "", "", err
@@ -388,7 +391,7 @@ func (t *Authentication) RefreshToken(ormService *beeorm.Engine, refreshToken st
 	return newAccessToken, newRefreshToken, err
 }
 
-func (t *Authentication) LogoutCurrentSession(ormService *beeorm.Engine, accessKey string) {
+func (t *Authentication) LogoutCurrentSession(ormService *datalayer.DataLayer, accessKey string) {
 	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
 
 	cacheService.Del(accessKey)
@@ -414,7 +417,7 @@ func (t *Authentication) LogoutCurrentSession(ormService *beeorm.Engine, accessK
 	}
 }
 
-func (t *Authentication) LogoutAllSessions(ormService *beeorm.Engine, id uint64) {
+func (t *Authentication) LogoutAllSessions(ormService *datalayer.DataLayer, id uint64) {
 	tokenListKey := generateUserTokenListKey(id)
 	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
 
@@ -447,20 +450,20 @@ func (t *Authentication) GenerateTokenPair(id uint64, accessKey string, ttl int)
 	return t.jwtService.EncodeJWT(t.secret, headers, payload)
 }
 
-func (t *Authentication) generateAndStoreAccessKey(ormService *beeorm.Engine, id uint64, ttl int) string {
+func (t *Authentication) generateAndStoreAccessKey(ormService *datalayer.DataLayer, id uint64, ttl int) string {
 	key := generateAccessKey(id, t.uuidService.Generate())
-	ormService.GetRedis(t.appService.RedisPools.Persistent).Set(key, "", ttl)
+	ormService.GetRedis(t.appService.RedisPools.Persistent).Set(key, "", time.Second*time.Duration(ttl))
 
 	return key
 }
 
-func (t *Authentication) addUserAccessKeyList(ormService *beeorm.Engine, id uint64, accessKey, oldAccessKey string, ttl int) {
+func (t *Authentication) addUserAccessKeyList(ormService *datalayer.DataLayer, id uint64, accessKey, oldAccessKey string, ttl int) {
 	key := generateUserTokenListKey(id)
 	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
 
 	res, has := cacheService.Get(key)
 	if !has {
-		cacheService.Set(key, accessKey, ttl)
+		cacheService.Set(key, accessKey, time.Second*time.Duration(ttl))
 
 		return
 	}
@@ -473,7 +476,7 @@ func (t *Authentication) addUserAccessKeyList(ormService *beeorm.Engine, id uint
 
 	if oldAccessKey == "" {
 		currentTokenArr = append(currentTokenArr, accessKey)
-		cacheService.Set(key, strings.Join(currentTokenArr, accessListSeparator), ttl)
+		cacheService.Set(key, strings.Join(currentTokenArr, accessListSeparator), time.Second*time.Duration(ttl))
 
 		return
 	}
@@ -492,7 +495,7 @@ func (t *Authentication) addUserAccessKeyList(ormService *beeorm.Engine, id uint
 	if len(finalTokenArr) == 0 {
 		cacheService.Del(key)
 	} else {
-		cacheService.Set(key, strings.Join(finalTokenArr, accessListSeparator), ttl)
+		cacheService.Set(key, strings.Join(finalTokenArr, accessListSeparator), time.Second*time.Duration(ttl))
 	}
 }
 

@@ -3,7 +3,7 @@ package requestlogger
 import (
 	"context"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 	"github.com/xorcare/pointer"
 
 	listDto "github.com/coretrix/hitrix/pkg/dto/list"

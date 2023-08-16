@@ -5,10 +5,12 @@ import (
 
 	"github.com/coretrix/hitrix"
 	"github.com/coretrix/hitrix/example/entity"
+	"github.com/coretrix/hitrix/example/entity/initialize"
 	"github.com/coretrix/hitrix/example/graph"
 	"github.com/coretrix/hitrix/example/graph/generated"
 	model "github.com/coretrix/hitrix/example/model/socket"
 	exampleOSS "github.com/coretrix/hitrix/example/oss"
+	"github.com/coretrix/hitrix/example/redis"
 	exampleMiddleware "github.com/coretrix/hitrix/example/rest/middleware"
 	"github.com/coretrix/hitrix/pkg/middleware"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -27,30 +29,31 @@ var eventHandlersMap = socket.NamespaceEventHandlerMap{
 
 func main() {
 	s, deferFunc := hitrix.New(
-		"my-app", "secret",
+		"server", "secret",
 	).RegisterDIGlobalService(
 		registry.ServiceProviderErrorLogger(),
-		registry.ServiceProviderConfigDirectory("config"),
-		registry.ServiceProviderOrmRegistry(entity.Init),
-		registry.ServiceProviderOrmEngine(),
+		registry.ServiceProviderConfigDirectory("../../config"),
+		registry.ServiceProviderOrmRegistry(initialize.Init),
+		registry.ServiceProviderOrmEngine(redis.SearchPool),
 		registry.ServiceProviderClock(),
 		registry.ServiceProviderOSS(oss.NewAmazonOSS, exampleOSS.Namespaces),
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(password.NewSimpleManager),
 		registry.ServiceProviderSocketRegistry(eventHandlersMap),
 		registry.ServiceProviderOTP(),
+		registry.ServiceProviderRequestLogger(),
 	).RegisterDIRequestService(
-		registry.ServiceProviderOrmEngineForContext(false),
-	).RegisterRedisPools(&app.RedisPools{Persistent: "default", Cache: "default"}).
-		RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.DevPanelRouter).Build()
+		registry.ServiceProviderOrmEngineForContext(false, redis.SearchPool),
+	).RegisterRedisPools(&app.RedisPools{
+		Cache:      redis.DefaultPool,
+		Persistent: redis.DefaultPool,
+		Stream:     redis.StreamsPool,
+		Search:     redis.SearchPool,
+	}).RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.DevPanelRouter).Build()
 	defer deferFunc()
 
-	b := &hitrix.BackgroundProcessor{Server: s}
-	b.RunAsyncOrmConsumer()
-	b.RunAsyncRequestLoggerCleaner()
-
 	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}), func(ginEngine *gin.Engine) {
-		middleware.RequestLogger(ginEngine, nil)
+		//middleware.RequestLogger(ginEngine, nil)
 		exampleMiddleware.Router(ginEngine)
 		middleware.Cors(ginEngine)
 	}, nil)

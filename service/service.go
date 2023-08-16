@@ -4,8 +4,9 @@ import (
 	"context"
 
 	"github.com/coretrix/clockwork"
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 
+	"github.com/coretrix/hitrix/datalayer"
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 	apilogger "github.com/coretrix/hitrix/service/component/api_logger"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -141,12 +142,12 @@ func (d *DIContainer) OrmConfig() beeorm.ValidatedRegistry {
 	return GetServiceRequired(ORMConfigService).(beeorm.ValidatedRegistry)
 }
 
-func (d *DIContainer) OrmEngine() *beeorm.Engine {
-	return GetServiceRequired(ORMEngineGlobalService).(*beeorm.Engine)
+func (d *DIContainer) OrmEngine() *datalayer.DataLayer {
+	return GetServiceRequired(ORMEngineGlobalService).(*datalayer.DataLayer)
 }
 
-func (d *DIContainer) OrmEngineForContext(ctx context.Context) *beeorm.Engine {
-	return GetServiceForRequestRequired(ctx, ORMEngineRequestService).(*beeorm.Engine)
+func (d *DIContainer) OrmEngineForContext(ctx context.Context) *datalayer.DataLayer {
+	return GetServiceForRequestRequired(ctx, ORMEngineRequestService).(*datalayer.DataLayer)
 }
 
 func (d *DIContainer) ClockWorkForContext(ctx context.Context) *clockwork.Clockwork {

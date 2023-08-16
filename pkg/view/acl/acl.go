@@ -1,13 +1,15 @@
 package acl
 
 import (
-	"github.com/latolukasz/beeorm"
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
+	"github.com/latolukasz/beeorm/v2"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 )
 
-func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource string, permissions ...string) bool {
-	resourceQuery := beeorm.NewRedisSearchQuery()
+func ACL(ormService *datalayer.DataLayer, roleEntity *entity.RoleEntity, resource string, permissions ...string) bool {
+	resourceQuery := redisearch.NewRedisSearchQuery()
 	resourceQuery.FilterString("Name", resource)
 
 	resourceEntity := &entity.ResourceEntity{}
@@ -15,12 +17,12 @@ func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource stri
 		return false
 	}
 
-	permissionQuery := beeorm.NewRedisSearchQuery()
+	permissionQuery := redisearch.NewRedisSearchQuery()
 	permissionQuery.FilterUint("ResourceID", resourceEntity.ID)
 	permissionQuery.FilterString("Name", permissions...)
 
 	permissionEntities := make([]*entity.PermissionEntity, 0)
-	ormService.RedisSearch(&permissionEntities, permissionQuery, beeorm.NewPager(1, 1000))
+	ormService.RedisSearchMany(permissionQuery, beeorm.NewPager(1, 1000), &permissionEntities)
 
 	if len(permissions) != len(permissionEntities) {
 		return false
@@ -32,7 +34,7 @@ func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource stri
 		permissionIDs[i] = permissionEntity.ID
 	}
 
-	privilegeQuery := beeorm.NewRedisSearchQuery()
+	privilegeQuery := redisearch.NewRedisSearchQuery()
 	privilegeQuery.FilterUint("RoleID", roleEntity.ID)
 	privilegeQuery.FilterUint("ResourceID", resourceEntity.ID)
 	privilegeQuery.FilterManyReferenceIn("PermissionIDs", permissionIDs...)

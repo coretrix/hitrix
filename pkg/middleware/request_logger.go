@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/latolukasz/beeorm/v2"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/response"
@@ -21,7 +22,7 @@ func (l *dbLogger) Disable() {
 	l.disabled = true
 }
 
-func (l *dbLogger) Handle(data map[string]interface{}) {
+func (l *dbLogger) Handle(_ beeorm.Engine, data map[string]interface{}) {
 	if l.disabled {
 		return
 	}

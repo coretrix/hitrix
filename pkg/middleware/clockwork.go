@@ -11,20 +11,21 @@ import (
 	"github.com/coretrix/clockwork"
 	dataSource "github.com/coretrix/clockwork/datasource"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/service"
 )
 
 type clockWorkHandler struct {
-	ormService           *beeorm.Engine
+	ormService           *datalayer.DataLayer
 	DatabaseDataSource   dataSource.QueryLoggerDataSourceInterface
 	RedisDataSource      dataSource.CacheLoggerDataSourceInterface
 	LocalCacheDataSource dataSource.UserDataSourceInterface
 }
 
-func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
+func (h *clockWorkHandler) Handle(ormService beeorm.Engine, logData map[string]interface{}) {
 	if logData["source"] == "mysql" {
 		microseconds := logData["microseconds"].(int64)
 		milliseconds := float32(microseconds) / float32(1000)
@@ -84,7 +85,7 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 					originalKeyArray = strings.Split(originalKey, "_")
 				}
 
-				tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
+				tableSchema := ormService.GetRegistry().GetEntitySchemaForCachePrefix(originalKeyArray[0])
 
 				q += tableSchema.GetTableName() + ":" + originalKeyArray[1] + " "
 			}
@@ -96,7 +97,7 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 					originalKeyArray = strings.Split(keyValue, "_")
 				}
 
-				tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
+				tableSchema := h.ormService.GetRegistry().GetEntitySchemaForCachePrefix(originalKeyArray[0])
 
 				q += tableSchema.GetTableName() + ":" + originalKeyArray[1] + " "
 			}
@@ -106,7 +107,7 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 				originalKeyArray = strings.Split(queries, "_")
 			}
 
-			tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
+			tableSchema := ormService.GetRegistry().GetEntitySchemaForCachePrefix(originalKeyArray[0])
 
 			q += tableSchema.GetTableName() + ":" + originalKeyArray[1]
 
@@ -117,7 +118,7 @@ func (h *clockWorkHandler) Handle(logData map[string]interface{}) {
 				originalKeyArray = strings.Split(keyValue[0], "_")
 			}
 
-			tableSchema := h.ormService.GetRegistry().GetTableSchemaForCachePrefix(originalKeyArray[0])
+			tableSchema := ormService.GetRegistry().GetEntitySchemaForCachePrefix(originalKeyArray[0])
 
 			q += tableSchema.GetTableName() + ":" + originalKeyArray[1] + " "
 		default:
@@ -296,7 +297,7 @@ func setController(b []byte, profilerService *clockwork.Clockwork) string {
 }
 
 type ormDataProvider struct {
-	RedisStorageProvider *beeorm.RedisCache
+	RedisStorageProvider beeorm.RedisCache
 }
 
 func (provider *ormDataProvider) Get(key string, id string) dataSource.DataBuffer {
@@ -317,5 +318,5 @@ func (provider *ormDataProvider) Get(key string, id string) dataSource.DataBuffe
 
 func (provider *ormDataProvider) Set(key string, id string, data *dataSource.DataBuffer) {
 	jsonString, _ := json.Marshal(data)
-	provider.RedisStorageProvider.Set(key+"."+id, jsonString, int(time.Minute*5))
+	provider.RedisStorageProvider.Set(key+"."+id, jsonString, time.Minute*5)
 }

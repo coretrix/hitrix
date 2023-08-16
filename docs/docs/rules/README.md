@@ -144,7 +144,7 @@ package model
 type PriceChangedDirtyAllProducer struct {
 }
 
-func (p *PriceChangedDirtyAllProducer) Produce(ormService *beeorm.Engine) error {
+func (p *PriceChangedDirtyAllProducer) Produce(ormService *datalayer.DataLayer) error {
 	variantEntity := entity.VariantEntity{}
 	where := beeorm.NewWhere("1 ORDER BY ID ASC")
 	pager := &beeorm.Pager{CurrentPage: 1, PageSize: 1000}

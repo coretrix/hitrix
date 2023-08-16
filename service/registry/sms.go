@@ -3,7 +3,7 @@ package registry
 import (
 	"errors"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"

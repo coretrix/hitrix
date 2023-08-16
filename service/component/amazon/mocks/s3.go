@@ -3,9 +3,9 @@ package mocks
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/coretrix/hitrix/datalayer"
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 )
 
@@ -21,23 +21,23 @@ func (t *FakeS3Client) GetObjectSignedURL(bucket string, object *s3.Object, expi
 	return t.Called(bucket, object, expires).String(0)
 }
 
-func (t *FakeS3Client) UploadObjectFromFile(_ *beeorm.Engine, bucket, localFile string) s3.Object {
+func (t *FakeS3Client) UploadObjectFromFile(_ *datalayer.DataLayer, bucket, localFile string) s3.Object {
 	return t.Called(bucket, localFile).Get(0).(s3.Object)
 }
 
-func (t *FakeS3Client) UploadObjectFromBase64(_ *beeorm.Engine, bucket, content, extension string) s3.Object {
+func (t *FakeS3Client) UploadObjectFromBase64(_ *datalayer.DataLayer, bucket, content, extension string) s3.Object {
 	return t.Called(bucket, content, extension).Get(0).(s3.Object)
 }
 
-func (t *FakeS3Client) UploadObjectFromByte(_ *beeorm.Engine, bucket string, byteData []byte, extension string) s3.Object {
+func (t *FakeS3Client) UploadObjectFromByte(_ *datalayer.DataLayer, bucket string, byteData []byte, extension string) s3.Object {
 	return t.Called(bucket, byteData, extension).Get(0).(s3.Object)
 }
 
-func (t *FakeS3Client) UploadImageFromFile(_ *beeorm.Engine, bucket, localFile string) s3.Object {
+func (t *FakeS3Client) UploadImageFromFile(_ *datalayer.DataLayer, bucket, localFile string) s3.Object {
 	return t.Called(bucket, localFile).Get(0).(s3.Object)
 }
 
-func (t *FakeS3Client) UploadImageFromBase64(_ *beeorm.Engine, bucket, image, extension string) s3.Object {
+func (t *FakeS3Client) UploadImageFromBase64(_ *datalayer.DataLayer, bucket, image, extension string) s3.Object {
 	return t.Called(bucket, image, extension).Get(0).(s3.Object)
 }
 
@@ -49,7 +49,7 @@ func (t *FakeS3Client) GetClient() interface{} {
 	return t.Called().Get(0)
 }
 
-func (t *FakeS3Client) CreateObjectFromKey(_ *beeorm.Engine, bucket, key string) s3.Object {
+func (t *FakeS3Client) CreateObjectFromKey(_ *datalayer.DataLayer, bucket, key string) s3.Object {
 	return t.Called(bucket, key).Get(0).(s3.Object)
 }
 

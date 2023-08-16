@@ -3,17 +3,29 @@ services:
   mysql:
     image: mysql:8.0
     volumes:
-      - orm_data_mysql:/var/lib/mysql
+      - orm_data_mysql_hitrix:/var/lib/mysql
     ports:
-      - ${LOCAL_IP}:${MYSQL_PORT}:3306
+      - "9004:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=hitrix
+      - MYSQL_PASSWORD=root
+
   redis:
-    image: redislabs/redisearch
+    image: redis/redis-stack
     volumes:
-      - orm_data_redis:/data
+      - orm_data_redis_hitrix:/data
     ports:
-      - ${LOCAL_IP}:${REDIS_PORT}:6379
+      - "9002:6379"
+      - "8001:8001"
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - "8002:8001"
+    volumes:
+      - redisinsight_hitrix:/var/lib/redisinsight
+
   services:
     build:
       context: ""
@@ -22,9 +34,11 @@ services:
       - mysql
       - redis
     ports:
-      - 9999:9999
+      - "9999:9999"
     volumes:
       - ../..:/go/src/github.com/coretrix/hitrix
+
 volumes:
-  orm_data_mysql: {}
-  orm_data_redis: {}
+  orm_data_mysql_hitrix:
+  orm_data_redis_hitrix:
+  redisinsight_hitrix:

@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/service"
 )
 
@@ -21,7 +21,7 @@ const LoggedDevPanelUserEntity = "logged_dev_panel_user_entity"
 const expireTimeToken = 3600
 const expireTimeRefreshToken = 7200
 
-func GenerateDevTokenAndRefreshToken(ormService *beeorm.Engine, userID uint64) (string, string, error) {
+func GenerateDevTokenAndRefreshToken(ormService *datalayer.DataLayer, userID uint64) (string, string, error) {
 	appService := service.DI().App()
 
 	token, err := generateTokenValue(appService.Secret, userID, time.Now().Unix()+expireTimeToken)

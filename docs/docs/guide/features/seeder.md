@@ -7,7 +7,7 @@ This `DBSeedScript` needs to be provided a `Seeds map[string][]Seed` field, Wher
 The Script can be implemented in your app by making a type that satisfies the `Seed` interface:
 ```go
 type Seed interface {
-    Execute(*beeorm.Engine)
+    Execute(*datalayer.DataLayer)
     Environments() []string
     Name() string
 }
@@ -26,7 +26,7 @@ func (seed *UsersSeed) Environments() []string {
     return []string{app.ModeTest, app.ModeLocal, app.ModeDev, app.ModeDemo, app.ModeProd}
 }
 
-func (seed *UsersSeed) Execute(ormService *beeorm.Engine) {
+func (seed *UsersSeed) Execute(ormService *datalayer.DataLayer) {
 	// TODO insert a new user entity to the db
 }
 ```

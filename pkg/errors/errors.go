@@ -4,7 +4,7 @@ import (
 	goErrors "errors"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
 )
 
 type FieldErrors map[string]string
@@ -78,10 +78,11 @@ func HandleFlushWithCheckError(err, duplicatedKeyError error) error {
 		return duplicatedKeyError
 	}
 
-	foreignKeyErr, ok := err.(*beeorm.ForeignKeyError)
-	if ok {
-		return foreignKeyErr
-	}
+	// TODO: check with Lukasz why he remove this error
+	//foreignKeyErr, ok := err.(*beeorm.ForeignKeyError)
+	//if ok {
+	//	return foreignKeyErr
+	//}
 
 	return goErrors.New("unexpected error happened")
 }

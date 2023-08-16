@@ -29,8 +29,8 @@ The service exposes 3 methods that you can use:
 
 ```go
 type IGeocoding interface {
-	Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language Language) (*Address, error)
-	ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language Language) (*Address, error)
+	Geocode(ctx context.Context, ormService *datalayer.DataLayer, address string, language Language) (*Address, error)
+	ReverseGeocode(ctx context.Context, ormService *datalayer.DataLayer, latLng *LatLng, language Language) (*Address, error)
     CutCoordinates(float float64, precision int) (float64, error)
 }
 ```

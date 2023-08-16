@@ -8,8 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
+	"github.com/latolukasz/beeorm/v2"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service/component/translation"
@@ -97,7 +99,7 @@ type Crud struct {
 	TranslationService translation.ITranslationService
 }
 
-func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []*Column) []*Column {
+func (c *Crud) TranslateColumns(ormService *datalayer.DataLayer, lang entity.TranslationTextLang, cols []*Column) []*Column {
 	for _, col := range cols {
 		col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
 
@@ -409,8 +411,8 @@ func groupColumnNamesByFilterType(cols []*Column) groupedFilterTypes {
 }
 
 // GenerateListRedisSearchQuery TODO : add full text queries when supported by hitrix
-func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSearchQuery {
-	query := &beeorm.RedisSearchQuery{}
+func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *redisearch.RedisSearchQuery {
+	query := &redisearch.RedisSearchQuery{}
 	for field, value := range params.NumberFilters {
 		query.FilterInt(field, value)
 	}
@@ -464,7 +466,7 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 
 		orStatements = append(orStatements, fmt.Sprintf(
 			"(@%s:%v*)",
-			field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
+			field, strings.TrimSpace(redisearch.EscapeRedisSearchString(value)),
 		))
 	}
 

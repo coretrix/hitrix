@@ -3,8 +3,7 @@ package sms
 import (
 	"fmt"
 
-	"github.com/latolukasz/beeorm"
-
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -12,7 +11,7 @@ import (
 )
 
 type ISender interface {
-	SendMessage(ormService *beeorm.Engine, message *Message) error
+	SendMessage(ormService *datalayer.DataLayer, message *Message) error
 }
 
 type Sender struct {
@@ -23,7 +22,7 @@ type Sender struct {
 	SecondaryProvider  IProvider
 }
 
-func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error {
+func (s *Sender) SendMessage(ormService *datalayer.DataLayer, message *Message) error {
 	var primaryProvider IProvider
 	var secondaryProvider IProvider
 

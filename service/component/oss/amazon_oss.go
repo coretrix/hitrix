@@ -12,8 +12,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/latolukasz/beeorm"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -151,7 +151,7 @@ func (ossStorage *AmazonOSS) GetObjectBase64Content(_ Namespace, _ *entity.FileO
 }
 
 func (ossStorage *AmazonOSS) UploadObjectFromByte(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	namespace Namespace,
 	objectContent []byte,
 	extension string,
@@ -161,7 +161,7 @@ func (ossStorage *AmazonOSS) UploadObjectFromByte(
 		return entity.FileObject{}, err
 	}
 
-	storageCounter := getStorageCounter(ormService, bucketConfig)
+	storageCounter := getStorageCounter(ossStorage.ctx, ormService, bucketConfig)
 
 	objectKey := ossStorage.getObjectKey(namespace, storageCounter, extension)
 
@@ -186,7 +186,7 @@ func (ossStorage *AmazonOSS) UploadObjectFromByte(
 	}, nil
 }
 
-func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error) {
 	fileContent, ext, err := readContentFile(localFile)
 	if err != nil {
 		return entity.FileObject{}, err
@@ -196,7 +196,7 @@ func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *beeorm.Engine, nam
 }
 
 func (ossStorage *AmazonOSS) UploadObjectFromBase64(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	namespace Namespace,
 	content string,
 	extension string,
@@ -219,12 +219,12 @@ func (ossStorage *AmazonOSS) GetNamespaceBucketConfig(namespace Namespace) (*Buc
 	return bucketConfig, nil
 }
 
-func (ossStorage *AmazonOSS) UploadImageFromFile(ormService *beeorm.Engine, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *AmazonOSS) UploadImageFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error) {
 	return ossStorage.UploadObjectFromFile(ormService, namespace, localFile)
 }
 
 func (ossStorage *AmazonOSS) UploadImageFromBase64(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	namespace Namespace,
 	image string,
 	extension string,

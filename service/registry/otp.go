@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/latolukasz/beeorm"
+	redisearch "github.com/coretrix/beeorm-redisearch-plugin"
 	"github.com/sarulabs/di"
 
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -38,9 +39,9 @@ func ServiceProviderOTP(forceProviders ...string) *service.DefinitionGlobal {
 					providers = append(providers, provider)
 				}
 			} else {
-				ormService := ctn.Get(service.ORMEngineGlobalService).(*beeorm.Engine)
+				ormService := ctn.Get(service.ORMEngineGlobalService).(*datalayer.DataLayer)
 
-				q := &beeorm.RedisSearchQuery{}
+				q := &redisearch.RedisSearchQuery{}
 				q.FilterString("Key", "otp_sms_provider")
 
 				settingsEntity := &entity.SettingsEntity{}

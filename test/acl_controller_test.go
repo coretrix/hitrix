@@ -28,7 +28,7 @@ func TestListResourcesAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "server", nil, mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
@@ -36,14 +36,18 @@ func TestListResourcesAction(t *testing.T) {
 	resource1 := CreateResource(flusher, map[string]interface{}{})
 	flusher.Flush()
 	resource2 := CreateResource(flusher, map[string]interface{}{"Name": "car"})
+	flusher.Flush()
 
 	CreatePermission(flusher, map[string]interface{}{"ResourceID": resource1, "Name": "create"})
+	flusher.Flush()
 	CreatePermission(flusher, map[string]interface{}{"ResourceID": resource1, "Name": "view"})
+	flusher.Flush()
 
 	CreatePermission(flusher, map[string]interface{}{"ResourceID": resource2, "Name": "unlock"})
+	flusher.Flush()
 	CreatePermission(flusher, map[string]interface{}{"ResourceID": resource2, "Name": "lock"})
+	flusher.Flush()
 	CreatePermission(flusher, map[string]interface{}{"ResourceID": resource2, "Name": "drive"})
-
 	flusher.Flush()
 
 	got := &acl.ResourcesResponseDTO{}
@@ -103,20 +107,24 @@ func TestListRolesAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "server", nil, mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
 
 	resource1 := CreateResource(flusher, map[string]interface{}{})
+	flusher.Flush()
 
 	CreatePermission(flusher, map[string]interface{}{"ResourceID": resource1, "Name": "create"})
+	flusher.Flush()
 	CreatePermission(flusher, map[string]interface{}{"ResourceID": resource1, "Name": "view"})
+	flusher.Flush()
 
 	CreateRole(flusher, map[string]interface{}{})
+	flusher.Flush()
 	CreateRole(flusher, map[string]interface{}{"Name": "super-admin"})
+	flusher.Flush()
 	CreateRole(flusher, map[string]interface{}{"Name": "super-mega-admin"})
-
 	flusher.Flush()
 
 	got := &acl.RolesResponseDTO{}
@@ -177,24 +185,29 @@ func TestGetRoleAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "server", nil, mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
 
 	role := CreateRole(flusher, map[string]interface{}{})
+	flusher.Flush()
 
 	resource := CreateResource(flusher, map[string]interface{}{})
+	flusher.Flush()
 
 	permission1 := CreatePermission(flusher, map[string]interface{}{"ResourceID": resource, "Name": "create"})
+	flusher.Flush()
 	permission2 := CreatePermission(flusher, map[string]interface{}{"ResourceID": resource, "Name": "view"})
+	flusher.Flush()
 
 	CreatePrivilege(flusher, map[string]interface{}{"RoleID": role, "ResourceID": resource, "PermissionIDs": []*entity.PermissionEntity{
 		permission1,
 		permission2,
 	}})
-
 	flusher.Flush()
+
+	ormService.LoadByID(1, &entity.PrivilegeEntity{}, "RoleID", "ResourceID")
 
 	got := &acl.RoleResponseDTO{}
 
@@ -237,16 +250,17 @@ func TestCreateRoleAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "server", nil, mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
 
 	resource := CreateResource(flusher, map[string]interface{}{})
+	flusher.Flush()
 
 	permission1 := CreatePermission(flusher, map[string]interface{}{"ResourceID": resource, "Name": "create"})
+	flusher.Flush()
 	permission2 := CreatePermission(flusher, map[string]interface{}{"ResourceID": resource, "Name": "view"})
-
 	flusher.Flush()
 
 	request := &acl.CreateOrUpdateRoleRequestDTO{
@@ -283,23 +297,26 @@ func TestUpdateRoleAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "server", nil, mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
 
 	role := CreateRole(flusher, map[string]interface{}{})
+	flusher.Flush()
 
 	resource := CreateResource(flusher, map[string]interface{}{})
+	flusher.Flush()
 
 	permission1 := CreatePermission(flusher, map[string]interface{}{"ResourceID": resource, "Name": "create"})
+	flusher.Flush()
 	permission2 := CreatePermission(flusher, map[string]interface{}{"ResourceID": resource, "Name": "view"})
+	flusher.Flush()
 
 	CreatePrivilege(flusher, map[string]interface{}{"RoleID": role, "ResourceID": resource, "PermissionIDs": []*entity.PermissionEntity{
 		permission1,
 		permission2,
 	}})
-
 	flusher.Flush()
 
 	request := &acl.CreateOrUpdateRoleRequestDTO{
@@ -316,7 +333,9 @@ func TestUpdateRoleAction(t *testing.T) {
 	assert.Nil(t, err)
 
 	privilegeEntity := &entity.PrivilegeEntity{}
-	assert.False(t, ormService.LoadByID(1, privilegeEntity))
+	ormService.LoadByID(1, privilegeEntity)
+	assert.Equal(t, true, privilegeEntity.FakeDelete)
+
 	privilegeEntity = &entity.PrivilegeEntity{}
 	assert.True(t, ormService.LoadByID(2, privilegeEntity, "RoleID"))
 
@@ -339,23 +358,26 @@ func TestDeleteRoleAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "server", nil, mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
 
 	role := CreateRole(flusher, map[string]interface{}{})
+	flusher.Flush()
 
 	resource := CreateResource(flusher, map[string]interface{}{})
+	flusher.Flush()
 
 	permission1 := CreatePermission(flusher, map[string]interface{}{"ResourceID": resource, "Name": "create"})
+	flusher.Flush()
 	permission2 := CreatePermission(flusher, map[string]interface{}{"ResourceID": resource, "Name": "view"})
+	flusher.Flush()
 
 	CreatePrivilege(flusher, map[string]interface{}{"RoleID": role, "ResourceID": resource, "PermissionIDs": []*entity.PermissionEntity{
 		permission1,
 		permission2,
 	}})
-
 	flusher.Flush()
 
 	err := SendHTTPRequest(ctx, http.MethodDelete, "/acl/role/1/", false, nil)
@@ -382,16 +404,17 @@ func TestPostAssignRoleToUserAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "server", nil, mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
 
 	role1 := CreateRole(flusher, map[string]interface{}{})
+	flusher.Flush()
 	role2 := CreateRole(flusher, map[string]interface{}{"Name": "super-admin"})
+	flusher.Flush()
 
 	user := CreateAdminUser(flusher, map[string]interface{}{"RoleID": role1})
-
 	flusher.Flush()
 
 	request := &acl.AssignRoleToUserRequestDTO{

@@ -3,7 +3,9 @@ package sms
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/latolukasz/beeorm/v2"
+
+	"github.com/coretrix/hitrix/datalayer"
 )
 
 type LogEntity interface {
@@ -20,7 +22,7 @@ type LogEntity interface {
 }
 
 type DBLog struct {
-	ormService *beeorm.Engine
+	ormService *datalayer.DataLayer
 	logEntity  LogEntity
 }
 
@@ -32,6 +34,6 @@ type Logger interface {
 	Do()
 }
 
-func NewSmsLog(ormService *beeorm.Engine, entity LogEntity) Logger {
+func NewSmsLog(ormService *datalayer.DataLayer, entity LogEntity) Logger {
 	return &DBLog{ormService: ormService, logEntity: entity}
 }

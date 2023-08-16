@@ -15,8 +15,8 @@ service.DI().RequestLogger()
 
 The functions this service provide are:
 ```go
-	LogRequest(ormService *beeorm.Engine, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity
-    LogResponse(ormService *beeorm.Engine, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int)
+	LogRequest(ormService *datalayer.DataLayer, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity
+    LogResponse(ormService *datalayer.DataLayer, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int)
 ```
 They can be used to log any outgoing requests you send
 

@@ -6,17 +6,16 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/latolukasz/beeorm"
-
+	"github.com/coretrix/hitrix/datalayer"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 )
 
 type ITranslationService interface {
-	GetText(ormService *beeorm.Engine, lang entity.TranslationTextLang, key entity.TranslationTextKey) string
+	GetText(ormService *datalayer.DataLayer, lang entity.TranslationTextLang, key entity.TranslationTextKey) string
 	GetTextWithVars(
-		ormService *beeorm.Engine,
+		ormService *datalayer.DataLayer,
 		lang entity.TranslationTextLang,
 		key entity.TranslationTextKey,
 		variables map[string]interface{},
@@ -31,7 +30,7 @@ func NewTranslationService(errorLoggerService errorlogger.ErrorLogger) ITranslat
 	return &translationService{errorLoggerService}
 }
 
-func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.TranslationTextLang, key entity.TranslationTextKey) string {
+func (u *translationService) GetText(ormService *datalayer.DataLayer, lang entity.TranslationTextLang, key entity.TranslationTextKey) string {
 	translationTextEntity := &entity.TranslationTextEntity{}
 
 	found := ormService.CachedSearchOne(
@@ -71,7 +70,7 @@ func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.Tran
 }
 
 func (u *translationService) GetTextWithVars(
-	ormService *beeorm.Engine,
+	ormService *datalayer.DataLayer,
 	lang entity.TranslationTextLang,
 	key entity.TranslationTextKey,
 	variables map[string]interface{},
