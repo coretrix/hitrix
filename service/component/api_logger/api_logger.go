@@ -9,9 +9,9 @@ import (
 )
 
 type IAPILogger interface {
-	LogStart(ormService *datalayer.DataLayer, logType string, request interface{})
-	LogError(ormService *datalayer.DataLayer, message string, response interface{})
-	LogSuccess(ormService *datalayer.DataLayer, response interface{})
+	LogStart(ormService *datalayer.ORM, logType string, request interface{})
+	LogError(ormService *datalayer.ORM, message string, response interface{})
+	LogSuccess(ormService *datalayer.ORM, response interface{})
 }
 
 type ILogEntity interface {

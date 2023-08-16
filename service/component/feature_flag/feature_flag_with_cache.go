@@ -36,7 +36,7 @@ func NewFeatureFlagWithCacheService(errorLoggerService errorlogger.ErrorLogger, 
 	return cachedService
 }
 
-func (s *serviceFeatureFlagWithCache) IsActive(ormService *datalayer.DataLayer, name string) bool {
+func (s *serviceFeatureFlagWithCache) IsActive(ormService *datalayer.ORM, name string) bool {
 	if name == "" {
 		panic("name cannot be empty")
 	}
@@ -68,11 +68,11 @@ func (s *serviceFeatureFlagWithCache) IsActive(ormService *datalayer.DataLayer, 
 	return featureFlagEntity.Enabled && featureFlagEntity.Registered
 }
 
-func (s *serviceFeatureFlagWithCache) FailIfIsNotActive(ormService *datalayer.DataLayer, name string) error {
+func (s *serviceFeatureFlagWithCache) FailIfIsNotActive(ormService *datalayer.ORM, name string) error {
 	return s.featureFlagService.FailIfIsNotActive(ormService, name)
 }
 
-func (s *serviceFeatureFlagWithCache) Enable(ormService *datalayer.DataLayer, name string) error {
+func (s *serviceFeatureFlagWithCache) Enable(ormService *datalayer.ORM, name string) error {
 	err := s.featureFlagService.Enable(ormService, name)
 	s.Lock()
 	delete(s.cache, name)
@@ -81,7 +81,7 @@ func (s *serviceFeatureFlagWithCache) Enable(ormService *datalayer.DataLayer, na
 	return err
 }
 
-func (s *serviceFeatureFlagWithCache) Disable(ormService *datalayer.DataLayer, name string) error {
+func (s *serviceFeatureFlagWithCache) Disable(ormService *datalayer.ORM, name string) error {
 	err := s.featureFlagService.Disable(ormService, name)
 	s.Lock()
 	delete(s.cache, name)
@@ -90,11 +90,11 @@ func (s *serviceFeatureFlagWithCache) Disable(ormService *datalayer.DataLayer, n
 	return err
 }
 
-func (s *serviceFeatureFlagWithCache) GetScriptsSingleInstance(ormService *datalayer.DataLayer) []app.IScript {
+func (s *serviceFeatureFlagWithCache) GetScriptsSingleInstance(ormService *datalayer.ORM) []app.IScript {
 	return s.featureFlagService.GetScriptsSingleInstance(ormService)
 }
 
-func (s *serviceFeatureFlagWithCache) GetScriptsMultiInstance(ormService *datalayer.DataLayer) []app.IScript {
+func (s *serviceFeatureFlagWithCache) GetScriptsMultiInstance(ormService *datalayer.ORM) []app.IScript {
 	return s.featureFlagService.GetScriptsMultiInstance(ormService)
 }
 
@@ -102,6 +102,6 @@ func (s *serviceFeatureFlagWithCache) Register(featureFlags ...IFeatureFlag) {
 	s.featureFlagService.Register(featureFlags...)
 }
 
-func (s *serviceFeatureFlagWithCache) Sync(ormService *datalayer.DataLayer, clockService clock.IClock) {
+func (s *serviceFeatureFlagWithCache) Sync(ormService *datalayer.ORM, clockService clock.IClock) {
 	s.featureFlagService.Sync(ormService, clockService)
 }

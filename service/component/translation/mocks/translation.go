@@ -11,7 +11,7 @@ type FakeTranslationService struct {
 	mock.Mock
 }
 
-func (f *FakeTranslationService) GetText(_ *datalayer.DataLayer, _ entity.TranslationTextLang, key entity.TranslationTextKey) string {
+func (f *FakeTranslationService) GetText(_ *datalayer.ORM, _ entity.TranslationTextLang, key entity.TranslationTextKey) string {
 	args := f.Called()
 	if args.Get(0) == nil || args.Get(1) == nil {
 		return string(key)
@@ -20,7 +20,7 @@ func (f *FakeTranslationService) GetText(_ *datalayer.DataLayer, _ entity.Transl
 	return args.String(0)
 }
 
-func (f *FakeTranslationService) GetTextWithVars(_ *datalayer.DataLayer,
+func (f *FakeTranslationService) GetTextWithVars(_ *datalayer.ORM,
 	_ entity.TranslationTextLang,
 	key entity.TranslationTextKey,
 	_ map[string]interface{},

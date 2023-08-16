@@ -19,7 +19,7 @@ func ListResources(c *gin.Context) *acl.ResourcesResponseDTO {
 	query.Sort("ID", false)
 
 	allPermissionEntities := make([]*entity.PermissionEntity, 0)
-	ormService.RedisSearchMany(query, beeorm.NewPager(1, 4000), &allPermissionEntities, "ResourceID")
+	ormService.RedisSearch(query, beeorm.NewPager(1, 4000), &allPermissionEntities, "ResourceID")
 
 	resourceDTOsMapping := resourceDTOsMapping{}
 
@@ -72,7 +72,7 @@ func ListUserResources(c *gin.Context, getUserFunc func(c *gin.Context) beeorm.E
 	query.FilterUint("RoleID", userWithGettableRole.GetRole().ID)
 
 	privilegeEntities := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearchMany(query, beeorm.NewPager(1, 4000), &privilegeEntities, "ResourceID")
+	ormService.RedisSearch(query, beeorm.NewPager(1, 4000), &privilegeEntities, "ResourceID")
 
 	for _, privilege := range privilegeEntities {
 		permissionIDs := make([]uint64, len(privilege.PermissionIDs))

@@ -10,6 +10,6 @@ import (
 const ID = "request_logger_id"
 
 type IRequestLogger interface {
-	LogRequest(ormService *datalayer.DataLayer, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity
-	LogResponse(ormService *datalayer.DataLayer, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int)
+	LogRequest(ormService *datalayer.ORM, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity
+	LogResponse(ormService *datalayer.ORM, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int)
 }

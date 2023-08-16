@@ -18,9 +18,9 @@ import (
 )
 
 type IOTP interface {
-	SendSMS(ormService *datalayer.DataLayer, phone *Phone) (string, error)
-	VerifyOTP(ormService *datalayer.DataLayer, phone *Phone, code string) (bool, bool, error)
-	Call(ormService *datalayer.DataLayer, phone *Phone, customMessage string) (string, error)
+	SendSMS(ormService *datalayer.ORM, phone *Phone) (string, error)
+	VerifyOTP(ormService *datalayer.ORM, phone *Phone, code string) (bool, bool, error)
+	Call(ormService *datalayer.ORM, phone *Phone, customMessage string) (string, error)
 	GetGatewayRegistry() map[string]IOTPSMSGateway
 }
 
@@ -77,7 +77,7 @@ func NewOTP(retryOTP bool, gateways ...IOTPSMSGateway) *OTP {
 	return otp
 }
 
-func (o *OTP) SendSMS(ormService *datalayer.DataLayer, phone *Phone) (string, error) {
+func (o *OTP) SendSMS(ormService *datalayer.ORM, phone *Phone) (string, error) {
 	var code string
 	var err error
 
@@ -133,7 +133,7 @@ func (o *OTP) SendSMS(ormService *datalayer.DataLayer, phone *Phone) (string, er
 	return code, err
 }
 
-func (o *OTP) Call(ormService *datalayer.DataLayer, phone *Phone, customMessage string) (string, error) {
+func (o *OTP) Call(ormService *datalayer.ORM, phone *Phone, customMessage string) (string, error) {
 	var code string
 	var err error
 
@@ -170,7 +170,7 @@ func (o *OTP) Call(ormService *datalayer.DataLayer, phone *Phone, customMessage 
 	return code, err
 }
 
-func (o *OTP) VerifyOTP(ormService *datalayer.DataLayer, phone *Phone, code string) (bool, bool, error) {
+func (o *OTP) VerifyOTP(ormService *datalayer.ORM, phone *Phone, code string) (bool, bool, error) {
 	otpTrackerEntity, err := o.getOTPTrackerEntity(ormService, phone)
 
 	if err != nil {
@@ -205,7 +205,7 @@ func (o *OTP) GetGatewayRegistry() map[string]IOTPSMSGateway {
 	return o.GatewayName
 }
 
-func (o *OTP) getOTPTrackerEntity(ormService *datalayer.DataLayer, phone *Phone) (*entity.OTPTrackerEntity, error) {
+func (o *OTP) getOTPTrackerEntity(ormService *datalayer.ORM, phone *Phone) (*entity.OTPTrackerEntity, error) {
 	otpTrackerEntityIDString, has := ormService.GetRedis().Get(o.getRedisKey(phone))
 
 	if !has {

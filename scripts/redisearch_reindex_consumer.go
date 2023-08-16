@@ -13,7 +13,7 @@ type ReindexConsumerScript struct {
 }
 
 func (script *ReindexConsumerScript) Run(ctx context.Context, _ app.IExit) {
-	queue.NewConsumerRunner(ctx).RunConsumerOne(consumers.NewReindexConsumer(service.DI().OrmEngine().RedisSearch), nil, 1)
+	queue.NewConsumerRunner(ctx).RunConsumerOne(consumers.NewReindexConsumer(service.DI().OrmEngine().RedisSearchEngine), nil, 1)
 }
 
 func (script *ReindexConsumerScript) Infinity() bool {

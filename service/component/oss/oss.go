@@ -72,11 +72,11 @@ type IProvider interface {
 	GetObjectSignedURL(namespace Namespace, object *entity.FileObject, expires time.Time) (string, error)
 	GetObjectBase64Content(namespace Namespace, object *entity.FileObject) (string, error)
 	GetNamespaceBucketConfig(namespace Namespace) (*BucketConfig, error)
-	UploadObjectFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error)
-	UploadObjectFromBase64(ormService *datalayer.DataLayer, namespace Namespace, content, extension string) (entity.FileObject, error)
-	UploadObjectFromByte(ormService *datalayer.DataLayer, namespace Namespace, content []byte, extension string) (entity.FileObject, error)
-	UploadImageFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error)
-	UploadImageFromBase64(ormService *datalayer.DataLayer, namespace Namespace, image, extension string) (entity.FileObject, error)
+	UploadObjectFromFile(ormService *datalayer.ORM, namespace Namespace, localFile string) (entity.FileObject, error)
+	UploadObjectFromBase64(ormService *datalayer.ORM, namespace Namespace, content, extension string) (entity.FileObject, error)
+	UploadObjectFromByte(ormService *datalayer.ORM, namespace Namespace, content []byte, extension string) (entity.FileObject, error)
+	UploadImageFromFile(ormService *datalayer.ORM, namespace Namespace, localFile string) (entity.FileObject, error)
+	UploadImageFromBase64(ormService *datalayer.ORM, namespace Namespace, image, extension string) (entity.FileObject, error)
 	DeleteObject(namespace Namespace, object *entity.FileObject) error
 }
 
@@ -174,7 +174,7 @@ func getObjectCDNURL(bucketConfig *BucketConfig, storageKey string) string {
 	return replacer.Replace(bucketConfig.CDNURL)
 }
 
-func getStorageCounter(ctx context.Context, ormService *datalayer.DataLayer, bucketConfig *BucketConfig) uint64 {
+func getStorageCounter(ctx context.Context, ormService *datalayer.ORM, bucketConfig *BucketConfig) uint64 {
 	bucketID := bucketConfig.StorageCounterDatabaseID
 
 	ossBucketCounterEntity := &entity.OSSBucketCounterEntity{}

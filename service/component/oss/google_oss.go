@@ -171,7 +171,7 @@ func (ossStorage *GoogleOSS) GetObjectBase64Content(namespace Namespace, object 
 	return base64.StdEncoding.EncodeToString(content), nil
 }
 
-func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *datalayer.ORM, namespace Namespace, localFile string) (entity.FileObject, error) {
 	fileContent, ext, err := readContentFile(localFile)
 	if err != nil {
 		return entity.FileObject{}, err
@@ -181,7 +181,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromFile(ormService *datalayer.DataLaye
 }
 
 func (ossStorage *GoogleOSS) UploadObjectFromBase64(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	namespace Namespace,
 	base64content,
 	extension string,
@@ -195,7 +195,7 @@ func (ossStorage *GoogleOSS) UploadObjectFromBase64(
 }
 
 func (ossStorage *GoogleOSS) UploadImageFromBase64(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	namespace Namespace,
 	base64image string,
 	extension string,
@@ -208,12 +208,12 @@ func (ossStorage *GoogleOSS) UploadImageFromBase64(
 	return ossStorage.UploadObjectFromByte(ormService, namespace, byteData, extension)
 }
 
-func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *GoogleOSS) UploadImageFromFile(ormService *datalayer.ORM, namespace Namespace, localFile string) (entity.FileObject, error) {
 	return ossStorage.UploadObjectFromFile(ormService, namespace, localFile)
 }
 
 func (ossStorage *GoogleOSS) UploadObjectFromByte(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	namespace Namespace,
 	objectContent []byte,
 	extension string,

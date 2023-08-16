@@ -16,11 +16,11 @@ func (m *Sender) GetTemplateKeyFromConfig(templateName string) (string, error) {
 
 	return args.Get(0).(string), args.Error(1)
 }
-func (m *Sender) SendTemplate(_ *datalayer.DataLayer, message *mail.Message) error {
+func (m *Sender) SendTemplate(_ *datalayer.ORM, message *mail.Message) error {
 	return m.Called(message.To).Error(0)
 }
 
-func (m *Sender) SendTemplateWithAttachments(_ *datalayer.DataLayer, message *mail.MessageAttachment) error {
+func (m *Sender) SendTemplateWithAttachments(_ *datalayer.ORM, message *mail.MessageAttachment) error {
 	return m.Called(message.To).Error(0)
 }
 

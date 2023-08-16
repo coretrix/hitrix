@@ -11,7 +11,7 @@ import (
 type GetLockerFunc func(ctn di.Container) tusd.Locker
 
 func GetRedisLocker(ctn di.Container) tusd.Locker {
-	ormService := ctn.Get(service.ORMEngineGlobalService).(*datalayer.DataLayer)
+	ormService := ctn.Get(service.ORMEngineGlobalService).(*datalayer.ORM)
 
 	return &RedisLocker{ormService: ormService}
 }

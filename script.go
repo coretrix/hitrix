@@ -230,7 +230,7 @@ func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 	})
 }
 
-func removeAllOldRequestLoggerRows(ormService *datalayer.DataLayer, configService config.IConfig) {
+func removeAllOldRequestLoggerRows(ormService *datalayer.ORM, configService config.IConfig) {
 	pager := beeorm.NewPager(1, 1000)
 
 	ttlInDays, has := configService.Int("request_logger.ttl_in_days")

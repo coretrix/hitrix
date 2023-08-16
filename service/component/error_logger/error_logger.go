@@ -56,7 +56,7 @@ type RedisErrorLogger struct {
 	appService    *app.App
 }
 
-func NewRedisErrorLogger(appService *app.App, ormService *datalayer.DataLayer, slackService slack.Slack, sentryService sentry.ISentry) ErrorLogger {
+func NewRedisErrorLogger(appService *app.App, ormService *datalayer.ORM, slackService slack.Slack, sentryService sentry.ISentry) ErrorLogger {
 	return &RedisErrorLogger{redisStorage: ormService.GetRedis(), slackService: slackService, appService: appService, sentryService: sentryService}
 }
 

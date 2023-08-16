@@ -151,7 +151,7 @@ func (ossStorage *AmazonOSS) GetObjectBase64Content(_ Namespace, _ *entity.FileO
 }
 
 func (ossStorage *AmazonOSS) UploadObjectFromByte(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	namespace Namespace,
 	objectContent []byte,
 	extension string,
@@ -186,7 +186,7 @@ func (ossStorage *AmazonOSS) UploadObjectFromByte(
 	}, nil
 }
 
-func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *datalayer.ORM, namespace Namespace, localFile string) (entity.FileObject, error) {
 	fileContent, ext, err := readContentFile(localFile)
 	if err != nil {
 		return entity.FileObject{}, err
@@ -196,7 +196,7 @@ func (ossStorage *AmazonOSS) UploadObjectFromFile(ormService *datalayer.DataLaye
 }
 
 func (ossStorage *AmazonOSS) UploadObjectFromBase64(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	namespace Namespace,
 	content string,
 	extension string,
@@ -219,12 +219,12 @@ func (ossStorage *AmazonOSS) GetNamespaceBucketConfig(namespace Namespace) (*Buc
 	return bucketConfig, nil
 }
 
-func (ossStorage *AmazonOSS) UploadImageFromFile(ormService *datalayer.DataLayer, namespace Namespace, localFile string) (entity.FileObject, error) {
+func (ossStorage *AmazonOSS) UploadImageFromFile(ormService *datalayer.ORM, namespace Namespace, localFile string) (entity.FileObject, error) {
 	return ossStorage.UploadObjectFromFile(ormService, namespace, localFile)
 }
 
 func (ossStorage *AmazonOSS) UploadImageFromBase64(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	namespace Namespace,
 	image string,
 	extension string,

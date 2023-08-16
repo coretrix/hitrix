@@ -14,7 +14,7 @@ require (
 	github.com/checkout/checkout-sdk-go v0.0.19
 	github.com/chromedp/cdproto v0.0.0-20210910012206-68626162910d
 	github.com/chromedp/chromedp v0.7.4
-	github.com/coretrix/beeorm-redisearch-plugin v0.0.2
+	github.com/coretrix/beeorm-redisearch-plugin v0.0.5
 	github.com/coretrix/clockwork v1.1.1
 	github.com/dongri/phonenumber v0.0.0-20210304071411-690733f34185
 	github.com/fatih/color v1.15.0

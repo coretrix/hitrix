@@ -69,7 +69,7 @@ func UpdateRole(c *gin.Context, roleID *acl.RoleRequestDTO, request *acl.CreateO
 	query.FilterUint("RoleID", roleEntity.ID)
 
 	privilegeEntitiesToDelete := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearchMany(query, beeorm.NewPager(1, 1000), &privilegeEntitiesToDelete)
+	ormService.RedisSearch(query, beeorm.NewPager(1, 1000), &privilegeEntitiesToDelete)
 
 	now := service.DI().Clock().Now()
 
@@ -115,7 +115,7 @@ func DeleteRole(c *gin.Context, roleID *acl.RoleRequestDTO) error {
 	query.FilterUint("RoleID", roleEntity.ID)
 
 	privilegeEntitiesToDelete := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearchMany(query, beeorm.NewPager(1, 1000), &privilegeEntitiesToDelete)
+	ormService.RedisSearch(query, beeorm.NewPager(1, 1000), &privilegeEntitiesToDelete)
 
 	err := helper.DBTransaction(ormService, func() error {
 		flusher := ormService.NewFlusher()
@@ -166,8 +166,8 @@ type resourceMapping map[uint64]*entity.ResourceEntity
 
 type permissionMapping map[uint64]*entity.PermissionEntity
 
-//nolint // info
-func validateResourcesAndPermissions(ormService *datalayer.DataLayer, resources []*acl.RoleResourceRequestDTO) (resourceMapping, permissionMapping, error) {
+// nolint // info
+func validateResourcesAndPermissions(ormService *datalayer.ORM, resources []*acl.RoleResourceRequestDTO) (resourceMapping, permissionMapping, error) {
 	resourceIDs := make([]uint64, len(resources))
 	permissionIDs := make([]uint64, 0)
 
@@ -181,7 +181,7 @@ func validateResourcesAndPermissions(ormService *datalayer.DataLayer, resources 
 	resourcesQuery.FilterUint("ID", resourceIDs...)
 
 	resourceEntities := make([]*entity.ResourceEntity, 0)
-	ormService.RedisSearchMany(resourcesQuery, beeorm.NewPager(1, 1000), &resourceEntities)
+	ormService.RedisSearch(resourcesQuery, beeorm.NewPager(1, 1000), &resourceEntities)
 
 	if len(resourceEntities) != len(resourceIDs) {
 		return nil, nil, fmt.Errorf("some of the provided resources is not found")
@@ -191,7 +191,7 @@ func validateResourcesAndPermissions(ormService *datalayer.DataLayer, resources 
 	permissionsQuery.FilterUint("ID", permissionIDs...)
 
 	permissionEntities := make([]*entity.PermissionEntity, 0)
-	ormService.RedisSearchMany(permissionsQuery, beeorm.NewPager(1, 4000), &permissionEntities)
+	ormService.RedisSearch(permissionsQuery, beeorm.NewPager(1, 4000), &permissionEntities)
 
 	if len(permissionEntities) != len(permissionIDs) {
 		return nil, nil, fmt.Errorf("some of the provided permissions is not found")

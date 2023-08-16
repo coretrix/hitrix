@@ -9,10 +9,10 @@ import (
 )
 
 type ReindexConsumer struct {
-	redisearch *redisearch.RedisSearch
+	redisearch *redisearch.RedisSearchEngine
 }
 
-func NewReindexConsumer(redisearch *redisearch.RedisSearch) *ReindexConsumer {
+func NewReindexConsumer(redisearch *redisearch.RedisSearchEngine) *ReindexConsumer {
 	return &ReindexConsumer{redisearch: redisearch}
 }
 
@@ -24,7 +24,7 @@ func (c *ReindexConsumer) GetGroupName(suffix *string) string {
 	return streams.GetGroupName(c.GetQueueName(), suffix)
 }
 
-func (c *ReindexConsumer) Consume(_ *datalayer.DataLayer, event beeorm.Event) error {
+func (c *ReindexConsumer) Consume(_ *datalayer.ORM, event beeorm.Event) error {
 	indexerEvent := &redisearch.IndexerEventRedisearch{}
 
 	event.Unserialize(indexerEvent)

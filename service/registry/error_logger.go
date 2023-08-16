@@ -30,7 +30,7 @@ func ServiceProviderErrorLogger() *service.DefinitionGlobal {
 
 			return errorlogger.NewRedisErrorLogger(
 				ctn.Get(service.AppService).(*app.App),
-				ctn.Get(service.ORMEngineGlobalService).(*datalayer.DataLayer),
+				ctn.Get(service.ORMEngineGlobalService).(*datalayer.ORM),
 				slackAPIService,
 				sentryService,
 			), nil

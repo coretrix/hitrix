@@ -16,7 +16,7 @@ func NewMysqlAPILogger(entity ILogEntity) IAPILogger {
 	return &mysqlDBLog{logEntity: entity}
 }
 
-func (l *mysqlDBLog) LogStart(ormService *datalayer.DataLayer, logType string, request interface{}) {
+func (l *mysqlDBLog) LogStart(ormService *datalayer.ORM, logType string, request interface{}) {
 	var logEntity ILogEntity
 
 	if l.logEntity.GetID() == 0 {
@@ -35,7 +35,7 @@ func (l *mysqlDBLog) LogStart(ormService *datalayer.DataLayer, logType string, r
 	l.currentLog = logEntity
 }
 
-func (l *mysqlDBLog) LogError(ormService *datalayer.DataLayer, message string, response interface{}) {
+func (l *mysqlDBLog) LogError(ormService *datalayer.ORM, message string, response interface{}) {
 	if l.currentLog == nil {
 		panic("log is not created")
 	}
@@ -48,7 +48,7 @@ func (l *mysqlDBLog) LogError(ormService *datalayer.DataLayer, message string, r
 	ormService.Flush(currentLog)
 }
 
-func (l *mysqlDBLog) LogSuccess(ormService *datalayer.DataLayer, response interface{}) {
+func (l *mysqlDBLog) LogSuccess(ormService *datalayer.ORM, response interface{}) {
 	if l.currentLog == nil {
 		panic("log is not created")
 	}

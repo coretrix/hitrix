@@ -142,12 +142,12 @@ func (d *DIContainer) OrmConfig() beeorm.ValidatedRegistry {
 	return GetServiceRequired(ORMConfigService).(beeorm.ValidatedRegistry)
 }
 
-func (d *DIContainer) OrmEngine() *datalayer.DataLayer {
-	return GetServiceRequired(ORMEngineGlobalService).(*datalayer.DataLayer)
+func (d *DIContainer) OrmEngine() *datalayer.ORM {
+	return GetServiceRequired(ORMEngineGlobalService).(*datalayer.ORM)
 }
 
-func (d *DIContainer) OrmEngineForContext(ctx context.Context) *datalayer.DataLayer {
-	return GetServiceForRequestRequired(ctx, ORMEngineRequestService).(*datalayer.DataLayer)
+func (d *DIContainer) OrmEngineForContext(ctx context.Context) *datalayer.ORM {
+	return GetServiceForRequestRequired(ctx, ORMEngineRequestService).(*datalayer.ORM)
 }
 
 func (d *DIContainer) ClockWorkForContext(ctx context.Context) *clockwork.Clockwork {

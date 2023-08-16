@@ -146,8 +146,8 @@ github.com/cncf/xds/go v0.0.0-20211001041855-01bcc9b48dfe/go.mod h1:eXthEFrGJvWH
 github.com/cncf/xds/go v0.0.0-20211011173535-cb28da3451f1/go.mod h1:eXthEFrGJvWHgFFCl3hGmgk+/aYT6PnTQLykKQRLhEs=
 github.com/cockroachdb/apd/v3 v3.1.0 h1:MK3Ow7LH0W8zkd5GMKA1PvS9qG3bWFI95WaVNfyZJ/w=
 github.com/cockroachdb/apd/v3 v3.1.0/go.mod h1:6qgPBMXjATAdD/VefbRP9NoSLKjbB4LCoA7gN4LpHs4=
-github.com/coretrix/beeorm-redisearch-plugin v0.0.2 h1:d2s/jvsBQJSNOm2A2FJRXwBgXsnEOIAFRlcGnEVayUo=
-github.com/coretrix/beeorm-redisearch-plugin v0.0.2/go.mod h1:v7DFctP8MgyJIUG5mZ+ww+PZwK+fPVE4GCVDlUvnPbc=
+github.com/coretrix/beeorm-redisearch-plugin v0.0.5 h1:eQ0K2uqWMG8dLYitKPCabJYxzOE8OUTnj+Y42Sqs2/I=
+github.com/coretrix/beeorm-redisearch-plugin v0.0.5/go.mod h1:v7DFctP8MgyJIUG5mZ+ww+PZwK+fPVE4GCVDlUvnPbc=
 github.com/coretrix/clockwork v1.1.1 h1:/w1KcZ17pST2vYhFg1ZgD0ZuDgnIVqQpxXHZvmD88CA=
 github.com/coretrix/clockwork v1.1.1/go.mod h1:HpUDo6SdLzvophOiyfO+BUJyg114CD1WUHpw06PbnQM=
 github.com/cpuguy83/go-md2man/v2 v2.0.1/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=

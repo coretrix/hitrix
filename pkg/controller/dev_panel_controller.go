@@ -251,7 +251,7 @@ func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
 		panic("stream pool is not defined")
 	}
 
-	stats := ormService.RedisSearch.GetRedisSearchStatistics()
+	stats := ormService.RedisSearchEngine.GetRedisSearchStatistics()
 
 	indexList := make([]indexes.Index, len(stats))
 
@@ -358,7 +358,7 @@ func (controller *DevPanelController) GetFeatureFlags(c *gin.Context) {
 	query := redisearch.NewRedisSearchQuery()
 	var featureFlagEntities []*entity.FeatureFlagEntity
 
-	ormService.RedisSearchMany(query, beeorm.NewPager(1, 1000), &featureFlagEntities)
+	ormService.RedisSearch(query, beeorm.NewPager(1, 1000), &featureFlagEntities)
 
 	type feature struct {
 		Name       string

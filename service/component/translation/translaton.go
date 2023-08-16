@@ -13,9 +13,9 @@ import (
 )
 
 type ITranslationService interface {
-	GetText(ormService *datalayer.DataLayer, lang entity.TranslationTextLang, key entity.TranslationTextKey) string
+	GetText(ormService *datalayer.ORM, lang entity.TranslationTextLang, key entity.TranslationTextKey) string
 	GetTextWithVars(
-		ormService *datalayer.DataLayer,
+		ormService *datalayer.ORM,
 		lang entity.TranslationTextLang,
 		key entity.TranslationTextKey,
 		variables map[string]interface{},
@@ -30,7 +30,7 @@ func NewTranslationService(errorLoggerService errorlogger.ErrorLogger) ITranslat
 	return &translationService{errorLoggerService}
 }
 
-func (u *translationService) GetText(ormService *datalayer.DataLayer, lang entity.TranslationTextLang, key entity.TranslationTextKey) string {
+func (u *translationService) GetText(ormService *datalayer.ORM, lang entity.TranslationTextLang, key entity.TranslationTextKey) string {
 	translationTextEntity := &entity.TranslationTextEntity{}
 
 	found := ormService.CachedSearchOne(
@@ -70,7 +70,7 @@ func (u *translationService) GetText(ormService *datalayer.DataLayer, lang entit
 }
 
 func (u *translationService) GetTextWithVars(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	lang entity.TranslationTextLang,
 	key entity.TranslationTextKey,
 	variables map[string]interface{},

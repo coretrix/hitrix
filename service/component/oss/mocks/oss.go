@@ -38,12 +38,12 @@ func (t *FakeOSSClient) GetObjectBase64Content(namespace oss.Namespace, object *
 	return t.Called(namespace, object).Get(0).(string), nil
 }
 
-func (t *FakeOSSClient) UploadObjectFromFile(_ *datalayer.DataLayer, namespace oss.Namespace, localFile string) (entity.FileObject, error) {
+func (t *FakeOSSClient) UploadObjectFromFile(_ *datalayer.ORM, namespace oss.Namespace, localFile string) (entity.FileObject, error) {
 	return t.Called(namespace, localFile).Get(0).(entity.FileObject), nil
 }
 
 func (t *FakeOSSClient) UploadObjectFromBase64(
-	_ *datalayer.DataLayer,
+	_ *datalayer.ORM,
 	namespace oss.Namespace,
 	content string,
 	extension string,
@@ -52,7 +52,7 @@ func (t *FakeOSSClient) UploadObjectFromBase64(
 }
 
 func (t *FakeOSSClient) UploadObjectFromByte(
-	_ *datalayer.DataLayer,
+	_ *datalayer.ORM,
 	namespace oss.Namespace,
 	content []byte,
 	extension string,
@@ -60,11 +60,11 @@ func (t *FakeOSSClient) UploadObjectFromByte(
 	return t.Called(namespace, content, extension).Get(0).(entity.FileObject), nil
 }
 
-func (t *FakeOSSClient) UploadImageFromFile(_ *datalayer.DataLayer, namespace oss.Namespace, localFile string) (entity.FileObject, error) {
+func (t *FakeOSSClient) UploadImageFromFile(_ *datalayer.ORM, namespace oss.Namespace, localFile string) (entity.FileObject, error) {
 	return t.Called(namespace, localFile).Get(0).(entity.FileObject), nil
 }
 
-func (t *FakeOSSClient) UploadImageFromBase64(_ *datalayer.DataLayer, namespace oss.Namespace, image, extension string) (entity.FileObject, error) {
+func (t *FakeOSSClient) UploadImageFromBase64(_ *datalayer.ORM, namespace oss.Namespace, image, extension string) (entity.FileObject, error) {
 	return t.Called(namespace, image, extension).Get(0).(entity.FileObject), nil
 }
 
@@ -72,7 +72,7 @@ func (t *FakeOSSClient) DeleteObject(namespace oss.Namespace, object *entity.Fil
 	return t.Called(namespace, object).Error(0)
 }
 
-func (t *FakeOSSClient) CreateObjectFromKey(_ *datalayer.DataLayer, namespace oss.Namespace, key string) entity.FileObject {
+func (t *FakeOSSClient) CreateObjectFromKey(_ *datalayer.ORM, namespace oss.Namespace, key string) entity.FileObject {
 	return t.Called(namespace, key).Get(0).(entity.FileObject)
 }
 

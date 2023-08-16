@@ -20,26 +20,26 @@ const (
 
 type ConsumerOneByModulo interface {
 	GetMaxModulo() int
-	Consume(ormService *datalayer.DataLayer, event beeorm.Event) error
+	Consume(ormService *datalayer.ORM, event beeorm.Event) error
 	GetQueueName(moduloID int) string
 	GetGroupName(moduloID int, suffix *string) string
 }
 
 type ConsumerManyByModulo interface {
 	GetMaxModulo() int
-	Consume(ormService *datalayer.DataLayer, events []beeorm.Event) error
+	Consume(ormService *datalayer.ORM, events []beeorm.Event) error
 	GetQueueName(moduloID int) string
 	GetGroupName(moduloID int, suffix *string) string
 }
 
 type ConsumerOne interface {
-	Consume(ormService *datalayer.DataLayer, event beeorm.Event) error
+	Consume(ormService *datalayer.ORM, event beeorm.Event) error
 	GetQueueName() string
 	GetGroupName(suffix *string) string
 }
 
 type ConsumerMany interface {
-	Consume(ormService *datalayer.DataLayer, events []beeorm.Event) error
+	Consume(ormService *datalayer.ORM, events []beeorm.Event) error
 	GetQueueName() string
 	GetGroupName(suffix *string) string
 }

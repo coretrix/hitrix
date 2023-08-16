@@ -30,7 +30,7 @@ func (c *DirtyConsumer) GetGroupName(suffix *string) string {
 	return streams.GetGroupName(c.GetQueueName(), suffix)
 }
 
-func (c *DirtyConsumer) Consume(ormService *datalayer.DataLayer, events []beeorm.Event) error {
+func (c *DirtyConsumer) Consume(ormService *datalayer.ORM, events []beeorm.Event) error {
 	entityNameIDsMapping := map[string][]uint64{}
 
 	for _, dirtyEvent := range events {
@@ -60,12 +60,12 @@ func (c *DirtyConsumer) Consume(ormService *datalayer.DataLayer, events []beeorm
 	return nil
 }
 
-var dirtyEntityProcessorFactory = map[string]func(*datalayer.DataLayer, []uint64) error{
+var dirtyEntityProcessorFactory = map[string]func(*datalayer.ORM, []uint64) error{
 	"entity.DevPanelUserEntity": processDevPanelUserEntity,
 }
 
 //nolint // info
-func processDevPanelUserEntity(ormService *datalayer.DataLayer, ids []uint64) error {
+func processDevPanelUserEntity(ormService *datalayer.ORM, ids []uint64) error {
 	log.Printf("indexing %d dev panel users", len(ids))
 
 	devPanelUserEntities := make([]*entity.DevPanelUserEntity, 0)

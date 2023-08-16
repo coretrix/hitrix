@@ -7,12 +7,12 @@ import (
 )
 
 type ServiceFeatureFlagInterface interface {
-	IsActive(ormService *datalayer.DataLayer, name string) bool
-	FailIfIsNotActive(ormService *datalayer.DataLayer, name string) error
-	Enable(ormService *datalayer.DataLayer, name string) error
-	Disable(ormService *datalayer.DataLayer, name string) error
-	GetScriptsSingleInstance(ormService *datalayer.DataLayer) []app.IScript
-	GetScriptsMultiInstance(ormService *datalayer.DataLayer) []app.IScript
+	IsActive(ormService *datalayer.ORM, name string) bool
+	FailIfIsNotActive(ormService *datalayer.ORM, name string) error
+	Enable(ormService *datalayer.ORM, name string) error
+	Disable(ormService *datalayer.ORM, name string) error
+	GetScriptsSingleInstance(ormService *datalayer.ORM) []app.IScript
+	GetScriptsMultiInstance(ormService *datalayer.ORM) []app.IScript
 	Register(featureFlags ...IFeatureFlag)
-	Sync(ormService *datalayer.DataLayer, clockService clock.IClock)
+	Sync(ormService *datalayer.ORM, clockService clock.IClock)
 }

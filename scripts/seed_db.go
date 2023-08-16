@@ -36,12 +36,12 @@ func (script *DBSeedScript) Description() string {
 }
 
 type Seed interface {
-	Execute(*datalayer.DataLayer)
+	Execute(*datalayer.ORM)
 	Environments() []string
 	Name() string
 }
 
-func Seeder(seedsPerProject map[string][]Seed, ormService *datalayer.DataLayer, appService *app.App) {
+func Seeder(seedsPerProject map[string][]Seed, ormService *datalayer.ORM, appService *app.App) {
 	for project, seeds := range seedsPerProject {
 		if project != os.Getenv("PROJECT_NAME") {
 			continue

@@ -21,23 +21,23 @@ func (t *FakeS3Client) GetObjectSignedURL(bucket string, object *s3.Object, expi
 	return t.Called(bucket, object, expires).String(0)
 }
 
-func (t *FakeS3Client) UploadObjectFromFile(_ *datalayer.DataLayer, bucket, localFile string) s3.Object {
+func (t *FakeS3Client) UploadObjectFromFile(_ *datalayer.ORM, bucket, localFile string) s3.Object {
 	return t.Called(bucket, localFile).Get(0).(s3.Object)
 }
 
-func (t *FakeS3Client) UploadObjectFromBase64(_ *datalayer.DataLayer, bucket, content, extension string) s3.Object {
+func (t *FakeS3Client) UploadObjectFromBase64(_ *datalayer.ORM, bucket, content, extension string) s3.Object {
 	return t.Called(bucket, content, extension).Get(0).(s3.Object)
 }
 
-func (t *FakeS3Client) UploadObjectFromByte(_ *datalayer.DataLayer, bucket string, byteData []byte, extension string) s3.Object {
+func (t *FakeS3Client) UploadObjectFromByte(_ *datalayer.ORM, bucket string, byteData []byte, extension string) s3.Object {
 	return t.Called(bucket, byteData, extension).Get(0).(s3.Object)
 }
 
-func (t *FakeS3Client) UploadImageFromFile(_ *datalayer.DataLayer, bucket, localFile string) s3.Object {
+func (t *FakeS3Client) UploadImageFromFile(_ *datalayer.ORM, bucket, localFile string) s3.Object {
 	return t.Called(bucket, localFile).Get(0).(s3.Object)
 }
 
-func (t *FakeS3Client) UploadImageFromBase64(_ *datalayer.DataLayer, bucket, image, extension string) s3.Object {
+func (t *FakeS3Client) UploadImageFromBase64(_ *datalayer.ORM, bucket, image, extension string) s3.Object {
 	return t.Called(bucket, image, extension).Get(0).(s3.Object)
 }
 
@@ -49,7 +49,7 @@ func (t *FakeS3Client) GetClient() interface{} {
 	return t.Called().Get(0)
 }
 
-func (t *FakeS3Client) CreateObjectFromKey(_ *datalayer.DataLayer, bucket, key string) s3.Object {
+func (t *FakeS3Client) CreateObjectFromKey(_ *datalayer.ORM, bucket, key string) s3.Object {
 	return t.Called(bucket, key).Get(0).(s3.Object)
 }
 

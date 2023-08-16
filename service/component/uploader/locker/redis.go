@@ -12,7 +12,7 @@ import (
 )
 
 type RedisLocker struct {
-	ormService *datalayer.DataLayer
+	ormService *datalayer.ORM
 }
 
 func (locker *RedisLocker) NewLock(id string) (tusd.Lock, error) {

@@ -21,7 +21,7 @@ const LoggedDevPanelUserEntity = "logged_dev_panel_user_entity"
 const expireTimeToken = 3600
 const expireTimeRefreshToken = 7200
 
-func GenerateDevTokenAndRefreshToken(ormService *datalayer.DataLayer, userID uint64) (string, string, error) {
+func GenerateDevTokenAndRefreshToken(ormService *datalayer.ORM, userID uint64) (string, string, error) {
 	appService := service.DI().App()
 
 	token, err := generateTokenValue(appService.Secret, userID, time.Now().Unix()+expireTimeToken)
