@@ -17,7 +17,6 @@ func NewDBLogger(clockService clock.IClock) IRequestLogger {
 	return &DBLogger{clockService}
 }
 
-// nolint // info
 func (g *DBLogger) LogRequest(ormService *datalayer.ORM, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
 	content, err := httputil.DumpRequest(request, true)
 
@@ -42,7 +41,6 @@ func (g *DBLogger) LogRequest(ormService *datalayer.ORM, appName, url string, re
 	return requestLoggerEntity
 }
 
-// nolint //info
 func (g *DBLogger) LogResponse(ormService *datalayer.ORM, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
 	requestLoggerEntity.Status = status
 

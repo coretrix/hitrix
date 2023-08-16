@@ -352,7 +352,6 @@ func (t *Authentication) VerifyAccessToken(ormService *datalayer.ORM, accessToke
 	return payload, nil
 }
 
-// nolint // info
 func (t *Authentication) RefreshToken(ormService *datalayer.ORM, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, refreshToken, t.clockService.Now().Unix())
 	if err != nil {

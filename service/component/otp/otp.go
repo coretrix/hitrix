@@ -172,7 +172,6 @@ func (o *OTP) Call(ormService *datalayer.ORM, phone *Phone, customMessage string
 
 func (o *OTP) VerifyOTP(ormService *datalayer.ORM, phone *Phone, code string) (bool, bool, error) {
 	otpTrackerEntity, err := o.getOTPTrackerEntity(ormService, phone)
-
 	if err != nil {
 		return false, false, err
 	}
@@ -213,7 +212,6 @@ func (o *OTP) getOTPTrackerEntity(ormService *datalayer.ORM, phone *Phone) (*ent
 	}
 
 	otpTrackerEntityID, err := strconv.ParseUint(otpTrackerEntityIDString, 10, 64)
-
 	if err != nil {
 		return nil, errors.New("OTP: " + err.Error())
 	}
@@ -221,7 +219,6 @@ func (o *OTP) getOTPTrackerEntity(ormService *datalayer.ORM, phone *Phone) (*ent
 	otpTrackerEntity := &entity.OTPTrackerEntity{}
 
 	found := ormService.LoadByID(otpTrackerEntityID, otpTrackerEntity)
-
 	if !found {
 		return nil, errors.New("OTP tracker not found")
 	}

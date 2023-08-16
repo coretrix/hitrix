@@ -166,7 +166,6 @@ type resourceMapping map[uint64]*entity.ResourceEntity
 
 type permissionMapping map[uint64]*entity.PermissionEntity
 
-// nolint // info
 func validateResourcesAndPermissions(ormService *datalayer.ORM, resources []*acl.RoleResourceRequestDTO) (resourceMapping, permissionMapping, error) {
 	resourceIDs := make([]uint64, len(resources))
 	permissionIDs := make([]uint64, 0)
