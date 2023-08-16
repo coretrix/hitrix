@@ -99,7 +99,7 @@ type Crud struct {
 	TranslationService translation.ITranslationService
 }
 
-func (c *Crud) TranslateColumns(ormService *datalayer.DataLayer, lang entity.TranslationTextLang, cols []*Column) []*Column {
+func (c *Crud) TranslateColumns(ormService *datalayer.ORM, lang entity.TranslationTextLang, cols []*Column) []*Column {
 	for _, col := range cols {
 		col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
 

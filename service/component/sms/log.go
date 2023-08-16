@@ -22,7 +22,7 @@ type LogEntity interface {
 }
 
 type DBLog struct {
-	ormService *datalayer.DataLayer
+	ormService *datalayer.ORM
 	logEntity  LogEntity
 }
 
@@ -34,6 +34,6 @@ type Logger interface {
 	Do()
 }
 
-func NewSmsLog(ormService *datalayer.DataLayer, entity LogEntity) Logger {
+func NewSmsLog(ormService *datalayer.ORM, entity LogEntity) Logger {
 	return &DBLog{ormService: ormService, logEntity: entity}
 }

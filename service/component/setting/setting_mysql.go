@@ -18,7 +18,7 @@ func NewSettingService() ServiceSettingInterface {
 	return &serviceSetting{cache: map[string]*entity.SettingsEntity{}}
 }
 
-func (s *serviceSetting) Get(ormService *datalayer.DataLayer, key string) (*entity.SettingsEntity, bool) {
+func (s *serviceSetting) Get(ormService *datalayer.ORM, key string) (*entity.SettingsEntity, bool) {
 	if cachedEntity, exists := s.cache[key]; exists {
 		return cachedEntity, true
 	}
@@ -40,7 +40,7 @@ func (s *serviceSetting) Get(ormService *datalayer.DataLayer, key string) (*enti
 	return settingEntity, true
 }
 
-func (s *serviceSetting) GetString(ormService *datalayer.DataLayer, key string) (string, bool) {
+func (s *serviceSetting) GetString(ormService *datalayer.ORM, key string) (string, bool) {
 	setting, found := s.Get(ormService, key)
 	if found {
 		return setting.Value, true
@@ -49,7 +49,7 @@ func (s *serviceSetting) GetString(ormService *datalayer.DataLayer, key string) 
 	return "", false
 }
 
-func (s *serviceSetting) GetInt(ormService *datalayer.DataLayer, key string) (int, bool) {
+func (s *serviceSetting) GetInt(ormService *datalayer.ORM, key string) (int, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return 0, false
@@ -63,7 +63,7 @@ func (s *serviceSetting) GetInt(ormService *datalayer.DataLayer, key string) (in
 	return int(i), true
 }
 
-func (s *serviceSetting) GetUint(ormService *datalayer.DataLayer, key string) (uint, bool) {
+func (s *serviceSetting) GetUint(ormService *datalayer.ORM, key string) (uint, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return 0, false
@@ -77,7 +77,7 @@ func (s *serviceSetting) GetUint(ormService *datalayer.DataLayer, key string) (u
 	return uint(i), true
 }
 
-func (s *serviceSetting) GetInt64(ormService *datalayer.DataLayer, key string) (int64, bool) {
+func (s *serviceSetting) GetInt64(ormService *datalayer.ORM, key string) (int64, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return 0, false
@@ -91,7 +91,7 @@ func (s *serviceSetting) GetInt64(ormService *datalayer.DataLayer, key string) (
 	return i, true
 }
 
-func (s *serviceSetting) GetUint64(ormService *datalayer.DataLayer, key string) (uint64, bool) {
+func (s *serviceSetting) GetUint64(ormService *datalayer.ORM, key string) (uint64, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return 0, false
@@ -105,7 +105,7 @@ func (s *serviceSetting) GetUint64(ormService *datalayer.DataLayer, key string) 
 	return i, true
 }
 
-func (s *serviceSetting) GetFloat64(ormService *datalayer.DataLayer, key string) (float64, bool) {
+func (s *serviceSetting) GetFloat64(ormService *datalayer.ORM, key string) (float64, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return 0, false
@@ -119,7 +119,7 @@ func (s *serviceSetting) GetFloat64(ormService *datalayer.DataLayer, key string)
 	return i, true
 }
 
-func (s *serviceSetting) GetBool(ormService *datalayer.DataLayer, key string) (bool, bool) {
+func (s *serviceSetting) GetBool(ormService *datalayer.ORM, key string) (bool, bool) {
 	setting, found := s.Get(ormService, key)
 	if !found {
 		return false, false

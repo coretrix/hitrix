@@ -17,8 +17,8 @@ func NewDBLogger(clockService clock.IClock) IRequestLogger {
 	return &DBLogger{clockService}
 }
 
-//nolint // info
-func (g *DBLogger) LogRequest(ormService *datalayer.DataLayer, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
+// nolint // info
+func (g *DBLogger) LogRequest(ormService *datalayer.ORM, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
 	content, err := httputil.DumpRequest(request, true)
 
 	if err != nil {
@@ -43,7 +43,7 @@ func (g *DBLogger) LogRequest(ormService *datalayer.DataLayer, appName, url stri
 }
 
 // nolint //info
-func (g *DBLogger) LogResponse(ormService *datalayer.DataLayer, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
+func (g *DBLogger) LogResponse(ormService *datalayer.ORM, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
 	requestLoggerEntity.Status = status
 
 	if len(responseBody) > 0 && len(string(responseBody))*4 <= 64000 {

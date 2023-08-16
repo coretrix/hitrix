@@ -127,7 +127,7 @@ type GenerateOTPEmail struct {
 	Token          string
 }
 
-func (t *Authentication) GenerateAndSendOTPEmail(ormService *datalayer.DataLayer, email, template, from, title string) (*GenerateOTPEmail, error) {
+func (t *Authentication) GenerateAndSendOTPEmail(ormService *datalayer.ORM, email, template, from, title string) (*GenerateOTPEmail, error) {
 	_, err := mail2.ParseAddress(email)
 
 	if err != nil {
@@ -204,7 +204,7 @@ func (t *Authentication) VerifySocialLogin(ctx context.Context, source, token st
 }
 
 func (t *Authentication) AuthenticateOTP(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	phone string,
 	entity OTPProviderEntity,
 ) (accessToken string, refreshToken string, err error) {
@@ -224,7 +224,7 @@ func (t *Authentication) AuthenticateOTP(
 }
 
 func (t *Authentication) AuthenticateOTPEmail(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	email string,
 	entity OTPProviderEntity,
 ) (accessToken string, refreshToken string, err error) {
@@ -244,7 +244,7 @@ func (t *Authentication) AuthenticateOTPEmail(
 }
 
 func (t *Authentication) Authenticate(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	uniqueValue string,
 	password string,
 	entity AuthProviderEntity,
@@ -269,7 +269,7 @@ func (t *Authentication) Authenticate(
 }
 
 func (t *Authentication) AuthenticateEmail(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	email string,
 	password string,
 	entity EmailAuthEntity,
@@ -291,7 +291,7 @@ func (t *Authentication) AuthenticateEmail(
 }
 
 func (t *Authentication) AuthenticateByID(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	id uint64,
 	entity AuthProviderEntity,
 ) (accessToken string, refreshToken string, err error) {
@@ -308,7 +308,7 @@ func (t *Authentication) AuthenticateByID(
 	return t.generateUserTokens(ormService, entity.GetID())
 }
 
-func (t *Authentication) generateUserTokens(ormService *datalayer.DataLayer, ID uint64) (accessToken string, refreshToken string, err error) {
+func (t *Authentication) generateUserTokens(ormService *datalayer.ORM, ID uint64) (accessToken string, refreshToken string, err error) {
 	accessKey := t.generateAndStoreAccessKey(ormService, ID, t.refreshTokenTTL)
 
 	accessToken, err = t.GenerateTokenPair(ID, accessKey, t.accessTokenTTL)
@@ -326,7 +326,7 @@ func (t *Authentication) generateUserTokens(ormService *datalayer.DataLayer, ID 
 	return accessToken, refreshToken, nil
 }
 
-func (t *Authentication) VerifyAccessToken(ormService *datalayer.DataLayer, accessToken string, entity beeorm.Entity) (map[string]string, error) {
+func (t *Authentication) VerifyAccessToken(ormService *datalayer.ORM, accessToken string, entity beeorm.Entity) (map[string]string, error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, accessToken, t.clockService.Now().Unix())
 	if err != nil {
 		return nil, err
@@ -352,8 +352,8 @@ func (t *Authentication) VerifyAccessToken(ormService *datalayer.DataLayer, acce
 	return payload, nil
 }
 
-//nolint // info
-func (t *Authentication) RefreshToken(ormService *datalayer.DataLayer, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
+// nolint // info
+func (t *Authentication) RefreshToken(ormService *datalayer.ORM, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, refreshToken, t.clockService.Now().Unix())
 	if err != nil {
 		return "", "", err
@@ -391,7 +391,7 @@ func (t *Authentication) RefreshToken(ormService *datalayer.DataLayer, refreshTo
 	return newAccessToken, newRefreshToken, err
 }
 
-func (t *Authentication) LogoutCurrentSession(ormService *datalayer.DataLayer, accessKey string) {
+func (t *Authentication) LogoutCurrentSession(ormService *datalayer.ORM, accessKey string) {
 	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
 
 	cacheService.Del(accessKey)
@@ -417,7 +417,7 @@ func (t *Authentication) LogoutCurrentSession(ormService *datalayer.DataLayer, a
 	}
 }
 
-func (t *Authentication) LogoutAllSessions(ormService *datalayer.DataLayer, id uint64) {
+func (t *Authentication) LogoutAllSessions(ormService *datalayer.ORM, id uint64) {
 	tokenListKey := generateUserTokenListKey(id)
 	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
 
@@ -450,14 +450,14 @@ func (t *Authentication) GenerateTokenPair(id uint64, accessKey string, ttl int)
 	return t.jwtService.EncodeJWT(t.secret, headers, payload)
 }
 
-func (t *Authentication) generateAndStoreAccessKey(ormService *datalayer.DataLayer, id uint64, ttl int) string {
+func (t *Authentication) generateAndStoreAccessKey(ormService *datalayer.ORM, id uint64, ttl int) string {
 	key := generateAccessKey(id, t.uuidService.Generate())
 	ormService.GetRedis(t.appService.RedisPools.Persistent).Set(key, "", time.Second*time.Duration(ttl))
 
 	return key
 }
 
-func (t *Authentication) addUserAccessKeyList(ormService *datalayer.DataLayer, id uint64, accessKey, oldAccessKey string, ttl int) {
+func (t *Authentication) addUserAccessKeyList(ormService *datalayer.ORM, id uint64, accessKey, oldAccessKey string, ttl int) {
 	key := generateUserTokenListKey(id)
 	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
 

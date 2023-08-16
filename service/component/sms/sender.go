@@ -11,7 +11,7 @@ import (
 )
 
 type ISender interface {
-	SendMessage(ormService *datalayer.DataLayer, message *Message) error
+	SendMessage(ormService *datalayer.ORM, message *Message) error
 }
 
 type Sender struct {
@@ -22,7 +22,7 @@ type Sender struct {
 	SecondaryProvider  IProvider
 }
 
-func (s *Sender) SendMessage(ormService *datalayer.DataLayer, message *Message) error {
+func (s *Sender) SendMessage(ormService *datalayer.ORM, message *Message) error {
 	var primaryProvider IProvider
 	var secondaryProvider IProvider
 

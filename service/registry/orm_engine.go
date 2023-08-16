@@ -29,12 +29,12 @@ func ServiceProviderOrmEngine(searchPool ...string) *service.DefinitionGlobal {
 				ormEngine.EnableQueryDebug()
 			}
 
-			dataLayer := &datalayer.DataLayer{
+			dataLayer := &datalayer.ORM{
 				Engine: ormEngine,
 			}
 
 			if len(searchPool) != 0 && searchPool[0] != "" {
-				dataLayer.RedisSearch = redisearch.NewRedisSearch(service.DI().App().GlobalContext, ormEngine, searchPool[0])
+				dataLayer.RedisSearchEngine = redisearch.NewRedisSearch(service.DI().App().GlobalContext, ormEngine, searchPool[0])
 			}
 
 			return dataLayer, nil
@@ -60,12 +60,12 @@ func ServiceProviderOrmEngineForContext(enableGraphQLDataLoader bool, searchPool
 				ormEngine.EnableQueryDebug()
 			}
 
-			dataLayer := &datalayer.DataLayer{
+			dataLayer := &datalayer.ORM{
 				Engine: ormEngine,
 			}
 
 			if len(searchPool) != 0 && searchPool[0] != "" {
-				dataLayer.RedisSearch = redisearch.NewRedisSearch(c, ormEngine, searchPool[0])
+				dataLayer.RedisSearchEngine = redisearch.NewRedisSearch(c, ormEngine, searchPool[0])
 			}
 
 			return dataLayer, nil

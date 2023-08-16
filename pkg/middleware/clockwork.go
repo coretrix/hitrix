@@ -19,7 +19,7 @@ import (
 )
 
 type clockWorkHandler struct {
-	ormService           *datalayer.DataLayer
+	ormService           *datalayer.ORM
 	DatabaseDataSource   dataSource.QueryLoggerDataSourceInterface
 	RedisDataSource      dataSource.CacheLoggerDataSourceInterface
 	LocalCacheDataSource dataSource.UserDataSourceInterface

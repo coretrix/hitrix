@@ -46,7 +46,7 @@ func ListRoles(c *gin.Context, request *crud.ListRequest) *acl.RolesResponseDTO 
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	allRoleEntities := make([]*entity.RoleEntity, 0)
-	total := ormService.RedisSearchMany(query, beeorm.NewPager(searchParams.Page, searchParams.PageSize), &allRoleEntities)
+	total := ormService.RedisSearch(query, beeorm.NewPager(searchParams.Page, searchParams.PageSize), &allRoleEntities)
 
 	result := &acl.RolesResponseDTO{
 		Total:       int(total),
@@ -71,7 +71,7 @@ func GetRole(c *gin.Context, request *acl.RoleRequestDTO) (*acl.RoleResponseDTO,
 	query.FilterUint("RoleID", request.ID)
 
 	allPrivilegeEntities := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearchMany(query, beeorm.NewPager(1, 4000), &allPrivilegeEntities, "RoleID", "ResourceID")
+	ormService.RedisSearch(query, beeorm.NewPager(1, 4000), &allPrivilegeEntities, "RoleID", "ResourceID")
 
 	for _, privilege := range allPrivilegeEntities {
 		permissionIDs := make([]uint64, len(privilege.PermissionIDs))

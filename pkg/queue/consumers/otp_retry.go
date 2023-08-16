@@ -14,12 +14,12 @@ import (
 )
 
 type OTPRetryConsumer struct {
-	ormService      *datalayer.DataLayer
+	ormService      *datalayer.ORM
 	maxRetries      int
 	gatewayRegistry map[string]otp.IOTPSMSGateway
 }
 
-func NewOTPRetryConsumer(ormService *datalayer.DataLayer, maxRetries int, gatewayRegistry map[string]otp.IOTPSMSGateway) *OTPRetryConsumer {
+func NewOTPRetryConsumer(ormService *datalayer.ORM, maxRetries int, gatewayRegistry map[string]otp.IOTPSMSGateway) *OTPRetryConsumer {
 	return &OTPRetryConsumer{ormService: ormService, maxRetries: maxRetries, gatewayRegistry: gatewayRegistry}
 }
 
@@ -31,7 +31,7 @@ func (c *OTPRetryConsumer) GetGroupName(suffix *string) string {
 	return streams.GetGroupName(c.GetQueueName(), suffix)
 }
 
-func (c *OTPRetryConsumer) Consume(_ *datalayer.DataLayer, event beeorm.Event) error {
+func (c *OTPRetryConsumer) Consume(_ *datalayer.ORM, event beeorm.Event) error {
 	log.Println(".")
 
 	ormService := c.ormService.Clone()
@@ -52,7 +52,7 @@ func (c *OTPRetryConsumer) Consume(_ *datalayer.DataLayer, event beeorm.Event) e
 }
 
 func RetryOTP(
-	ormService *datalayer.DataLayer,
+	ormService *datalayer.ORM,
 	gatewayRegistry map[string]otp.IOTPSMSGateway,
 	retryDTO *otp.RetryDTO,
 	otpTrackerEntity *entity.OTPTrackerEntity,

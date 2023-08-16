@@ -34,7 +34,7 @@ func NewFeatureFlagService(errorLoggerService errorlogger.ErrorLogger) ServiceFe
 	}
 }
 
-func (s *serviceFeatureFlag) IsActive(ormService *datalayer.DataLayer, name string) bool {
+func (s *serviceFeatureFlag) IsActive(ormService *datalayer.ORM, name string) bool {
 	if name == "" {
 		panic("name cannot be empty")
 	}
@@ -52,7 +52,7 @@ func (s *serviceFeatureFlag) IsActive(ormService *datalayer.DataLayer, name stri
 	return featureFlagEntity.Enabled && featureFlagEntity.Registered
 }
 
-func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *datalayer.DataLayer, name string) error {
+func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *datalayer.ORM, name string) error {
 	isActive := s.IsActive(ormService, name)
 	if !isActive {
 		return fmt.Errorf("feature (%s) is not active", name)
@@ -61,7 +61,7 @@ func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *datalayer.DataLayer, 
 	return nil
 }
 
-func (s *serviceFeatureFlag) Enable(ormService *datalayer.DataLayer, name string) error {
+func (s *serviceFeatureFlag) Enable(ormService *datalayer.ORM, name string) error {
 	if name == "" {
 		panic("name cannot be empty")
 	}
@@ -82,7 +82,7 @@ func (s *serviceFeatureFlag) Enable(ormService *datalayer.DataLayer, name string
 	return nil
 }
 
-func (s *serviceFeatureFlag) Disable(ormService *datalayer.DataLayer, name string) error {
+func (s *serviceFeatureFlag) Disable(ormService *datalayer.ORM, name string) error {
 	if name == "" {
 		panic("name cannot be empty")
 	}
@@ -103,13 +103,13 @@ func (s *serviceFeatureFlag) Disable(ormService *datalayer.DataLayer, name strin
 	return nil
 }
 
-func (s *serviceFeatureFlag) getAllActive(ormService *datalayer.DataLayer, pager *beeorm.Pager) []IFeatureFlag {
+func (s *serviceFeatureFlag) getAllActive(ormService *datalayer.ORM, pager *beeorm.Pager) []IFeatureFlag {
 	query := redisearch.NewRedisSearchQuery()
 	query.FilterBool("Registered", true)
 	query.FilterBool("Enabled", true)
 
 	var featureFlagEntities []*entity.FeatureFlagEntity
-	ormService.RedisSearchMany(query, pager, &featureFlagEntities)
+	ormService.RedisSearch(query, pager, &featureFlagEntities)
 
 	activeFeatureFlags := make([]IFeatureFlag, 0)
 
@@ -126,7 +126,7 @@ func (s *serviceFeatureFlag) getAllActive(ormService *datalayer.DataLayer, pager
 	return activeFeatureFlags
 }
 
-func (s *serviceFeatureFlag) GetScriptsSingleInstance(ormService *datalayer.DataLayer) []app.IScript {
+func (s *serviceFeatureFlag) GetScriptsSingleInstance(ormService *datalayer.ORM) []app.IScript {
 	activeFeatureFlags := s.getAllActive(ormService, beeorm.NewPager(1, 1000))
 
 	allScripts := make([]app.IScript, 0)
@@ -137,7 +137,7 @@ func (s *serviceFeatureFlag) GetScriptsSingleInstance(ormService *datalayer.Data
 	return allScripts
 }
 
-func (s *serviceFeatureFlag) GetScriptsMultiInstance(ormService *datalayer.DataLayer) []app.IScript {
+func (s *serviceFeatureFlag) GetScriptsMultiInstance(ormService *datalayer.ORM) []app.IScript {
 	activeFeatureFlags := s.getAllActive(ormService, beeorm.NewPager(1, 1000))
 
 	allScripts := make([]app.IScript, 0)
@@ -160,7 +160,7 @@ func (s *serviceFeatureFlag) Register(featureFlags ...IFeatureFlag) {
 	}
 }
 
-func (s *serviceFeatureFlag) Sync(ormService *datalayer.DataLayer, clockService clock.IClock) {
+func (s *serviceFeatureFlag) Sync(ormService *datalayer.ORM, clockService clock.IClock) {
 	var featureFlagEntities []*entity.FeatureFlagEntity
 	var lastID uint64
 

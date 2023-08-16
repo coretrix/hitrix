@@ -8,7 +8,7 @@ import (
 	"github.com/coretrix/hitrix/pkg/entity"
 )
 
-func ACL(ormService *datalayer.DataLayer, roleEntity *entity.RoleEntity, resource string, permissions ...string) bool {
+func ACL(ormService *datalayer.ORM, roleEntity *entity.RoleEntity, resource string, permissions ...string) bool {
 	resourceQuery := redisearch.NewRedisSearchQuery()
 	resourceQuery.FilterString("Name", resource)
 
@@ -22,7 +22,7 @@ func ACL(ormService *datalayer.DataLayer, roleEntity *entity.RoleEntity, resourc
 	permissionQuery.FilterString("Name", permissions...)
 
 	permissionEntities := make([]*entity.PermissionEntity, 0)
-	ormService.RedisSearchMany(permissionQuery, beeorm.NewPager(1, 1000), &permissionEntities)
+	ormService.RedisSearch(permissionQuery, beeorm.NewPager(1, 1000), &permissionEntities)
 
 	if len(permissions) != len(permissionEntities) {
 		return false

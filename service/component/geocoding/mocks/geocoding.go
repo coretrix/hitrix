@@ -16,7 +16,7 @@ type FakeGeocoding struct {
 	mock.Mock
 }
 
-func (f *FakeGeocoding) Geocode(_ context.Context, _ *datalayer.DataLayer, address string, language geocoding.Language) (*geocoding.Address, error) {
+func (f *FakeGeocoding) Geocode(_ context.Context, _ *datalayer.ORM, address string, language geocoding.Language) (*geocoding.Address, error) {
 	args := f.Called(address, language)
 
 	return args.Get(0).(*geocoding.Address), args.Error(1)
@@ -24,7 +24,7 @@ func (f *FakeGeocoding) Geocode(_ context.Context, _ *datalayer.DataLayer, addre
 
 func (f *FakeGeocoding) ReverseGeocode(
 	_ context.Context,
-	_ *datalayer.DataLayer,
+	_ *datalayer.ORM,
 	latLng *geocoding.LatLng,
 	language geocoding.Language,
 ) (*geocoding.Address, error) {

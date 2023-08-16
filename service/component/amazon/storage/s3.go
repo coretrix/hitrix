@@ -57,7 +57,7 @@ func NewAmazonS3(endpoint string,
 	}
 }
 
-func (amazonS3 *AmazonS3) getCounter(ormService *datalayer.DataLayer, bucket string) uint64 {
+func (amazonS3 *AmazonS3) getCounter(ormService *datalayer.ORM, bucket string) uint64 {
 	amazonS3.checkBucket(bucket)
 
 	bucketID, has := amazonS3.bucketsMapping[bucket]
@@ -135,7 +135,7 @@ func (amazonS3 *AmazonS3) DeleteObject(bucket string, objects ...*entity.FileObj
 	return len(deletedObjects.Deleted) == len(objects)
 }
 
-func (amazonS3 *AmazonS3) putObject(ormService *datalayer.DataLayer, bucket string, objectContent []byte, extension string) Object {
+func (amazonS3 *AmazonS3) putObject(ormService *datalayer.ORM, bucket string, objectContent []byte, extension string) Object {
 	storageCounter := amazonS3.getCounter(ormService, bucket)
 
 	objectKey := amazonS3.getObjectKey(storageCounter, extension)
@@ -162,7 +162,7 @@ func (amazonS3 *AmazonS3) getObjectKey(storageCounter uint64, fileExtension stri
 	return strconv.FormatUint(storageCounter, 10) + fileExtension
 }
 
-func (amazonS3 *AmazonS3) UploadObjectFromFile(ormService *datalayer.DataLayer, bucket, localFile string) Object {
+func (amazonS3 *AmazonS3) UploadObjectFromFile(ormService *datalayer.ORM, bucket, localFile string) Object {
 	amazonS3.checkBucket(bucket)
 
 	fileContent, ext := amazonS3.ReadFile(localFile)
@@ -170,7 +170,7 @@ func (amazonS3 *AmazonS3) UploadObjectFromFile(ormService *datalayer.DataLayer, 
 	return amazonS3.putObject(ormService, bucket, fileContent, ext)
 }
 
-func (amazonS3 *AmazonS3) UploadObjectFromBase64(ormService *datalayer.DataLayer, bucket, base64content, extension string) Object {
+func (amazonS3 *AmazonS3) UploadObjectFromBase64(ormService *datalayer.ORM, bucket, base64content, extension string) Object {
 	byteData, err := base64.StdEncoding.DecodeString(base64content)
 
 	if err != nil {
@@ -180,11 +180,11 @@ func (amazonS3 *AmazonS3) UploadObjectFromBase64(ormService *datalayer.DataLayer
 	return amazonS3.putObject(ormService, bucket, byteData, extension)
 }
 
-func (amazonS3 *AmazonS3) UploadObjectFromByte(ormService *datalayer.DataLayer, bucket string, byteData []byte, extension string) Object {
+func (amazonS3 *AmazonS3) UploadObjectFromByte(ormService *datalayer.ORM, bucket string, byteData []byte, extension string) Object {
 	return amazonS3.putObject(ormService, bucket, byteData, extension)
 }
 
-func (amazonS3 *AmazonS3) UploadImageFromBase64(ormService *datalayer.DataLayer, bucket, base64image, extension string) Object {
+func (amazonS3 *AmazonS3) UploadImageFromBase64(ormService *datalayer.ORM, bucket, base64image, extension string) Object {
 	byteData, err := base64.StdEncoding.DecodeString(base64image)
 
 	if err != nil {
@@ -194,7 +194,7 @@ func (amazonS3 *AmazonS3) UploadImageFromBase64(ormService *datalayer.DataLayer,
 	return amazonS3.putObject(ormService, bucket, byteData, extension)
 }
 
-func (amazonS3 *AmazonS3) UploadImageFromFile(ormService *datalayer.DataLayer, bucket, localFile string) Object {
+func (amazonS3 *AmazonS3) UploadImageFromFile(ormService *datalayer.ORM, bucket, localFile string) Object {
 	return amazonS3.UploadObjectFromFile(ormService, bucket, localFile)
 }
 
@@ -273,7 +273,7 @@ func (amazonS3 *AmazonS3) GetObjectSignedURL(bucket string, object *entity.FileO
 	return url
 }
 
-func (amazonS3 *AmazonS3) CreateObjectFromKey(ormService *datalayer.DataLayer, bucket, key string) Object {
+func (amazonS3 *AmazonS3) CreateObjectFromKey(ormService *datalayer.ORM, bucket, key string) Object {
 	return Object{
 		ID:         amazonS3.getCounter(ormService, bucket),
 		StorageKey: key,
@@ -298,13 +298,13 @@ type Object struct {
 type Client interface {
 	GetClient() interface{}
 	GetBucketName(bucket string) string
-	CreateObjectFromKey(ormService *datalayer.DataLayer, bucket, key string) Object
+	CreateObjectFromKey(ormService *datalayer.ORM, bucket, key string) Object
 	GetObjectCachedURL(bucket string, object *entity.FileObject) string
 	GetObjectSignedURL(bucket string, object *entity.FileObject, expires time.Duration) string
-	UploadObjectFromFile(ormService *datalayer.DataLayer, bucket, localFile string) Object
-	UploadObjectFromBase64(ormService *datalayer.DataLayer, bucket, content, extension string) Object
-	UploadObjectFromByte(ormService *datalayer.DataLayer, bucket string, data []byte, extension string) Object
-	UploadImageFromFile(ormService *datalayer.DataLayer, bucket, localFile string) Object
-	UploadImageFromBase64(ormService *datalayer.DataLayer, bucket, image, extension string) Object
+	UploadObjectFromFile(ormService *datalayer.ORM, bucket, localFile string) Object
+	UploadObjectFromBase64(ormService *datalayer.ORM, bucket, content, extension string) Object
+	UploadObjectFromByte(ormService *datalayer.ORM, bucket string, data []byte, extension string) Object
+	UploadImageFromFile(ormService *datalayer.ORM, bucket, localFile string) Object
+	UploadImageFromBase64(ormService *datalayer.ORM, bucket, image, extension string) Object
 	DeleteObject(bucket string, objects ...*entity.FileObject) bool
 }

@@ -10,7 +10,7 @@ import (
 
 type transaction func() error
 
-func DBTransaction(ormService *datalayer.DataLayer, callback transaction) error {
+func DBTransaction(ormService *datalayer.ORM, callback transaction) error {
 	dbService := ormService.GetMysql()
 
 	dbService.Begin()

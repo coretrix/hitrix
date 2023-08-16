@@ -39,7 +39,7 @@ func ServiceProviderOTP(forceProviders ...string) *service.DefinitionGlobal {
 					providers = append(providers, provider)
 				}
 			} else {
-				ormService := ctn.Get(service.ORMEngineGlobalService).(*datalayer.DataLayer)
+				ormService := ctn.Get(service.ORMEngineGlobalService).(*datalayer.ORM)
 
 				q := &redisearch.RedisSearchQuery{}
 				q.FilterString("Key", "otp_sms_provider")

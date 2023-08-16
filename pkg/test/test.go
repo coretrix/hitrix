@@ -261,7 +261,7 @@ func CreateAPIContext(
 	return &Environment{t: t, Hitrix: testSpringInstance, GinEngine: ginTestInstance, Cxt: c, ResponseRecorder: resp}
 }
 
-func executeAlters(ormService *datalayer.DataLayer) {
+func executeAlters(ormService *datalayer.ORM) {
 	if dbAlters == "" {
 		dropTables(ormService.GetMysql())
 
