@@ -258,7 +258,7 @@ func (ossStorage *GoogleOSS) DeleteObject(namespace Namespace, object *entity.Fi
 }
 
 func (ossStorage *GoogleOSS) getObjectKey(namespace Namespace, storageCounter uint64, fileExtension string) string {
-	return namespace.String() + "/" + strconv.FormatUint(storageCounter, 10) + fileExtension
+	return namespace.String() + "/" + strconv.FormatUint(storageCounter, 10) + "." + fileExtension
 }
 
 // TODO Remove
