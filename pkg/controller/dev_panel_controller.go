@@ -448,3 +448,19 @@ func (controller *DevPanelController) PostRequestsLogger(c *gin.Context) {
 
 	response.SuccessResponse(c, res)
 }
+
+func (controller *DevPanelController) GetMetrics(c *gin.Context) {
+	request := list.RequestDTOList{}
+
+	err := binding.ShouldBindJSON(c, &request)
+	if errorhandling.HandleError(c, err) {
+		return
+	}
+
+	res, err := requestlogger.RequestsLogger(c.Request.Context(), request)
+	if errorhandling.HandleError(c, err) {
+		return
+	}
+
+	response.SuccessResponse(c, res)
+}

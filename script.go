@@ -1,6 +1,7 @@
 package hitrix
 
 import (
+	"expvar"
 	"fmt"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service/component/config"
@@ -189,6 +190,62 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 	})
 }
 
+func (processor *BackgroundProcessor) RunAsyncMetricsCollector() {
+	ormService := service.DI().OrmEngine()
+
+	ormConfig := service.DI().OrmConfig()
+	entities := ormConfig.GetEntities()
+
+	if _, ok := entities["entity.MetricsEntity"]; !ok {
+		panic("you should register MetricsEntity")
+	}
+
+	clockService := service.DI().Clock()
+	configService := service.DI().Config()
+
+	intervalCollectorInMilli, hasIntervalCollector := configService.Int("metrics.interval_collector")
+
+	if !hasIntervalCollector {
+		intervalCollectorInMilli = 1000
+	}
+
+	countFlusher, hasCountFlusher := configService.Int("metrics.count_flusher")
+
+	if !hasCountFlusher {
+		countFlusher = 60
+	}
+
+	ticker := time.NewTicker(time.Duration(intervalCollectorInMilli) * time.Millisecond)
+	flusher := ormService.NewFlusher()
+	counter := 0
+
+	GoroutineWithRestart(func() {
+		log.Println("starting metrics collector cleaner")
+
+		for t := range ticker.C {
+			fmt.Println("Tick at", t)
+			data := "{\n"
+
+			expvar.Do(func(kv expvar.KeyValue) {
+				data += fmt.Sprintf("%q: %s", kv.Key, kv.Value)
+			})
+
+			data += "\n}"
+
+			flusher.Track(&entity.MetricsEntity{
+				Metrics:   data,
+				CreatedAt: clockService.Now(),
+			})
+
+			counter++
+
+			if counter%countFlusher == 0 {
+				flusher.Flush()
+			}
+		}
+	})
+}
+
 func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 	ormService := service.DI().OrmEngine()
 
@@ -237,6 +294,61 @@ func removeAllOldRequestLoggerRows(ormService *beeorm.Engine, configService conf
 		log.Printf("%d rows was removed", len(requestLoggerEntities))
 
 		if len(requestLoggerEntities) < pager.PageSize {
+			break
+		}
+
+		pager.IncrementPage()
+	}
+}
+
+func (processor *BackgroundProcessor) RunAsyncMetricsCleaner() {
+	ormService := service.DI().OrmEngine()
+
+	ormConfig := service.DI().OrmConfig()
+	entities := ormConfig.GetEntities()
+
+	if _, ok := entities["entity.MetricsEntity"]; !ok {
+		panic("you should register MetricsEntity")
+	}
+
+	configService := service.DI().Config()
+
+	GoroutineWithRestart(func() {
+		log.Println("starting metrics cleaner")
+
+		for {
+			removeAllOldMetricsRows(ormService, configService)
+
+			log.Println("sleeping metrics cleaner")
+			time.Sleep(time.Minute * 30)
+		}
+	})
+}
+
+func removeAllOldMetricsRows(ormService *beeorm.Engine, configService config.IConfig) {
+	pager := beeorm.NewPager(1, 1000)
+
+	ttlInDays, has := configService.Int("metrics.ttl_in_days")
+
+	if !has {
+		ttlInDays = 30
+	}
+
+	for {
+		where := beeorm.NewWhere("CreatedAt < ?", service.DI().Clock().Now().AddDate(0, 0, -ttlInDays).Format(helper.TimeLayoutYMDHMS))
+
+		var metricsEntities []*entity.MetricsEntity
+		ormService.Search(where, pager, &metricsEntities)
+
+		flusher := ormService.NewFlusher()
+		for _, requestLoggerEntity := range metricsEntities {
+			flusher.Delete(requestLoggerEntity)
+		}
+
+		flusher.Flush()
+		log.Printf("%d rows was removed", len(metricsEntities))
+
+		if len(metricsEntities) < pager.PageSize {
 			break
 		}
 
