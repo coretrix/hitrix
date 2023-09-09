@@ -36,6 +36,10 @@ func Get(ctx context.Context) map[string]map[string][]metrics.Row {
 		}
 
 		for k, v := range *memStats {
+			if _, ok := result[k]; !ok {
+				result[k] = map[string][]metrics.Row{}
+			}
+
 			if _, ok := result[k][metricsEntity.AppName]; !ok {
 				result[k][metricsEntity.AppName] = make([]metrics.Row, 0)
 			} else {
