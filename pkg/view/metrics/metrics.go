@@ -12,7 +12,7 @@ import (
 )
 
 func Get(ctx context.Context) map[string]map[string][]metrics.Row {
-	query := beeorm.NewWhere("ORDER BY ID DESC")
+	query := beeorm.NewWhere("1 ORDER BY ID DESC")
 
 	ormService := service.DI().OrmEngineForContext(ctx)
 	var metricsEntities []*entity.MetricsEntity
