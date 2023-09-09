@@ -249,7 +249,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector() {
 
 					for k, v := range *memStats {
 						if _, ok := fieldsMap[k]; ok {
-							data += fmt.Sprintf("%q: %d", k, v)
+							data += fmt.Sprintf("%q: %f", k, v)
 						}
 					}
 				}
