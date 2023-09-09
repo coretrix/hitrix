@@ -203,6 +203,17 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector() {
 	clockService := service.DI().Clock()
 	configService := service.DI().Config()
 
+	fields, hasFields := configService.Strings("metrics.fields")
+
+	if !hasFields {
+		panic("Metrics fields are required")
+	}
+
+	fieldsMap := map[string]struct{}{}
+	for _, field := range fields {
+		fieldsMap[field] = struct{}{}
+	}
+
 	intervalCollectorInMilli, hasIntervalCollector := configService.Int("metrics.interval_collector")
 
 	if !hasIntervalCollector {
@@ -227,7 +238,9 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector() {
 			data := "{\n"
 
 			expvar.Do(func(kv expvar.KeyValue) {
-				data += fmt.Sprintf("%q: %s", kv.Key, kv.Value)
+				if _, ok := fieldsMap[kv.Key]; ok {
+					data += fmt.Sprintf("%q: %s", kv.Key, kv.Value)
+				}
 			})
 
 			data += "\n}"
