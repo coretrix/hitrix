@@ -1,10 +1,15 @@
 package metrics
 
-type ResponseDTORMetrics struct {
-	Rows []*Row
+//{
+//"Memory" :  [{"Name": "admin-api", "Data": [{date, val}]}]
+//}
+
+type AppRMetrics struct {
+	AppName uint64
+	Rows    []*Row
 }
 
 type Row struct {
-	ID        uint64
+	Value     interface{}
 	CreatedAt int64
 }

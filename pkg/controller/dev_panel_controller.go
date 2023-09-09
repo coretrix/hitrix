@@ -20,6 +20,7 @@ import (
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/pkg/view/account"
+	"github.com/coretrix/hitrix/pkg/view/metrics"
 	"github.com/coretrix/hitrix/pkg/view/requestlogger"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -450,17 +451,7 @@ func (controller *DevPanelController) PostRequestsLogger(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetMetrics(c *gin.Context) {
-	request := list.RequestDTOList{}
-
-	err := binding.ShouldBindJSON(c, &request)
-	if errorhandling.HandleError(c, err) {
-		return
-	}
-
-	res, err := requestlogger.RequestsLogger(c.Request.Context(), request)
-	if errorhandling.HandleError(c, err) {
-		return
-	}
+	res := metrics.Get(c.Request.Context())
 
 	response.SuccessResponse(c, res)
 }

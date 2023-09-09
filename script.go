@@ -1,10 +1,9 @@
 package hitrix
 
 import (
+	"encoding/json"
 	"expvar"
 	"fmt"
-	"github.com/coretrix/hitrix/pkg/helper"
-	"github.com/coretrix/hitrix/service/component/config"
 	"log"
 	"os"
 	"strings"
@@ -14,8 +13,10 @@ import (
 	"github.com/ryanuber/columnize"
 
 	"github.com/coretrix/hitrix/pkg/entity"
+	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 type BackgroundProcessor struct {
@@ -228,24 +229,36 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector() {
 
 	ticker := time.NewTicker(time.Duration(intervalCollectorInMilli) * time.Millisecond)
 	flusher := ormService.NewFlusher()
+	appName := service.DI().App().Name
 	counter := 0
 
 	GoroutineWithRestart(func() {
 		log.Println("starting metrics collector cleaner")
 
-		for t := range ticker.C {
-			fmt.Println("Tick at", t)
+		for range ticker.C {
 			data := "{\n"
 
 			expvar.Do(func(kv expvar.KeyValue) {
-				if _, ok := fieldsMap[kv.Key]; ok {
-					data += fmt.Sprintf("%q: %s", kv.Key, kv.Value)
+				if kv.Key == "memstats" {
+					memStats := &map[string]interface{}{}
+
+					err := json.Unmarshal([]byte(kv.Value.String()), memStats)
+					if err != nil {
+						panic(err)
+					}
+
+					for k, v := range *memStats {
+						if _, ok := fieldsMap[k]; ok {
+							data += fmt.Sprintf("%q: %s", k, v)
+						}
+					}
 				}
 			})
 
 			data += "\n}"
 
 			flusher.Track(&entity.MetricsEntity{
+				AppName:   appName,
 				Metrics:   data,
 				CreatedAt: clockService.Now(),
 			})

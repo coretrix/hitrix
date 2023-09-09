@@ -2,20 +2,16 @@ package metrics
 
 import (
 	"context"
-	"github.com/coretrix/hitrix/pkg/dto/metrics"
-	"github.com/coretrix/hitrix/pkg/helper"
+	"encoding/json"
+
 	"github.com/latolukasz/beeorm"
 
+	"github.com/coretrix/hitrix/pkg/dto/metrics"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
 )
 
-const (
-	pageSizeMin = 10
-	pageSizeMax = 100
-)
-
-func List(ctx context.Context) (*metrics.ResponseDTORMetrics, error) {
+func Get(ctx context.Context) map[string]map[string][]metrics.Row {
 	query := beeorm.NewWhere("ORDER BY ID DESC")
 
 	ormService := service.DI().OrmEngineForContext(ctx)
@@ -27,16 +23,29 @@ func List(ctx context.Context) (*metrics.ResponseDTORMetrics, error) {
 		&metricsEntities,
 	)
 
-	rows := make([]*metrics.Row, len(metricsEntities))
+	result := map[string]map[string][]metrics.Row{}
+	//{
+	//    "Memory" :  [{"Name": "admin-api", "Data": [{date, val}]}]
+	// }
+	for _, metricsEntity := range metricsEntities {
+		memStats := &map[string]interface{}{}
 
-	for i, metricsEntity := range metricsEntities {
-		rows[i] = &metrics.Row{
-			ID:        metricsEntity.ID,
-			CreatedAt: helper.GetTimestamp(&metricsEntity.CreatedAt),
+		err := json.Unmarshal([]byte(metricsEntity.Metrics), memStats)
+		if err != nil {
+			panic(err)
+		}
+
+		for k, v := range *memStats {
+			if _, ok := result[k][metricsEntity.AppName]; !ok {
+				result[k][metricsEntity.AppName] = make([]metrics.Row, 0)
+			} else {
+				result[k][metricsEntity.AppName] = append(result[k][metricsEntity.AppName], metrics.Row{
+					Value:     v,
+					CreatedAt: metricsEntity.CreatedAt.UnixMilli(),
+				})
+			}
 		}
 	}
 
-	return &metrics.ResponseDTORMetrics{
-		Rows: rows,
-	}, nil
+	return result
 }

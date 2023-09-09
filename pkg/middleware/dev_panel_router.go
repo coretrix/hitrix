@@ -44,6 +44,7 @@ func DevPanelRouter(ginEngine *gin.Engine) {
 			devGroup.POST("feature-flag/disable/:name/", devPanel.PostDisableFeatureFlag)
 
 			devGroup.POST("request-logger/list/", devPanel.PostRequestsLogger)
+			devGroup.GET("metrics/get/", devPanel.GetMetrics)
 		}
 	}
 
