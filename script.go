@@ -236,7 +236,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector() {
 		log.Println("starting metrics collector cleaner")
 
 		for range ticker.C {
-			data := "{\n"
+			data := "{"
 
 			expvar.Do(func(kv expvar.KeyValue) {
 				if kv.Key == "memstats" {
@@ -249,13 +249,13 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector() {
 
 					for k, v := range *memStats {
 						if _, ok := fieldsMap[k]; ok {
-							data += fmt.Sprintf("%q: %s", k, v)
+							data += fmt.Sprintf("%q: %d", k, v)
 						}
 					}
 				}
 			})
 
-			data += "\n}"
+			data += "}"
 
 			flusher.Track(&entity.MetricsEntity{
 				AppName:   appName,
