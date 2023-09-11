@@ -11,7 +11,15 @@ import (
 	"github.com/coretrix/hitrix/service"
 )
 
-func Get(ctx context.Context) map[string]map[string][]metrics.Row {
+func Get(ctx context.Context) map[string]metrics.Series {
+	configService := service.DI().Config()
+
+	xAxisTitle, has := configService.StringMap("metrics.xAxis.title")
+
+	if !has {
+		panic("Metrics xAxisTitle are required")
+	}
+
 	query := beeorm.NewWhere("1 ORDER BY ID DESC")
 
 	ormService := service.DI().OrmEngineForContext(ctx)
@@ -23,9 +31,9 @@ func Get(ctx context.Context) map[string]map[string][]metrics.Row {
 		&metricsEntities,
 	)
 
-	result := map[string]map[string][]metrics.Row{}
+	result := map[string]metrics.Series{}
 	//{
-	//    "Memory" :  [{"Name": "admin-api", "Data": [{date, val}]}]
+	//    "Memory" :  {"admin-api: [{date, val}]
 	// }
 	for _, metricsEntity := range metricsEntities {
 		memStats := &map[string]interface{}{}
@@ -37,13 +45,13 @@ func Get(ctx context.Context) map[string]map[string][]metrics.Row {
 
 		for k, v := range *memStats {
 			if _, ok := result[k]; !ok {
-				result[k] = map[string][]metrics.Row{}
+				result[k] = metrics.Series{XAxisTitle: xAxisTitle[k]}
 			}
 
-			if _, ok := result[k][metricsEntity.AppName]; !ok {
-				result[k][metricsEntity.AppName] = make([]metrics.Row, 0)
+			if _, ok := result[k].Data[metricsEntity.AppName]; !ok {
+				result[k].Data[metricsEntity.AppName] = make([]metrics.Row, 0)
 			} else {
-				result[k][metricsEntity.AppName] = append(result[k][metricsEntity.AppName], metrics.Row{
+				result[k].Data[metricsEntity.AppName] = append(result[k].Data[metricsEntity.AppName], metrics.Row{
 					Value:     v,
 					CreatedAt: metricsEntity.CreatedAt.UnixMilli(),
 				})
