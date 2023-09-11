@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -262,6 +263,10 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 							}
 						}
 					}
+				}
+
+				if _, ok := fieldsMap["NumGoroutine"]; ok {
+					data += fmt.Sprintf("NumGoroutine: %d", runtime.NumGoroutine())
 				}
 			})
 
