@@ -198,6 +198,10 @@ func BytesToMB(value interface{}) float64 {
 	return value.(float64) / float64(1000000)
 }
 
+func NanoToMilli(value interface{}) float64 {
+	return value.(float64) / float64(1000000)
+}
+
 func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor FieldProcessor) {
 	ormService := service.DI().OrmEngine()
 
@@ -265,7 +269,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 					}
 
 					if _, ok := fieldsMap["NumGoroutine"]; ok {
-						data += fmt.Sprintf("NumGoroutine: %d,", runtime.NumGoroutine())
+						data += fmt.Sprintf("\"NumGoroutine\": %d,", runtime.NumGoroutine())
 					}
 					data = strings.TrimSuffix(data, ",")
 				}
