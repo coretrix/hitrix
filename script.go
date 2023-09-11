@@ -263,12 +263,12 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 							}
 						}
 					}
-				}
 
-				if _, ok := fieldsMap["NumGoroutine"]; ok {
-					data += fmt.Sprintf("NumGoroutine: %d,", runtime.NumGoroutine())
+					if _, ok := fieldsMap["NumGoroutine"]; ok {
+						data += fmt.Sprintf("NumGoroutine: %d,", runtime.NumGoroutine())
+					}
+					data = strings.TrimSuffix(data, ",")
 				}
-				data = strings.TrimSuffix(data, ",")
 			})
 
 			data += "}"
