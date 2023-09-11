@@ -191,7 +191,13 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 	})
 }
 
-func (processor *BackgroundProcessor) RunAsyncMetricsCollector() {
+type FieldProcessor map[string]func(value interface{}) float64
+
+func BytesToMB(value interface{}) float64 {
+	return value.(float64) / float64(1000000)
+}
+
+func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor FieldProcessor) {
 	ormService := service.DI().OrmEngine()
 
 	ormConfig := service.DI().OrmConfig()
@@ -249,7 +255,11 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector() {
 
 					for k, v := range *memStats {
 						if _, ok := fieldsMap[k]; ok {
-							data += fmt.Sprintf("%q: %f", k, v)
+							if _, hasFieldProcessor := fieldProcessor[k]; hasFieldProcessor {
+								data += fmt.Sprintf("%q: %f", k, fieldProcessor[k](v))
+							} else {
+								data += fmt.Sprintf("%q: %f", k, v)
+							}
 						}
 					}
 				}
