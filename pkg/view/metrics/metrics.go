@@ -45,7 +45,10 @@ func Get(ctx context.Context) map[string]metrics.Series {
 
 		for k, v := range *memStats {
 			if _, ok := result[k]; !ok {
-				result[k] = metrics.Series{XAxisTitle: xAxisTitle[k]}
+				result[k] = metrics.Series{
+					XAxisTitle: xAxisTitle[k],
+					Data:       map[string][]metrics.Row{},
+				}
 			}
 
 			if _, ok := result[k].Data[metricsEntity.AppName]; !ok {
