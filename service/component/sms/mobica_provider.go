@@ -102,7 +102,9 @@ func (g *MobicaProvider) SendSMSMessage(message *Message) (string, error) {
 	}
 
 	if code != http.StatusOK {
-		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s", code, string(responseBody))
+		bodyByte, _ := json.Marshal(body)
+
+		return failure, fmt.Errorf("expected status code OK, but got %v Response: %s \n Request: %s", code, string(responseBody), string(bodyByte))
 	}
 
 	responseBodyJSON := &struct {
@@ -112,11 +114,15 @@ func (g *MobicaProvider) SendSMSMessage(message *Message) (string, error) {
 
 	err = json.Unmarshal(responseBody, responseBodyJSON)
 	if err != nil {
-		return failure, fmt.Errorf("cannot unmarshal response Response: %s", string(responseBody))
+		bodyByte, _ := json.Marshal(body)
+
+		return failure, fmt.Errorf("cannot unmarshal response Response: %s \n Request: %s", string(responseBody), string(bodyByte))
 	}
 
 	if responseBodyJSON.Status != 1004 {
-		return failure, fmt.Errorf("unexpected status code Response: %s", string(responseBody))
+		bodyByte, _ := json.Marshal(body)
+
+		return failure, fmt.Errorf("unexpected status code Response: %s \n Request: %s", string(responseBody), string(bodyByte))
 	}
 
 	return success, nil
