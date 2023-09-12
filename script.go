@@ -244,7 +244,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 	counter := 0
 
 	GoroutineWithRestart(func() {
-		log.Println("starting metrics collector cleaner")
+		log.Println("starting metrics collector")
 
 		for range ticker.C {
 			data := "{"

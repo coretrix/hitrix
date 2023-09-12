@@ -20,22 +20,32 @@ func Get(ctx context.Context) map[string]metrics.Series {
 		panic("Metrics xAxisTitle are required")
 	}
 
-	query := beeorm.NewWhere("1 ORDER BY ID DESC")
-
 	ormService := service.DI().OrmEngineForContext(ctx)
-	var metricsEntities []*entity.MetricsEntity
 
-	ormService.Search(
-		query,
-		beeorm.NewPager(1, 10000),
-		&metricsEntities,
-	)
+	query := beeorm.NewWhere("1 ORDER BY ID DESC")
+	pager := beeorm.NewPager(1, 10000)
+
+	var allMetricsEntities []*entity.MetricsEntity
+
+	for {
+		var metricsEntities []*entity.MetricsEntity
+
+		ormService.Search(query, pager, &metricsEntities)
+
+		allMetricsEntities = append(allMetricsEntities, metricsEntities...)
+
+		if len(metricsEntities) < pager.PageSize {
+			break
+		}
+
+		pager.IncrementPage()
+	}
 
 	result := map[string]metrics.Series{}
 	//{
 	//    "Memory" :  {"admin-api: [{date, val}]
 	// }
-	for _, metricsEntity := range metricsEntities {
+	for _, metricsEntity := range allMetricsEntities {
 		memStats := &map[string]interface{}{}
 
 		err := json.Unmarshal([]byte(metricsEntity.Metrics), memStats)
