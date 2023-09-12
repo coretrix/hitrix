@@ -16,7 +16,7 @@ import (
 const Mobica = "mobica"
 
 type MobicaProvider struct {
-	Email    string
+	Username string
 	Password string
 	Route    string
 	From     string
@@ -24,9 +24,9 @@ type MobicaProvider struct {
 }
 
 func NewMobicaProvider(configService config.IConfig, _ clock.IClock) (IProvider, error) {
-	email, ok := configService.String("sms.mobica.email")
+	username, ok := configService.String("sms.mobica.username")
 	if !ok {
-		return nil, errors.New("missing sms.mobica.email")
+		return nil, errors.New("missing sms.mobica.username")
 	}
 
 	password, ok := configService.String("sms.mobica.password")
@@ -44,7 +44,7 @@ func NewMobicaProvider(configService config.IConfig, _ clock.IClock) (IProvider,
 	}
 
 	return &MobicaProvider{
-		Email:    email,
+		Username: username,
 		Password: password,
 		Route:    route,
 		From:     from,
@@ -83,7 +83,7 @@ func (g *MobicaProvider) SendSMSMessage(message *Message) (string, error) {
 			Message:  message.Text,
 			From:     g.From,
 		},
-		User: g.Email,
+		User: g.Username,
 		Pass: g.Password,
 	}
 
