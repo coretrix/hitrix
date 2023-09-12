@@ -61,10 +61,10 @@ func (g *MobicaProvider) GetName() string {
 }
 
 type sms struct {
-	Route    string `json:"route"`
-	SmartCut uint8  `json:"smart_cut"`
+	Route    string `json:"route,omitempty"`
+	SmartCut uint8  `json:"smartCut"`
 	Message  string `json:"message"`
-	From     string `json:"from"`
+	From     string `json:"from,omitempty"`
 }
 
 type mobicaMsg struct {
