@@ -10,8 +10,8 @@ type AppRMetrics struct {
 }
 
 type Row struct {
-	Value     interface{}
-	CreatedAt int64
+	Value     interface{} `json:"v"`
+	CreatedAt int64       `json:"t"`
 }
 
 type Series struct {
