@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
-	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -60,7 +59,7 @@ func Call(ctx context.Context,
 
 	resp, err := http.DefaultClient.Do(r.WithContext(nCtx))
 	if err != nil {
-		return nil, nil, 0, errors.New("error in return response")
+		return nil, nil, 0, err
 	}
 
 	data, err := io.ReadAll(resp.Body)
@@ -70,7 +69,7 @@ func Call(ctx context.Context,
 	}()
 
 	if err != nil {
-		return nil, nil, resp.StatusCode, errors.New("error in reading response")
+		return nil, nil, resp.StatusCode, err
 	}
 
 	return data, resp.Header, resp.StatusCode, nil
