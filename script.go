@@ -17,7 +17,6 @@ import (
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
-	"github.com/coretrix/hitrix/service/component/config"
 )
 
 type BackgroundProcessor struct {
@@ -303,12 +302,17 @@ func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 	}
 
 	configService := service.DI().Config()
+	ttlInDays, has := configService.Int("metrics.ttl_in_days")
+
+	if !has {
+		ttlInDays = 30
+	}
 
 	GoroutineWithRestart(func() {
 		log.Println("starting request logger cleaner")
 
 		for {
-			removeAllOldRequestLoggerRows(ormService, configService)
+			removeAllOldRequestLoggerRows(ormService, ttlInDays)
 
 			log.Println("sleeping request logger cleaner")
 			time.Sleep(time.Minute * 30)
@@ -316,14 +320,8 @@ func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 	})
 }
 
-func removeAllOldRequestLoggerRows(ormService *beeorm.Engine, configService config.IConfig) {
+func removeAllOldRequestLoggerRows(ormService *beeorm.Engine, ttlInDays int) {
 	pager := beeorm.NewPager(1, 1000)
-
-	ttlInDays, has := configService.Int("request_logger.ttl_in_days")
-
-	if !has {
-		ttlInDays = 30
-	}
 
 	for {
 		where := beeorm.NewWhere("CreatedAt < ?", service.DI().Clock().Now().AddDate(0, 0, -ttlInDays).Format(helper.TimeLayoutYMDHMS))
@@ -358,12 +356,17 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCleaner() {
 	}
 
 	configService := service.DI().Config()
+	ttlInDays, has := configService.Int("metrics.ttl_in_days")
+
+	if !has {
+		ttlInDays = 30
+	}
 
 	GoroutineWithRestart(func() {
 		log.Println("starting metrics cleaner")
 
 		for {
-			removeAllOldMetricsRows(ormService, configService)
+			removeAllOldMetricsRows(ormService, ttlInDays)
 
 			log.Println("sleeping metrics cleaner")
 			time.Sleep(time.Minute * 30)
@@ -371,14 +374,8 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCleaner() {
 	})
 }
 
-func removeAllOldMetricsRows(ormService *beeorm.Engine, configService config.IConfig) {
+func removeAllOldMetricsRows(ormService *beeorm.Engine, ttlInDays int) {
 	pager := beeorm.NewPager(1, 1000)
-
-	ttlInDays, has := configService.Int("metrics.ttl_in_days")
-
-	if !has {
-		ttlInDays = 30
-	}
 
 	for {
 		where := beeorm.NewWhere("CreatedAt < ?", service.DI().Clock().Now().AddDate(0, 0, -ttlInDays).Format(helper.TimeLayoutYMDHMS))
