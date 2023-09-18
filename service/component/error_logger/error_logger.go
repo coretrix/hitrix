@@ -101,8 +101,8 @@ func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context) {
 		}
 
 		binaryRequest, _ := httputil.DumpRequest(c.Request, true)
-		if len(binaryRequest) > 2000 {
-			value.Request = append(value.Request, binaryRequest[0:2000]...)
+		if len(binaryRequest) > 4000 {
+			value.Request = append(value.Request, binaryRequest[0:4000]...)
 		} else {
 			value.Request = append(value.Request, binaryRequest...)
 		}
