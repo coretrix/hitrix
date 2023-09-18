@@ -1,6 +1,6 @@
 # Hitrix
-
-[![checks & tests](https://github.com/coretrix/hitrix/actions/workflows/main.yml/badge.svg)](https://github.com/coretrix/hitrix/actions)
+[![checks & tests](https://github.com/coretrix/clockwork/actions/workflows/main.yml/badge.svg)](https://github.com/coretrix/clockwork/actions)
+[//]: # ([![checks & tests]&#40;https://github.com/coretrix/hitrix/actions/workflows/main.yml/badge.svg&#41;]&#40;https://github.com/coretrix/hitrix/actions&#41;)
 [![codecov](https://codecov.io/gh/coretrix/hitrix/branch/main/graph/badge.svg)](https://codecov.io/gh/coretrix/hitrix)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coretrix/hitrix)](https://goreportcard.com/report/github.com/coretrix/hitrix)
 [![GPL3 license](https://img.shields.io/badge/license-GPL3-brightgreen.svg)](https://opensource.org/licenses/GPL-3.0)
