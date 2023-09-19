@@ -34,6 +34,7 @@ func DevPanelRouter(ginEngine *gin.Engine) {
 
 			devGroup.GET("redis-streams/", devPanel.GetRedisStreams)
 			devGroup.GET("redis-statistics/", devPanel.GetRedisStatistics)
+			devGroup.GET("redis-delayed-queues/list/", devPanel.GetRedisDelayedQueues)
 
 			ginEngine.GET("dev/create-dev-panel-user/", devPanel.CreateDevPanelUserAction)
 			ginEngine.POST("dev/login/", devPanel.PostLoginDevPanelAction)
@@ -45,7 +46,6 @@ func DevPanelRouter(ginEngine *gin.Engine) {
 
 			devGroup.POST("request-logger/list/", devPanel.PostRequestsLogger)
 			devGroup.GET("metrics/get/", devPanel.GetMetrics)
-			devGroup.GET("delayed-queues/list/", devPanel.GetRedisDelayedQueues)
 		}
 	}
 
