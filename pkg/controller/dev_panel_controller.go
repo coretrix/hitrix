@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	delayedqueues "github.com/coretrix/hitrix/pkg/view/delayed_queues"
 	"os"
 	"sort"
 	"strings"
@@ -452,6 +453,12 @@ func (controller *DevPanelController) PostRequestsLogger(c *gin.Context) {
 
 func (controller *DevPanelController) GetMetrics(c *gin.Context) {
 	res := metrics.Get(c.Request.Context())
+
+	response.SuccessResponse(c, res)
+}
+
+func (controller *DevPanelController) GetRedisDelayedQueues(c *gin.Context) {
+	res := delayedqueues.Get(c.Request.Context())
 
 	response.SuccessResponse(c, res)
 }

@@ -34,17 +34,18 @@ type RedisPools struct {
 }
 
 type App struct {
-	Mode           string
-	Name           string
-	ParallelTestID string
-	Secret         string
-	Flags          *Flags
-	Scripts        []string
-	DevPanel       *DevPanel
-	RedisPools     *RedisPools
-	GlobalContext  context.Context
-	CancelContext  context.CancelFunc
-	waitGroup      *sync.WaitGroup
+	Mode               string
+	Name               string
+	ParallelTestID     string
+	Secret             string
+	Flags              *Flags
+	Scripts            []string
+	DevPanel           *DevPanel
+	RedisPools         *RedisPools
+	RedisDelayedQueues []string
+	GlobalContext      context.Context
+	CancelContext      context.CancelFunc
+	waitGroup          *sync.WaitGroup
 }
 
 func (app *App) IsInLocalMode() bool {

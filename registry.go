@@ -84,6 +84,12 @@ func (r *Registry) RegisterRedisPools(pools *app.RedisPools) *Registry {
 	return r
 }
 
+func (r *Registry) RegisterRedisDelayedQueues(queues []string) *Registry {
+	r.app.RedisDelayedQueues = queues
+
+	return r
+}
+
 func (r *Registry) RegisterDIGlobalService(service ...*service.DefinitionGlobal) *Registry {
 	r.servicesDefinitionsGlobal = append(r.servicesDefinitionsGlobal, service...)
 

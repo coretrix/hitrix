@@ -1,20 +1,10 @@
-package metrics
-
-//{
-//"Memory" :  [{"Name": "admin-api", "Data": [{date, val}]}]
-//}
-
-type AppRMetrics struct {
-	AppName uint64
-	Rows    []*Row
-}
+package delayedqueue
 
 type Row struct {
-	Value     interface{} `json:"v"`
-	CreatedAt int64       `json:"t"`
+	Queue string
+	Total int64
 }
 
-type Series struct {
-	Data       map[string][]Row
-	XAxisTitle string
+type List struct {
+	Rows []Row
 }
