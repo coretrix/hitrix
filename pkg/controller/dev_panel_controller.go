@@ -2,11 +2,12 @@ package controller
 
 import (
 	"fmt"
-	delayedqueues "github.com/coretrix/hitrix/pkg/view/delayed_queues"
 	"os"
 	"sort"
 	"strings"
 	"sync"
+
+	delayedqueues "github.com/coretrix/hitrix/pkg/view/delayed_queues"
 
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
@@ -21,6 +22,7 @@ import (
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/pkg/view/account"
+	delayedqueues "github.com/coretrix/hitrix/pkg/view/delayed_queues"
 	"github.com/coretrix/hitrix/pkg/view/metrics"
 	"github.com/coretrix/hitrix/pkg/view/requestlogger"
 	"github.com/coretrix/hitrix/service"

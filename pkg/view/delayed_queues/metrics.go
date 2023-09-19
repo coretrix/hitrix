@@ -2,7 +2,8 @@ package delayedqueues
 
 import (
 	"context"
-	"github.com/coretrix/hitrix/pkg/dto/metrics"
+
+	"github.com/coretrix/hitrix/pkg/dto/delayedqueue"
 	"github.com/coretrix/hitrix/service"
 )
 
