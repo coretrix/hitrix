@@ -7,8 +7,6 @@ import (
 	"strings"
 	"sync"
 
-	delayedqueues "github.com/coretrix/hitrix/pkg/view/delayed_queues"
-
 	"github.com/gin-gonic/gin"
 	"github.com/latolukasz/beeorm"
 	"github.com/latolukasz/beeorm/tools"
