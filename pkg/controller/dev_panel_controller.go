@@ -20,7 +20,7 @@ import (
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/pkg/view/account"
-	delayedqueues "github.com/coretrix/hitrix/pkg/view/delayed_queues"
+	delayedqueue "github.com/coretrix/hitrix/pkg/view/delayed_queue"
 	"github.com/coretrix/hitrix/pkg/view/metrics"
 	"github.com/coretrix/hitrix/pkg/view/requestlogger"
 	"github.com/coretrix/hitrix/service"
@@ -458,7 +458,7 @@ func (controller *DevPanelController) GetMetrics(c *gin.Context) {
 }
 
 func (controller *DevPanelController) GetRedisDelayedQueues(c *gin.Context) {
-	res := delayedqueues.Get(c.Request.Context())
+	res := delayedqueue.Get(c.Request.Context())
 
 	response.SuccessResponse(c, res)
 }
