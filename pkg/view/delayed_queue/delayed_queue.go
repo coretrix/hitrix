@@ -13,7 +13,6 @@ import (
 func Get(ctx context.Context) *delayedqueue.List {
 	appService := service.DI().App()
 	ormService := service.DI().OrmEngineForContext(ctx)
-	now := service.DI().Clock().Now()
 
 	result := &delayedqueue.List{Rows: make([]delayedqueue.Row, len(appService.RedisDelayedQueues))}
 	for i, queue := range appService.RedisDelayedQueues {
@@ -21,10 +20,11 @@ func Get(ctx context.Context) *delayedqueue.List {
 		result.Rows[i].Total = ormService.GetRedis(appService.RedisPools.Persistent).ZCount(queue, "-inf", "+inf")
 		values := ormService.GetRedis(appService.RedisPools.Persistent).ZRangeArgsWithScores(redis.ZRangeArgs{
 			Key:     queue,
-			Start:   -1,
-			Stop:    now.AddDate(10, 0, 0).UnixMilli(),
-			Offset:  1,
+			Start:   0,
+			Stop:    "+inf",
+			Offset:  0,
 			Count:   1,
+			Rev:     true,
 			ByScore: true})
 
 		if len(values) > 0 {
