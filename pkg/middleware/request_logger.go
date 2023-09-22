@@ -3,6 +3,7 @@ package middleware
 import (
 	"encoding/json"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -71,7 +72,7 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 		responseBodyByte, _ := json.Marshal(responseBody)
 
 		requestLoggerEntity.Log = encoded
-		requestLoggerEntity.RequestDuration = clock.Now().Sub(requestStart).Milliseconds()
+		requestLoggerEntity.RequestDuration = time.Since(requestStart).Milliseconds()
 
 		requestLoggerService.LogResponse(ormService, requestLoggerEntity, responseBodyByte, context.Writer.Status())
 	})
