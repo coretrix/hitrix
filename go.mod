@@ -8,6 +8,7 @@ require (
 	github.com/99designs/gqlgen v0.17.16
 	github.com/AmirSoleimani/VoucherCodeGenerator v0.0.0-20201014193813-0206853dccb9
 	github.com/Timothylock/go-signin-with-apple v0.2.0
+	github.com/TwiN/go-color v1.4.1
 	github.com/aws/aws-sdk-go v1.38.39
 	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/bojanz/currency v1.0.2
