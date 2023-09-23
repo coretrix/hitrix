@@ -31,7 +31,6 @@ func (l *dbLogger) Handle(data map[string]interface{}) {
 }
 
 func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, requestEntity *entity.RequestLoggerEntity)) {
-	clock := service.DI().Clock()
 	ormConfig := service.DI().OrmConfig()
 
 	entities := ormConfig.GetEntities()
@@ -40,7 +39,7 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 	}
 
 	ginEngine.Use(func(context *gin.Context) {
-		requestStart := clock.Now()
+		requestStart := time.Now()
 
 		ormService := service.DI().OrmEngineForContext(context.Request.Context())
 		requestLoggerService := service.DI().RequestLogger()
@@ -61,7 +60,7 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 
 		context.Next()
 
-		requestLoggerEntity.RequestDuration = time.Since(requestStart).Milliseconds()
+		requestLoggerEntity.RequestDuration = time.Now().Sub(requestStart).Milliseconds()
 
 		logger.Disable()
 		encoded, err := json.Marshal(logger.logs)
