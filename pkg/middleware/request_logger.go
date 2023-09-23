@@ -58,7 +58,10 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 
 		logger := &dbLogger{}
 		ormService.RegisterQueryLogger(logger, true, true, true)
+
 		context.Next()
+
+		requestLoggerEntity.RequestDuration = time.Since(requestStart).Milliseconds()
 
 		logger.Disable()
 		encoded, err := json.Marshal(logger.logs)
@@ -72,7 +75,6 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 		responseBodyByte, _ := json.Marshal(responseBody)
 
 		requestLoggerEntity.Log = encoded
-		requestLoggerEntity.RequestDuration = time.Since(requestStart).Milliseconds()
 
 		requestLoggerService.LogResponse(ormService, requestLoggerEntity, responseBodyByte, context.Writer.Status())
 	})
