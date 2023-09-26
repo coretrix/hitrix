@@ -2,8 +2,9 @@ package app
 
 import (
 	"context"
-	"github.com/latolukasz/beeorm"
 	"time"
+
+	"github.com/latolukasz/beeorm"
 )
 
 type IScript interface {

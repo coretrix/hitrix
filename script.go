@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TwiN/go-color"
 	"github.com/latolukasz/beeorm"
 	"github.com/ryanuber/columnize"
 
-	"github.com/TwiN/go-color"
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
@@ -227,7 +227,6 @@ func NanoToMilli(value interface{}) float64 {
 }
 
 func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor FieldProcessor) {
-
 	ormConfig := service.DI().OrmConfig()
 	entities := ormConfig.GetEntities()
 
@@ -318,7 +317,6 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 }
 
 func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
-
 	ormConfig := service.DI().OrmConfig()
 	entities := ormConfig.GetEntities()
 
@@ -373,7 +371,6 @@ func removeAllOldRequestLoggerRows(ormService *beeorm.Engine, ttlInDays int) {
 }
 
 func (processor *BackgroundProcessor) RunAsyncMetricsCleaner() {
-
 	ormConfig := service.DI().OrmConfig()
 	entities := ormConfig.GetEntities()
 
