@@ -196,7 +196,7 @@ func (processor *BackgroundProcessor) runScript(s app.IScript, ormService *beeor
 }
 
 func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
-	ormService := service.DI().OrmEngine()
+	ormService := service.DI().OrmEngine().Clone()
 	appService := service.DI().App()
 
 	GoroutineWithRestart(func() {
