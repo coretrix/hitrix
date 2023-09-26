@@ -66,9 +66,11 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 	}
 
 	go func() {
+		ormService := service.DI().OrmEngine().Clone()
+
 		if isInfinity {
 			log.Println("Infinity - " + s.Description())
-			processor.run(s)
+			processor.run(s, ormService)
 			processor.Server.await()
 
 			return
@@ -78,7 +80,7 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 			service.DI().App().Add(1)
 			defer service.DI().App().Done()
 
-			processor.run(s)
+			processor.run(s, ormService)
 			log.Println(color.InGreen("Finished script") + " - " + s.Description())
 			processor.Server.done <- true
 
@@ -87,14 +89,14 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 
 		if isInterval {
 			service.DI().App().Add(1)
-			processor.run(s)
+			processor.run(s, ormService)
 			service.DI().App().Done()
 
 			for {
 				select {
 				case <-ticker.C:
 					service.DI().App().Add(1)
-					processor.run(s)
+					processor.run(s, ormService)
 					service.DI().App().Done()
 				}
 			}
@@ -102,10 +104,10 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 	}()
 }
 
-func (processor *BackgroundProcessor) run(s app.IScript) {
+func (processor *BackgroundProcessor) run(s app.IScript, ormService *beeorm.Engine) {
 	log.Println(color.InGreen("Start script") + " - " + s.Description())
 
-	valid := processor.runScript(s)
+	valid := processor.runScript(s, ormService)
 
 	if valid {
 		log.Println(color.InGreen("Running script") + " - " + s.Description())
@@ -165,7 +167,7 @@ func listScrips() {
 	}
 }
 
-func (processor *BackgroundProcessor) runScript(s app.IScript) bool {
+func (processor *BackgroundProcessor) runScript(s app.IScript, ormService *beeorm.Engine) bool {
 	return func() bool {
 		valid := true
 
@@ -187,7 +189,7 @@ func (processor *BackgroundProcessor) runScript(s app.IScript) bool {
 		}()
 
 		appService := service.DI().App()
-		s.Run(appService.GlobalContext, &exit{s: processor.Server})
+		s.Run(appService.GlobalContext, ormService, &exit{s: processor.Server})
 
 		return valid
 	}()
@@ -225,7 +227,6 @@ func NanoToMilli(value interface{}) float64 {
 }
 
 func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor FieldProcessor) {
-	ormService := service.DI().OrmEngine()
 
 	ormConfig := service.DI().OrmConfig()
 	entities := ormConfig.GetEntities()
@@ -261,11 +262,13 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 	}
 
 	ticker := time.NewTicker(time.Duration(intervalCollectorInMilli) * time.Millisecond)
-	flusher := ormService.NewFlusher()
 	appName := service.DI().App().Name
 	counter := 0
 
 	GoroutineWithRestart(func() {
+		ormService := service.DI().OrmEngine().Clone()
+		flusher := ormService.NewFlusher()
+
 		log.Println("starting metrics collector")
 
 		for range ticker.C {
@@ -315,7 +318,6 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 }
 
 func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
-	ormService := service.DI().OrmEngine()
 
 	ormConfig := service.DI().OrmConfig()
 	entities := ormConfig.GetEntities()
@@ -332,6 +334,8 @@ func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 	}
 
 	GoroutineWithRestart(func() {
+		ormService := service.DI().OrmEngine().Clone()
+
 		log.Println("starting request logger cleaner")
 
 		for {
@@ -369,7 +373,6 @@ func removeAllOldRequestLoggerRows(ormService *beeorm.Engine, ttlInDays int) {
 }
 
 func (processor *BackgroundProcessor) RunAsyncMetricsCleaner() {
-	ormService := service.DI().OrmEngine()
 
 	ormConfig := service.DI().OrmConfig()
 	entities := ormConfig.GetEntities()
@@ -386,6 +389,8 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCleaner() {
 	}
 
 	GoroutineWithRestart(func() {
+		ormService := service.DI().OrmEngine().Clone()
+
 		log.Println("starting metrics cleaner")
 
 		for {
