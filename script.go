@@ -66,11 +66,9 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 	}
 
 	go func() {
-		ormService := service.DI().OrmEngine().Clone()
-
 		if isInfinity {
 			log.Println("Infinity - " + s.Description())
-			processor.run(s, ormService)
+			processor.run(s)
 			processor.Server.await()
 
 			return
@@ -80,7 +78,7 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 			service.DI().App().Add(1)
 			defer service.DI().App().Done()
 
-			processor.run(s, ormService)
+			processor.run(s)
 			log.Println(color.InGreen("Finished script") + " - " + s.Description())
 			processor.Server.done <- true
 
@@ -89,14 +87,15 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 
 		if isInterval {
 			service.DI().App().Add(1)
-			processor.run(s, ormService)
+			processor.run(s)
 			service.DI().App().Done()
 
+			//nolint //a
 			for {
 				select {
 				case <-ticker.C:
 					service.DI().App().Add(1)
-					processor.run(s, ormService)
+					processor.run(s)
 					service.DI().App().Done()
 				}
 			}
@@ -104,10 +103,10 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 	}()
 }
 
-func (processor *BackgroundProcessor) run(s app.IScript, ormService *beeorm.Engine) {
+func (processor *BackgroundProcessor) run(s app.IScript) {
 	log.Println(color.InGreen("Start script") + " - " + s.Description())
 
-	valid := processor.runScript(s, ormService)
+	valid := processor.runScript(s)
 
 	if valid {
 		log.Println(color.InGreen("Running script") + " - " + s.Description())
@@ -167,7 +166,7 @@ func listScrips() {
 	}
 }
 
-func (processor *BackgroundProcessor) runScript(s app.IScript, ormService *beeorm.Engine) bool {
+func (processor *BackgroundProcessor) runScript(s app.IScript) bool {
 	return func() bool {
 		valid := true
 
@@ -189,7 +188,7 @@ func (processor *BackgroundProcessor) runScript(s app.IScript, ormService *beeor
 		}()
 
 		appService := service.DI().App()
-		s.Run(appService.GlobalContext, ormService, &exit{s: processor.Server})
+		s.Run(appService.GlobalContext, &exit{s: processor.Server})
 
 		return valid
 	}()

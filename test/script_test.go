@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/latolukasz/beeorm"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/coretrix/hitrix"
@@ -16,7 +15,7 @@ type testScript2 struct {
 	RunCounter int
 }
 
-func (script *testScript2) Run(_ context.Context, _ *beeorm.Engine, _ app.IExit) {
+func (script *testScript2) Run(_ context.Context, _ app.IExit) {
 	script.RunCounter++
 }
 

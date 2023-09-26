@@ -60,6 +60,7 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 
 		context.Next()
 
+		//nolint //a
 		requestLoggerEntity.RequestDuration = time.Now().Sub(requestStart).Milliseconds()
 
 		logger.Disable()

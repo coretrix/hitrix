@@ -3,13 +3,11 @@ package app
 import (
 	"context"
 	"time"
-
-	"github.com/latolukasz/beeorm"
 )
 
 type IScript interface {
 	Description() string
-	Run(ctx context.Context, ormService *beeorm.Engine, exit IExit)
+	Run(ctx context.Context, exit IExit)
 	Unique() bool
 }
 
