@@ -86,6 +86,10 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 		}
 
 		if isInterval {
+			service.DI().App().Add(1)
+			processor.run(s)
+			service.DI().App().Done()
+
 			for {
 				select {
 				case <-ticker.C:
