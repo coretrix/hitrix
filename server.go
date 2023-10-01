@@ -52,11 +52,12 @@ func (h *Hitrix) RunServer(
 	h.await()
 
 	appService := service.DI().App()
-	defer appService.CancelContext()
 
 	if err := srv.Shutdown(appService.GlobalContext); err != nil {
 		log.Println("Server forced to shutdown")
 	}
+
+	log.Println("Server stopped successfully")
 }
 
 func (h *Hitrix) RunBackgroundProcess(callback func(b *BackgroundProcessor)) {
