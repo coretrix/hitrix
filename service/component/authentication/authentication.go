@@ -350,6 +350,32 @@ func (t *Authentication) VerifyAccessToken(ormService *beeorm.Engine, accessToke
 	return payload, nil
 }
 
+func (t *Authentication) VerifyAccessTokenTemporary(ormService *beeorm.Engine, accessToken string, entity beeorm.Entity) (map[string]string, error) {
+	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, accessToken, t.clockService.Now().Unix())
+	if err != nil {
+		return payload, err
+	}
+
+	id, err := strconv.ParseUint(payload["sub"], 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	//accessKey := payload["jti"]
+
+	//_, has := ormService.GetRedis(t.appService.RedisPools.Persistent).Get(accessKey)
+	//if !has {
+	//	return nil, errors.New("access key not found")
+	//}
+
+	found := ormService.LoadByID(id, entity)
+	if !found {
+		return nil, errors.New("user_not_found")
+	}
+
+	return payload, nil
+}
+
 func (t *Authentication) RefreshToken(ormService *beeorm.Engine, refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, refreshToken, t.clockService.Now().Unix())
 	if err != nil {
