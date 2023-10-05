@@ -139,7 +139,7 @@ func (c *Crud) ExtractListParams(cols []*Column, request *ListRequest) SearchPar
 		finalPageSize = *request.PageSize
 	}
 
-	filterTypes := groupColumnNamesByFilterType(cols)
+	filterTypes := groupColumnNamesByFilterType(cols, request)
 
 	var selectedMapStringStringFilters = make(map[string]string)
 	var selectedStringStartsWithFilters = make(map[string]string)
@@ -341,7 +341,7 @@ mainLoop:
 	}
 }
 
-func groupColumnNamesByFilterType(cols []*Column) groupedFilterTypes {
+func groupColumnNamesByFilterType(cols []*Column, request *ListRequest) groupedFilterTypes {
 	var stringStartsWithSearch = make([]string, 0)
 	var arrayStringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
@@ -376,7 +376,11 @@ func groupColumnNamesByFilterType(cols []*Column) groupedFilterTypes {
 			case InputTypeNumber:
 				numberFilters = append(numberFilters, column.Key)
 			case SelectTypeStringString:
-				mapStringStringFilters[column.Key] = column.DataStringKeyStringValue
+				if column.FilterDependencyField != "" {
+					mapStringStringFilters[column.Key] = fetchDependencyValueString(column, cols, request)
+				} else {
+					mapStringStringFilters[column.Key] = column.DataStringKeyStringValue
+				}
 			case SelectTypeIntString:
 				mapIntStringFilters[column.Key] = column.DataIntKeyStringValue
 			case DateTimePickerTypeDateTime:
@@ -406,6 +410,51 @@ func groupColumnNamesByFilterType(cols []*Column) groupedFilterTypes {
 		rangeDateFilters:       rangeDateFilters,
 		sortables:              sortables,
 	}
+}
+
+func fetchDependencyValue(dependentCol *Column, cols []*Column, request *ListRequest) (bool, interface{}) {
+	for _, col := range cols {
+		if col.Key == dependentCol.FilterDependencyField {
+			if col.FilterType != SelectTypeStringString || dependentCol.FilterType != SelectTypeStringString {
+				return false, nil
+			}
+
+			for key, value := range request.Search {
+				if key == col.Key {
+					return true, value
+				}
+			}
+
+			for key, value := range request.SearchOR {
+				if key == col.Key {
+					return true, value
+				}
+			}
+		}
+	}
+
+	return false, nil
+}
+
+func fetchDependencyValueString(dependentCol *Column, cols []*Column, request *ListRequest) []*StringKeyStringValue {
+	found, v := fetchDependencyValue(dependentCol, cols, request)
+	if !found {
+		return nil
+	}
+
+	value, ok := v.(string)
+
+	if !ok {
+		return nil
+	}
+
+	values, exists := dependentCol.DataMapStringStringKeyStringValue[value]
+
+	if exists {
+		return values
+	}
+
+	return nil
 }
 
 // GenerateListRedisSearchQuery TODO : add full text queries when supported by hitrix
