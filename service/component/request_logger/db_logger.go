@@ -1,7 +1,6 @@
 package requestlogger
 
 import (
-	"io"
 	"net/http"
 	"net/http/httputil"
 
@@ -35,17 +34,17 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 	if isText(contentType) && len(content)*4 <= 64000 {
 		requestLoggerEntity.Request = content
 	} else {
-		byteData, err := io.ReadAll(request.Body)
-		if err != nil {
-			panic(err)
-		}
-
-		if len(byteData)*4 <= 64000 {
-			requestLoggerEntity.Request = []byte("Skipped HEADERS \n\n")
-			requestLoggerEntity.Request = append(requestLoggerEntity.Request, byteData...)
-		} else {
-			requestLoggerEntity.Request = []byte("__TOO_LARGE__")
-		}
+		//byteData, err := io.ReadAll(request.Body)
+		//if err != nil {
+		//	panic(err)
+		//}
+		//
+		//if len(byteData)*4 <= 64000 {
+		//	requestLoggerEntity.Request = []byte("Skipped HEADERS \n\n")
+		//	requestLoggerEntity.Request = append(requestLoggerEntity.Request, byteData...)
+		//} else {
+		requestLoggerEntity.Request = []byte("__TOO_LARGE__")
+		//}
 	}
 
 	ormService.Flush(requestLoggerEntity)
