@@ -45,7 +45,7 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 
 	if isText(contentType) && len(content)*4 <= 64000 {
 		requestLoggerEntity.Request = content
-	} else {
+	} else if len(body) > 0 {
 		if len(body)*4 <= 64000 {
 			requestLoggerEntity.Request = []byte("Skipped HEADERS \n\n")
 			requestLoggerEntity.Request = append(requestLoggerEntity.Request, body...)
