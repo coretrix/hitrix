@@ -1,6 +1,8 @@
 package requestlogger
 
 import (
+	"bytes"
+	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 
@@ -19,11 +21,21 @@ func NewDBLogger(clockService clock.IClock) IRequestLogger {
 }
 
 func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
-	content, err := httputil.DumpRequest(request, true)
+	headers, err := httputil.DumpRequest(request, false)
 
 	if err != nil {
 		panic(err)
 	}
+
+	body, err := ioutil.ReadAll(request.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	content := append(headers, body...)
+
+	// And now set a new body, which will simulate the same data we read:
+	request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	requestLoggerEntity := &entity.RequestLoggerEntity{
 		URL:       url,
@@ -34,17 +46,12 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 	if isText(contentType) && len(content)*4 <= 64000 {
 		requestLoggerEntity.Request = content
 	} else {
-		//byteData, err := io.ReadAll(request.Body)
-		//if err != nil {
-		//	panic(err)
-		//}
-		//
-		//if len(byteData)*4 <= 64000 {
-		//	requestLoggerEntity.Request = []byte("Skipped HEADERS \n\n")
-		//	requestLoggerEntity.Request = append(requestLoggerEntity.Request, byteData...)
-		//} else {
-		requestLoggerEntity.Request = []byte("__TOO_LARGE__")
-		//}
+		if len(body)*4 <= 64000 {
+			requestLoggerEntity.Request = []byte("Skipped HEADERS \n\n")
+			requestLoggerEntity.Request = append(requestLoggerEntity.Request, body...)
+		} else {
+			requestLoggerEntity.Request = []byte("__TOO_LARGE__")
+		}
 	}
 
 	ormService.Flush(requestLoggerEntity)
