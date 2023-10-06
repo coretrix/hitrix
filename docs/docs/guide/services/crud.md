@@ -91,6 +91,57 @@ return &model.UserList{
     }, nil
 ```
 
+### Use Select fields with dependency
+
+Imagine you have these fields with such options, on is the country and for the city filter to work user must select the country first and then select the proper city that exists in the list of that country otherwise this filter will be ignored.
+
+Take london as an example, if we select `United States` as country and `London` as city, then city filter will be ignored, so make sure this is also handled in your front-end.
+
+**Note: If you don't set `FilterDependencyField` or `DataMapStringStringKeyStringValue` this filter will be ignored!**
+
+```go
+func columns() []crud.Column {
+    return []crud.Column{
+    		{
+			Key:                    "Country",
+			FilterType:             hitrixCrud.SelectTypeStringString,
+			Label:                  "Country",
+			Searchable:             true,
+			Sortable:               false,
+			Visible:                true,
+			TranslationDataEnabled: true,
+			DataStringKeyStringValue: []*hitrixCrud.StringKeyStringValue{
+				{Key: "bg", Label: "Bulgaria"},
+				{Key: "us", Label: "United States"},
+				{Key: "uk", Label: "United Kingdom"},
+			},
+		},
+		{
+			Key:                   "City",
+			FilterType:            hitrixCrud.SelectTypeStringString,
+			Label:                 "City",
+			Searchable:            true,
+			Sortable:              false,
+			Visible:               true,
+			FilterDependencyField: "Country",
+			DataMapStringStringKeyStringValue: map[string][]*hitrixCrud.StringKeyStringValue{
+				"bg": {
+					{Key: "sofia", Label: "Sofia"},
+					{Key: "plovdiv", Label: "Plovdiv"},
+				},
+				"us": {
+					{Key: "new_york", Label: "New York"},
+					{Key: "los_angeles", Label: "Los Angeles"},
+				},
+				"uk": {
+					{Key: "london", Label: "London"},
+				},
+			},
+		},
+	}
+}
+```
+
 ### Use CRUD with our export service
 
 You can mix our crud service with our exporter service to add a quick and painless exporting system to your project
