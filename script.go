@@ -308,8 +308,9 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 
 			counter++
 
-			if counter%countFlusher == 0 {
+			if counter == countFlusher {
 				flusher.Flush()
+				counter = 0
 			}
 		}
 	})
@@ -354,18 +355,18 @@ func removeAllOldRequestLoggerRows(ormService *beeorm.Engine, ttlInDays int) {
 		ormService.Search(where, pager, &requestLoggerEntities)
 
 		flusher := ormService.NewFlusher()
+
 		for _, requestLoggerEntity := range requestLoggerEntities {
 			flusher.Delete(requestLoggerEntity)
 		}
 
 		flusher.Flush()
+
 		log.Printf("%d rows was removed", len(requestLoggerEntities))
 
 		if len(requestLoggerEntities) < pager.PageSize {
 			break
 		}
-
-		pager.IncrementPage()
 	}
 }
 
@@ -408,17 +409,17 @@ func removeAllOldMetricsRows(ormService *beeorm.Engine, ttlInDays int) {
 		ormService.Search(where, pager, &metricsEntities)
 
 		flusher := ormService.NewFlusher()
+
 		for _, requestLoggerEntity := range metricsEntities {
 			flusher.Delete(requestLoggerEntity)
 		}
 
 		flusher.Flush()
+
 		log.Printf("%d rows was removed", len(metricsEntities))
 
 		if len(metricsEntities) < pager.PageSize {
 			break
 		}
-
-		pager.IncrementPage()
 	}
 }
