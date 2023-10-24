@@ -5,19 +5,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/coretrix/hitrix/pkg/helper"
-	"github.com/coretrix/hitrix/service/component/config"
 	"os"
 
 	"github.com/Timothylock/go-signin-with-apple/apple"
+
+	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/coretrix/hitrix/service/component/config"
 )
 
 type Apple struct {
-	teamID          string
-	clientID        string
-	androidClientID string
-	keyID           string
-	privateKey      string
+	TeamID          string
+	ClientID        string
+	AndroidClientID string
+	KeyID           string
+	PrivateKey      string
 }
 
 func NewAppleSocial(
@@ -45,20 +46,20 @@ func NewAppleSocial(
 }
 
 func (a *Apple) GetUserData(ctx context.Context, token string, isAndroid bool) (*UserData, error) {
-	if isAndroid && a.androidClientID == "" {
-		return nil, fmt.Errorf("you must set androidClientID")
+	if isAndroid && a.AndroidClientID == "" {
+		return nil, fmt.Errorf("you must set AndroidClientID")
 	}
 
-	if !isAndroid && a.clientID == "" {
-		return nil, fmt.Errorf("you must set clientID")
+	if !isAndroid && a.ClientID == "" {
+		return nil, fmt.Errorf("you must set ClientID")
 	}
 
-	clientID := a.clientID
+	clientID := a.ClientID
 	if isAndroid {
-		clientID = a.androidClientID
+		clientID = a.AndroidClientID
 	}
 
-	secret, err := apple.GenerateClientSecret(a.privateKey, a.teamID, clientID, a.keyID)
+	secret, err := apple.GenerateClientSecret(a.PrivateKey, a.TeamID, clientID, a.KeyID)
 	if err != nil {
 		return nil, err
 	}

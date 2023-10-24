@@ -1,9 +1,10 @@
 package otp
 
 import (
-	"github.com/coretrix/hitrix/service/component/sms"
 	"math/rand"
 	"strconv"
+
+	"github.com/coretrix/hitrix/service/component/sms"
 )
 
 const SMSOTPProviderMobica = "Mobica"

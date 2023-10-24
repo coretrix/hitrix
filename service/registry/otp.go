@@ -3,7 +3,6 @@ package registry
 import (
 	"errors"
 	"fmt"
-	"github.com/coretrix/hitrix/service/component/sms"
 	"strings"
 
 	"github.com/latolukasz/beeorm"
@@ -14,6 +13,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/config"
 	"github.com/coretrix/hitrix/service/component/generator"
 	"github.com/coretrix/hitrix/service/component/otp"
+	"github.com/coretrix/hitrix/service/component/sms"
 )
 
 func ServiceProviderOTP(forceProviders ...string) *service.DefinitionGlobal {
