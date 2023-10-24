@@ -32,25 +32,7 @@ func ServiceProviderAppleSocial() *service.DefinitionGlobal {
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 
-			var clientID, androidClientID string
-
-			teamID := configService.MustString("authentication.apple.team_id")
-			if clientIDInner, ok := configService.String("authentication.apple.client_id"); ok {
-				clientID = clientIDInner
-			}
-			if androidClientIDInner, ok := configService.String("authentication.apple.android_client_id"); ok {
-				androidClientID = androidClientIDInner
-			}
-			keyID := configService.MustString("authentication.apple.key_id")
-			privateKey := configService.MustString("authentication.apple.private_key")
-
-			return social.NewAppleSocial(
-				teamID,
-				clientID,
-				androidClientID,
-				keyID,
-				privateKey,
-			), nil
+			return social.NewAppleSocial(configService)
 		},
 	}
 }

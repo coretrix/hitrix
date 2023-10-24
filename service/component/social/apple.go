@@ -2,7 +2,12 @@ package social
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/coretrix/hitrix/pkg/helper"
+	"github.com/coretrix/hitrix/service/component/config"
+	"os"
 
 	"github.com/Timothylock/go-signin-with-apple/apple"
 )
@@ -16,19 +21,27 @@ type Apple struct {
 }
 
 func NewAppleSocial(
-	teamID string,
-	clientID string,
-	androidClientID string,
-	keyID string,
-	privateKey string,
-) IUserData {
-	return &Apple{
-		teamID:          teamID,
-		clientID:        clientID,
-		androidClientID: androidClientID,
-		keyID:           keyID,
-		privateKey:      privateKey,
+	configService config.IConfig,
+) (IUserData, error) {
+	if !helper.ExistsInDir(".apple-id.json", configService.GetFolderPath()) {
+		return nil, errors.New(configService.GetFolderPath() + "/.apple-id.json does not exists")
 	}
+
+	credentialsFile := configService.GetFolderPath() + "/.apple-id.json"
+
+	var dat []byte
+	var configApple = &Apple{}
+	var err error
+
+	if dat, err = os.ReadFile(credentialsFile); err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(dat, configApple); err != nil {
+		return nil, err
+	}
+
+	return configApple, nil
 }
 
 func (a *Apple) GetUserData(ctx context.Context, token string, isAndroid bool) (*UserData, error) {
