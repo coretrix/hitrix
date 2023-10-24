@@ -3,6 +3,7 @@ package registry
 import (
 	"errors"
 	"fmt"
+	"github.com/coretrix/hitrix/service/component/sms"
 	"strings"
 
 	"github.com/latolukasz/beeorm"
@@ -98,6 +99,7 @@ var smsOTPProviderBuilderFactory = map[string]func(
 	otp.SMSOTPProviderTwilio: twilioSMSOTPProviderBuilder,
 	otp.SMSOTPProviderSinch:  sinchSMSOTPProviderBuilder,
 	otp.SMSOTPProviderMada:   madaSMSOTPProviderBuilder,
+	otp.SMSOTPProviderMobica: mobicaSMSOTPProviderBuilder,
 }
 
 func twilioSMSOTPProviderBuilder(configService config.IConfig, _ generator.IGenerator, _ []string) (otp.IOTPSMSGateway, error) {
@@ -169,4 +171,12 @@ func madaSMSOTPProviderBuilder(
 	}
 
 	return otp.NewMadaSMSOTPProvider(username, password, url, sourceName, otpLength, phonePrefixes, generatorService), nil
+}
+
+func mobicaSMSOTPProviderBuilder(configService config.IConfig, _ generator.IGenerator, _ []string) (otp.IOTPSMSGateway, error) {
+	mobicaSMSProvider, err := sms.NewMobicaProvider(configService, nil)
+	if err != nil {
+		panic(err)
+	}
+	return otp.NewMobicaSMSOTPProvider(mobicaSMSProvider), nil
 }
