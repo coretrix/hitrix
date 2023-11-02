@@ -22,14 +22,17 @@ func NewDBLogger(clockService clock.IClock) IRequestLogger {
 
 func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
 	headers, err := httputil.DumpRequest(request, false)
-
 	if err != nil {
 		panic(err)
 	}
 
-	body, err := ioutil.ReadAll(request.Body)
-	if err != nil {
-		panic(err)
+	var body = []byte("")
+
+	if request.Body != nil {
+		body, err = ioutil.ReadAll(request.Body)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	content := append(headers, body...)
