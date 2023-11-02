@@ -51,7 +51,7 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 			requestLoggerEntity.Request = append(requestLoggerEntity.Request, body...)
 		} else {
 			requestLoggerEntity.Request = []byte("Skipped HEADERS \n\n Partial BODY \n\n")
-			requestLoggerEntity.Request = append(requestLoggerEntity.Request, body[0:64000]...)
+			requestLoggerEntity.Request = append(requestLoggerEntity.Request, body[0:16000]...)
 		}
 	}
 
@@ -67,13 +67,13 @@ func (g *DBLogger) LogResponse(ormService *beeorm.Engine, requestLoggerEntity *e
 		requestLoggerEntity.Response = responseBody
 	} else {
 		requestLoggerEntity.Response = []byte("Partial BODY \n\n")
-		requestLoggerEntity.Response = append(requestLoggerEntity.Response, responseBody[0:64000]...)
+		requestLoggerEntity.Response = append(requestLoggerEntity.Response, responseBody[0:16000]...)
 	}
 
 	if len(string(requestLoggerEntity.Log))*4 > 64000 {
 		log := requestLoggerEntity.Log
 		requestLoggerEntity.Log = []byte("Partial LOG \n\n")
-		requestLoggerEntity.Log = append(requestLoggerEntity.Log, log[0:64000]...)
+		requestLoggerEntity.Log = append(requestLoggerEntity.Log, log[0:16000]...)
 	}
 
 	ormService.Flush(requestLoggerEntity)
