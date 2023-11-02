@@ -104,7 +104,7 @@ func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context) {
 		if len(binaryRequest)*4 <= 64000 {
 			value.Request = append(value.Request, binaryRequest...)
 		} else {
-			value.Request = []byte("Partial BODY \n\n")
+			value.Request = append(value.Request, []byte("Partial BODY \n\n")...)
 			value.Request = append(value.Request, binaryRequest[0:16000]...)
 		}
 	}
