@@ -68,10 +68,16 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 	go func() {
 		if isInfinity {
 			log.Println("Infinity - " + s.Description())
-			processor.run(s)
-			processor.Server.await()
+			for {
+				valid := processor.run(s)
+				if valid {
+					processor.Server.done <- true
 
-			return
+					break
+				}
+
+				time.Sleep(time.Second * 10)
+			}
 		}
 
 		if !isInterval {
@@ -103,17 +109,21 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 	}()
 }
 
-func (processor *BackgroundProcessor) run(s app.IScript) {
+func (processor *BackgroundProcessor) run(s app.IScript) bool {
 	log.Println(color.InGreen("Start script") + " - " + s.Description())
 
 	valid := processor.runScript(s)
 
 	if valid {
-		log.Println(color.InGreen("Running script") + " - " + s.Description())
+		_, isInfinity := s.(app.Infinity)
+		if !isInfinity {
+			log.Println(color.InGreen("Running script") + " - " + s.Description())
+		}
 	} else {
 		log.Println(color.InRed("Failed script") + " - " + s.Description())
-		time.Sleep(time.Second * 10)
 	}
+
+	return valid
 }
 
 func listScrips() {
