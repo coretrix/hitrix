@@ -2,7 +2,7 @@ package requestlogger
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httputil"
 
@@ -29,7 +29,7 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 	var body = []byte("")
 
 	if request.Body != nil {
-		body, err = ioutil.ReadAll(request.Body)
+		body, err = io.ReadAll(request.Body)
 		if err != nil {
 			panic(err)
 		}
@@ -38,7 +38,7 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 	content := append(headers, body...)
 
 	// And now set a new body, which will simulate the same data we read:
-	request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+	request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 	requestLoggerEntity := &entity.RequestLoggerEntity{
 		URL:       url,
