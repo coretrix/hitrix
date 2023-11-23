@@ -4,11 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
-	mail2 "net/mail"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/latolukasz/beeorm"
@@ -117,79 +114,6 @@ type GenerateOTP struct {
 	Mobile         string
 	ExpirationTime string
 	Token          string
-}
-
-type GenerateOTPEmail struct {
-	Email          string
-	ExpirationTime string
-	Token          string
-}
-
-func (t *Authentication) GenerateAndSendOTPEmail(ormService *beeorm.Engine, email, template, from, title string) (*GenerateOTPEmail, error) {
-	_, err := mail2.ParseAddress(email)
-
-	if err != nil {
-		return nil, errors.New("mail address not valid")
-	}
-
-	var code int64
-	if t.otpLength == 0 {
-		code = t.generatorService.GenerateRandomRangeNumber(10000, 99999)
-	} else {
-		// example, if t.otpLength = 5 (the default)
-		// min = 10 ^ (5-1) 	==> min = 10 ^ 4 		==> min = 10000
-		// max = (10 ^ 5) - 1   ==> max = 100000 - 1	==> max = 99999
-		min := int64(math.Pow(10, float64(t.otpLength-1)))
-		max := int64(math.Pow(10, float64(t.otpLength))) - 1
-		code = t.generatorService.GenerateRandomRangeNumber(min, max)
-	}
-
-	if t.mailService == nil {
-		panic("mail service is not registered")
-	}
-
-	mailService := *t.mailService
-
-	err = mailService.SendTemplate(ormService, &mail.Message{
-		From:         from,
-		To:           email,
-		Subject:      title,
-		TemplateName: template,
-		TemplateData: map[string]interface{}{"code": strconv.FormatInt(code, 10)},
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	expirationTime := t.clockService.Now().Add(time.Duration(t.otpTTL) * time.Second).Unix()
-	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(strconv.FormatInt(expirationTime, 10), email, fmt.Sprint(code)))
-
-	return &GenerateOTPEmail{
-		Email:          email,
-		ExpirationTime: strconv.FormatInt(expirationTime, 10),
-		Token:          token,
-	}, nil
-}
-
-func (t *Authentication) VerifyOTPEmail(code string, input *GenerateOTPEmail) error {
-	token := t.generatorService.GenerateSha256Hash(fmt.Sprint(input.ExpirationTime, input.Email, code))
-	if token != input.Token {
-		return errors.New("wrong code provided")
-	}
-
-	timeInt, err := strconv.ParseInt(input.ExpirationTime, 10, 64)
-	if err != nil {
-		panic("wrong time format")
-	}
-
-	expirationTime := time.Unix(timeInt, 0)
-
-	if expirationTime.Before(t.clockService.Now()) {
-		return errors.New("code expired")
-	}
-
-	return nil
 }
 
 func (t *Authentication) VerifySocialLogin(ctx context.Context, source, token string, isAndroid bool) (*social.UserData, error) {

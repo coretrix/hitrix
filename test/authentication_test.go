@@ -2,18 +2,13 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/service"
-	"github.com/coretrix/hitrix/service/component/authentication"
-	clockMock "github.com/coretrix/hitrix/service/component/clock/mocks"
 	generatorMock "github.com/coretrix/hitrix/service/component/generator/mocks"
-	mocks2 "github.com/coretrix/hitrix/service/component/mail/mocks"
 	"github.com/coretrix/hitrix/service/component/password"
 	smsMock "github.com/coretrix/hitrix/service/component/sms/mocks"
 	"github.com/coretrix/hitrix/service/registry"
@@ -36,95 +31,6 @@ func createUser(input map[string]interface{}) *entity.DevPanelUserEntity {
 	ormService.Flush(devPanelUserEntity)
 
 	return devPanelUserEntity
-}
-
-func TestGenerateOTPEmail(t *testing.T) {
-	t.Run("generate token email otp", func(t *testing.T) {
-		fakeSMS := &smsMock.FakeSMSSender{}
-		fakeMail := &mocks2.Sender{}
-		from := "test@hitrix.com"
-		to := "iman.daneshi@coretrix.com"
-		title := "sometitle"
-		template := "login_otp"
-		loginCode := 12345
-		fakeClock := &clockMock.FakeSysClock{}
-		now := time.Unix(1, 0)
-		fakeClock.On("Now").Return(now)
-
-		otpTTL := time.Duration(registry.DefaultOTPTTLInSeconds) * time.Second
-
-		var min int64 = 10000
-		var max int64 = 99999
-		fakeGenerator := &generatorMock.FakeGenerator{}
-		fakeGenerator.On("GenerateRandomRangeNumber", min, max).Return(loginCode)
-		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), to, strconv.Itoa(loginCode))).Return("defjiwqwd")
-
-		createContextMyApp(t, "my-app", nil,
-			[]*service.DefinitionGlobal{
-				registry.ServiceProviderErrorLogger(),
-				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(password.NewSimpleManager),
-				registry.ServiceProviderUUID(),
-				mocks.ServiceProviderMockSMS(fakeSMS),
-				mocks.ServiceProviderMockMail(fakeMail),
-				mocks.ServiceProviderMockGenerator(fakeGenerator),
-				mocks.ServiceProviderMockClock(fakeClock),
-				registry.ServiceProviderAuthentication(),
-			},
-			nil,
-		)
-
-		fakeMail.On("SendTemplate", to).Return(nil)
-
-		authenticationService := service.DI().Authentication()
-		ormService := service.DI().OrmEngine()
-
-		otpResp, err := authenticationService.GenerateAndSendOTPEmail(ormService, to, template, from, title)
-		assert.Nil(t, err)
-		assert.Equal(t, otpResp.Token, "defjiwqwd")
-		assert.Equal(t, otpResp.Email, to)
-		fakeGenerator.AssertExpectations(t)
-		fakeSMS.AssertExpectations(t)
-		fakeMail.AssertExpectations(t)
-	})
-}
-
-func TestVerifyOTPEmail(t *testing.T) {
-	t.Run("verify otp email", func(t *testing.T) {
-		fakeEmail := &mocks2.Sender{}
-		fakeClock := &clockMock.FakeSysClock{}
-		now := time.Unix(1, 0)
-		fakeClock.On("Now").Return(now)
-		fakeSMS := &smsMock.FakeSMSSender{}
-		otpTTL := time.Duration(registry.DefaultOTPTTLInSeconds) * time.Second
-
-		fakeGenerator := &generatorMock.FakeGenerator{}
-		fakeGenerator.On("GenerateSha256Hash", fmt.Sprint(fakeClock.Now().Add(otpTTL).Unix(), "iman.daneshi@coretrix.com", "12345")).Return("defjiwqwd")
-		createContextMyApp(t, "my-app", nil,
-			[]*service.DefinitionGlobal{
-				registry.ServiceProviderErrorLogger(),
-				registry.ServiceProviderJWT(),
-				registry.ServiceProviderPassword(password.NewSimpleManager),
-				registry.ServiceProviderUUID(),
-				mocks.ServiceProviderMockGenerator(fakeGenerator),
-				mocks.ServiceProviderMockClock(fakeClock),
-				mocks.ServiceProviderMockSMS(fakeSMS),
-				mocks.ServiceProviderMockMail(fakeEmail),
-				registry.ServiceProviderAuthentication(),
-			},
-			nil,
-		)
-		authenticationService := service.DI().Authentication()
-
-		err := authenticationService.VerifyOTPEmail("12345", &authentication.GenerateOTPEmail{
-			Email:          "iman.daneshi@coretrix.com",
-			ExpirationTime: strconv.FormatInt(fakeClock.Now().Add(otpTTL).Unix(), 10),
-			Token:          "defjiwqwd",
-		})
-		assert.Nil(t, err)
-
-		fakeGenerator.AssertExpectations(t)
-	})
 }
 
 func TestAuthenticate(t *testing.T) {
