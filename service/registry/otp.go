@@ -3,9 +3,6 @@ package registry
 import (
 	"errors"
 	"fmt"
-	"github.com/coretrix/hitrix/service/component/clock"
-	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
-	"github.com/coretrix/hitrix/service/component/mail"
 	"strings"
 
 	"github.com/latolukasz/beeorm"
@@ -13,8 +10,11 @@ import (
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
+	"github.com/coretrix/hitrix/service/component/clock"
 	"github.com/coretrix/hitrix/service/component/config"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/coretrix/hitrix/service/component/generator"
+	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/coretrix/hitrix/service/component/otp"
 	"github.com/coretrix/hitrix/service/component/sms"
 )
@@ -203,7 +203,8 @@ func madaSMSOTPProviderBuilder(
 func mobicaSMSOTPProviderBuilder(configService config.IConfig, _ generator.IGenerator, _ []string) (otp.IOTPSMSGateway, error) {
 	mobicaSMSProvider, err := sms.NewMobicaProvider(configService, nil)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
+
 	return otp.NewMobicaSMSOTPProvider(mobicaSMSProvider), nil
 }

@@ -22,7 +22,7 @@ func (script *RetryOTPConsumer) Run(ctx context.Context, _ app.IExit) {
 		panic("missing sms.max_retries")
 	}
 
-	queue.NewConsumerRunner(ctx).RunConsumerOne(consumers.NewOTPRetryConsumer(ormService, maxRetries, otpService.GetGatewayRegistry()), nil, 1)
+	queue.NewConsumerRunner(ctx).RunConsumerOne(consumers.NewOTPRetryConsumer(ormService, maxRetries, otpService.GetSMSGatewayRegistry()), nil, 1)
 }
 
 func (script *RetryOTPConsumer) Infinity() bool {

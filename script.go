@@ -68,6 +68,7 @@ func (processor *BackgroundProcessor) RunScript(s app.IScript) {
 	go func() {
 		if isInfinity {
 			log.Println("Infinity - " + s.Description())
+
 			for {
 				valid := processor.run(s)
 				if valid {

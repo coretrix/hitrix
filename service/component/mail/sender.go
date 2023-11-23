@@ -3,6 +3,7 @@ package mail
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"

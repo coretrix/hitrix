@@ -27,6 +27,7 @@ func (m *Mobica) GetCode() string {
 	rangeMin := 10000
 	rangeMax := 100000
 
+	//nolint //G404: Use of weak random number generator (math/rand instead of crypto/rand)
 	return strconv.Itoa(rand.Intn(rangeMax-rangeMin+1) + rangeMin)
 }
 
