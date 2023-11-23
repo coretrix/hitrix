@@ -6,8 +6,6 @@ import (
 	"encoding/base64"
 	"math/big"
 	"strings"
-
-	"github.com/AmirSoleimani/VoucherCodeGenerator/vcgen"
 )
 
 type SimpleGenerator struct {
@@ -29,17 +27,6 @@ func (g *SimpleGenerator) GenerateSha256Hash(input string) string {
 	sha256Hash.Write([]byte(input))
 
 	return base64.StdEncoding.EncodeToString(sha256Hash.Sum(nil))
-}
-
-func (g *SimpleGenerator) GenerateRandomCode(generator *vcgen.Generator) string {
-	vc := vcgen.New(generator)
-
-	result, err := vc.Run()
-	if err != nil {
-		panic(err)
-	}
-
-	return strings.Join(*result, "")
 }
 
 const (
