@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	mail2 "net/mail"
 	"regexp"
 	"strconv"
 
@@ -213,8 +214,13 @@ func (o *OTP) sendEmail(ormService *beeorm.Engine, send Send) (string, error) {
 	if o.MailSender == nil {
 		panic("mail sender not defined")
 	}
-	//validate email
+
 	email := send.Email.Email
+
+	_, err := mail2.ParseAddress(email)
+	if err != nil {
+		return "", errors.New("mail address not valid")
+	}
 
 	code := o.getCode()
 
@@ -226,7 +232,7 @@ func (o *OTP) sendEmail(ormService *beeorm.Engine, send Send) (string, error) {
 		SentAt:            o.ClockService.Now(),
 	}
 
-	err := o.MailSender.SendTemplate(ormService, &mail.Message{
+	err = o.MailSender.SendTemplate(ormService, &mail.Message{
 		From:         send.EmailConfig.From,
 		To:           email,
 		Subject:      send.EmailConfig.Subject,
