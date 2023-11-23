@@ -2,7 +2,7 @@ package mail
 
 import (
 	"encoding/json"
-
+	"errors"
 	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -44,6 +44,31 @@ type Sender struct {
 	ClockService       clock.IClock
 	ErrorLoggerService errorlogger.ErrorLogger
 	Provider           IProvider
+}
+
+func NewSender(
+	ormConfig beeorm.ValidatedRegistry,
+	configService config.IConfig,
+	clockService clock.IClock,
+	errorLogger errorlogger.ErrorLogger,
+	newFunc NewSenderFunc,
+) (*Sender, error) {
+	entities := ormConfig.GetEntities()
+	if _, ok := entities["entity.MailTrackerEntity"]; !ok {
+		return nil, errors.New("you should register MailTrackerEntity")
+	}
+
+	provider, err := newFunc(configService)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Sender{
+		ConfigService:      configService,
+		ClockService:       clockService,
+		Provider:           provider,
+		ErrorLoggerService: errorLogger,
+	}, nil
 }
 
 func (s *Sender) GetTemplateKeyFromConfig(templateName string) (string, error) {

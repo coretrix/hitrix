@@ -38,7 +38,7 @@ func main() {
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(password.NewSimpleManager),
 		registry.ServiceProviderSocketRegistry(eventHandlersMap),
-		registry.ServiceProviderOTP(),
+		registry.ServiceProviderOTP(nil),
 	).RegisterDIRequestService(
 		registry.ServiceProviderOrmEngineForContext(false),
 	).RegisterRedisPools(&app.RedisPools{Persistent: "default", Cache: "default"}).

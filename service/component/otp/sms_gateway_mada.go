@@ -72,11 +72,6 @@ func (m *Mada) SendOTP(phone *Phone, code string) (string, string, error) {
 	return m.soapCall(phone.Number, code)
 }
 
-func (m *Mada) Call(_ *Phone, _ string, _ string) (string, string, error) {
-	// not implemented
-	return "", "", nil
-}
-
 func (m *Mada) VerifyOTP(_ *Phone, code, generatedCode string) (string, string, bool, bool, error) {
 	return "", "", true, code == generatedCode, nil
 }

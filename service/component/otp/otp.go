@@ -5,12 +5,14 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
-	"regexp"
-	"strconv"
-	"time"
-
+	"github.com/coretrix/hitrix/service/component/clock"
+	"github.com/coretrix/hitrix/service/component/generator"
+	"github.com/coretrix/hitrix/service/component/mail"
 	"github.com/dongri/phonenumber"
 	"github.com/latolukasz/beeorm"
+	"math"
+	"regexp"
+	"strconv"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
@@ -18,17 +20,9 @@ import (
 )
 
 type IOTP interface {
-	SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error)
-	VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (bool, bool, error)
-	Call(ormService *beeorm.Engine, phone *Phone, customMessage string) (string, error)
-	GetGatewayRegistry() map[string]IOTPSMSGateway
-}
-
-type OTP struct {
-	GatewayPriority         []IOTPSMSGateway
-	GatewayName             map[string]IOTPSMSGateway
-	GatewayPhonePrefixRegex map[*regexp.Regexp]IOTPSMSGateway
-	RetryOTP                bool
+	Send(ormService *beeorm.Engine, send Send) (string, error)
+	Verify(ormService *beeorm.Engine, verify Verify) (bool, bool, error)
+	GetSMSGatewayRegistry() map[string]IOTPSMSGateway
 }
 
 type Phone struct {
@@ -36,26 +30,75 @@ type Phone struct {
 	ISO3166 phonenumber.ISO3166
 }
 
-func NewOTP(retryOTP bool, gateways ...IOTPSMSGateway) *OTP {
+type Email struct {
+	Email string
+}
+
+type Send struct {
+	Phone       *Phone
+	Email       *Email
+	EmailConfig *EmailConfig
+}
+
+type EmailConfig struct {
+	From         string
+	Subject      string
+	TemplateName string
+}
+
+type Verify struct {
+	Phone *Phone
+	Email *Email
+	Code  string
+}
+
+type Config struct {
+	ClockService clock.IClock
+	SMSConfig    SMSConfig
+	MailConfig   MailConfig
+	CodeLength   int
+}
+
+type SMSConfig struct {
+	SMSGateways []IOTPSMSGateway
+	RetryOTP    bool
+}
+
+type MailConfig struct {
+	Sender mail.ISender
+}
+
+type OTP struct {
+	ClockService               clock.IClock
+	GeneratorService           generator.IGenerator
+	SMSGatewayPriority         []IOTPSMSGateway
+	SMSGatewayName             map[string]IOTPSMSGateway
+	SMSGatewayPhonePrefixRegex map[*regexp.Regexp]IOTPSMSGateway
+	SMSRetryOTP                bool
+	MailSender                 *mail.Sender
+	CodeLength                 int
+}
+
+func NewOTP(config Config) *OTP {
 	otp := &OTP{
-		GatewayPriority:         make([]IOTPSMSGateway, 0),
-		GatewayName:             map[string]IOTPSMSGateway{},
-		GatewayPhonePrefixRegex: map[*regexp.Regexp]IOTPSMSGateway{},
-		RetryOTP:                retryOTP,
+		SMSGatewayPriority:         make([]IOTPSMSGateway, 0),
+		SMSGatewayName:             map[string]IOTPSMSGateway{},
+		SMSGatewayPhonePrefixRegex: map[*regexp.Regexp]IOTPSMSGateway{},
+		SMSRetryOTP:                config.SMSConfig.RetryOTP,
 	}
 
-	for _, gateway := range gateways {
-		_, has := otp.GatewayName[gateway.GetName()]
+	for _, gateway := range config.SMSConfig.SMSGateways {
+		_, has := otp.SMSGatewayName[gateway.GetName()]
 
 		if has {
 			panic("OTPProviders duplicated for name: " + gateway.GetName())
 		}
 
-		otp.GatewayName[gateway.GetName()] = gateway
+		otp.SMSGatewayName[gateway.GetName()] = gateway
 
 		phonePrefixes := gateway.GetPhonePrefixes()
 		if phonePrefixes == nil {
-			otp.GatewayPriority = append(otp.GatewayPriority, gateway)
+			otp.SMSGatewayPriority = append(otp.SMSGatewayPriority, gateway)
 		} else {
 			regex := "^"
 			for i, phonePrefix := range phonePrefixes {
@@ -70,27 +113,59 @@ func NewOTP(retryOTP bool, gateways ...IOTPSMSGateway) *OTP {
 				panic(err)
 			}
 
-			otp.GatewayPhonePrefixRegex[compiledRegex] = gateway
+			otp.SMSGatewayPhonePrefixRegex[compiledRegex] = gateway
 		}
+	}
+
+	otp.CodeLength = 5
+
+	if config.CodeLength > 0 {
+		otp.CodeLength = config.CodeLength
 	}
 
 	return otp
 }
 
-func (o *OTP) SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error) {
+func (o *OTP) Send(ormService *beeorm.Engine, send Send) (string, error) {
+	if send.Phone != nil {
+		return o.sendSMS(ormService, send)
+	} else if send.Email != nil {
+		return o.sendEmail(ormService, send)
+	}
+
+	panic("no send method selected")
+}
+
+func (o *OTP) Verify(ormService *beeorm.Engine, verify Verify) (bool, bool, error) {
+	if verify.Phone != nil {
+		return o.verifySMS(ormService, verify)
+	} else if verify.Email != nil {
+		return o.verifyEmail(ormService, verify)
+	}
+
+	panic("no verify method selected")
+}
+
+func (o *OTP) GetSMSGatewayRegistry() map[string]IOTPSMSGateway {
+	return o.SMSGatewayName
+}
+
+func (o *OTP) sendSMS(ormService *beeorm.Engine, send Send) (string, error) {
+	//validate phone
+	phone := send.Phone
 	var code string
 	var err error
 
 	gatewayPriority := make([]IOTPSMSGateway, 0)
 
-	for regex, gateway := range o.GatewayPhonePrefixRegex {
+	for regex, gateway := range o.SMSGatewayPhonePrefixRegex {
 		if regex.MatchString(phone.Number) {
 			gatewayPriority = append(gatewayPriority, gateway)
 		}
 	}
 
 	if len(gatewayPriority) == 0 {
-		gatewayPriority = o.GatewayPriority
+		gatewayPriority = o.SMSGatewayPriority
 	}
 
 	for priority, gateway := range gatewayPriority {
@@ -103,7 +178,7 @@ func (o *OTP) SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error) {
 			GatewayName:       gateway.GetName(),
 			GatewayPriority:   uint8(priority),
 			GatewaySendStatus: entity.OTPTrackerGatewaySendStatusNew,
-			SentAt:            time.Now(), // TODO ClockService
+			SentAt:            o.ClockService.Now(),
 		}
 
 		otpTrackerEntity.GatewaySendRequest, otpTrackerEntity.GatewaySendResponse, err = gateway.SendOTP(phone, code)
@@ -117,10 +192,10 @@ func (o *OTP) SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error) {
 		ormService.Flush(otpTrackerEntity)
 
 		if err == nil {
-			ormService.GetRedis().Set(o.getRedisKey(phone), otpTrackerEntity.ID, helper.Hour)
+			ormService.GetRedis().Set(o.getRedisKey(phone.Number), otpTrackerEntity.ID, helper.Hour)
 
 			break
-		} else if o.RetryOTP {
+		} else if o.SMSRetryOTP {
 			ormService.GetEventBroker().Publish(streams.StreamMsgRetryOTP, &RetryDTO{
 				Code:               code,
 				Phone:              phone,
@@ -133,59 +208,56 @@ func (o *OTP) SendSMS(ormService *beeorm.Engine, phone *Phone) (string, error) {
 	return code, err
 }
 
-func (o *OTP) Call(ormService *beeorm.Engine, phone *Phone, customMessage string) (string, error) {
-	var code string
-	var err error
-
-	for priority, gateway := range o.GatewayPriority {
-		code = gateway.GetCode()
-
-		otpTrackerEntity := &entity.OTPTrackerEntity{
-			Type:              entity.OTPTrackerTypeCallout,
-			To:                phone.Number,
-			Code:              code,
-			GatewayName:       gateway.GetName(),
-			GatewayPriority:   uint8(priority),
-			GatewaySendStatus: entity.OTPTrackerGatewaySendStatusNew,
-			SentAt:            time.Now(), // TODO ClockService
-		}
-
-		otpTrackerEntity.GatewaySendRequest, otpTrackerEntity.GatewaySendResponse, err = gateway.Call(phone, code, customMessage)
-
-		if err != nil {
-			otpTrackerEntity.GatewaySendStatus = entity.OTPTrackerGatewaySendStatusGatewayError
-		} else {
-			otpTrackerEntity.GatewaySendStatus = entity.OTPTrackerGatewaySendStatusSent
-		}
-
-		ormService.Flush(otpTrackerEntity)
-
-		if err == nil {
-			ormService.GetRedis().Set(o.getRedisKey(phone), otpTrackerEntity.ID, helper.Hour)
-
-			break
-		}
+func (o *OTP) sendEmail(ormService *beeorm.Engine, send Send) (string, error) {
+	if o.MailSender == nil {
+		panic("mail sender not defined")
 	}
+	//validate email
+	email := send.Email.Email
+
+	code := o.getCode()
+
+	otpTrackerEntity := &entity.OTPTrackerEntity{
+		Type:              entity.OTPTrackerTypeSMS,
+		To:                email,
+		Code:              code,
+		GatewaySendStatus: entity.OTPTrackerGatewaySendStatusNew,
+		SentAt:            o.ClockService.Now(),
+	}
+
+	err := o.MailSender.SendTemplate(ormService, &mail.Message{
+		From:         send.EmailConfig.From,
+		To:           email,
+		Subject:      send.EmailConfig.Subject,
+		TemplateName: send.EmailConfig.TemplateName,
+		TemplateData: map[string]interface{}{"code": code},
+	})
+
+	if err != nil {
+		otpTrackerEntity.GatewaySendStatus = entity.OTPTrackerGatewaySendStatusGatewayError
+	} else {
+		otpTrackerEntity.GatewaySendStatus = entity.OTPTrackerGatewaySendStatusSent
+	}
+
+	ormService.Flush(otpTrackerEntity)
 
 	return code, err
 }
 
-func (o *OTP) VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (bool, bool, error) {
-	otpTrackerEntity, err := o.getOTPTrackerEntity(ormService, phone)
-
+func (o *OTP) verifySMS(ormService *beeorm.Engine, verify Verify) (bool, bool, error) {
+	otpTrackerEntity, err := o.getOTPTrackerEntity(ormService, verify.Phone.Number)
 	if err != nil {
 		return false, false, err
 	}
 
-	gateway := o.GatewayName[otpTrackerEntity.GatewayName]
+	gateway := o.SMSGatewayName[otpTrackerEntity.GatewayName]
 
 	var otpRequestValid bool
 	var otpCodeValid bool
 
 	otpTrackerEntity.GatewayVerifyRequest, otpTrackerEntity.GatewayVerifyResponse, otpRequestValid, otpCodeValid, err =
-		gateway.VerifyOTP(phone, code, otpTrackerEntity.Code)
+		gateway.VerifyOTP(verify.Phone, verify.Code, otpTrackerEntity.Code)
 
-	// TODO add error to tracker
 	if err != nil {
 		otpTrackerEntity.GatewayVerifyStatus = entity.OTPTrackerGatewayVerifyStatusGatewayError
 	} else if !otpRequestValid {
@@ -201,12 +273,25 @@ func (o *OTP) VerifyOTP(ormService *beeorm.Engine, phone *Phone, code string) (b
 	return otpRequestValid, otpCodeValid, err
 }
 
-func (o *OTP) GetGatewayRegistry() map[string]IOTPSMSGateway {
-	return o.GatewayName
+func (o *OTP) verifyEmail(ormService *beeorm.Engine, verify Verify) (bool, bool, error) {
+	otpTrackerEntity, err := o.getOTPTrackerEntity(ormService, verify.Email.Email)
+	if err != nil {
+		return false, false, err
+	}
+
+	if otpTrackerEntity.Code == verify.Code {
+		otpTrackerEntity.GatewayVerifyStatus = entity.OTPTrackerGatewayVerifyStatusSuccess
+	} else {
+		otpTrackerEntity.GatewayVerifyStatus = entity.OTPTrackerGatewayVerifyStatusInvalidCode
+	}
+
+	ormService.Flush(otpTrackerEntity)
+
+	return true, otpTrackerEntity.Code == verify.Code, nil
 }
 
-func (o *OTP) getOTPTrackerEntity(ormService *beeorm.Engine, phone *Phone) (*entity.OTPTrackerEntity, error) {
-	otpTrackerEntityIDString, has := ormService.GetRedis().Get(o.getRedisKey(phone))
+func (o *OTP) getOTPTrackerEntity(ormService *beeorm.Engine, verifyKey string) (*entity.OTPTrackerEntity, error) {
+	otpTrackerEntityIDString, has := ormService.GetRedis().Get(o.getRedisKey(verifyKey))
 
 	if !has {
 		return nil, errors.New("OTP: redis key expired")
@@ -221,7 +306,6 @@ func (o *OTP) getOTPTrackerEntity(ormService *beeorm.Engine, phone *Phone) (*ent
 	otpTrackerEntity := &entity.OTPTrackerEntity{}
 
 	found := ormService.LoadByID(otpTrackerEntityID, otpTrackerEntity)
-
 	if !found {
 		return nil, errors.New("OTP tracker not found")
 	}
@@ -229,9 +313,18 @@ func (o *OTP) getOTPTrackerEntity(ormService *beeorm.Engine, phone *Phone) (*ent
 	return otpTrackerEntity, nil
 }
 
-func (o *OTP) getRedisKey(phone *Phone) string {
+func (o *OTP) getRedisKey(verifyKey string) string {
 	// #nosec
-	return fmt.Sprintf("%x", md5.Sum([]byte(phone.Number)))
+	return fmt.Sprintf("otp_%x", md5.Sum([]byte(verifyKey)))
+}
+
+func (o *OTP) getCode() string {
+	return strconv.FormatInt(
+		o.GeneratorService.GenerateRandomRangeNumber(
+			int64(math.Pow(10, float64(o.CodeLength-1))),
+			int64(math.Pow(10, float64(o.CodeLength)))-1,
+		),
+		10)
 }
 
 type RetryDTO struct {

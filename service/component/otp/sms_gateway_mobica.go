@@ -43,11 +43,6 @@ func (m *Mobica) SendOTP(phone *Phone, code string) (string, string, error) {
 	return "", "", err
 }
 
-func (m *Mobica) Call(_ *Phone, _ string, _ string) (string, string, error) {
-	// not implemented
-	return "", "", nil
-}
-
 func (m *Mobica) VerifyOTP(_ *Phone, code, generatedCode string) (string, string, bool, bool, error) {
 	return "", "", true, code == generatedCode, nil
 }

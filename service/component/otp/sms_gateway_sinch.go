@@ -84,11 +84,6 @@ func (s *Sinch) SendOTP(phone *Phone, _ string) (string, string, error) {
 	return request, string(responseBody), nil
 }
 
-func (s *Sinch) Call(_ *Phone, _ string, _ string) (string, string, error) {
-	// not implemented
-	return "", "", nil
-}
-
 func (s *Sinch) VerifyOTP(phone *Phone, code, _ string) (string, string, bool, bool, error) {
 	body := &struct {
 		Method string `json:"method"`

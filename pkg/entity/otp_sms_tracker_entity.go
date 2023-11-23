@@ -7,9 +7,8 @@ import (
 )
 
 const (
-	OTPTrackerTypeSMS     = "sms"
-	OTPTrackerTypeCallout = "callout"
-	OTPTrackerTypeEmail   = "email"
+	OTPTrackerTypeSMS   = "sms"
+	OTPTrackerTypeEmail = "email"
 )
 
 type otpTrackerTypeAll struct {
@@ -19,9 +18,8 @@ type otpTrackerTypeAll struct {
 }
 
 var OTPTrackerTypeAll = otpTrackerTypeAll{
-	OTPTrackerTypeSMS:     OTPTrackerTypeSMS,
-	OTPTrackerTypeCallout: OTPTrackerTypeCallout,
-	OTPTrackerTypeEmail:   OTPTrackerTypeEmail,
+	OTPTrackerTypeSMS:   OTPTrackerTypeSMS,
+	OTPTrackerTypeEmail: OTPTrackerTypeEmail,
 }
 
 const (

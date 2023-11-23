@@ -3,6 +3,9 @@ package registry
 import (
 	"errors"
 	"fmt"
+	"github.com/coretrix/hitrix/service/component/clock"
+	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
+	"github.com/coretrix/hitrix/service/component/mail"
 	"strings"
 
 	"github.com/latolukasz/beeorm"
@@ -16,7 +19,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/sms"
 )
 
-func ServiceProviderOTP(forceProviders ...string) *service.DefinitionGlobal {
+func ServiceProviderOTP(emailSenderFunc *mail.NewSenderFunc, SMSForceProviders ...string) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.OTPService,
 		Build: func(ctn di.Container) (interface{}, error) {
@@ -24,8 +27,8 @@ func ServiceProviderOTP(forceProviders ...string) *service.DefinitionGlobal {
 			generatorService := ctn.Get(service.GeneratorService).(generator.IGenerator)
 
 			providers := make([]otp.IOTPSMSGateway, 0)
-			if len(forceProviders) > 0 {
-				for _, forceProvider := range forceProviders {
+			if len(SMSForceProviders) > 0 {
+				for _, forceProvider := range SMSForceProviders {
 					builderFunc, ok := smsOTPProviderBuilderFactory[forceProvider]
 					if !ok {
 						return nil, fmt.Errorf("unknown provider: %v", forceProvider)
@@ -78,7 +81,7 @@ func ServiceProviderOTP(forceProviders ...string) *service.DefinitionGlobal {
 			}
 
 			if len(providers) == 0 {
-				return nil, errors.New("must provide otp_sms_provider in settings or at least 1 forceProviders")
+				return nil, errors.New("must provide otp_sms_provider in settings or at least 1 SMSForceProviders")
 			}
 
 			retry, ok := configService.Bool("sms.retry")
@@ -86,7 +89,31 @@ func ServiceProviderOTP(forceProviders ...string) *service.DefinitionGlobal {
 				return nil, errors.New("missing sms.retry")
 			}
 
-			return otp.NewOTP(retry, providers...), nil
+			var emailSender *mail.Sender
+			if emailSenderFunc != nil {
+				var err error
+				emailSender, err = mail.NewSender(
+					ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry),
+					ctn.Get(service.ConfigService).(config.IConfig),
+					ctn.Get(service.ClockService).(clock.IClock),
+					ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger),
+					*emailSenderFunc,
+				)
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			return otp.NewOTP(otp.Config{
+				ClockService: ctn.Get(service.ClockService).(clock.IClock),
+				SMSConfig: otp.SMSConfig{
+					SMSGateways: providers,
+					RetryOTP:    retry,
+				},
+				MailConfig: otp.MailConfig{
+					Sender: emailSender,
+				},
+			}), nil
 		},
 	}
 }
