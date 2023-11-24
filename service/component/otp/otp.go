@@ -252,6 +252,8 @@ func (o *OTP) sendEmail(ormService *beeorm.Engine, send Send) (string, error) {
 
 	ormService.Flush(otpTrackerEntity)
 
+	ormService.GetRedis().Set(o.getRedisKey(email), otpTrackerEntity.ID, helper.Hour)
+
 	return code, err
 }
 
