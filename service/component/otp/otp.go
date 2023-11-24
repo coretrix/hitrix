@@ -77,7 +77,7 @@ type OTP struct {
 	SMSGatewayName             map[string]IOTPSMSGateway
 	SMSGatewayPhonePrefixRegex map[*regexp.Regexp]IOTPSMSGateway
 	SMSRetryOTP                bool
-	MailSender                 *mail.Sender
+	MailSender                 mail.ISender
 	CodeLength                 int
 }
 
@@ -87,6 +87,7 @@ func NewOTP(config Config) *OTP {
 		SMSGatewayName:             map[string]IOTPSMSGateway{},
 		SMSGatewayPhonePrefixRegex: map[*regexp.Regexp]IOTPSMSGateway{},
 		SMSRetryOTP:                config.SMSConfig.RetryOTP,
+		MailSender:                 config.MailConfig.Sender,
 	}
 
 	for _, gateway := range config.SMSConfig.SMSGateways {
