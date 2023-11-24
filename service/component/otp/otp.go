@@ -90,6 +90,7 @@ func NewOTP(config Config) *OTP {
 		SMSRetryOTP:                config.SMSConfig.RetryOTP,
 		MailSender:                 config.MailConfig.Sender,
 		GeneratorService:           config.GeneratorService,
+		ClockService:               config.ClockService,
 	}
 
 	for _, gateway := range config.SMSConfig.SMSGateways {
