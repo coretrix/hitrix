@@ -89,6 +89,7 @@ func NewOTP(config Config) *OTP {
 		SMSGatewayPhonePrefixRegex: map[*regexp.Regexp]IOTPSMSGateway{},
 		SMSRetryOTP:                config.SMSConfig.RetryOTP,
 		MailSender:                 config.MailConfig.Sender,
+		GeneratorService:           config.GeneratorService,
 	}
 
 	for _, gateway := range config.SMSConfig.SMSGateways {
