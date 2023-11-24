@@ -19,7 +19,7 @@ import (
 	"github.com/coretrix/hitrix/service/component/sms"
 )
 
-func ServiceProviderOTP(emailSenderFunc *mail.NewSenderFunc, SMSForceProviders ...string) *service.DefinitionGlobal {
+func ServiceProviderOTP(emailSenderFunc mail.NewSenderFunc, SMSForceProviders ...string) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.OTPService,
 		Build: func(ctn di.Container) (interface{}, error) {
@@ -97,7 +97,7 @@ func ServiceProviderOTP(emailSenderFunc *mail.NewSenderFunc, SMSForceProviders .
 					ctn.Get(service.ConfigService).(config.IConfig),
 					ctn.Get(service.ClockService).(clock.IClock),
 					ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger),
-					*emailSenderFunc,
+					emailSenderFunc,
 				)
 				if err != nil {
 					return nil, err
