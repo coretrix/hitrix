@@ -68,7 +68,7 @@ type OTPTrackerEntity struct {
 	beeorm.ORM            `orm:"table=otp_tracker"`
 	ID                    uint64
 	Type                  string `orm:"enum=entity.OTPTrackerTypeAll;required"`
-	To                    string `orm:"length=15"`
+	To                    string `orm:"length=50"`
 	Code                  string
 	GatewayName           string
 	GatewayPriority       uint8
