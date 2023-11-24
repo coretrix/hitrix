@@ -113,6 +113,7 @@ func ServiceProviderOTP(emailSenderFunc mail.NewSenderFunc, SMSForceProviders ..
 				MailConfig: otp.MailConfig{
 					Sender: emailSender,
 				},
+				GeneratorService: generatorService,
 			}), nil
 		},
 	}

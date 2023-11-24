@@ -55,10 +55,11 @@ type Verify struct {
 }
 
 type Config struct {
-	ClockService clock.IClock
-	SMSConfig    SMSConfig
-	MailConfig   MailConfig
-	CodeLength   int
+	ClockService     clock.IClock
+	SMSConfig        SMSConfig
+	MailConfig       MailConfig
+	CodeLength       int
+	GeneratorService generator.IGenerator
 }
 
 type SMSConfig struct {
