@@ -9,7 +9,6 @@ import (
 	"hash"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type JWT struct {
@@ -53,7 +52,7 @@ func (t *JWT) EncodeJWT(secret string, headers, payload map[string]string) (stri
 	return fmt.Sprintf("%s.%s", token, hs), nil
 }
 
-func (t *JWT) VerifyJWT(secret, jwt string, expire int64) error {
+func (t *JWT) VerifyJWT(secret, jwt string, now int64) error {
 	jwtTokenParts, err := t.extractJWTParts(jwt)
 	if err != nil {
 		return err
@@ -69,10 +68,10 @@ func (t *JWT) VerifyJWT(secret, jwt string, expire int64) error {
 		return err
 	}
 
-	return t.checkTime(payload, expire)
+	return t.checkTime(payload, now)
 }
 
-func (t *JWT) VerifyJWTAndGetPayload(secret, jwt string, expire int64) (map[string]string, error) {
+func (t *JWT) VerifyJWTAndGetPayload(secret, jwt string, now int64) (map[string]string, error) {
 	jwtTokenParts, err := t.extractJWTParts(jwt)
 	if err != nil {
 		return nil, err
@@ -88,7 +87,7 @@ func (t *JWT) VerifyJWTAndGetPayload(secret, jwt string, expire int64) (map[stri
 		return nil, err
 	}
 
-	return payload, t.checkTime(payload, expire)
+	return payload, t.checkTime(payload, now)
 }
 
 func (t *JWT) extractJWTParts(jwt string) ([]string, error) {
@@ -162,7 +161,7 @@ func (t *JWT) extractPayload(jwtPayloadPart string) (map[string]string, error) {
 	return payload, nil
 }
 
-func (t *JWT) checkTime(payload map[string]string, expire int64) error {
+func (t *JWT) checkTime(payload map[string]string, now int64) error {
 	expireTime, ok := payload["exp"]
 
 	if !ok {
@@ -170,11 +169,10 @@ func (t *JWT) checkTime(payload map[string]string, expire int64) error {
 	}
 
 	expTime, _ := strconv.ParseInt(expireTime, 10, 64)
-	expTime = time.Now().Unix() - expTime
 
-	valid := expTime < expire
+	valid := expTime > now
 	if !valid {
-		return fmt.Errorf("token time not valid %d %d", expTime, expire)
+		return fmt.Errorf("token time not valid %d %d", expTime, now)
 	}
 
 	return nil

@@ -129,6 +129,41 @@ func columns() []*Column {
 func TestExtractListParams(t *testing.T) {
 	crud := &Crud{}
 
+	t.Run("Filter By DateRange", func(t *testing.T) {
+		crud := &Crud{}
+		rangeDateTime := Range{
+			From: 1725051600000,
+			To:   1725051700000,
+		}
+		searchParam := crud.ExtractListParams(columns(), &ListRequest{
+			Page:     pointer.Int(1),
+			PageSize: pointer.Int(15),
+			Search: map[string]interface{}{
+				"RangeDateTimePickerTypeArrayDateTime": rangeDateTime,
+			},
+		})
+		expected := SearchParams{
+			Page:               1,
+			PageSize:           15,
+			StringORFilters:    map[string]string{},
+			TagFilters:         map[string]string{},
+			StringFilters:      map[string]string{},
+			ArrayStringFilters: map[string][]string{},
+			NumberFilters:      map[string]int64{},
+			ArrayNumberFilters: map[string][]int64{},
+			RangeNumberFilters: map[string][]int64{},
+			DateTimeFilters:    map[string]time.Time{},
+			DateFilters:        map[string]time.Time{},
+			RangeDateTimeFilters: map[string][]time.Time{
+				"RangeDateTimePickerTypeArrayDateTime": {time.UnixMilli(rangeDateTime.From), time.UnixMilli(rangeDateTime.To)},
+			},
+			RangeDateFilters: map[string][]time.Time{},
+			BooleanFilters:   map[string]bool{},
+			Sort:             map[string]bool{},
+		}
+		assert.Equal(t, expected, searchParam)
+	})
+
 	t.Run("Filter By SelectTypeIntString", func(t *testing.T) {
 		searchParam := crud.ExtractListParams(columns(), &ListRequest{
 			Page:     pointer.Int(1),
