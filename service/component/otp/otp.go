@@ -9,6 +9,7 @@ import (
 	mail2 "net/mail"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/dongri/phonenumber"
 	"github.com/latolukasz/beeorm"
@@ -37,9 +38,10 @@ type Email struct {
 }
 
 type Send struct {
-	Phone       *Phone
-	Email       *Email
-	EmailConfig *EmailConfig
+	Phone            *Phone
+	SMSCustomMessage string
+	Email            *Email
+	EmailConfig      *EmailConfig
 }
 
 type EmailConfig struct {
@@ -176,6 +178,9 @@ func (o *OTP) sendSMS(ormService *beeorm.Engine, send Send) (string, error) {
 
 	for priority, gateway := range gatewayPriority {
 		code = gateway.GetCode()
+		if send.SMSCustomMessage != "" {
+			code = strings.Replace(code, "_CODE_", code, -1)
+		}
 
 		otpTrackerEntity := &entity.OTPTrackerEntity{
 			Type:              entity.OTPTrackerTypeSMS,
