@@ -178,8 +178,9 @@ func (o *OTP) sendSMS(ormService *beeorm.Engine, send Send) (string, error) {
 
 	for priority, gateway := range gatewayPriority {
 		code = gateway.GetCode()
+		text := code
 		if send.SMSCustomMessage != "" {
-			code = strings.Replace(send.SMSCustomMessage, "_CODE_", code, -1)
+			text = strings.Replace(send.SMSCustomMessage, "_CODE_", code, -1)
 		}
 
 		otpTrackerEntity := &entity.OTPTrackerEntity{
@@ -192,7 +193,7 @@ func (o *OTP) sendSMS(ormService *beeorm.Engine, send Send) (string, error) {
 			SentAt:            o.ClockService.Now(),
 		}
 
-		otpTrackerEntity.GatewaySendRequest, otpTrackerEntity.GatewaySendResponse, err = gateway.SendOTP(phone, code)
+		otpTrackerEntity.GatewaySendRequest, otpTrackerEntity.GatewaySendResponse, err = gateway.SendOTP(phone, text)
 
 		if err != nil {
 			otpTrackerEntity.GatewaySendStatus = entity.OTPTrackerGatewaySendStatusGatewayError
