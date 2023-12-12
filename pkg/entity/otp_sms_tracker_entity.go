@@ -12,9 +12,8 @@ const (
 )
 
 type otpTrackerTypeAll struct {
-	OTPTrackerTypeSMS     string
-	OTPTrackerTypeCallout string
-	OTPTrackerTypeEmail   string
+	OTPTrackerTypeSMS   string
+	OTPTrackerTypeEmail string
 }
 
 var OTPTrackerTypeAll = otpTrackerTypeAll{
