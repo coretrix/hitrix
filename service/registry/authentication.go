@@ -87,12 +87,12 @@ func ServiceProviderAuthentication() *service.DefinitionGlobal {
 
 			supportSocialLoginFacebook, ok := configService.Bool("authentication.support_social_login_facebook")
 			if ok && supportSocialLoginFacebook {
-				googleService, err := ctn.SafeGet(service.FacebookService)
+				facebookService, err := ctn.SafeGet(service.FacebookService)
 				if err != nil {
-					panic("google service not loaded")
+					panic("facebook service not loaded")
 				}
 
-				socialServiceMapping[authentication.SocialLoginFacebook] = googleService.(social.IUserData)
+				socialServiceMapping[authentication.SocialLoginFacebook] = facebookService.(social.IUserData)
 			}
 
 			supportSocialLoginApple, ok := configService.Bool("authentication.support_social_login_apple")
