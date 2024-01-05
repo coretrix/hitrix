@@ -65,11 +65,7 @@ func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error 
 		status = success
 	}
 
-	if trySecondaryProvider {
-		if secondaryProvider == nil {
-			return fmt.Errorf("secondary provider not supported")
-		}
-
+	if trySecondaryProvider && secondaryProvider != nil {
 		smsTrackerEntity.SetFromSecondaryProvider(secondaryProvider.GetName())
 
 		status, err = secondaryProvider.SendSMSMessage(message)
