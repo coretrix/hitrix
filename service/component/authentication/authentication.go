@@ -276,8 +276,8 @@ func (t *Authentication) VerifyAccessToken(ormService *beeorm.Engine, accessToke
 
 func (t *Authentication) VerifyAccessTokenTemporary(ormService *beeorm.Engine, accessToken string, entity beeorm.Entity) (map[string]string, error) {
 	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, accessToken, t.clockService.Now().Unix())
-	if err != nil {
-		return payload, err
+	if payload == nil && err != nil {
+		return nil, err
 	}
 
 	id, err := strconv.ParseUint(payload["sub"], 10, 64)
