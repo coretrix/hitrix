@@ -51,7 +51,8 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 
 			registry.InitByYaml(yamlConfig)
 
-			if appService.IsInTestMode() {
+			//TODO Krasi: switch to settings
+			if !appService.IsInProdMode() {
 				registry.ForceEntityLogInAllEntities("")
 			}
 
