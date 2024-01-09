@@ -45,8 +45,7 @@ func contextToContextMiddleware() gin.HandlerFunc {
 func InitGin(server graphql.ExecutableSchema, ginInitHandler GinInitHandler, gqlServerInitHandler GQLServerInitHandler) *gin.Engine {
 	app := service.DI().App()
 	if app.IsInProdMode() {
-		gin.SetMode(gin.TestMode)
-		//gin.SetMode(gin.ReleaseMode)
+		gin.SetMode(gin.ReleaseMode)
 	} else if app.IsInTestMode() {
 		gin.SetMode(gin.TestMode)
 	}
