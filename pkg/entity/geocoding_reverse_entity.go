@@ -7,7 +7,7 @@ import (
 )
 
 type GeocodingReverseCacheEntity struct {
-	beeorm.ORM  `orm:"table=geocoding_reverse_cache;redisCache"`
+	beeorm.ORM  `orm:"table=geocoding_reverse_cache;localCache;redisCache"`
 	ID          uint64
 	Lat         float64 `orm:"decimal=8,5;required;unique=Lat_Lng_Language:1"`
 	Lng         float64 `orm:"decimal=8,5;required;unique=Lat_Lng_Language:2"`

@@ -7,7 +7,7 @@ import (
 )
 
 type GeocodingCacheEntity struct {
-	beeorm.ORM  `orm:"table=geocoding_cache;redisCache"`
+	beeorm.ORM  `orm:"table=geocoding_cache;localCache;redisCache"`
 	ID          uint64
 	Lat         float64 `orm:"decimal=8,5"`
 	Lng         float64 `orm:"decimal=8,5"`
