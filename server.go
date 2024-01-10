@@ -82,7 +82,7 @@ func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
 			}
 
 			defScript := def.(app.IScript)
-			defScript.Run(ctx, &exit{s: h})
+			defScript.Run(ctx, &exit{s: h}, service.DI().OrmEngine().Clone())
 
 			return
 		}
