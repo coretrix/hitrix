@@ -16,8 +16,7 @@ type DBSeedScript struct {
 	SeedsPerProject map[string][]Seed
 }
 
-func (script *DBSeedScript) Run(_ context.Context, _ app.IExit) {
-	ormService := service.DI().OrmEngine()
+func (script *DBSeedScript) Run(_ context.Context, _ app.IExit, ormService *beeorm.Engine) {
 	appService := service.DI().App()
 	Seeder(script.SeedsPerProject, ormService, appService)
 }

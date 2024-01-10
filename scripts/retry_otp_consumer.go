@@ -2,6 +2,7 @@ package scripts
 
 import (
 	"context"
+	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/queue"
 	"github.com/coretrix/hitrix/pkg/queue/consumers"
@@ -12,8 +13,7 @@ import (
 type RetryOTPConsumer struct {
 }
 
-func (script *RetryOTPConsumer) Run(ctx context.Context, _ app.IExit) {
-	ormService := service.DI().OrmEngine()
+func (script *RetryOTPConsumer) Run(ctx context.Context, _ app.IExit, ormService *beeorm.Engine) {
 	configService := service.DI().Config()
 	otpService := service.DI().OTP()
 
@@ -22,7 +22,7 @@ func (script *RetryOTPConsumer) Run(ctx context.Context, _ app.IExit) {
 		panic("missing sms.max_retries")
 	}
 
-	queue.NewConsumerRunner(ctx).RunConsumerOne(consumers.NewOTPRetryConsumer(ormService, maxRetries, otpService.GetSMSGatewayRegistry()), nil, 1)
+	queue.NewConsumerRunner(ctx, ormService).RunConsumerOne(consumers.NewOTPRetryConsumer(ormService, maxRetries, otpService.GetSMSGatewayRegistry()), nil, 1)
 }
 
 func (script *RetryOTPConsumer) Infinity() bool {

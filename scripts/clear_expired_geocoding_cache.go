@@ -14,7 +14,7 @@ import (
 type ClearExpiredGeocodingCache struct {
 }
 
-func (script *ClearExpiredGeocodingCache) Run(_ context.Context, _ app.IExit) {
+func (script *ClearExpiredGeocodingCache) Run(_ context.Context, _ app.IExit, ormService *beeorm.Engine) {
 	now := service.DI().Clock().Now()
 
 	fiveAM := time.Date(now.Year(), now.Month(), now.Day(), 5, 0, 0, 0, now.Location())
@@ -25,8 +25,6 @@ func (script *ClearExpiredGeocodingCache) Run(_ context.Context, _ app.IExit) {
 	}
 
 	where := beeorm.NewWhere("ExpiresAt < ?", now)
-
-	ormService := service.DI().OrmEngine().Clone()
 
 	geocodingEntities := make([]*entity.GeocodingCacheEntity, 0)
 	ormService.Search(where, beeorm.NewPager(1, 10000), &geocodingEntities)

@@ -2,6 +2,7 @@ package scripts
 
 import (
 	"context"
+	"github.com/latolukasz/beeorm"
 
 	"github.com/fatih/color"
 	"github.com/sarulabs/di"
@@ -38,9 +39,8 @@ func (script *ORMAltersScript) Description() string {
 	return "show all MySQL schema changes"
 }
 
-func (script *ORMAltersScript) Run(_ context.Context, exit app.IExit) {
-	ormEngine := service.DI().OrmEngine()
-	alters := ormEngine.GetAlters()
+func (script *ORMAltersScript) Run(_ context.Context, exit app.IExit, ormService *beeorm.Engine) {
+	alters := ormService.GetAlters()
 
 	for _, alter := range alters {
 		if alter.Safe {
