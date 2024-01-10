@@ -68,6 +68,11 @@ type StringKeyStringValue struct {
 	Label string
 }
 
+type Range struct {
+	From int64
+	To   int64
+}
+
 type ListRequest struct {
 	Page     *int
 	PageSize *int
@@ -158,6 +163,27 @@ func (c *Crud) ExtractListParams(cols []*Column, request *ListRequest) SearchPar
 mainLoop:
 	for field, value := range request.Search {
 		switch reflect.TypeOf(value).Kind() {
+		case reflect.Struct:
+			rangeDates, okRange := value.(Range)
+
+			if okRange {
+				if helper.StringInArray(field, filterTypes.rangeNumberFilters...) {
+					selectedRangeNumberFilters[field] = []int64{rangeDates.From, rangeDates.To}
+				} else if helper.StringInArray(field, filterTypes.rangeDateTimeFilters...) {
+					minRange := time.UnixMilli(rangeDates.From)
+					maxRange := time.UnixMilli(rangeDates.To)
+
+					selectedRangeDateTimeFilters[field] = []time.Time{minRange, maxRange}
+				} else if helper.StringInArray(field, filterTypes.rangeDateFilters...) {
+					minRange := time.UnixMilli(rangeDates.From)
+					maxRange := time.UnixMilli(rangeDates.To)
+
+					selectedRangeDateFilters[field] = []time.Time{minRange, maxRange}
+				}
+			} else {
+				panic("cant be casted field " + field)
+			}
+
 		case reflect.Int64:
 			if helper.StringInArray(field, filterTypes.numberFilters...) {
 				selectedNumberFilters[field] = value.(int64)
@@ -203,34 +229,7 @@ mainLoop:
 		case reflect.Slice:
 			s := reflect.ValueOf(value)
 
-			if helper.StringInArray(field, filterTypes.rangeNumberFilters...) {
-				if s.Len() != 2 {
-					continue mainLoop
-				}
-
-				minRange, _ := strconv.ParseInt(fmt.Sprintf("%v", s.Index(0)), 10, 64)
-				maxRange, _ := strconv.ParseInt(fmt.Sprintf("%v", s.Index(1)), 10, 64)
-
-				selectedRangeNumberFilters[field] = []int64{minRange, maxRange}
-			} else if helper.StringInArray(field, filterTypes.rangeDateTimeFilters...) {
-				if s.Len() != 2 {
-					continue mainLoop
-				}
-
-				minRange, _ := time.Parse(helper.TimeLayoutRFC3339Milli, fmt.Sprintf("%v", s.Index(0)))
-				maxRange, _ := time.Parse(helper.TimeLayoutRFC3339Milli, fmt.Sprintf("%v", s.Index(1)))
-
-				selectedRangeDateTimeFilters[field] = []time.Time{minRange, maxRange}
-			} else if helper.StringInArray(field, filterTypes.rangeDateFilters...) {
-				if s.Len() != 2 {
-					continue mainLoop
-				}
-
-				minRange, _ := time.Parse(helper.TimeLayoutYMD, fmt.Sprintf("%v", s.Index(0)))
-				maxRange, _ := time.Parse(helper.TimeLayoutYMD, fmt.Sprintf("%v", s.Index(1)))
-
-				selectedRangeDateFilters[field] = []time.Time{minRange, maxRange}
-			} else if helper.StringInArray(field, filterTypes.arrayNumberFilters...) {
+			if helper.StringInArray(field, filterTypes.arrayNumberFilters...) {
 				if s.Len() == 0 {
 					continue mainLoop
 				}

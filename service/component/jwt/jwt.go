@@ -9,6 +9,7 @@ import (
 	"hash"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type JWT struct {
@@ -169,8 +170,9 @@ func (t *JWT) checkTime(payload map[string]string, now int64) error {
 	}
 
 	expTime, _ := strconv.ParseInt(expireTime, 10, 64)
+	expTime = time.Now().Unix() - expTime
 
-	valid := expTime > now
+	valid := expTime < now
 	if !valid {
 		return fmt.Errorf("token time not valid %d %d", expTime, now)
 	}

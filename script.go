@@ -199,7 +199,11 @@ func (processor *BackgroundProcessor) runScript(s app.IScript) bool {
 		}()
 
 		appService := service.DI().App()
-		s.Run(appService.GlobalContext, &exit{s: processor.Server})
+
+		ormService := service.DI().OrmEngine().Clone()
+		ormService.SetLogMetaData("Script", s.Description())
+
+		s.Run(appService.GlobalContext, &exit{s: processor.Server}, ormService)
 
 		return valid
 	}()

@@ -44,11 +44,12 @@ type ConsumerMany interface {
 }
 
 type ConsumerRunner struct {
-	ctx context.Context
+	ctx        context.Context
+	ormService *beeorm.Engine
 }
 
-func NewConsumerRunner(ctx context.Context) *ConsumerRunner {
-	return &ConsumerRunner{ctx: ctx}
+func NewConsumerRunner(ctx context.Context, ormService *beeorm.Engine) *ConsumerRunner {
+	return &ConsumerRunner{ctx: ctx, ormService: ormService}
 }
 
 func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix *string, prefetchCount int) {
@@ -56,8 +57,7 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 
 	log.Printf("RunConsumerMany initialized (%s)", queueName)
 
-	ormService := service.DI().OrmEngine().Clone()
-	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
+	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 
 	service.DI().App().Add(1)
 
@@ -70,7 +70,7 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 		if exitedWithNoErrors := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
 			log.Printf("We have %d new dirty events in %s", len(events), queueName)
 
-			if err := consumer.Consume(ormService, events); err != nil {
+			if err := consumer.Consume(r.ormService, events); err != nil {
 				panic(err)
 			}
 
@@ -94,8 +94,7 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 
 	log.Printf("RunConsumerOne initialized (%s)", queueName)
 
-	ormService := service.DI().OrmEngine().Clone()
-	eventsConsumer := ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
+	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumer.GetGroupName(groupNameSuffix))
 
 	service.DI().App().Add(1)
 
@@ -109,7 +108,7 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 			log.Printf("We have %d new dirty events in %s", len(events), queueName)
 
 			for _, event := range events {
-				if err := consumer.Consume(ormService, event); err != nil {
+				if err := consumer.Consume(r.ormService, event); err != nil {
 					panic(err)
 				}
 				event.Ack()
@@ -151,7 +150,7 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 			log.Printf("RunConsumerOneByModulo started goroutine %d (%s)", currentModulo, queueName)
 
-			ormService := service.DI().OrmEngine().Clone()
+			ormService := r.ormService.Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
 			service.DI().App().Add(1)
 			defer service.DI().App().Done()
@@ -215,7 +214,7 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 			log.Printf("RunConsumerManyByModulo started goroutine %d (%s)", currentModulo, queueName)
 
-			ormService := service.DI().OrmEngine().Clone()
+			ormService := r.ormService.Clone()
 			eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
 			service.DI().App().Add(1)
 			defer service.DI().App().Done()
@@ -257,17 +256,17 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 }
 
 type ScalableConsumerRunner struct {
-	ctx       context.Context
-	redisPool string
+	ctx        context.Context
+	ormService *beeorm.Engine
+	redisPool  string
 }
 
-func NewScalableConsumerRunner(ctx context.Context, redisPool string) *ScalableConsumerRunner {
-	return &ScalableConsumerRunner{ctx: ctx, redisPool: redisPool}
+func NewScalableConsumerRunner(ctx context.Context, ormService *beeorm.Engine, redisPool string) *ScalableConsumerRunner {
+	return &ScalableConsumerRunner{ctx: ctx, ormService: ormService, redisPool: redisPool}
 }
 
 func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, groupNameSuffix *string, prefetchCount int) {
-	ormService := service.DI().OrmEngine().Clone()
-	redis := ormService.GetRedis(r.redisPool)
+	redis := r.ormService.GetRedis(r.redisPool)
 
 	queueName := consumer.GetQueueName()
 	consumerGroupName := consumer.GetGroupName(groupNameSuffix)
@@ -276,7 +275,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 
 	log.Printf("RunScalableConsumerMany index (%d) initialized (%s)", currentIndex, queueName)
 
-	eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
+	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumerGroupName)
 
 	service.DI().App().Add(1)
 
@@ -289,7 +288,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 		if exitedWithNoErrors := eventsConsumer.ConsumeMany(r.ctx, currentIndex, prefetchCount, func(events []beeorm.Event) {
 			log.Printf("We have %d new dirty events in %s", len(events), queueName)
 
-			if err := consumer.Consume(ormService, events); err != nil {
+			if err := consumer.Consume(r.ormService, events); err != nil {
 				removeConsumerGroup(eventsConsumer, redis, consumerGroupName, currentIndex)
 				panic(err)
 			}
@@ -311,8 +310,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 }
 
 func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, groupNameSuffix *string, prefetchCount int) {
-	ormService := service.DI().OrmEngine().Clone()
-	redis := ormService.GetRedis(r.redisPool)
+	redis := r.ormService.GetRedis(r.redisPool)
 
 	queueName := consumer.GetQueueName()
 	consumerGroupName := consumer.GetGroupName(groupNameSuffix)
@@ -321,7 +319,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 
 	log.Printf("RunScalableConsumerOne index (%d) initialized (%s)", currentIndex, queueName)
 
-	eventsConsumer := ormService.GetEventBroker().Consumer(consumerGroupName)
+	eventsConsumer := r.ormService.GetEventBroker().Consumer(consumerGroupName)
 
 	service.DI().App().Add(1)
 
@@ -335,7 +333,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 			log.Printf("We have %d new dirty events in %s", len(events), queueName)
 
 			for _, event := range events {
-				if err := consumer.Consume(ormService, event); err != nil {
+				if err := consumer.Consume(r.ormService, event); err != nil {
 					removeConsumerGroup(eventsConsumer, redis, consumerGroupName, currentIndex)
 					panic(err)
 				}

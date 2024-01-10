@@ -78,15 +78,11 @@ func ServiceProviderOTP(emailSenderFunc mail.NewSenderFunc, SMSForceProviders ..
 
 					providers = append(providers, provider)
 				}
-			}
 
-			if len(providers) == 0 {
-				return nil, errors.New("must provide otp_sms_provider in settings or at least 1 SMSForceProviders")
-			}
-
-			retry, ok := configService.Bool("sms.retry")
-			if !ok {
-				return nil, errors.New("missing sms.retry")
+				retry, ok := configService.Bool("sms.retry")
+				if !ok {
+					return nil, errors.New("missing sms.retry")
+				}
 			}
 
 			var emailSender *mail.Sender
