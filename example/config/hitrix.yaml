@@ -1,8 +1,8 @@
 slack:
-  error_channel: ""
-  dev_panel_url: ""
   bot_tokens:
-    errors: "your token"
+    errors: "xoxb-1291024117586-3117713350101-f8Qg9YTT45CMQr0JggLmTiBL"
+  error_channel: ENV[ERROR_CHANNEL]
+  dev_panel_url: ENV[DEV_PANEL_ERROR_LOG_URL]
 
 stripe:
   key: "api_key"
