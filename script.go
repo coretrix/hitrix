@@ -224,7 +224,7 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 				break
 			}
 
-			log.Println("orm background consumer count not obtain lock, sleeping for 30 seconds")
+			log.Println("orm background consumer can not obtain lock, sleeping for 30 seconds")
 			time.Sleep(time.Second * 30)
 		}
 	})
