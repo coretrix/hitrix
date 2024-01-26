@@ -235,7 +235,7 @@ func (o *OTP) sendEmail(ormService *beeorm.Engine, send Send) (string, error) {
 	code := o.getCode()
 
 	otpTrackerEntity := &entity.OTPTrackerEntity{
-		Type:              entity.OTPTrackerTypeSMS,
+		Type:              entity.OTPTrackerTypeEmail,
 		To:                email,
 		Code:              code,
 		GatewaySendStatus: entity.OTPTrackerGatewaySendStatusNew,
