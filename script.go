@@ -297,9 +297,24 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 					}
 
 					numGC := uint32(0)
+					pauseEndNumGC := uint64(0)
+
 					for k, v := range *memStats {
 						if k == "NumGC" {
 							numGC = uint32(v.(float64))
+
+							continue
+						}
+
+						if k == "PauseEnd" {
+							pauseEndInfSlice := v.([]interface{})
+							pauseEnd := [256]uint64{}
+
+							for key, value := range pauseEndInfSlice {
+								pauseEnd[key] = uint64(value.(float64))
+							}
+
+							pauseEndNumGC = pauseEnd[(numGC+255)%256]
 						}
 					}
 
@@ -321,7 +336,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 								//	pauseNsForNumGC = pauseNsForNumGC / 1000000
 								//}
 
-								data += fmt.Sprintf("%q: %d,", k, pauseNsForNumGC)
+								data += fmt.Sprintf("%q: %d,", pauseEndNumGC, pauseNsForNumGC)
 
 								continue
 							}
