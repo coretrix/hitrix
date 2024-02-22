@@ -297,7 +297,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 					}
 
 					numGC := uint32(0)
-					pauseEndNumGC := uint64(0)
+					//pauseEndNumGC := uint64(0)
 					pauseNSNumGC := uint64(0)
 
 					for k, v := range *memStats {
@@ -311,18 +311,18 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 					}
 
 					for k, v := range *memStats {
-						if k == "PauseEnd" {
-							pauseEndInfSlice := v.([]interface{})
-							pauseEnd := [256]uint64{}
-
-							for key, value := range pauseEndInfSlice {
-								pauseEnd[key] = uint64(value.(float64))
-							}
-
-							pauseEndNumGC = pauseEnd[(numGC+255)%256]
-
-							continue
-						}
+						//if k == "PauseEnd" {
+						//	pauseEndInfSlice := v.([]interface{})
+						//	pauseEnd := [256]uint64{}
+						//
+						//	for key, value := range pauseEndInfSlice {
+						//		pauseEnd[key] = uint64(value.(float64))
+						//	}
+						//
+						//	pauseEndNumGC = pauseEnd[(numGC+255)%256]
+						//
+						//	continue
+						//}
 
 						if k == "PauseNs" {
 							pauseNSInfSlice := v.([]interface{})
@@ -339,7 +339,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 					for k, v := range *memStats {
 						if _, ok := fieldsMap[k]; ok {
 							if k == "PauseNs" {
-								data += fmt.Sprintf("%q: %d,", pauseEndNumGC, pauseNSNumGC)
+								data += fmt.Sprintf("%q: %d,", k, pauseNSNumGC)
 
 								continue
 							}
