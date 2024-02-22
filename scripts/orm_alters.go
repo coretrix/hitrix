@@ -2,9 +2,9 @@ package scripts
 
 import (
 	"context"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/fatih/color"
+	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
