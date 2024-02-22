@@ -309,8 +309,13 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 								if numGC > 0 {
 									numGC = numGC - 1
 								}
+								pauseNsInfSlice := v.([]interface{})
 
-								pauseNs := v.([256]uint64)
+								pauseNs := [256]uint64{}
+								for key, value := range pauseNsInfSlice {
+									pauseNs[key] = uint64(value.(float64))
+								}
+
 								pauseNsForNumGC := pauseNs[(numGC+255)%256]
 								if pauseNsForNumGC > 0 {
 									pauseNsForNumGC = pauseNsForNumGC / 1000000
