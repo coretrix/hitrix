@@ -317,9 +317,9 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 								}
 
 								pauseNsForNumGC := pauseNs[(numGC+255)%256]
-								if pauseNsForNumGC > 0 {
-									pauseNsForNumGC = pauseNsForNumGC / 1000000
-								}
+								//if pauseNsForNumGC > 0 {
+								//	pauseNsForNumGC = pauseNsForNumGC / 1000000
+								//}
 
 								data += fmt.Sprintf("%q: %d,", k, pauseNsForNumGC)
 
