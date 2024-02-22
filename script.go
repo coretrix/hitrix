@@ -312,7 +312,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 
 								pauseNs := v.([256]uint64)
 
-								data += fmt.Sprintf("%q: %f,", k, pauseNs[(numGC+255)%256])
+								data += fmt.Sprintf("%q: %d,", k, pauseNs[(numGC+255)%256])
 							}
 
 							if _, hasFieldProcessor := fieldProcessor[k]; hasFieldProcessor {
