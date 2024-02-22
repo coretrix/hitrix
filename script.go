@@ -298,14 +298,19 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 
 					numGC := uint32(0)
 					pauseEndNumGC := uint64(0)
+					pauseNSNumGC := uint64(0)
 
 					for k, v := range *memStats {
 						if k == "NumGC" {
 							numGC = uint32(v.(float64))
-
-							continue
 						}
+					}
 
+					if numGC > 0 {
+						numGC = numGC - 1
+					}
+
+					for k, v := range *memStats {
 						if k == "PauseEnd" {
 							pauseEndInfSlice := v.([]interface{})
 							pauseEnd := [256]uint64{}
@@ -315,28 +320,26 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 							}
 
 							pauseEndNumGC = pauseEnd[(numGC+255)%256]
+
+							continue
+						}
+
+						if k == "PauseNs" {
+							pauseNSInfSlice := v.([]interface{})
+							pauseNS := [256]uint64{}
+
+							for key, value := range pauseNSInfSlice {
+								pauseNS[key] = uint64(value.(float64))
+							}
+
+							pauseNSNumGC = pauseNS[(numGC+255)%256]
 						}
 					}
 
 					for k, v := range *memStats {
 						if _, ok := fieldsMap[k]; ok {
 							if k == "PauseNs" {
-								if numGC > 0 {
-									numGC = numGC - 1
-								}
-								pauseNsInfSlice := v.([]interface{})
-
-								pauseNs := [256]uint64{}
-								for key, value := range pauseNsInfSlice {
-									pauseNs[key] = uint64(value.(float64))
-								}
-
-								pauseNsForNumGC := pauseNs[(numGC+255)%256]
-								//if pauseNsForNumGC > 0 {
-								//	pauseNsForNumGC = pauseNsForNumGC / 1000000
-								//}
-
-								data += fmt.Sprintf("%q: %d,", pauseEndNumGC, pauseNsForNumGC)
+								data += fmt.Sprintf("%q: %d,", pauseEndNumGC, pauseNSNumGC)
 
 								continue
 							}
