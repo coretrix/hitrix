@@ -299,7 +299,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 					numGC := uint32(0)
 					for k, v := range *memStats {
 						if k == "NumGC" {
-							numGC = v.(uint32)
+							numGC = uint32(v.(float64))
 						}
 					}
 
