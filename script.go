@@ -305,7 +305,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 
 					for k, v := range *memStats {
 						if _, ok := fieldsMap[k]; ok {
-							if k == "TotalNs" {
+							if k == "PauseNs" {
 								if numGC > 0 {
 									numGC = numGC - 1
 								}
