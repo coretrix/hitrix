@@ -296,8 +296,25 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 						panic(err)
 					}
 
+					numGC := uint32(0)
+					for k, v := range *memStats {
+						if k == "NumGC" {
+							numGC = v.(uint32)
+						}
+					}
+
 					for k, v := range *memStats {
 						if _, ok := fieldsMap[k]; ok {
+							if k == "TotalNs" {
+								if numGC > 0 {
+									numGC = numGC - 1
+								}
+
+								pauseNs := v.([256]uint64)
+
+								data += fmt.Sprintf("%q: %f,", k, pauseNs[(numGC+255)%256])
+							}
+
 							if _, hasFieldProcessor := fieldProcessor[k]; hasFieldProcessor {
 								data += fmt.Sprintf("%q: %f,", k, fieldProcessor[k](v))
 							} else {
@@ -309,6 +326,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 					if _, ok := fieldsMap["NumGoroutine"]; ok {
 						data += fmt.Sprintf("\"NumGoroutine\": %d,", runtime.NumGoroutine())
 					}
+
 					data = strings.TrimSuffix(data, ",")
 				}
 			})
