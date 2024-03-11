@@ -66,11 +66,13 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 func (g *DBLogger) LogResponse(ormService *beeorm.Engine, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
 	requestLoggerEntity.Status = status
 
-	if len(responseBody) > 0 && len(string(responseBody))*4 <= 64000 {
-		requestLoggerEntity.Response = responseBody
-	} else {
-		requestLoggerEntity.Response = []byte("Partial BODY \n\n")
-		requestLoggerEntity.Response = append(requestLoggerEntity.Response, responseBody[0:16000]...)
+	if len(responseBody) > 0 {
+		if len(string(responseBody))*4 <= 64000 {
+			requestLoggerEntity.Response = responseBody
+		} else {
+			requestLoggerEntity.Response = []byte("Partial BODY \n\n")
+			requestLoggerEntity.Response = append(requestLoggerEntity.Response, responseBody[0:16000]...)
+		}
 	}
 
 	if len(string(requestLoggerEntity.Log))*4 > 64000 {
