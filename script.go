@@ -221,7 +221,8 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 			if asyncConsumer.Digest(appService.GlobalContext) {
 				log.Println("orm background consumer exited successfully")
 
-				break
+				time.Sleep(time.Second * 30)
+				continue
 			}
 
 			log.Println("orm background consumer can not obtain lock, sleeping for 30 seconds")
