@@ -35,7 +35,7 @@ oss:
 server:
   timeout_sec: 10
 
-orm_debug: false
+orm_debug: true
 
 google_calendar:
   credential_file: "./credentials.json"
