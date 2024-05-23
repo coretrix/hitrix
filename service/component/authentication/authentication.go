@@ -154,7 +154,7 @@ func (t *Authentication) AuthenticateOTPEmail(
 	found := false
 	
 	if useRedisSearch {
-		q := &redisearch.RedisSearchQuery{}
+		q := &beeorm.RedisSearchQuery{}
 		q.FilterString(entity.GetEmailFieldName(), email)
 
 		found = ormService.RedisSearchOne(entity, q)
