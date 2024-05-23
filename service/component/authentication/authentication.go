@@ -146,7 +146,7 @@ func (t *Authentication) AuthenticateOTP(
 }
 
 func (t *Authentication) AuthenticateOTPEmail(
-	ormService *datalayer.ORM,
+	ormService *beeorm.Engine,
 	email string,
 	entity OTPProviderEntity,
 	useRedisSearch bool,
