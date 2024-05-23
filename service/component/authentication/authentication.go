@@ -146,14 +146,22 @@ func (t *Authentication) AuthenticateOTP(
 }
 
 func (t *Authentication) AuthenticateOTPEmail(
-	ormService *beeorm.Engine,
+	ormService *datalayer.ORM,
 	email string,
 	entity OTPProviderEntity,
+	useRedisSearch bool,
 ) (accessToken string, refreshToken string, err error) {
-	q := &beeorm.RedisSearchQuery{}
-	q.FilterString(entity.GetEmailFieldName(), email)
+	found := false
+	
+	if useRedisSearch {
+		q := &redisearch.RedisSearchQuery{}
+		q.FilterString(entity.GetEmailFieldName(), email)
 
-	found := ormService.RedisSearchOne(entity, q)
+		found = ormService.RedisSearchOne(entity, q)
+	} else {
+		found = ormService.CachedSearchOne(entity, "CachedQueryEmail", email)
+	}
+	
 	if !found {
 		return "", "", errors.New("invalid credentials")
 	}
