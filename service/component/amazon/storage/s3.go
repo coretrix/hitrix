@@ -71,11 +71,11 @@ func (amazonS3 *AmazonS3) getCounter(ormService *beeorm.Engine, bucket string) u
 	locker := ormService.GetRedis().GetLocker()
 
 	lock, hasLock := locker.Obtain("locker_amazon_s3_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
-	defer lock.Release()
-
 	if !hasLock {
 		panic("Failed to obtain lock for locker_amazon_s3_counters_bucket_" + bucket)
 	}
+
+	defer lock.Release()
 
 	has = ormService.LoadByID(bucketID, amazonS3BucketCounterEntity)
 	if !has {
