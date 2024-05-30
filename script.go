@@ -222,6 +222,7 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 				log.Println("orm background consumer exited successfully")
 
 				time.Sleep(time.Second * 30)
+
 				continue
 			}
 
