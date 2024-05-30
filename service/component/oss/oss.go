@@ -183,11 +183,11 @@ func getStorageCounter(ormService *beeorm.Engine, bucketConfig *BucketConfig) ui
 	lockerKey := "locker_oss_counters_bucket_" + strconv.FormatUint(bucketID, 10)
 
 	lock, hasLock := locker.Obtain(lockerKey, 2*time.Second, 5*time.Second)
-	defer lock.Release()
-
 	if !hasLock {
 		panic("Failed to obtain lock for :" + lockerKey)
 	}
+
+	defer lock.Release()
 
 	has := ormService.LoadByID(bucketID, ossBucketCounterEntity)
 
