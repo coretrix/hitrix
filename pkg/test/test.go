@@ -276,7 +276,12 @@ func executeAlters(ormService *beeorm.Engine) {
 
 	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
 		ormService.GetLocalCache().Clear()
-		ormService.GetRedis().FlushAll()
+		
+		pools := service.DI().App().RedisPools
+		ormService.GetRedis(pools.Stream).FlushDB()
+		ormService.GetRedis(pools.Persistent).FlushDB()
+		ormService.GetRedis(pools.Cache).FlushDB()
+		ormService.GetRedis(pools.Search).FlushDB()
 	}
 
 	altersSearch := ormService.GetRedisSearchIndexAlters()
