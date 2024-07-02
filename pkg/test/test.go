@@ -187,7 +187,7 @@ func CreateContext(
 	projectName string,
 	defaultServices []*service.DefinitionGlobal,
 	mockGlobalServices []*service.DefinitionGlobal,
-	redisPools *app.RedisPools
+	redisPools *app.RedisPools,
 ) *Environment {
 	var deferFunc func()
 
