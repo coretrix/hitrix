@@ -186,7 +186,8 @@ func CreateContext(
 	t *testing.T,
 	projectName string,
 	defaultServices []*service.DefinitionGlobal,
-	mockServices ...*service.DefinitionGlobal,
+	mockGlobalServices []*service.DefinitionGlobal,
+	redisPools *app.RedisPools
 ) *Environment {
 	var deferFunc func()
 
@@ -202,7 +203,9 @@ func CreateContext(
 
 	testSpringInstance, deferFunc := hitrix.New(projectName, "").
 		SetParallelTestID(getParallelID()).
-		RegisterDIGlobalService(append(defaultServices, mockServices...)...).Build()
+		RegisterDIGlobalService(append(defaultServices, mockGlobalServices...)...).RegisterRedisPools(
+			redisPools,
+		).Build()
 	defer deferFunc()
 
 	ormService := service.DI().OrmEngine()
