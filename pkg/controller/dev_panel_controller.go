@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"github.com/coretrix/hitrix/pkg/redis"
 	"os"
 	"sort"
 	"strings"
@@ -210,7 +211,16 @@ func (controller *DevPanelController) GetRedisStreams(c *gin.Context) {
 func (controller *DevPanelController) GetRedisStatistics(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	stats := tools.GetRedisStatistics(ormService)
+	dragonflyDBPools := map[string]struct{}{}
+	dragonflyDBPoolsConfig, has := service.DI().Config().Strings("dragonflydb_pools")
+
+	if has {
+		for _, pool := range dragonflyDBPoolsConfig {
+			dragonflyDBPools[pool] = struct{}{}
+		}
+	}
+
+	stats := redis.GetRedisStatistics(ormService, dragonflyDBPools)
 	sort.Slice(stats, func(i, j int) bool {
 		return stats[i].RedisPool < stats[j].RedisPool
 	})
