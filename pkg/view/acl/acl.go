@@ -39,16 +39,13 @@ func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource stri
 		permissionIDs[i] = permissionEntity.ID
 	}
 
-	privilegeQuery := beeorm.NewRedisSearchQuery()
-	privilegeQuery.FilterUint("RoleID", roleEntity.ID)
-	privilegeQuery.FilterUint("ResourceID", resourceEntity.ID)
-	privilegeQuery.FilterManyReferenceIn("PermissionIDs", permissionIDs...)
-
 	privilegeEntities := make([]*entity.PrivilegeEntity, 0)
 	ormService.CachedSearch(
 		&privilegeEntities,
 		"CachedQueryRoleIDResourceID",
 		beeorm.NewPager(1, 1000),
+		roleEntity.ID,
+		resourceEntity.ID,
 	)
 
 	hasPrivilege := false
