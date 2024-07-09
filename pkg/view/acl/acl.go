@@ -39,23 +39,20 @@ func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource stri
 		permissionIDs[i] = permissionEntity.ID
 	}
 
-	privilegeEntities := make([]*entity.PrivilegeEntity, 0)
-	ormService.CachedSearch(
-		&privilegeEntities,
+	privilegeEntity := &entity.PrivilegeEntity{}
+	ormService.CachedSearchOne(
+		privilegeEntity,
 		"CachedQueryRoleIDResourceID",
-		beeorm.NewPager(1, 1000),
 		roleEntity.ID,
 		resourceEntity.ID,
 	)
 
 	hasPrivilege := false
-	for _, privilegeEntity := range privilegeEntities {
-		for _, permissionEntity := range privilegeEntity.PermissionIDs {
-			for _, permissionID := range permissionIDs {
-				if permissionEntity.ID == permissionID {
-					hasPrivilege = true
-					break
-				}
+	for _, permissionEntity := range privilegeEntity.PermissionIDs {
+		for _, permissionID := range permissionIDs {
+			if permissionEntity.ID == permissionID {
+				hasPrivilege = true
+				break
 			}
 		}
 	}
