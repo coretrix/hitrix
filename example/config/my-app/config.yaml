@@ -8,6 +8,8 @@ orm:
     mysql: ENV[DEFAULT_MYSQL]
   search_pool:
     redis: ENV[DEFAULT_REDIS_SEARCH]
+  stream_pool:
+    redis: ENV[DEFAULT_REDIS]
 authentication:
   secret: "a-deep-dark-secret"
   support_otp: true

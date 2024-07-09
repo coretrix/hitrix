@@ -14,4 +14,6 @@ type PrivilegeEntity struct {
 	PermissionIDs []*PermissionEntity `orm:"required;searchable"`
 	CreatedAt     time.Time           `orm:"time=true"`
 	FakeDelete    bool                `orm:"unique=RoleID_ResourceID_FakeDelete:3"`
+
+	CachedQueryRoleIDResourceID *beeorm.CachedQuery `query:":RoleID = ? AND :ResourceID = ?"`
 }

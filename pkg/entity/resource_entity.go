@@ -12,4 +12,6 @@ type ResourceEntity struct {
 	Name       string    `orm:"required;searchable;unique=Name_FakeDelete:1"`
 	CreatedAt  time.Time `orm:"time=true"`
 	FakeDelete bool      `orm:"unique=Name_FakeDelete:2"`
+
+	CachedQueryName *beeorm.CachedQuery `queryOne:":Name = ?"`
 }

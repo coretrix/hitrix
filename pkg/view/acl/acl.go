@@ -7,20 +7,27 @@ import (
 )
 
 func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource string, permissions ...string) bool {
-	resourceQuery := beeorm.NewRedisSearchQuery()
-	resourceQuery.FilterString("Name", resource)
-
 	resourceEntity := &entity.ResourceEntity{}
-	if !ormService.RedisSearchOne(resourceEntity, resourceQuery) {
+	if !ormService.CachedSearchOne(resourceEntity, "CachedQueryName", resource) {
 		return false
 	}
 
-	permissionQuery := beeorm.NewRedisSearchQuery()
-	permissionQuery.FilterUint("ResourceID", resourceEntity.ID)
-	permissionQuery.FilterString("Name", permissions...)
+	allPermissionEntities := make([]*entity.PermissionEntity, 0)
+	ormService.CachedSearch(
+		&allPermissionEntities,
+		"CachedQueryResourceID",
+		beeorm.NewPager(1, 1000),
+		resourceEntity.ID,
+	)
 
 	permissionEntities := make([]*entity.PermissionEntity, 0)
-	ormService.RedisSearch(&permissionEntities, permissionQuery, beeorm.NewPager(1, 1000))
+	for _, permissionEntity := range allPermissionEntities {
+		for _, permission := range permissions {
+			if permissionEntity.Name == permission {
+				permissionEntities = append(permissionEntities, permissionEntity)
+			}
+		}
+	}
 
 	if len(permissions) != len(permissionEntities) {
 		return false
@@ -37,5 +44,24 @@ func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource stri
 	privilegeQuery.FilterUint("ResourceID", resourceEntity.ID)
 	privilegeQuery.FilterManyReferenceIn("PermissionIDs", permissionIDs...)
 
-	return ormService.RedisSearchOne(&entity.PrivilegeEntity{}, privilegeQuery)
+	privilegeEntities := make([]*entity.PrivilegeEntity, 0)
+	ormService.CachedSearch(
+		&privilegeEntities,
+		"CachedQueryRoleIDResourceID",
+		beeorm.NewPager(1, 1000),
+	)
+
+	hasPrivilege := false
+	for _, privilegeEntity := range privilegeEntities {
+		for _, permissionEntity := range privilegeEntity.PermissionIDs {
+			for _, permissionID := range permissionIDs {
+				if permissionEntity.ID == permissionID {
+					hasPrivilege = true
+					break
+				}
+			}
+		}
+	}
+
+	return hasPrivilege //ormService.RedisSearchOne(&entity.PrivilegeEntity{}, privilegeQuery)
 }
