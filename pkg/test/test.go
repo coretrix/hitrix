@@ -204,8 +204,8 @@ func CreateContext(
 	testSpringInstance, deferFunc := hitrix.New(projectName, "").
 		SetParallelTestID(getParallelID()).
 		RegisterDIGlobalService(append(defaultServices, mockGlobalServices...)...).RegisterRedisPools(
-			redisPools,
-		).Build()
+		redisPools,
+	).Build()
 	defer deferFunc()
 
 	ormService := service.DI().OrmEngine()
@@ -279,7 +279,7 @@ func executeAlters(ormService *beeorm.Engine) {
 
 	if os.Getenv("PARALLEL_TESTS") == "" || os.Getenv("PARALLEL_TESTS") == "false" {
 		ormService.GetLocalCache().Clear()
-		
+
 		pools := service.DI().App().RedisPools
 		ormService.GetRedis(pools.Stream).FlushDB()
 		ormService.GetRedis(pools.Persistent).FlushDB()

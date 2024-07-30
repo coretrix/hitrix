@@ -21,6 +21,7 @@ func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource stri
 	)
 
 	permissionEntities := make([]*entity.PermissionEntity, 0)
+
 	for _, permissionEntity := range allPermissionEntities {
 		for _, permission := range permissions {
 			if permissionEntity.Name == permission {
@@ -48,14 +49,16 @@ func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource stri
 	)
 
 	hasPrivilege := false
+
 	for _, permissionEntity := range privilegeEntity.PermissionIDs {
 		for _, permissionID := range permissionIDs {
 			if permissionEntity.ID == permissionID {
 				hasPrivilege = true
+
 				break
 			}
 		}
 	}
 
-	return hasPrivilege //ormService.RedisSearchOne(&entity.PrivilegeEntity{}, privilegeQuery)
+	return hasPrivilege
 }

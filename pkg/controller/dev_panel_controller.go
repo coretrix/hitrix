@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"github.com/coretrix/hitrix/pkg/redis"
 	"os"
 	"sort"
 	"strings"
@@ -19,6 +18,7 @@ import (
 	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
 	"github.com/coretrix/hitrix/pkg/errors"
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
+	"github.com/coretrix/hitrix/pkg/redis"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/pkg/view/account"
 	delayedqueue "github.com/coretrix/hitrix/pkg/view/delayed_queue"

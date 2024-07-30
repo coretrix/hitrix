@@ -193,6 +193,7 @@ func validateResourcesAndPermissions(ormService *beeorm.Engine, resources []*acl
 		if permissionEntity.FakeDelete {
 			continue
 		}
+
 		permissionEntities = append(permissionEntities, permissionEntity)
 	}
 
