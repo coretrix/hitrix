@@ -14,5 +14,6 @@ type PermissionEntity struct {
 	CreatedAt  time.Time       `orm:"time=true"`
 	FakeDelete bool            `orm:"unique=ResourceID_Name_FakeDelete:2"`
 
+	CachedQueryAll        *beeorm.CachedQuery `query:"1 ORDER BY ID"`
 	CachedQueryResourceID *beeorm.CachedQuery `query:":ResourceID = ?"`
 }

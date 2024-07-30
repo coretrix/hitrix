@@ -184,11 +184,17 @@ func validateResourcesAndPermissions(ormService *beeorm.Engine, resources []*acl
 		return nil, nil, fmt.Errorf("some of the provided resources is not found")
 	}
 
-	permissionsQuery := beeorm.NewRedisSearchQuery()
-	permissionsQuery.FilterUint("ID", permissionIDs...)
+	allPermissionEntities := make([]*entity.PermissionEntity, 0)
+	ormService.LoadByIDs(permissionIDs, &allPermissionEntities)
 
 	permissionEntities := make([]*entity.PermissionEntity, 0)
-	ormService.RedisSearch(&permissionEntities, permissionsQuery, beeorm.NewPager(1, 4000))
+
+	for _, permissionEntity := range allPermissionEntities {
+		if permissionEntity.FakeDelete {
+			continue
+		}
+		permissionEntities = append(permissionEntities, permissionEntity)
+	}
 
 	if len(permissionEntities) != len(permissionIDs) {
 		return nil, nil, fmt.Errorf("some of the provided permissions is not found")

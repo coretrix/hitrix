@@ -14,11 +14,15 @@ import (
 func ListResources(c *gin.Context) *acl.ResourcesResponseDTO {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	query := beeorm.NewRedisSearchQuery()
-	query.Sort("ID", false)
-
 	allPermissionEntities := make([]*entity.PermissionEntity, 0)
-	ormService.RedisSearch(&allPermissionEntities, query, beeorm.NewPager(1, 4000), "ResourceID")
+
+	ormService.CachedSearchWithReferences(
+		&allPermissionEntities,
+		"CachedQueryAll",
+		beeorm.NewPager(1, 4000),
+		nil,
+		[]string{"ResourceID"},
+	)
 
 	resourceDTOsMapping := resourceDTOsMapping{}
 
@@ -67,11 +71,15 @@ func ListUserResources(c *gin.Context, getUserFunc func(c *gin.Context) beeorm.E
 		panic("user entity does not implement UserRoleSetter interface")
 	}
 
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterUint("RoleID", userWithGettableRole.GetRole().ID)
-
 	privilegeEntities := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearch(&privilegeEntities, query, beeorm.NewPager(1, 4000), "ResourceID", "PermissionIDs")
+
+	ormService.CachedSearchWithReferences(
+		&privilegeEntities,
+		"CachedQueryRoleID",
+		beeorm.NewPager(1, 4000),
+		[]interface{}{userWithGettableRole.GetRole().ID},
+		[]string{"ResourceID", "PermissionIDs"},
+	)
 
 	resourceDTOsMapping := resourceDTOsMapping{}
 

@@ -16,4 +16,5 @@ type PrivilegeEntity struct {
 	FakeDelete    bool                `orm:"unique=RoleID_ResourceID_FakeDelete:3"`
 
 	CachedQueryRoleIDResourceID *beeorm.CachedQuery `queryOne:":RoleID = ? AND :ResourceID = ?"`
+	CachedQueryRoleID           *beeorm.CachedQuery `query:":RoleID = ?"`
 }

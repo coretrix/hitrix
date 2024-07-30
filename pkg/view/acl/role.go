@@ -66,11 +66,15 @@ func ListRoles(c *gin.Context, request *crud.ListRequest) *acl.RolesResponseDTO 
 func GetRole(c *gin.Context, request *acl.RoleRequestDTO) (*acl.RoleResponseDTO, error) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterUint("RoleID", request.ID)
-
 	allPrivilegeEntities := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearch(&allPrivilegeEntities, query, beeorm.NewPager(1, 4000), "RoleID", "ResourceID", "PermissionIDs")
+
+	ormService.CachedSearchWithReferences(
+		&allPrivilegeEntities,
+		"CachedQueryRoleID",
+		beeorm.NewPager(1, 4000),
+		[]interface{}{request.ID},
+		[]string{"RoleID", "ResourceID", "PermissionIDs"},
+	)
 
 	if len(allPrivilegeEntities) == 0 {
 		return nil, fmt.Errorf("role with ID: %d not found", request.ID)
