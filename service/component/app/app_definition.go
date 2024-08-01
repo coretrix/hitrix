@@ -30,7 +30,7 @@ type RedisPools struct {
 	Cache      string
 	Persistent string
 	Stream     string
-	Search     string
+	Search     []string
 }
 
 type App struct {
