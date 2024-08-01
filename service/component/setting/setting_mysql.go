@@ -22,12 +22,9 @@ func (s *serviceSetting) Get(ormService *beeorm.Engine, key string) (*entity.Set
 		return cachedEntity, true
 	}
 
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterString("Key", key)
-
 	settingEntity := &entity.SettingsEntity{}
 
-	found := ormService.RedisSearchOne(settingEntity, query)
+	found := ormService.CachedSearchOne(settingEntity, "Key", key)
 	if !found {
 		return nil, false
 	}

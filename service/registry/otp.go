@@ -44,11 +44,8 @@ func ServiceProviderOTP(emailSenderFunc mail.NewSenderFunc, SMSForceProviders ..
 			} else {
 				ormService := ctn.Get(service.ORMEngineGlobalService).(*beeorm.Engine)
 
-				q := &beeorm.RedisSearchQuery{}
-				q.FilterString("Key", "otp_sms_provider")
-
 				settingsEntity := &entity.SettingsEntity{}
-				if has := ormService.RedisSearchOne(settingsEntity, q); !has {
+				if has := ormService.CachedSearchOne(settingsEntity, "Key", "otp_sms_provider"); !has {
 					return nil, errors.New("otp_sms_provider not found in settings")
 				}
 

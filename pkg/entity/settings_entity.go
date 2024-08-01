@@ -38,12 +38,14 @@ var SettingsValueTypeAll = settingsValueType{
 }
 
 type SettingsEntity struct {
-	beeorm.ORM `orm:"table=settings;redisCache;redisSearch=search_pool;"`
+	beeorm.ORM `orm:"table=settings;redisCache"`
 	ID         uint64 `orm:"sortable"`
-	Key        string `orm:"required;unique=Settings_Key;sortable;searchable;"`
+	Key        string `orm:"required;unique=Key;sortable;searchable;"`
 	Value      string `orm:"required;length=max;"`
 	ValueType  string `orm:"enum=entity.SettingsValueTypeAll"`
 	Editable   bool
 	Deletable  bool
 	Hidden     bool `orm:"searchable"`
+
+	CachedQuerySettingsKey *beeorm.CachedQuery `queryOne:":Key = ?"`
 }
