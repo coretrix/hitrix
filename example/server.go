@@ -41,7 +41,7 @@ func main() {
 		registry.ServiceProviderOTP(nil),
 	).RegisterDIRequestService(
 		registry.ServiceProviderOrmEngineForContext(false),
-	).RegisterRedisPools(&app.RedisPools{Persistent: "default", Cache: "default", Search: "search_pool", Stream: "stream_pool"}).
+	).RegisterRedisPools(&app.RedisPools{Persistent: "default", Cache: "default", Search: []string{"search_pool", "search_pool2"}, Stream: "stream_pool"}).
 		RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.DevPanelRouter).Build()
 	defer deferFunc()
 
