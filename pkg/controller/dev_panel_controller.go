@@ -284,13 +284,13 @@ func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
 					TotalSize: uint64(info.DocTableSizeMB + info.KeyTableSizeMB + info.SortableValuesSizeMB + info.InvertedSzMB + info.OffsetVectorsSzMB),
 				})
 		}
-
-		response.SuccessResponse(
-			c,
-			indexes.ResponseDTOList{
-				Indexes: indexList,
-			})
 	}
+
+	response.SuccessResponse(
+		c,
+		indexes.ResponseDTOList{
+			Indexes: indexList,
+		})
 }
 
 func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context) {
