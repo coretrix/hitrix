@@ -284,7 +284,9 @@ func executeAlters(ormService *beeorm.Engine) {
 		ormService.GetRedis(pools.Stream).FlushDB()
 		ormService.GetRedis(pools.Persistent).FlushDB()
 		ormService.GetRedis(pools.Cache).FlushDB()
-		ormService.GetRedis(pools.Search).FlushDB()
+		for _, pool := range pools.Search {
+			ormService.GetRedis(pool).FlushDB()
+		}
 	}
 
 	altersSearch := ormService.GetRedisSearchIndexAlters()
