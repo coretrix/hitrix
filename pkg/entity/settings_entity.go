@@ -45,7 +45,7 @@ type SettingsEntity struct {
 	ValueType  string `orm:"enum=entity.SettingsValueTypeAll"`
 	Editable   bool
 	Deletable  bool
-	Hidden     bool `orm:"searchable"`
+	Hidden     bool
 
 	CachedQuerySettingsKey *beeorm.CachedQuery `queryOne:":Key = ?"`
 }
