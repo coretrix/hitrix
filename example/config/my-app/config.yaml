@@ -8,6 +8,8 @@ orm:
     mysql: ENV[DEFAULT_MYSQL]
   search_pool:
     redis: ENV[DEFAULT_REDIS_SEARCH]
+  search_pool2:
+    redis: ENV[DEFAULT_REDIS_SEARCH]
   stream_pool:
     redis: ENV[DEFAULT_REDIS]
 authentication:

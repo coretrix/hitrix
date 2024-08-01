@@ -39,6 +39,6 @@ func createContextMyApp(
 		defaultRequestServices,
 		mockGlobalServices,
 		mockRequestServices,
-		&app.RedisPools{Persistent: "default", Cache: "default", Search: "search_pool", Stream: "stream_pool"},
+		&app.RedisPools{Persistent: "default", Cache: "default", Search: []string{"search_pool", "search_pool2"}, Stream: "stream_pool"},
 	)
 }

@@ -17,4 +17,5 @@ type PrivilegeEntity struct {
 
 	CachedQueryPrivilegeRoleIDResourceID *beeorm.CachedQuery `queryOne:":RoleID = ? AND :ResourceID = ?"`
 	CachedQueryPrivilegeRoleID           *beeorm.CachedQuery `query:":RoleID = ?"`
+	CachedQueryResourceID                *beeorm.CachedQuery `query:":ResourceID = ?"`
 }
