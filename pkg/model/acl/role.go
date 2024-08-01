@@ -63,11 +63,12 @@ func UpdateRole(c *gin.Context, roleID *acl.RoleRequestDTO, request *acl.CreateO
 		return err
 	}
 
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterUint("RoleID", roleEntity.ID)
-
 	privilegeEntitiesToDelete := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearch(&privilegeEntitiesToDelete, query, beeorm.NewPager(1, 1000))
+	ormService.CachedSearch(
+		&privilegeEntitiesToDelete,
+		"CachedQueryPrivilegeRoleID",
+		beeorm.NewPager(1, 1000),
+		roleEntity.ID)
 
 	now := service.DI().Clock().Now()
 
@@ -109,11 +110,12 @@ func DeleteRole(c *gin.Context, roleID *acl.RoleRequestDTO) error {
 		return fmt.Errorf("role with ID: %d not found", roleID.ID)
 	}
 
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterUint("RoleID", roleEntity.ID)
-
 	privilegeEntitiesToDelete := make([]*entity.PrivilegeEntity, 0)
-	ormService.RedisSearch(&privilegeEntitiesToDelete, query, beeorm.NewPager(1, 1000))
+	ormService.CachedSearch(
+		&privilegeEntitiesToDelete,
+		"CachedQueryPrivilegeRoleID",
+		beeorm.NewPager(1, 1000),
+		roleEntity.ID)
 
 	err := helper.DBTransaction(ormService, func() error {
 		flusher := ormService.NewFlusher()

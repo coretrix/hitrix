@@ -43,7 +43,7 @@ func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource stri
 	privilegeEntity := &entity.PrivilegeEntity{}
 	ormService.CachedSearchOne(
 		privilegeEntity,
-		"CachedQueryRoleIDResourceID",
+		"CachedQueryPrivilegeRoleIDResourceID",
 		roleEntity.ID,
 		resourceEntity.ID,
 	)

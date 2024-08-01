@@ -70,7 +70,7 @@ func GetRole(c *gin.Context, request *acl.RoleRequestDTO) (*acl.RoleResponseDTO,
 
 	ormService.CachedSearchWithReferences(
 		&allPrivilegeEntities,
-		"CachedQueryRoleID",
+		"CachedQueryPrivilegeRoleID",
 		beeorm.NewPager(1, 4000),
 		[]interface{}{request.ID},
 		[]string{"RoleID", "ResourceID", "PermissionIDs"},

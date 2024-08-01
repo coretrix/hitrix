@@ -7,14 +7,14 @@ import (
 )
 
 type PrivilegeEntity struct {
-	beeorm.ORM    `orm:"table=privileges;redisCache;redisSearch=search_pool"`
+	beeorm.ORM    `orm:"table=privileges;redisCache"`
 	ID            uint64
-	RoleID        *RoleEntity         `orm:"required;searchable;unique=RoleID_ResourceID_FakeDelete:1"`
-	ResourceID    *ResourceEntity     `orm:"required;searchable;unique=RoleID_ResourceID_FakeDelete:2"`
-	PermissionIDs []*PermissionEntity `orm:"required;searchable"`
+	RoleID        *RoleEntity         `orm:"required;unique=RoleID_ResourceID_FakeDelete:1"`
+	ResourceID    *ResourceEntity     `orm:"required;unique=RoleID_ResourceID_FakeDelete:2"`
+	PermissionIDs []*PermissionEntity `orm:"required"`
 	CreatedAt     time.Time           `orm:"time=true"`
 	FakeDelete    bool                `orm:"unique=RoleID_ResourceID_FakeDelete:3"`
 
-	CachedQueryRoleIDResourceID *beeorm.CachedQuery `queryOne:":RoleID = ? AND :ResourceID = ?"`
-	CachedQueryRoleID           *beeorm.CachedQuery `query:":RoleID = ?"`
+	CachedQueryPrivilegeRoleIDResourceID *beeorm.CachedQuery `queryOne:":RoleID = ? AND :ResourceID = ?"`
+	CachedQueryPrivilegeRoleID           *beeorm.CachedQuery `query:":RoleID = ?"`
 }
