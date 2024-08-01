@@ -75,7 +75,7 @@ func ListUserResources(c *gin.Context, getUserFunc func(c *gin.Context) beeorm.E
 
 	ormService.CachedSearchWithReferences(
 		&privilegeEntities,
-		"CachedQueryRoleID",
+		"CachedQueryPrivilegeRoleID",
 		beeorm.NewPager(1, 4000),
 		[]interface{}{userWithGettableRole.GetRole().ID},
 		[]string{"ResourceID", "PermissionIDs"},
