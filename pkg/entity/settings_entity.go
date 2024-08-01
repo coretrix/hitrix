@@ -40,8 +40,8 @@ var SettingsValueTypeAll = settingsValueType{
 type SettingsEntity struct {
 	beeorm.ORM `orm:"table=settings;redisCache"`
 	ID         uint64
-	Key        string `orm:"required;unique=Key;"`
-	Value      string `orm:"required;length=max;"`
+	Key        string `orm:"required;unique=SettingsKey"`
+	Value      string `orm:"required;length=max"`
 	ValueType  string `orm:"enum=entity.SettingsValueTypeAll"`
 	Editable   bool
 	Deletable  bool
