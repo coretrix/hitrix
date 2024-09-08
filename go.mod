@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	cloud.google.com/go/storage v1.40.0
-	firebase.google.com/go v3.13.0+incompatible
 	firebase.google.com/go/v4 v4.14.1
 	github.com/99designs/gqlgen v0.17.16
 	github.com/Timothylock/go-signin-with-apple v0.2.0

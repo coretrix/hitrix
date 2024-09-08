@@ -16,7 +16,7 @@ import (
 	"github.com/coretrix/hitrix/pkg/dto/list"
 	"github.com/coretrix/hitrix/pkg/entity"
 	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
-	"github.com/coretrix/hitrix/pkg/errors"
+	hitrixErrors "github.com/coretrix/hitrix/pkg/errors"
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
 	"github.com/coretrix/hitrix/pkg/redis"
 	"github.com/coretrix/hitrix/pkg/response"
@@ -64,7 +64,7 @@ func (controller *DevPanelController) CreateDevPanelUserAction(c *gin.Context) {
 
 	form := &accountModel.LoginDevForm{}
 	if err := binding.ShouldBindQuery(c, form); err != nil {
-		fieldError, ok := (err).(errors.FieldErrors)
+		fieldError, ok := (err).(hitrixErrors.FieldErrors)
 		if ok {
 			response.ErrorResponseFields(c, fieldError, nil)
 
@@ -93,7 +93,10 @@ func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
 	loginForm := accountModel.LoginDevForm{}
 	token, refreshToken, err := loginForm.Login(c)
 
-	errType, ok := err.(errors.FieldErrors)
+	//TODO Krasi: check WTF
+	_ = hitrixErrors.HandleErrors(nil)
+
+	errType, ok := err.(hitrixErrors.FieldErrors)
 
 	if ok && errType != nil {
 		response.ErrorResponseFields(c, errType, nil)

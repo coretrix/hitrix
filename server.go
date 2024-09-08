@@ -81,6 +81,8 @@ func (h *Hitrix) runDynamicScrips(ctx context.Context, code string) {
 				panic(fmt.Sprintf("unknown script %s", code))
 			}
 
+			//TODO Krasi: check WTF
+			app.Debug()
 			defScript := def.(app.IScript)
 			defScript.Run(ctx, &exit{s: h}, service.DI().OrmEngine().Clone())
 
