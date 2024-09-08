@@ -2,18 +2,18 @@ package fcm
 
 import (
 	"context"
+	"firebase.google.com/go/v4/messaging"
 
-	firebase "firebase.google.com/go"
-	"firebase.google.com/go/messaging"
+	firebase "firebase.google.com/go/v4"
 )
 
 type FCM interface {
 	Send(ctx context.Context, message *messaging.Message) (string, error)
 	SendDryRun(ctx context.Context, message *messaging.Message) (string, error)
-	SendAll(ctx context.Context, messages []*messaging.Message) (*messaging.BatchResponse, error)
-	SendAllDryRun(ctx context.Context, messages []*messaging.Message) (*messaging.BatchResponse, error)
-	SendMulticast(ctx context.Context, message *messaging.MulticastMessage) (*messaging.BatchResponse, error)
-	SendMulticastDryRun(ctx context.Context, message *messaging.MulticastMessage) (*messaging.BatchResponse, error)
+	SendEach(ctx context.Context, messages []*messaging.Message) (*messaging.BatchResponse, error)
+	SendEachDryRun(ctx context.Context, messages []*messaging.Message) (*messaging.BatchResponse, error)
+	SendEachForMulticast(ctx context.Context, message *messaging.MulticastMessage) (*messaging.BatchResponse, error)
+	SendEachForMulticastDryRun(ctx context.Context, message *messaging.MulticastMessage) (*messaging.BatchResponse, error)
 	SubscribeToTopic(ctx context.Context, tokens []string, topic string) (*messaging.TopicManagementResponse, error)
 	UnsubscribeFromTopic(ctx context.Context, tokens []string, topic string) (*messaging.TopicManagementResponse, error)
 }
