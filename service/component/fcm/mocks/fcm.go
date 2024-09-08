@@ -2,8 +2,8 @@ package mocks
 
 import (
 	"context"
+	"firebase.google.com/go/v4/messaging"
 
-	"firebase.google.com/go/messaging"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -23,25 +23,25 @@ func (f *FakeFCM) SendDryRun(_ context.Context, message *messaging.Message) (str
 	return args.String(0), args.Error(1)
 }
 
-func (f *FakeFCM) SendAll(_ context.Context, messages []*messaging.Message) (*messaging.BatchResponse, error) {
+func (f *FakeFCM) SendEach(_ context.Context, messages []*messaging.Message) (*messaging.BatchResponse, error) {
 	args := f.Called(messages)
 
 	return args.Get(0).(*messaging.BatchResponse), args.Error(1)
 }
 
-func (f *FakeFCM) SendAllDryRun(_ context.Context, messages []*messaging.Message) (*messaging.BatchResponse, error) {
+func (f *FakeFCM) SendEachDryRun(_ context.Context, messages []*messaging.Message) (*messaging.BatchResponse, error) {
 	args := f.Called(messages)
 
 	return args.Get(0).(*messaging.BatchResponse), args.Error(1)
 }
 
-func (f *FakeFCM) SendMulticast(_ context.Context, message *messaging.MulticastMessage) (*messaging.BatchResponse, error) {
+func (f *FakeFCM) SendEachForMulticast(_ context.Context, message *messaging.MulticastMessage) (*messaging.BatchResponse, error) {
 	args := f.Called(message)
 
 	return args.Get(0).(*messaging.BatchResponse), args.Error(1)
 }
 
-func (f *FakeFCM) SendMulticastDryRun(_ context.Context, message *messaging.MulticastMessage) (*messaging.BatchResponse, error) {
+func (f *FakeFCM) SendEachForMulticastDryRun(_ context.Context, message *messaging.MulticastMessage) (*messaging.BatchResponse, error) {
 	args := f.Called(message)
 
 	return args.Get(0).(*messaging.BatchResponse), args.Error(1)
