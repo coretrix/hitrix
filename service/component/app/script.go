@@ -38,7 +38,3 @@ type Intermediate interface {
 type Optional interface {
 	Active() bool
 }
-
-func Debug() {
-	return
-}

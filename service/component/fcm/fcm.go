@@ -2,9 +2,9 @@ package fcm
 
 import (
 	"context"
-	"firebase.google.com/go/v4/messaging"
 
 	firebase "firebase.google.com/go/v4"
+	"firebase.google.com/go/v4/messaging"
 )
 
 type FCM interface {

@@ -2,8 +2,8 @@ package mocks
 
 import (
 	"context"
-	"firebase.google.com/go/v4/messaging"
 
+	"firebase.google.com/go/v4/messaging"
 	"github.com/stretchr/testify/mock"
 )
 

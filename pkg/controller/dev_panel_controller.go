@@ -16,6 +16,7 @@ import (
 	"github.com/coretrix/hitrix/pkg/dto/list"
 	"github.com/coretrix/hitrix/pkg/entity"
 	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
+	//nolint
 	hitrixErrors "github.com/coretrix/hitrix/pkg/errors"
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
 	"github.com/coretrix/hitrix/pkg/redis"
@@ -92,9 +93,6 @@ func (controller *DevPanelController) CreateDevPanelUserAction(c *gin.Context) {
 func (controller *DevPanelController) PostLoginDevPanelAction(c *gin.Context) {
 	loginForm := accountModel.LoginDevForm{}
 	token, refreshToken, err := loginForm.Login(c)
-
-	//TODO Krasi: check WTF
-	_ = hitrixErrors.HandleErrors(nil)
 
 	errType, ok := err.(hitrixErrors.FieldErrors)
 
