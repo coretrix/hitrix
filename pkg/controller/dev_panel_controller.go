@@ -16,7 +16,6 @@ import (
 	"github.com/coretrix/hitrix/pkg/dto/list"
 	"github.com/coretrix/hitrix/pkg/entity"
 	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
-	//nolint
 	hitrixErrors "github.com/coretrix/hitrix/pkg/errors"
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
 	"github.com/coretrix/hitrix/pkg/redis"
@@ -264,6 +263,7 @@ func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
 	}
 
 	indices := map[string][]string{}
+
 	for _, searchPool := range appService.RedisPools.Search {
 		poolIndices := ormService.GetRedisSearch(searchPool).ListIndices()
 		sort.Strings(poolIndices)
@@ -314,6 +314,7 @@ func (controller *DevPanelController) PostRedisSearchForceReindex(c *gin.Context
 		for _, poolIndexName := range poolIndices {
 			if poolIndexName == indexName {
 				ormService.GetRedisSearch(searchPool).ForceReindex(indexName)
+
 				break
 			}
 		}
@@ -332,6 +333,7 @@ func (controller *DevPanelController) PostRedisSearchForceReindexAll(c *gin.Cont
 
 	indices := map[string][]string{}
 	indicesCount := 0
+
 	for _, searchPool := range appService.RedisPools.Search {
 		poolIndices := ormService.GetRedisSearch(searchPool).ListIndices()
 		sort.Strings(poolIndices)
@@ -347,16 +349,16 @@ func (controller *DevPanelController) PostRedisSearchForceReindexAll(c *gin.Cont
 
 		for searchPool, poolIndices := range indices {
 			for _, index := range poolIndices {
-				go func(index string) {
+				go func(pool, index string) {
 					defer func() {
 						if r := recover(); r != nil {
 							service.DI().ErrorLogger().LogError(r)
 						}
 					}()
 
-					ormService.GetRedisSearch(searchPool).ForceReindex(index)
+					ormService.GetRedisSearch(pool).ForceReindex(index)
 					wg.Done()
-				}(index)
+				}(searchPool, index)
 			}
 		}
 
@@ -388,11 +390,13 @@ func (controller *DevPanelController) PostRedisSearchIndexInfo(c *gin.Context) {
 	}
 
 	var info *beeorm.RedisSearchIndexInfo
+
 	for _, searchPool := range appService.RedisPools.Search {
 		poolIndices := ormService.GetRedisSearch(searchPool).ListIndices()
 		for _, poolIndexName := range poolIndices {
 			if poolIndexName == indexName {
 				info = ormService.GetRedisSearch(searchPool).Info(indexName)
+
 				break
 			}
 		}

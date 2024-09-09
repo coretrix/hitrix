@@ -41,8 +41,14 @@ func main() {
 		registry.ServiceProviderOTP(nil),
 	).RegisterDIRequestService(
 		registry.ServiceProviderOrmEngineForContext(false),
-	).RegisterRedisPools(&app.RedisPools{Persistent: "default", Cache: "default", Search: []string{"search_pool", "search_pool2"}, Stream: "stream_pool"}).
-		RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.DevPanelRouter).Build()
+	).RegisterRedisPools(
+		&app.RedisPools{
+			Persistent: "default",
+			Cache:      "default",
+			Search:     []string{"search_pool", "search_pool2"},
+			Stream:     "stream_pool",
+		},
+	).RegisterDevPanel(&entity.DevPanelUserEntity{}, middleware.DevPanelRouter).Build()
 	defer deferFunc()
 
 	b := &hitrix.BackgroundProcessor{Server: s}

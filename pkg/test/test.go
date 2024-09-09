@@ -284,6 +284,7 @@ func executeAlters(ormService *beeorm.Engine) {
 		ormService.GetRedis(pools.Stream).FlushDB()
 		ormService.GetRedis(pools.Persistent).FlushDB()
 		ormService.GetRedis(pools.Cache).FlushDB()
+
 		for _, pool := range pools.Search {
 			ormService.GetRedis(pool).FlushDB()
 		}
@@ -311,11 +312,11 @@ func getParallelID() string {
 		return "1"
 	} else if parallelTestID != "" {
 		return parallelTestID
-	} else {
-		parallelTestID = getRandomString()
-
-		return parallelTestID
 	}
+
+	parallelTestID = getRandomString()
+
+	return parallelTestID
 }
 
 func dropTables(dbService *beeorm.DB) {
