@@ -33,6 +33,7 @@ func ServiceProviderErrorLogger() *service.DefinitionGlobal {
 				ctn.Get(service.ORMEngineGlobalService).(*beeorm.Engine),
 				slackAPIService,
 				sentryService,
+				service.RequestBodyKey,
 			), nil
 		},
 	}

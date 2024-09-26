@@ -2,6 +2,8 @@ package errorlogger
 
 import (
 	"bytes"
+	"io"
+
 	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive
 	"crypto/md5"
 	"encoding/hex"
@@ -49,14 +51,27 @@ type ErrorMessage struct {
 }
 
 type RedisErrorLogger struct {
-	redisStorage  *beeorm.RedisCache
-	sentryService sentry.ISentry
-	slackService  slack.Slack
-	appService    *app.App
+	redisStorage   *beeorm.RedisCache
+	sentryService  sentry.ISentry
+	slackService   slack.Slack
+	appService     *app.App
+	requestBodyKey interface{}
 }
 
-func NewRedisErrorLogger(appService *app.App, ormService *beeorm.Engine, slackService slack.Slack, sentryService sentry.ISentry) ErrorLogger {
-	return &RedisErrorLogger{redisStorage: ormService.GetRedis(), slackService: slackService, appService: appService, sentryService: sentryService}
+func NewRedisErrorLogger(
+	appService *app.App,
+	ormService *beeorm.Engine,
+	slackService slack.Slack,
+	sentryService sentry.ISentry,
+	requestBodyKey interface{},
+) ErrorLogger {
+	return &RedisErrorLogger{
+		redisStorage:   ormService.GetRedis(),
+		slackService:   slackService,
+		appService:     appService,
+		sentryService:  sentryService,
+		requestBodyKey: requestBodyKey,
+	}
 }
 
 func (e *RedisErrorLogger) LogError(errData interface{}) {
@@ -99,6 +114,8 @@ func (e *RedisErrorLogger) log(errData interface{}, callerSkip int, c *gin.Conte
 	}
 
 	if c != nil {
+		c.Request.Body = io.NopCloser(bytes.NewReader(c.Request.Context().Value(e.requestBodyKey).([]byte)))
+
 		requestID, has := c.Get(requestlogger.ID)
 		if has {
 			value.Request = []byte("X-Request-ID: " + fmt.Sprint(requestID) + "\n\n")
