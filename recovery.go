@@ -18,7 +18,7 @@ func recovery() gin.HandlerFunc {
 				c.Request.Body = io.NopCloser(
 					bytes.NewReader(c.Request.Context().Value(service.RequestBodyKey).([]byte)))
 
-				service.DI().ErrorLogger().LogErrorWithRequest(c, r)
+				service.DI().ErrorLogger().LogPanicWithRequest(c, r)
 			}
 		}()
 

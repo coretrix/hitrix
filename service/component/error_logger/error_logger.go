@@ -34,9 +34,9 @@ var (
 )
 
 type ErrorLogger interface {
-	LogErrorWithRequest(c *gin.Context, errData interface{})
 	LogError(dataFromRecover interface{})
-	log(errData interface{}, c *gin.Context)
+	LogErrorWithRequest(c *gin.Context, errData interface{})
+	LogPanicWithRequest(c *gin.Context, errData interface{})
 }
 
 type ErrorMessage struct {
@@ -60,14 +60,18 @@ func NewRedisErrorLogger(appService *app.App, ormService *beeorm.Engine, slackSe
 }
 
 func (e *RedisErrorLogger) LogError(errData interface{}) {
-	e.log(errData, nil)
+	e.log(errData, 2, nil)
 }
 
 func (e *RedisErrorLogger) LogErrorWithRequest(c *gin.Context, errData interface{}) {
-	e.log(errData, c)
+	e.log(errData, 2, c)
 }
 
-func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context) {
+func (e *RedisErrorLogger) LogPanicWithRequest(c *gin.Context, errData interface{}) {
+	e.log(errData, 4, c)
+}
+
+func (e *RedisErrorLogger) log(errData interface{}, callerSkip int, c *gin.Context) {
 	var msg string
 
 	err, ok := errData.(error)
@@ -78,10 +82,10 @@ func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context) {
 	}
 
 	logger := log.New(os.Stderr, "\n\n\x1b[31m", log.LstdFlags)
-	stack := stack(0)
-	logger.Printf("[Error]:\n%s\n%s%s", msg, stack, "\033[0m")
+	stackTrace := stack(0)
+	logger.Printf("[Error]:\n%s\n%s%s", msg, stackTrace, "\033[0m")
 
-	_, file, line, _ := runtime.Caller(4)
+	_, file, line, _ := runtime.Caller(callerSkip)
 
 	//nolint //G401: Use of weak cryptographic primitive
 	errorKeyBinary := md5.Sum([]byte(e.appService.Name + ":" + file + ":" + fmt.Sprint(line)))
@@ -91,7 +95,7 @@ func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context) {
 		Line:    line,
 		AppName: e.appService.Name,
 		Message: msg,
-		Stack:   stack,
+		Stack:   stackTrace,
 	}
 
 	if c != nil {
