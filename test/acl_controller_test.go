@@ -28,7 +28,7 @@ func TestListResourcesAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "my-app", mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
@@ -103,7 +103,7 @@ func TestListRolesAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "my-app", mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
@@ -177,7 +177,7 @@ func TestGetRoleAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "my-app", mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
@@ -237,7 +237,7 @@ func TestCreateRoleAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "my-app", mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
@@ -283,7 +283,7 @@ func TestUpdateRoleAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "my-app", mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
@@ -339,7 +339,7 @@ func TestDeleteRoleAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "my-app", mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()
@@ -382,7 +382,7 @@ func TestPostAssignRoleToUserAction(t *testing.T) {
 		registryMocks.ServiceProviderMockClock(fakeClock),
 	}
 
-	ctx := createContextMyApp(t, "my-app", nil, mockServices, nil)
+	ctx := createContextMyApp(t, "my-app", mockServices, nil)
 
 	ormService := service.DI().OrmEngine().Clone()
 	flusher := ormService.NewFlusher()

@@ -35,7 +35,7 @@ func (f *ProductCollection) ScriptsMultiInstance() []app.IScript {
 }
 
 func TestFeatureFlag(t *testing.T) {
-	createContextMyApp(t, "my-app", nil,
+	createContextMyApp(t, "my-app",
 		[]*service.DefinitionGlobal{
 			registry.ServiceProviderErrorLogger(),
 			registry.ServiceProviderClock(),
@@ -61,7 +61,7 @@ func TestFeatureFlag(t *testing.T) {
 	assert.Nil(t, featureFlagService.FailIfIsNotActive(ormService, productCollectionFeature))
 }
 func TestFeatureFlagWithCache(t *testing.T) {
-	createContextMyApp(t, "my-app", nil,
+	createContextMyApp(t, "my-app",
 		[]*service.DefinitionGlobal{
 			registry.ServiceProviderErrorLogger(),
 			registry.ServiceProviderClock(),

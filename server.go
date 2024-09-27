@@ -10,7 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/fatih/color"
 
 	"github.com/coretrix/hitrix/service"
@@ -24,9 +23,7 @@ type Hitrix struct {
 
 func (h *Hitrix) RunServer(
 	defaultPort uint,
-	server graphql.ExecutableSchema,
 	ginInitHandler GinInitHandler,
-	gqlServerInitHandler GQLServerInitHandler,
 ) {
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -35,7 +32,7 @@ func (h *Hitrix) RunServer(
 	//nolint //G112: Potential Slowloris Attack because ReadHeaderTimeout is not configured in the http.Server
 	srv := &http.Server{
 		Addr:    ":" + port,
-		Handler: InitGin(server, ginInitHandler, gqlServerInitHandler),
+		Handler: InitGin(ginInitHandler),
 	}
 
 	h.preDeploy()

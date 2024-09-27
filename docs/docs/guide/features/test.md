@@ -1,10 +1,10 @@
 # Tests
-Hitrix provide you test abstract layer that can be used to simulate requests to your graphql api
+Hitrix provide you test abstract layer that can be used to simulate requests to your api
 
 In your code you can create similar function that makes new instance of your app
 
 ```go
-func createContextMyApp(t *testing.T, projectName string, resolvers graphql.ExecutableSchema) *test.Ctx {
+func createContextMyApp(t *testing.T, projectName string) *test.Ctx {
 	defaultServices := []*service.Definition{
 		registry.ServiceProviderConfigDirectory("../example/config"),
 		registry.ServiceProviderOrmRegistry(entity.Init),
@@ -20,35 +20,6 @@ func createContextMyApp(t *testing.T, projectName string, resolvers graphql.Exec
 	)
 }
 
-```
-
-After that you can call queries or mutations
-
-```go
-func TestProcessApplePurchaseWithEmail(t *testing.T) {
-	type queryRegisterTransactions struct {
-		RegisterTransactionsResponse *model.RegisterTransactionsResponse `graphql:"RegisterTransactions(applePurchaseRequest: $applePurchaseRequest)"`
-	}
-
-	variables := map[string]interface{}{
-		"applePurchaseRequest": model.ApplePurchaseRequest{
-			ForceEmail:   false,
-		},
-	}
-
-	fakeMail := &mailMock.Sender{}
-	fakeMail.On("SendTemplate", "hymn@abv.bg").Return(nil)
-
-	got := &queryRegisterTransactions{}
-	projectName, resolver := tests.GetWebAPIResolver()
-	ctx := tests.CreateContextWebAPI(t, projectName, resolver, &tests.IoCMocks{MailService: fakeMail})
-
-	err := ctx.HandleMutation(got, variables)
-	assert.Nil(t, err)
-
-	//...
-	fakeMail.AssertExpectations(t)
-}
 ```
 
 Hitrix supports `parallel` tests

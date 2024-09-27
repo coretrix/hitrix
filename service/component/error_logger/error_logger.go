@@ -2,13 +2,12 @@ package errorlogger
 
 import (
 	"bytes"
-	"io"
-
 	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"math"
 	"net/http/httputil"

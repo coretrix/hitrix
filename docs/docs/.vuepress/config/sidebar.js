@@ -146,10 +146,6 @@ module.exports = [
                         link: '/guide/services/template',
                     },
                     {
-                        text: 'Gql',
-                        link: '/guide/services/gql',
-                    },
-                    {
                         text: 'Request Logger',
                         link: '/guide/services/request_logger',
                     },
@@ -193,15 +189,6 @@ module.exports = [
                     {
                         text: 'Upload files',
                         link: '/guide/features/upload_files',
-                    },
-                ],
-            },
-            {
-                text: 'GraphQL',
-                children: [
-                    {
-                        text: 'Dataloaders',
-                        link: '/guide/graphql/dataloaders',
                     },
                 ],
             },

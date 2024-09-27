@@ -5,7 +5,6 @@ go 1.19
 require (
 	cloud.google.com/go/storage v1.40.0
 	firebase.google.com/go/v4 v4.14.1
-	github.com/99designs/gqlgen v0.17.16
 	github.com/Timothylock/go-signin-with-apple v0.2.0
 	github.com/TwiN/go-color v1.4.1
 	github.com/aws/aws-sdk-go v1.38.39
@@ -19,7 +18,6 @@ require (
 	github.com/fatih/color v1.13.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/sessions v0.0.5
-	github.com/gin-contrib/timeout v0.0.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
@@ -28,7 +26,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gookit/config v1.1.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/h2non/filetype v1.1.1
 	github.com/icza/gox v0.0.0-20201215141822-6edfac6c05b5
 	github.com/joho/godotenv v1.3.0
 	github.com/kavenegar/kavenegar-go v0.0.0-20200629080648-6e28263b7162
@@ -47,11 +44,9 @@ require (
 	github.com/tealeg/xlsx v1.0.5
 	github.com/tus/tusd v1.6.0
 	github.com/twilio/twilio-go v0.15.0
-	github.com/vektah/gqlparser/v2 v2.5.0
 	github.com/xorcare/pointer v1.1.0
 	golang.org/x/net v0.23.0
 	golang.org/x/oauth2 v0.18.0
-	golang.org/x/text v0.14.0
 	google.golang.org/api v0.170.0
 	googlemaps.github.io/maps v1.3.3
 	k8s.io/api v0.26.14
@@ -66,7 +61,6 @@ require (
 	cloud.google.com/go/iam v1.1.7 // indirect
 	cloud.google.com/go/longrunning v0.5.5 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
-	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40 // indirect
 	github.com/bsm/redislock v0.7.2 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
@@ -107,7 +101,6 @@ require (
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -117,7 +110,6 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
-	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
@@ -144,6 +136,7 @@ require (
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/appengine/v2 v2.0.2 // indirect

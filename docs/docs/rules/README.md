@@ -106,12 +106,10 @@ func main() {
 type OrderEntity struct{
 }
 ```
-
-6. When instantiating graphql objects, use methods that are defined in `populate` package. If there is no method for your object, please declare one for your object.
-7. Don't use `time.Now()` . Use `ioc.GetClockService().Now()` instead. If you need pointer, use `ioc.GetClockService().NowPointer()`.
-8. All entity files should have `_entity.go` suffix, the entity itself should end with `Entity`.
-9. In yaml config files we should set env vars only for values that going to be different in different environments(dev/demo/prod) If they are the same we should not use env var, but we can set the value into the yaml file
-10. Custom redis indexes can be re-indexed using dev panel but dirty queues needs extra effort from developer side.
+6. Don't use `time.Now()` . Use `ioc.GetClockService().Now()` instead. If you need pointer, use `ioc.GetClockService().NowPointer()`.
+7. All entity files should have `_entity.go` suffix, the entity itself should end with `Entity`.
+8. In yaml config files we should set env vars only for values that going to be different in different environments(dev/demo/prod) If they are the same we should not use env var, but we can set the value into the yaml file
+9. Custom redis indexes can be re-indexed using dev panel but dirty queues needs extra effort from developer side.
 - You need to extend the slice into `DevPanelController->GetActionListAction` slice `dirty`
   This step will add new menu in dev panel dashboard.
 - Be sure that you added GET url for in into your router

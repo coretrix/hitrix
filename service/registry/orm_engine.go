@@ -33,16 +33,13 @@ func ServiceProviderOrmEngine() *service.DefinitionGlobal {
 	}
 }
 
-func ServiceProviderOrmEngineForContext(enableGraphQLDataLoader bool) *service.DefinitionRequest {
+func ServiceProviderOrmEngineForContext() *service.DefinitionRequest {
 	return &service.DefinitionRequest{
 		Name: "orm_engine_request",
 		Build: func(c *gin.Context) (interface{}, error) {
 			ormConfigService := service.DI().OrmConfig()
 
 			ormEngine := ormConfigService.CreateEngine()
-			if enableGraphQLDataLoader {
-				ormEngine.EnableRequestCache()
-			}
 
 			configService := service.DI().Config()
 

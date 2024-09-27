@@ -3,8 +3,6 @@ package main
 import (
 	"testing"
 
-	"github.com/99designs/gqlgen/graphql"
-
 	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/example/rest/middleware"
 	"github.com/coretrix/hitrix/pkg/test"
@@ -16,7 +14,6 @@ import (
 func createContextMyApp(
 	t *testing.T,
 	projectName string, //nolint //`projectName` always receives `"my-app"`
-	resolvers graphql.ExecutableSchema, //nolint //`resolvers` always receives `nil`
 	mockGlobalServices []*service.DefinitionGlobal,
 	mockRequestServices []*service.DefinitionRequest, //nolint //`resolvers` always receives `nil`
 ) *test.Environment {
@@ -28,12 +25,11 @@ func createContextMyApp(
 	}
 
 	defaultRequestServices := []*service.DefinitionRequest{
-		registry.ServiceProviderOrmEngineForContext(false),
+		registry.ServiceProviderOrmEngineForContext(),
 	}
 
 	return test.CreateAPIContext(t,
 		projectName,
-		resolvers,
 		middleware.Router,
 		defaultGlobalServices,
 		defaultRequestServices,

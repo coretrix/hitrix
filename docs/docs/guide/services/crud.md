@@ -1,5 +1,5 @@
 # CRUD
-This service it gives you ability to build gql query and apply different query parameters to the query that should be
+This service it gives you ability to build query and apply different query parameters to the query that should be
 used in listing pages
 
 Register the service into your `main.go` file:
@@ -54,7 +54,7 @@ func columns() []crud.Column {
 ```
 
 ```go
-//listing request using by gql
+//listing request
 type ListRequest struct {
     Page     *int                   `json:"Page"`
     PageSize *int                   `json:"PageSize"`
@@ -70,7 +70,7 @@ cols := columns()
 
 crudService := service.DI().CrudService()
 
-searchParams := crudService.ExtractListParams(cols, crud.ListRequestConvertorFromGQL(userListRequest))
+searchParams := crudService.ExtractListParams(cols, userListRequest)
 query := crudService.GenerateListRedisSearchQuery(searchParams)
 
 ormService := ioc.GetOrmEngineFromContext(ctx)
@@ -87,7 +87,7 @@ for i, userEntity := range userEntities {
 return &model.UserList{
     Rows:    userEntityList,
     Total:   len(userEntityList),
-    Columns: crud.ColumnConvertorToGQL(cols),
+    Columns: cols,
     }, nil
 ```
 

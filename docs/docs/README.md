@@ -1,7 +1,7 @@
 # Introduction
 
-Hitrix is a web framework written in Go (Golang) and support Graphql and REST api.
-It is based on top of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](https://github.com/gin-gonic/gin)
+Hitrix is a web framework written in Go (Golang) and REST api.
+It is based on top of [Gin Framework](https://github.com/gin-gonic/gin)
 
 #### Why to choose Hitrix?
 Hitrix is combination between high performance and speed of development.
@@ -12,7 +12,7 @@ The only thing you need to do is to use Hitrix and deliver fast to the business
 
 Built-in features:
 
-* It supports all features of [Gqlgen](https://gqlgen.com/]) and [Gin Framework](https://github.com/gin-gonic/gin)
+* It supports all features of [Gin Framework](https://github.com/gin-gonic/gin)
 * Integrated with [ORM](https://github.com/latolukasz/beeorm)
 * Follows [Dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) pattern
 * Provides many DI services that makes your life easier. You can read more about them in our documentation
@@ -33,13 +33,7 @@ go get -u github.com/coretrix/hitrix
 
 
 ## Quick start
-1. Run next command into your project's main folder and the graph structure will be created
-```
-go run github.com/99designs/gqlgen init
-```
-
-
-2. Create `cmd` folder into your project and file called `main.go`
+1. Create `cmd` folder into your project and file called `main.go`
 
 Put the next code into the file:
 ```go
@@ -48,9 +42,6 @@ package main
 import (
 	"github.com/coretrix/hitrix"
 	"github.com/gin-gonic/gin"
-	
-	"your-project/graph" //path you your graph
-	"your-project/graph/generated" //path you your graph generated folder
 )
 
 func main() {
@@ -58,7 +49,7 @@ func main() {
 		"app-name", "your secret",
 	).Build()
     defer deferFunc()
-	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}),  func(ginEngine *gin.Engine) {
+	s.RunServer(9999,  func(ginEngine *gin.Engine) {
 		//here you can register all your middlewares
 	})
 }
@@ -74,8 +65,6 @@ import (
 	"github.com/coretrix/hitrix"
 	"github.com/coretrix/hitrix/service/registry"
 	"your-project/entity"
-	"your-project/graph"
-	"your-project/graph/generated"
 	"github.com/coretrix/hitrix/pkg/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -92,12 +81,12 @@ func main() {
 		registry.ServiceProviderJWT(), //register JWT DI service
 		registry.ServiceProviderPassword(password.NewSimpleManager), //register pasword DI service
 	).RegisterDIRequestService(
-		registry.ServiceProviderOrmEngineForContext(false), //register our ORM engine per context used in foreground processes 
+		registry.ServiceProviderOrmEngineForContext(), //register our ORM engine per context used in foreground processes 
 	).RegisterRedisPools(&app.RedisPools{Persistent: "your pool here"}).
     Build()
     defer deferFunc()
 
-	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}),  func(ginEngine *gin.Engine) {
+	s.RunServer(9999,  func(ginEngine *gin.Engine) {
 		middleware.Cors(ginEngine)
 	})
 }
@@ -122,7 +111,7 @@ Now I will explain the main.go file line by line
 
    2.8. Request DI ORM engine used in foreground processes
 3. We register redis pools. Those pools are used by different services as `authentication` service, `dev panel` and so on
-4. We run the server on port `9999`, pass graphql resolver and as third param we pass all middlewares we need.   
+4. We run the server on port `9999` and pass all middlewares we need.   
    As you can see in our example we register only Cors middleware
 
 

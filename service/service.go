@@ -26,7 +26,6 @@ import (
 	"github.com/coretrix/hitrix/service/component/generator"
 	"github.com/coretrix/hitrix/service/component/geocoding"
 	googleanalytics "github.com/coretrix/hitrix/service/component/google_analytics"
-	"github.com/coretrix/hitrix/service/component/gql"
 	"github.com/coretrix/hitrix/service/component/html2pdf"
 	"github.com/coretrix/hitrix/service/component/instagram"
 	"github.com/coretrix/hitrix/service/component/jwt"
@@ -93,7 +92,6 @@ const (
 	FeatureFlagService            = "feature_flag"
 	TemplateService               = "template"
 	TranslationService            = "translation"
-	GQLService                    = "gql"
 	ElorusService                 = "elorus"
 	InstagramService              = "instagram"
 	GoogleAnalyticsService        = "google_analytics"
@@ -255,10 +253,6 @@ func (d *DIContainer) FeatureFlag() featureflag.ServiceFeatureFlagInterface {
 
 func (d *DIContainer) Template() template.ITemplateInterface {
 	return GetServiceRequired(TemplateService).(template.ITemplateInterface)
-}
-
-func (d *DIContainer) Gql() gql.IGQLInterface {
-	return GetServiceRequired(GQLService).(gql.IGQLInterface)
 }
 
 func (d *DIContainer) Calendar() calendar.ICalendar {

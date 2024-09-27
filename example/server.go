@@ -5,8 +5,6 @@ import (
 
 	"github.com/coretrix/hitrix"
 	"github.com/coretrix/hitrix/example/entity"
-	"github.com/coretrix/hitrix/example/graph"
-	"github.com/coretrix/hitrix/example/graph/generated"
 	model "github.com/coretrix/hitrix/example/model/socket"
 	exampleOSS "github.com/coretrix/hitrix/example/oss"
 	exampleMiddleware "github.com/coretrix/hitrix/example/rest/middleware"
@@ -40,7 +38,7 @@ func main() {
 		registry.ServiceProviderSocketRegistry(eventHandlersMap),
 		registry.ServiceProviderOTP(nil),
 	).RegisterDIRequestService(
-		registry.ServiceProviderOrmEngineForContext(false),
+		registry.ServiceProviderOrmEngineForContext(),
 	).RegisterRedisPools(
 		&app.RedisPools{
 			Persistent: "default",
@@ -55,9 +53,9 @@ func main() {
 	b.RunAsyncOrmConsumer()
 	b.RunAsyncRequestLoggerCleaner()
 
-	s.RunServer(9999, generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}), func(ginEngine *gin.Engine) {
+	s.RunServer(9999, func(ginEngine *gin.Engine) {
 		middleware.RequestLogger(ginEngine, nil)
 		exampleMiddleware.Router(ginEngine)
 		middleware.Cors(ginEngine)
-	}, nil)
+	})
 }
