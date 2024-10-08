@@ -19,4 +19,5 @@ const (
 	FieldTypeBool        = "Bool"
 	FieldTypeCoordinates = "Coordinates"
 	FieldTypeDateTime    = "DateTime"
+	FieldTypePhoneNumber = "PhoneNumber"
 )
