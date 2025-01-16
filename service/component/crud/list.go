@@ -44,6 +44,7 @@ type Column struct {
 	TranslationDataEnabled            bool
 	FilterDependencyField             string                             `json:",omitempty"`
 	DataMapStringStringKeyStringValue map[string][]*StringKeyStringValue `json:",omitempty"`
+	DataMapIntIntKeyStringValue       map[uint64][]*IntKeyStringValue    `json:",omitempty"`
 	DataStringKeyStringValue          []*StringKeyStringValue            `json:",omitempty"`
 	DataIntKeyStringValue             []*IntKeyStringValue               `json:",omitempty"`
 }
@@ -121,6 +122,14 @@ func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.Translati
 
 			if col.DataMapStringStringKeyStringValue != nil {
 				for _, group := range col.DataMapStringStringKeyStringValue {
+					for _, row := range group {
+						row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
+					}
+				}
+			}
+
+			if col.DataMapIntIntKeyStringValue != nil {
+				for _, group := range col.DataMapIntIntKeyStringValue {
 					for _, row := range group {
 						row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
 					}
@@ -381,7 +390,11 @@ func groupColumnNamesByFilterType(cols []*Column, request *ListRequest) groupedF
 					mapStringStringFilters[column.Key] = column.DataStringKeyStringValue
 				}
 			case SelectTypeIntString:
-				mapIntStringFilters[column.Key] = column.DataIntKeyStringValue
+				if column.FilterDependencyField != "" {
+					mapIntStringFilters[column.Key] = fetchDependencyValueInt(column, cols, request)
+				} else {
+					mapIntStringFilters[column.Key] = column.DataIntKeyStringValue
+				}
 			case DateTimePickerTypeDateTime:
 				dateTimeFilters = append(dateTimeFilters, column.Key)
 			case DatePickerTypeDate:
@@ -414,7 +427,7 @@ func groupColumnNamesByFilterType(cols []*Column, request *ListRequest) groupedF
 func fetchDependencyValue(dependentCol *Column, cols []*Column, request *ListRequest) (bool, interface{}) {
 	for _, col := range cols {
 		if col.Key == dependentCol.FilterDependencyField {
-			if col.FilterType != SelectTypeStringString || dependentCol.FilterType != SelectTypeStringString {
+			if col.FilterType != SelectTypeStringString || dependentCol.FilterType != SelectTypeIntString {
 				return false, nil
 			}
 
@@ -448,6 +461,27 @@ func fetchDependencyValueString(dependentCol *Column, cols []*Column, request *L
 	}
 
 	values, exists := dependentCol.DataMapStringStringKeyStringValue[value]
+
+	if exists {
+		return values
+	}
+
+	return nil
+}
+
+func fetchDependencyValueInt(dependentCol *Column, cols []*Column, request *ListRequest) []*IntKeyStringValue {
+	found, v := fetchDependencyValue(dependentCol, cols, request)
+	if !found {
+		return nil
+	}
+
+	value, ok := v.(uint64)
+
+	if !ok {
+		return nil
+	}
+
+	values, exists := dependentCol.DataMapIntIntKeyStringValue[value]
 
 	if exists {
 		return values
