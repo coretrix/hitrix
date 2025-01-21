@@ -427,7 +427,7 @@ func groupColumnNamesByFilterType(cols []*Column, request *ListRequest) groupedF
 func fetchDependencyValue(dependentCol *Column, cols []*Column, request *ListRequest) (bool, interface{}) {
 	for _, col := range cols {
 		if col.Key == dependentCol.FilterDependencyField {
-			if col.FilterType != SelectTypeStringString || dependentCol.FilterType != SelectTypeIntString {
+			if col.FilterType != SelectTypeStringString && dependentCol.FilterType != SelectTypeIntString {
 				return false, nil
 			}
 
