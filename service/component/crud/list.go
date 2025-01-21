@@ -475,14 +475,12 @@ func fetchDependencyValueInt(dependentCol *Column, cols []*Column, request *List
 		return nil
 	}
 
-	value, ok := v.(uint64)
-
+	value, ok := v.(float64)
 	if !ok {
 		return nil
 	}
 
-	values, exists := dependentCol.DataMapIntIntKeyStringValue[value]
-
+	values, exists := dependentCol.DataMapIntIntKeyStringValue[uint64(value)]
 	if exists {
 		return values
 	}
