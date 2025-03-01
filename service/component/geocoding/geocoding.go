@@ -2,6 +2,8 @@ package geocoding
 
 import (
 	"context"
+	"googlemaps.github.io/maps"
+
 	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive, but just fine for caching
 	"crypto/md5"
 	"crypto/rand"
@@ -19,6 +21,7 @@ import (
 )
 
 type IGeocoding interface {
+	SnapToRoad(ctx context.Context, dto *maps.SnapToRoadRequest) (*maps.SnapToRoadResponse, error)
 	Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language Language) (*Address, error)
 	ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language Language) (*Address, error)
 	CutCoordinates(float float64, precision int) (float64, error)
@@ -59,6 +62,10 @@ func NewGeocoding(
 		clock:           clock,
 		provider:        provider,
 	}
+}
+
+func (g *Geocoding) SnapToRoad(ctx context.Context, dto *maps.SnapToRoadRequest) (*maps.SnapToRoadResponse, error) {
+	return g.provider.SnapToRoad(ctx, dto)
 }
 
 func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language Language) (*Address, error) {
