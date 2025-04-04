@@ -101,8 +101,10 @@ type Crud struct {
 
 func (c *Crud) TranslateColumns(ormService *datalayer.ORM, lang entity.TranslationTextLang, cols []*Column) []*Column {
 	for _, col := range cols {
-		col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
-
+		if col.Visible {
+			col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
+		}
+		
 		if col.TranslationDataEnabled {
 			if col.DataIntKeyStringValue != nil {
 				for _, row := range col.DataIntKeyStringValue {
