@@ -367,7 +367,10 @@ func (c *Crud) groupColumnNamesByFilterType(cols []*Column, request *ListRequest
 	var rangeDateFilters = make([]string, 0)
 	var sortables = make([]string, 0)
 
+	c.cols = map[string]Column{}
+
 	for _, column := range cols {
+
 		c.cols[column.Key] = *column
 
 		if column.Sortable {
