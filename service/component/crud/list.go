@@ -42,11 +42,13 @@ type Column struct {
 	Sortable                          bool
 	Visible                           bool
 	TranslationDataEnabled            bool
-	FilterDependencyField             string                             `json:",omitempty"`
-	DataMapStringStringKeyStringValue map[string][]*StringKeyStringValue `json:",omitempty"`
-	DataMapIntIntKeyStringValue       map[uint64][]*IntKeyStringValue    `json:",omitempty"`
-	DataStringKeyStringValue          []*StringKeyStringValue            `json:",omitempty"`
-	DataIntKeyStringValue             []*IntKeyStringValue               `json:",omitempty"`
+	Normalize                         func(value interface{}) interface{} `json:"-"`
+	FullTextSearch                    bool                                `json:"-"`
+	FilterDependencyField             string                              `json:",omitempty"`
+	DataMapStringStringKeyStringValue map[string][]*StringKeyStringValue  `json:",omitempty"`
+	DataMapIntIntKeyStringValue       map[uint64][]*IntKeyStringValue     `json:",omitempty"`
+	DataStringKeyStringValue          []*StringKeyStringValue             `json:",omitempty"`
+	DataIntKeyStringValue             []*IntKeyStringValue                `json:",omitempty"`
 }
 
 type IntKeyStringValue struct {
@@ -101,6 +103,7 @@ type groupedFilterTypes struct {
 type Crud struct {
 	ExportConfigs      []ExportConfig
 	TranslationService translation.ITranslationService
+	cols               map[string]Column
 }
 
 func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []*Column) []*Column {
@@ -153,7 +156,7 @@ func (c *Crud) ExtractListParams(cols []*Column, request *ListRequest) SearchPar
 		finalPageSize = *request.PageSize
 	}
 
-	filterTypes := groupColumnNamesByFilterType(cols, request)
+	filterTypes := c.groupColumnNamesByFilterType(cols, request)
 
 	var selectedMapStringStringFilters = make(map[string]string)
 	var selectedStringStartsWithFilters = make(map[string]string)
@@ -349,7 +352,7 @@ mainLoop:
 	}
 }
 
-func groupColumnNamesByFilterType(cols []*Column, request *ListRequest) groupedFilterTypes {
+func (c *Crud) groupColumnNamesByFilterType(cols []*Column, request *ListRequest) groupedFilterTypes {
 	var stringStartsWithSearch = make([]string, 0)
 	var arrayStringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
@@ -365,6 +368,8 @@ func groupColumnNamesByFilterType(cols []*Column, request *ListRequest) groupedF
 	var sortables = make([]string, 0)
 
 	for _, column := range cols {
+		c.cols[column.Key] = *column
+
 		if column.Sortable {
 			sortables = append(sortables, column.Key)
 		}
@@ -524,7 +529,18 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 	}
 
 	for field, value := range params.StringFilters {
-		query.QueryFieldPrefixMatch(field, value)
+		if c.cols[field].Normalize != nil {
+			value = c.cols[field].Normalize(value).(string)
+		}
+
+		if c.cols[field].FullTextSearch {
+			query.QueryRaw(fmt.Sprintf(
+				"@%s:*%v* ",
+				field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
+			))
+		} else {
+			query.QueryFieldPrefixMatch(field, value)
+		}
 	}
 
 	for field, value := range params.ArrayStringFilters {
