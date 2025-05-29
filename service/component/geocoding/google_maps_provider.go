@@ -18,11 +18,11 @@ func NewGoogleMapsProvider(apiKey string) Provider {
 	return &GoogleMapsProvider{client: client}
 }
 
-func (g *GoogleMapsProvider) Geocode(ctx context.Context, address string, language Language) (*Address, interface{}, error) {
+func (g *GoogleMapsProvider) Geocode(ctx context.Context, address string, language string) (*Address, interface{}, error) {
 	response, err := g.client.Geocode(
 		ctx,
 		&maps.GeocodingRequest{
-			Language: string(language),
+			Language: language,
 			Address:  address,
 		})
 	if err != nil {
@@ -51,11 +51,11 @@ func (g *GoogleMapsProvider) Geocode(ctx context.Context, address string, langua
 	}, response, nil
 }
 
-func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng, language Language) (*Address, interface{}, error) {
+func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng, language string) (*Address, interface{}, error) {
 	response, err := g.client.ReverseGeocode(
 		ctx,
 		&maps.GeocodingRequest{
-			Language: string(language),
+			Language: language,
 			LatLng: &maps.LatLng{
 				Lat: latLng.Lat,
 				Lng: latLng.Lng,
