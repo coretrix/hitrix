@@ -22,8 +22,8 @@ import (
 
 type IGeocoding interface {
 	SnapToRoad(ctx context.Context, dto *maps.SnapToRoadRequest) (*maps.SnapToRoadResponse, error)
-	Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language Language) (*Address, error)
-	ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language Language) (*Address, error)
+	Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language string) (*Address, error)
+	ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string) (*Address, error)
 	CutCoordinates(float float64, precision int) (float64, error)
 }
 
@@ -31,7 +31,7 @@ type Address struct {
 	Found     bool
 	FromCache bool
 	Address   string
-	Language  Language
+	Language  string
 	Location  *LatLng
 }
 
@@ -68,12 +68,7 @@ func (g *Geocoding) SnapToRoad(ctx context.Context, dto *maps.SnapToRoadRequest)
 	return g.provider.SnapToRoad(ctx, dto)
 }
 
-func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language Language) (*Address, error) {
-	languageEnum, ok := languageToEnumMapping[language]
-	if !ok {
-		return nil, fmt.Errorf("language %s not supported", language)
-	}
-
+func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language string) (*Address, error) {
 	address = strings.TrimSpace(address)
 
 	if g.useCaching {
@@ -83,7 +78,7 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 				Found:     true,
 				FromCache: true,
 				Address:   address,
-				Language:  Language(geocodingEntity.Language),
+				Language:  geocodingEntity.Language,
 				Location: &LatLng{
 					Lat: geocodingEntity.Lat,
 					Lng: geocodingEntity.Lng,
@@ -105,7 +100,7 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 			Lng:         geocodedAddress.Location.Lng,
 			Address:     address,
 			AddressHash: g.getAddressHash(address),
-			Language:    languageEnum,
+			Language:    language,
 			Provider:    g.provider.GetName(),
 			RawResponse: providerRawResponse,
 			ExpiresAt:   now.Add(time.Duration(g.getCacheTTL(g.cacheTTLMinDays, g.cacheTTLMaxDays)) * time.Hour * 24),
@@ -116,12 +111,7 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 	return geocodedAddress, nil
 }
 
-func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language Language) (*Address, error) {
-	languageEnum, ok := languageToEnumMapping[language]
-	if !ok {
-		return nil, fmt.Errorf("language %s not supported", language)
-	}
-
+func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string) (*Address, error) {
 	cacheLat := latLng.Lat
 	cacheLng := latLng.Lng
 
@@ -146,7 +136,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 				Found:     true,
 				FromCache: true,
 				Address:   ReverseGeocodingCacheEntity.Address,
-				Language:  Language(ReverseGeocodingCacheEntity.Language),
+				Language:  ReverseGeocodingCacheEntity.Language,
 				Location: &LatLng{
 					Lat: ReverseGeocodingCacheEntity.Lat,
 					Lng: ReverseGeocodingCacheEntity.Lng,
@@ -167,7 +157,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 			Lat:         cacheLat,
 			Lng:         cacheLng,
 			Address:     strings.TrimSpace(geocodedAddress.Address),
-			Language:    languageEnum,
+			Language:    language,
 			Provider:    g.provider.GetName(),
 			RawResponse: providerRawResponse,
 			ExpiresAt:   now.Add(time.Duration(g.getCacheTTL(g.cacheTTLMinDays, g.cacheTTLMaxDays)) * time.Hour * 24),
