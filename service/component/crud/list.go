@@ -47,6 +47,7 @@ type Column struct {
 	FilterDependencyField             string                              `json:",omitempty"`
 	DataMapStringStringKeyStringValue map[string][]*StringKeyStringValue  `json:",omitempty"`
 	DataMapIntIntKeyStringValue       map[uint64][]*IntKeyStringValue     `json:",omitempty"`
+	DataMapStringIntKeyStringValue    map[string][]*IntKeyStringValue     `json:",omitempty"`
 	DataStringKeyStringValue          []*StringKeyStringValue             `json:",omitempty"`
 	DataIntKeyStringValue             []*IntKeyStringValue                `json:",omitempty"`
 }
@@ -133,6 +134,14 @@ func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.Translati
 
 			if col.DataMapIntIntKeyStringValue != nil {
 				for _, group := range col.DataMapIntIntKeyStringValue {
+					for _, row := range group {
+						row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
+					}
+				}
+			}
+
+			if col.DataMapStringIntKeyStringValue != nil {
+				for _, group := range col.DataMapStringIntKeyStringValue {
 					for _, row := range group {
 						row.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(row.Label))
 					}
@@ -483,14 +492,30 @@ func fetchDependencyValueInt(dependentCol *Column, cols []*Column, request *List
 		return nil
 	}
 
-	value, ok := v.(float64)
-	if !ok {
-		return nil
+	if dependentCol.DataMapIntIntKeyStringValue != nil {
+
+		value, ok := v.(float64)
+		if !ok {
+			return nil
+		}
+
+		values, exists := dependentCol.DataMapIntIntKeyStringValue[uint64(value)]
+		if exists {
+			return values
+		}
 	}
 
-	values, exists := dependentCol.DataMapIntIntKeyStringValue[uint64(value)]
-	if exists {
-		return values
+	if dependentCol.DataMapStringIntKeyStringValue != nil {
+
+		value, ok := v.(string)
+		if !ok {
+			return nil
+		}
+
+		values, exists := dependentCol.DataMapStringIntKeyStringValue[value]
+		if exists {
+			return values
+		}
 	}
 
 	return nil
