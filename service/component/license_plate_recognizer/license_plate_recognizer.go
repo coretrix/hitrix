@@ -1,5 +1,5 @@
 package licenseplaterecognizer
 
 type LicensePlateRecognizer interface {
-	RecognizeFromImage(base64image string) ([]string, error)
+	RecognizeFromImage(base64image string, mainRegion string) ([]string, error)
 }

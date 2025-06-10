@@ -17,10 +17,13 @@ func NewPlateRecognizer(apiKey string) LicensePlateRecognizer {
 	return &PlateRecognizer{APIKey: apiKey}
 }
 
-func (pr *PlateRecognizer) RecognizeFromImage(base64image string) ([]string, error) {
+func (pr *PlateRecognizer) RecognizeFromImage(base64image string, mainRegion string) ([]string, error) {
 	form := url.Values{}
 	form.Add("upload", base64image)
-	form.Add("regions", "bg")
+
+	if mainRegion != "" {
+		form.Add("regions", mainRegion)
+	}
 
 	req, err := http.NewRequest("POST", "https://api.platerecognizer.com/v1/plate-reader/", strings.NewReader(form.Encode()))
 	if err != nil {
