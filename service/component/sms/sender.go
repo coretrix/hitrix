@@ -7,7 +7,6 @@ import (
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
-	"github.com/coretrix/hitrix/service/component/config"
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 )
 
@@ -16,11 +15,12 @@ type ISender interface {
 }
 
 type Sender struct {
-	ConfigService      config.IConfig
 	ClockService       clock.IClock
 	ErrorLoggerService errorlogger.ErrorLogger
 	PrimaryProvider    IProvider
 	SecondaryProvider  IProvider
+	SandboxMode        bool
+	TrackerEnabled     bool
 }
 
 func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error {
@@ -36,29 +36,26 @@ func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error 
 	}
 
 	if primaryProvider == nil {
-		return fmt.Errorf("primary provider not supported")
+		return fmt.Errorf("primary provider not defined")
 	}
 
-	smsTrackerEntity := &entity.SmsTrackerEntity{}
-	smsTrackerEntity.SetTo(message.Number)
-	smsTrackerEntity.SetType(entity.SMSTrackerTypeSMS)
-	smsTrackerEntity.SetText(message.Text)
-	smsTrackerEntity.SetFromPrimaryProvider(primaryProvider.GetName())
-	smsTrackerEntity.SetSentAt(s.ClockService.Now())
+	smsTrackerEntity := entity.SmsTrackerEntity{}
+	smsTrackerEntity.To = message.Number
+	smsTrackerEntity.Type = entity.SMSTrackerTypeSMS
+	smsTrackerEntity.Text = message.Text
+	smsTrackerEntity.FromPrimaryGateway = primaryProvider.GetName()
+	smsTrackerEntity.SentAt = s.ClockService.Now()
 
 	trySecondaryProvider := false
-
-	sandBoxMode, _ := s.ConfigService.Bool("sms.sandbox_mode")
-
 	var status string
 	var err error
 
-	if !sandBoxMode {
+	if !s.SandboxMode {
 		status, err = primaryProvider.SendSMSMessage(message)
 		if err != nil {
 			trySecondaryProvider = true
 
-			smsTrackerEntity.SetPrimaryProviderError(err.Error())
+			smsTrackerEntity.PrimaryGatewayError = err.Error()
 			s.ErrorLoggerService.LogError(err)
 		}
 	} else {
@@ -66,18 +63,20 @@ func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error 
 	}
 
 	if trySecondaryProvider && secondaryProvider != nil {
-		smsTrackerEntity.SetFromSecondaryProvider(secondaryProvider.GetName())
+		smsTrackerEntity.FromSecondaryGateway = secondaryProvider.GetName()
 
 		status, err = secondaryProvider.SendSMSMessage(message)
 		if err != nil {
-			smsTrackerEntity.SetSecondaryProviderError(err.Error())
+			smsTrackerEntity.SecondaryGatewayError = err.Error()
 			s.ErrorLoggerService.LogError(err)
 		}
 	}
 
-	smsTrackerEntity.SetStatus(status)
-	logger := NewSmsLog(ormService, smsTrackerEntity)
-	logger.Do()
+	smsTrackerEntity.Status = status
+
+	if s.TrackerEnabled {
+		ormService.Flush(&smsTrackerEntity)
+	}
 
 	if status != success {
 		return fmt.Errorf("sending sms failed")

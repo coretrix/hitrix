@@ -26,10 +26,14 @@ func ServiceProviderSMS(primaryNewFunc sms.NewProviderFunc, secondaryNewFunc sms
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 			clockService := ctn.Get(service.ClockService).(clock.IClock)
 
+			sandBoxMode, _ := configService.Bool("sms.sandbox_mode")
+			trackerEnabled, _ := configService.Bool("sms.tracker_enabled")
+
 			sender := &sms.Sender{
-				ConfigService:      configService,
 				ClockService:       clockService,
 				ErrorLoggerService: ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger),
+				SandboxMode:        sandBoxMode,
+				TrackerEnabled:     trackerEnabled,
 			}
 
 			var err error

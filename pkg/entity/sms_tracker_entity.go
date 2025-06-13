@@ -34,39 +34,3 @@ type SmsTrackerEntity struct {
 	Type                  string    `orm:"enum=entity.SMSTrackerTypeAll;required"`
 	SentAt                time.Time `orm:"time"`
 }
-
-func (s *SmsTrackerEntity) SetStatus(status string) {
-	s.Status = status
-}
-
-func (s *SmsTrackerEntity) SetTo(to string) {
-	s.To = to
-}
-
-func (s *SmsTrackerEntity) SetText(text string) {
-	s.Text = text
-}
-
-func (s *SmsTrackerEntity) SetFromPrimaryProvider(primary string) {
-	s.FromPrimaryGateway = primary
-}
-
-func (s *SmsTrackerEntity) SetFromSecondaryProvider(secondary string) {
-	s.FromSecondaryGateway = secondary
-}
-
-func (s *SmsTrackerEntity) SetPrimaryProviderError(primaryError string) {
-	s.PrimaryGatewayError = primaryError
-}
-
-func (s *SmsTrackerEntity) SetSecondaryProviderError(secondaryError string) {
-	s.SecondaryGatewayError = secondaryError
-}
-
-func (s *SmsTrackerEntity) SetType(typ string) {
-	s.Type = typ
-}
-
-func (s *SmsTrackerEntity) SetSentAt(sendAt time.Time) {
-	s.SentAt = sendAt
-}
