@@ -20,7 +20,7 @@ func TestPlateRecognizerRecognizeFromImage(t *testing.T) {
 	want := []string{"BP9716CX"}
 
 	plateRecognizer := NewPlateRecognizer("7e1e7d418814c67da456418f87e66e03d7591b49")
-	got, err := plateRecognizer.RecognizeFromImage(encoded)
+	got, err := plateRecognizer.RecognizeFromImage(encoded, "bg")
 
 	assert.Nil(t, err)
 	assert.Equal(t, want, got)
