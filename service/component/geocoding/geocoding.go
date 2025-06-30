@@ -177,6 +177,8 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 
 				return geocodedAddress, nil
 			}
+
+			panic(err)
 		}
 	}
 
