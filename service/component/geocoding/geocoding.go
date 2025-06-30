@@ -169,7 +169,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 		if err != nil {
 			var duplicateKeyError *beeorm.DuplicatedKeyError
 			if errors.As(err, &duplicateKeyError) {
-				if duplicateKeyError.Index != "Lat_Lng_Language" {
+				if duplicateKeyError.Index != "geocoding_reverse_cache.Lat_Lng_Language" {
 					panic(err)
 				}
 
