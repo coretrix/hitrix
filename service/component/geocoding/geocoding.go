@@ -2,6 +2,7 @@ package geocoding
 
 import (
 	"context"
+	"errors"
 	"googlemaps.github.io/maps"
 
 	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive, but just fine for caching
@@ -127,19 +128,19 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 		if err != nil {
 			return nil, err
 		}
-	}
 
-	if g.useCaching {
-		ReverseGeocodingCacheEntity := &entity.GeocodingReverseCacheEntity{}
-		if ormService.CachedSearchOne(ReverseGeocodingCacheEntity, "CachedQueryLatLngLanguage", cacheLat, cacheLng, language) {
+		reverseGeocodingCacheEntity := &entity.GeocodingReverseCacheEntity{}
+
+		found := ormService.CachedSearchOne(reverseGeocodingCacheEntity, "CachedQueryLatLngLanguage", cacheLat, cacheLng, language)
+		if found {
 			return &Address{
 				Found:     true,
 				FromCache: true,
-				Address:   ReverseGeocodingCacheEntity.Address,
-				Language:  ReverseGeocodingCacheEntity.Language,
+				Address:   reverseGeocodingCacheEntity.Address,
+				Language:  reverseGeocodingCacheEntity.Language,
 				Location: &LatLng{
-					Lat: ReverseGeocodingCacheEntity.Lat,
-					Lng: ReverseGeocodingCacheEntity.Lng,
+					Lat: reverseGeocodingCacheEntity.Lat,
+					Lng: reverseGeocodingCacheEntity.Lng,
 				},
 			}, nil
 		}
@@ -153,7 +154,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 	if g.useCaching && geocodedAddress.Found {
 		now := g.clock.Now()
 
-		ormService.Flush(&entity.GeocodingReverseCacheEntity{
+		err := ormService.FlushWithCheck(&entity.GeocodingReverseCacheEntity{
 			Lat:         cacheLat,
 			Lng:         cacheLng,
 			Address:     strings.TrimSpace(geocodedAddress.Address),
@@ -163,6 +164,20 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 			ExpiresAt:   now.Add(time.Duration(g.getCacheTTL(g.cacheTTLMinDays, g.cacheTTLMaxDays)) * time.Hour * 24),
 			CreatedAt:   now,
 		})
+
+		//TODO Krasi: needed due to issue when localCache and redisCache used together
+		if err != nil {
+			var duplicateKeyError *beeorm.DuplicatedKeyError
+			if errors.As(err, &duplicateKeyError) {
+				if duplicateKeyError.Index != "Lat_Lng_Language" {
+					panic(err)
+				}
+
+				geocodedAddress.Found = true
+
+				return geocodedAddress, nil
+			}
+		}
 	}
 
 	return geocodedAddress, nil
