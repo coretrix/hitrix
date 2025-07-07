@@ -346,6 +346,32 @@ func (t *Authentication) RefreshToken(ormService *beeorm.Engine, refreshToken st
 	return newAccessToken, newRefreshToken, err
 }
 
+func (t *Authentication) RefreshTokenTemporary(refreshToken string) (newAccessToken string, newRefreshToken string, err error) {
+	payload, err := t.jwtService.VerifyJWTAndGetPayload(t.secret, refreshToken, t.clockService.Now().Unix())
+	if err != nil {
+		return "", "", err
+	}
+
+	id, err := strconv.ParseUint(payload["sub"], 10, 64)
+	if err != nil {
+		return "", "", err
+	}
+
+	newAccessKey := generateAccessKey(id, t.uuidService.Generate())
+
+	newAccessToken, err = t.GenerateTokenPair(id, newAccessKey, t.accessTokenTTL)
+	if err != nil {
+		return "", "", err
+	}
+
+	newRefreshToken, err = t.GenerateTokenPair(id, newAccessKey, t.refreshTokenTTL)
+	if err != nil {
+		return "", "", err
+	}
+
+	return newAccessToken, newRefreshToken, err
+}
+
 func (t *Authentication) LogoutCurrentSession(ormService *beeorm.Engine, accessKey string) {
 	cacheService := ormService.GetRedis(t.appService.RedisPools.Persistent)
 
@@ -439,11 +465,9 @@ func (t *Authentication) addUserAccessKeyList(ormService *beeorm.Engine, id uint
 	var finalTokenArr = make([]string, 0)
 	finalTokenArr = append(finalTokenArr, accessKey)
 
-	if oldAccessKey != "" {
-		for i := range currentTokenArr {
-			if currentTokenArr[i] != oldAccessKey {
-				finalTokenArr = append(finalTokenArr, currentTokenArr[i])
-			}
+	for i := range currentTokenArr {
+		if currentTokenArr[i] != oldAccessKey {
+			finalTokenArr = append(finalTokenArr, currentTokenArr[i])
 		}
 	}
 
