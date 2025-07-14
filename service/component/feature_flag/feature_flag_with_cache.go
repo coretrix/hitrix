@@ -49,12 +49,9 @@ func (s *serviceFeatureFlagWithCache) IsActive(ormService *beeorm.Engine, name s
 		}
 	}
 
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterString("Name", name)
-
 	featureFlagEntity := &entity.FeatureFlagEntity{}
 
-	found := ormService.RedisSearchOne(featureFlagEntity, query)
+	found := ormService.CachedSearchOne(featureFlagEntity, "CachedQueryName", name)
 	if !found {
 		return false
 	}

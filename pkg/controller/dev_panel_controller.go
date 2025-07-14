@@ -408,9 +408,8 @@ func (controller *DevPanelController) PostRedisSearchIndexInfo(c *gin.Context) {
 func (controller *DevPanelController) GetFeatureFlags(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	query := beeorm.NewRedisSearchQuery()
 	var featureFlagEntities []*entity.FeatureFlagEntity
-	ormService.RedisSearch(&featureFlagEntities, query, beeorm.NewPager(1, 1000))
+	ormService.CachedSearch(&featureFlagEntities, "CachedQueryAll", beeorm.NewPager(1, 1000))
 
 	type feature struct {
 		Name       string

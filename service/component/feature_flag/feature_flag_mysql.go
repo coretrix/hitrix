@@ -37,12 +37,9 @@ func (s *serviceFeatureFlag) IsActive(ormService *beeorm.Engine, name string) bo
 		panic("name cannot be empty")
 	}
 
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterString("Name", name)
-
 	featureFlagEntity := &entity.FeatureFlagEntity{}
 
-	found := ormService.RedisSearchOne(featureFlagEntity, query)
+	found := ormService.CachedSearchOne(featureFlagEntity, "CachedQueryName", name)
 	if !found {
 		return false
 	}
@@ -64,12 +61,9 @@ func (s *serviceFeatureFlag) Enable(ormService *beeorm.Engine, name string) erro
 		panic("name cannot be empty")
 	}
 
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterString("Name", name)
-
 	featureFlagEntity := &entity.FeatureFlagEntity{}
 
-	found := ormService.RedisSearchOne(featureFlagEntity, query)
+	found := ormService.CachedSearchOne(featureFlagEntity, "CachedQueryName", name)
 	if !found {
 		return errors.New("feature cannot be found")
 	}
@@ -85,12 +79,9 @@ func (s *serviceFeatureFlag) Disable(ormService *beeorm.Engine, name string) err
 		panic("name cannot be empty")
 	}
 
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterString("Name", name)
-
 	featureFlagEntity := &entity.FeatureFlagEntity{}
 
-	found := ormService.RedisSearchOne(featureFlagEntity, query)
+	found := ormService.CachedSearchOne(featureFlagEntity, "CachedQueryName", name)
 	if !found {
 		return errors.New("feature cannot be found")
 	}
@@ -102,12 +93,9 @@ func (s *serviceFeatureFlag) Disable(ormService *beeorm.Engine, name string) err
 }
 
 func (s *serviceFeatureFlag) getAllActive(ormService *beeorm.Engine, pager *beeorm.Pager) []IFeatureFlag {
-	query := beeorm.NewRedisSearchQuery()
-	query.FilterBool("Registered", true)
-	query.FilterBool("Enabled", true)
-
 	var featureFlagEntities []*entity.FeatureFlagEntity
 	ormService.RedisSearch(&featureFlagEntities, query, pager)
+	ormService.CachedSearch(&featureFlagEntities, "CachedQueryRegisteredEnabled", pager, true, true)
 
 	activeFeatureFlags := make([]IFeatureFlag, 0)
 
