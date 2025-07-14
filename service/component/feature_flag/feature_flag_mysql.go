@@ -94,7 +94,6 @@ func (s *serviceFeatureFlag) Disable(ormService *beeorm.Engine, name string) err
 
 func (s *serviceFeatureFlag) getAllActive(ormService *beeorm.Engine, pager *beeorm.Pager) []IFeatureFlag {
 	var featureFlagEntities []*entity.FeatureFlagEntity
-	ormService.RedisSearch(&featureFlagEntities, query, pager)
 	ormService.CachedSearch(&featureFlagEntities, "CachedQueryRegisteredEnabled", pager, true, true)
 
 	activeFeatureFlags := make([]IFeatureFlag, 0)
