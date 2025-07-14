@@ -16,6 +16,6 @@ type FeatureFlagEntity struct {
 	CreatedAt  time.Time  `orm:"time=true"`
 
 	CachedQueryAll               *beeorm.CachedQuery `query:"1 ORDER BY ID"`
-	CachedQueryName              *beeorm.CachedQuery `queryOne:"Name = ?"`
-	CachedQueryRegisteredEnabled *beeorm.CachedQuery `query:"Registered = ? AND Enabled = ?"`
+	CachedQueryName              *beeorm.CachedQuery `queryOne:":Name = ?"`
+	CachedQueryRegisteredEnabled *beeorm.CachedQuery `query:":Registered = ? AND :Enabled = ?"`
 }
