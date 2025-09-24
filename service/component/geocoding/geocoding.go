@@ -111,7 +111,7 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 			CreatedAt:   now,
 		}
 
-		administrativeAreaL1, cityName := g.extractRegionAndCity(providerRawResponse.(maps.GeocodingResult))
+		administrativeAreaL1, cityName := g.extractRegionAndCity(providerRawResponse.([]maps.GeocodingResult))
 		geocodingCacheEntity.AdministrativeAreaLevel1 = administrativeAreaL1
 		geocodingCacheEntity.CityName = cityName
 
@@ -176,7 +176,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 			CreatedAt:   now,
 		}
 
-		administrativeAreaL1, cityName := g.extractRegionAndCity(providerRawResponse.(maps.GeocodingResult))
+		administrativeAreaL1, cityName := g.extractRegionAndCity(providerRawResponse.([]maps.GeocodingResult))
 		geocodingReverseCacheEntity.AdministrativeAreaLevel1 = administrativeAreaL1
 		geocodingReverseCacheEntity.CityName = cityName
 
@@ -202,14 +202,16 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 	return geocodedAddress, nil
 }
 
-func (g *Geocoding) extractRegionAndCity(result maps.GeocodingResult) (region, city string) {
-	for _, comp := range result.AddressComponents {
-		for _, t := range comp.Types {
-			switch t {
-			case "administrative_area_level_1":
-				region = comp.LongName
-			case "locality":
-				city = comp.LongName
+func (g *Geocoding) extractRegionAndCity(results []maps.GeocodingResult) (region, city string) {
+	for _, result := range results {
+		for _, comp := range result.AddressComponents {
+			for _, t := range comp.Types {
+				switch t {
+				case "administrative_area_level_1":
+					region = comp.LongName
+				case "locality":
+					city = comp.LongName
+				}
 			}
 		}
 	}
