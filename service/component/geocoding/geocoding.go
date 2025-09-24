@@ -100,25 +100,20 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 		now := g.clock.Now()
 
 		geocodingCacheEntity := &entity.GeocodingCacheEntity{
-			Lat:                      geocodedAddress.Location.Lat,
-			Lng:                      geocodedAddress.Location.Lng,
-			AdministrativeAreaLevel1: address,
-			Address:                  address,
-			AddressHash:              g.getAddressHash(address),
-			Language:                 language,
-			Provider:                 g.provider.GetName(),
-			RawResponse:              providerRawResponse,
-			ExpiresAt:                now.Add(time.Duration(g.getCacheTTL(g.cacheTTLMinDays, g.cacheTTLMaxDays)) * time.Hour * 24),
-			CreatedAt:                now,
+			Lat:         geocodedAddress.Location.Lat,
+			Lng:         geocodedAddress.Location.Lng,
+			Address:     address,
+			AddressHash: g.getAddressHash(address),
+			Language:    language,
+			Provider:    g.provider.GetName(),
+			RawResponse: providerRawResponse,
+			ExpiresAt:   now.Add(time.Duration(g.getCacheTTL(g.cacheTTLMinDays, g.cacheTTLMaxDays)) * time.Hour * 24),
+			CreatedAt:   now,
 		}
 
-		if administrativeAreaL1, ok := providerRawResponse.(maps.GeocodingRequest).Components[maps.ComponentAdministrativeArea]; ok {
-			geocodingCacheEntity.AdministrativeAreaLevel1 = administrativeAreaL1
-		}
-
-		if locality, ok := providerRawResponse.(maps.GeocodingRequest).Components[maps.ComponentLocality]; ok {
-			geocodingCacheEntity.CityName = locality
-		}
+		administrativeAreaL1, cityName := g.extractRegionAndCity(providerRawResponse.(maps.GeocodingResult))
+		geocodingCacheEntity.AdministrativeAreaLevel1 = administrativeAreaL1
+		geocodingCacheEntity.CityName = cityName
 
 		ormService.Flush(geocodingCacheEntity)
 	}
@@ -148,10 +143,12 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 		found := ormService.CachedSearchOne(reverseGeocodingCacheEntity, "CachedQueryLatLngLanguage", cacheLat, cacheLng, language)
 		if found {
 			return &Address{
-				Found:     true,
-				FromCache: true,
-				Address:   reverseGeocodingCacheEntity.Address,
-				Language:  reverseGeocodingCacheEntity.Language,
+				Found:                    true,
+				FromCache:                true,
+				AdministrativeAreaLevel1: reverseGeocodingCacheEntity.AdministrativeAreaLevel1,
+				CityName:                 reverseGeocodingCacheEntity.CityName,
+				Address:                  reverseGeocodingCacheEntity.Address,
+				Language:                 reverseGeocodingCacheEntity.Language,
 				Location: &LatLng{
 					Lat: reverseGeocodingCacheEntity.Lat,
 					Lng: reverseGeocodingCacheEntity.Lng,
@@ -168,7 +165,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 	if g.useCaching && geocodedAddress.Found {
 		now := g.clock.Now()
 
-		err := ormService.FlushWithCheck(&entity.GeocodingReverseCacheEntity{
+		geocodingReverseCacheEntity := &entity.GeocodingReverseCacheEntity{
 			Lat:         cacheLat,
 			Lng:         cacheLng,
 			Address:     strings.TrimSpace(geocodedAddress.Address),
@@ -177,7 +174,13 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 			RawResponse: providerRawResponse,
 			ExpiresAt:   now.Add(time.Duration(g.getCacheTTL(g.cacheTTLMinDays, g.cacheTTLMaxDays)) * time.Hour * 24),
 			CreatedAt:   now,
-		})
+		}
+
+		administrativeAreaL1, cityName := g.extractRegionAndCity(providerRawResponse.(maps.GeocodingResult))
+		geocodingReverseCacheEntity.AdministrativeAreaLevel1 = administrativeAreaL1
+		geocodingReverseCacheEntity.CityName = cityName
+
+		err := ormService.FlushWithCheck()
 
 		//TODO Krasi: needed due to issue when localCache and redisCache used together
 		if err != nil {
@@ -197,6 +200,21 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 	}
 
 	return geocodedAddress, nil
+}
+
+func (g *Geocoding) extractRegionAndCity(result maps.GeocodingResult) (region, city string) {
+	for _, comp := range result.AddressComponents {
+		for _, t := range comp.Types {
+			switch t {
+			case "administrative_area_level_1":
+				region = comp.LongName
+			case "locality":
+				city = comp.LongName
+			}
+		}
+	}
+
+	return
 }
 
 func (g *Geocoding) CutCoordinates(float float64, precision int) (float64, error) {
