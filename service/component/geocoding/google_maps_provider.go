@@ -40,15 +40,36 @@ func (g *GoogleMapsProvider) Geocode(ctx context.Context, address string, langua
 		}, response, nil
 	}
 
+	administrativeAreaL1, cityName := g.extractRegionAndCity(response)
+
 	return &Address{
-		Found:    true,
-		Address:  response[0].FormattedAddress,
-		Language: language,
+		Found:                    true,
+		AdministrativeAreaLevel1: administrativeAreaL1,
+		CityName:                 cityName,
+		Address:                  response[0].FormattedAddress,
+		Language:                 language,
 		Location: &LatLng{
 			Lat: response[0].Geometry.Location.Lat,
 			Lng: response[0].Geometry.Location.Lng,
 		},
 	}, response, nil
+}
+
+func (g *GoogleMapsProvider) extractRegionAndCity(results []maps.GeocodingResult) (region, city string) {
+	for _, result := range results {
+		for _, comp := range result.AddressComponents {
+			for _, t := range comp.Types {
+				switch t {
+				case "administrative_area_level_1":
+					region = comp.LongName
+				case "locality":
+					city = comp.LongName
+				}
+			}
+		}
+	}
+
+	return
 }
 
 func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng, language string) (*Address, interface{}, error) {
@@ -75,10 +96,14 @@ func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng,
 		}, response, nil
 	}
 
+	administrativeAreaL1, cityName := g.extractRegionAndCity(response)
+
 	return &Address{
-		Found:    true,
-		Address:  response[0].FormattedAddress,
-		Language: language,
+		Found:                    true,
+		AdministrativeAreaLevel1: administrativeAreaL1,
+		CityName:                 cityName,
+		Address:                  response[0].FormattedAddress,
+		Language:                 language,
 		Location: &LatLng{
 			Lat: response[0].Geometry.Location.Lat,
 			Lng: response[0].Geometry.Location.Lng,
