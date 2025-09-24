@@ -29,11 +29,13 @@ type IGeocoding interface {
 }
 
 type Address struct {
-	Found     bool
-	FromCache bool
-	Address   string
-	Language  string
-	Location  *LatLng
+	Found                    bool
+	FromCache                bool
+	AdministrativeAreaLevel1 string
+	CityName                 string
+	Address                  string
+	Language                 string
+	Location                 *LatLng
 }
 
 type LatLng struct {
@@ -76,10 +78,12 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 		geocodingEntity := &entity.GeocodingCacheEntity{}
 		if ormService.CachedSearchOne(geocodingEntity, "CachedQueryAddressHashLanguage", g.getAddressHash(address), language) {
 			return &Address{
-				Found:     true,
-				FromCache: true,
-				Address:   address,
-				Language:  geocodingEntity.Language,
+				Found:                    true,
+				FromCache:                true,
+				AdministrativeAreaLevel1: geocodingEntity.AdministrativeAreaLevel1,
+				CityName:                 geocodingEntity.CityName,
+				Address:                  address,
+				Language:                 geocodingEntity.Language,
 				Location: &LatLng{
 					Lat: geocodingEntity.Lat,
 					Lng: geocodingEntity.Lng,
@@ -92,21 +96,31 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 	if err != nil {
 		return nil, err
 	}
-
 	if g.useCaching && geocodedAddress.Found {
 		now := g.clock.Now()
 
-		ormService.Flush(&entity.GeocodingCacheEntity{
-			Lat:         geocodedAddress.Location.Lat,
-			Lng:         geocodedAddress.Location.Lng,
-			Address:     address,
-			AddressHash: g.getAddressHash(address),
-			Language:    language,
-			Provider:    g.provider.GetName(),
-			RawResponse: providerRawResponse,
-			ExpiresAt:   now.Add(time.Duration(g.getCacheTTL(g.cacheTTLMinDays, g.cacheTTLMaxDays)) * time.Hour * 24),
-			CreatedAt:   now,
-		})
+		geocodingCacheEntity := &entity.GeocodingCacheEntity{
+			Lat:                      geocodedAddress.Location.Lat,
+			Lng:                      geocodedAddress.Location.Lng,
+			AdministrativeAreaLevel1: address,
+			Address:                  address,
+			AddressHash:              g.getAddressHash(address),
+			Language:                 language,
+			Provider:                 g.provider.GetName(),
+			RawResponse:              providerRawResponse,
+			ExpiresAt:                now.Add(time.Duration(g.getCacheTTL(g.cacheTTLMinDays, g.cacheTTLMaxDays)) * time.Hour * 24),
+			CreatedAt:                now,
+		}
+
+		if administrativeAreaL1, ok := providerRawResponse.(maps.GeocodingRequest).Components[maps.ComponentAdministrativeArea]; ok {
+			geocodingCacheEntity.AdministrativeAreaLevel1 = administrativeAreaL1
+		}
+
+		if locality, ok := providerRawResponse.(maps.GeocodingRequest).Components[maps.ComponentLocality]; ok {
+			geocodingCacheEntity.CityName = locality
+		}
+
+		ormService.Flush(geocodingCacheEntity)
 	}
 
 	return geocodedAddress, nil
