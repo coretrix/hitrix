@@ -389,7 +389,7 @@ func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 	}
 
 	configService := service.DI().Config()
-	ttlInDays, has := configService.Int("metrics.ttl_in_days")
+	ttlInDays, has := configService.Int("request_logger.ttl_in_days")
 
 	if !has {
 		ttlInDays = 30
