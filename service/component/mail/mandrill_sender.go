@@ -56,17 +56,6 @@ func (s *Mandrill) GetTemplateKeyFromConfig(configService config.IConfig, templa
 	return templateKey, nil
 }
 
-/*
-*
-Low priority queue
-
-0 → Low priority queue (FIFO)
-1 → Goes before the low priority queue (LIFO)
-High priority queue
-
-2 → High priority queue (FIFO)
-3 → Goes before the high priority queue (LIFO)
-*/
 func (s *Mandrill) SendTemplate(message *Message) error {
 	return s.sendTemplate(
 		message.From,

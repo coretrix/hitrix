@@ -70,6 +70,17 @@ func (s *Mailjet) GetTemplateKeyFromConfig(configService config.IConfig, templat
 	return templateKey, nil
 }
 
+/*
+*
+Priority:
+
+	Low priority queue
+		0 → Low priority queue (FIFO)
+		1 → Goes before the low priority queue (LIFO)
+	High priority queue
+		2 → High priority queue (FIFO)
+		3 → Goes before the high priority queue (LIFO)
+*/
 func (s *Mailjet) SendTemplate(message *Message) error {
 	return s.sendTemplate(
 		message.Priority,
