@@ -244,6 +244,7 @@ func (o *OTP) sendEmail(ormService *beeorm.Engine, send Send) (string, error) {
 	}
 
 	err = o.MailSender.SendTemplate(ormService, &mail.Message{
+		Priority:     2,
 		From:         send.EmailConfig.From,
 		To:           email,
 		Subject:      send.EmailConfig.Subject,
