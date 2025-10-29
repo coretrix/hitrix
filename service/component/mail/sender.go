@@ -19,7 +19,19 @@ type ISender interface {
 	GetTemplateHTMLCode(templateName string) (string, error)
 }
 
+/*
+*
+Low priority queue
+
+0 → Low priority queue (FIFO)
+1 → Goes before the low priority queue (LIFO)
+High priority queue
+
+2 → High priority queue (FIFO)
+3 → Goes before the high priority queue (LIFO)
+*/
 type Message struct {
+	Priority     int
 	From         string
 	FromName     string
 	ReplyTo      string

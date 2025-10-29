@@ -72,6 +72,7 @@ func (s *Mailjet) GetTemplateKeyFromConfig(configService config.IConfig, templat
 
 func (s *Mailjet) SendTemplate(message *Message) error {
 	return s.sendTemplate(
+		message.Priority,
 		message.From,
 		message.FromName,
 		message.To,
@@ -97,6 +98,7 @@ func (s *Mailjet) SendTemplateWithAttachments(message *MessageAttachment) error 
 	}
 
 	return s.sendTemplate(
+		message.Priority,
 		message.From,
 		message.FromName,
 		message.To,
@@ -109,6 +111,7 @@ func (s *Mailjet) SendTemplateWithAttachments(message *MessageAttachment) error 
 }
 
 func (s *Mailjet) sendTemplate(
+	priority int,
 	from string,
 	fromName string,
 	to string,
@@ -124,6 +127,7 @@ func (s *Mailjet) sendTemplate(
 	}
 
 	messageInfo := mailjet.InfoMessagesV31{
+		Priority: priority,
 		From: &mailjet.RecipientV31{
 			Email: from,
 			Name:  fromName,
