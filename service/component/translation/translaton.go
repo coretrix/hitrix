@@ -47,10 +47,24 @@ func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.Tran
 
 		ormService.Flush(translationTextEntity)
 
+		u.errorLoggerService.LogError(
+			fmt.Sprintf(
+				"no translation for key `%s`",
+				key.String(),
+			),
+		)
+
 		return key.String()
 	}
 
 	if translationTextEntity.Status == entity.TranslationStatusNew.String() {
+		u.errorLoggerService.LogError(
+			fmt.Sprintf(
+				"no translation for key `%s`",
+				key.String(),
+			),
+		)
+
 		return key.String()
 	}
 
@@ -100,6 +114,13 @@ func (u *translationService) GetTextWithVars(
 
 		ormService.Flush(translationTextEntity)
 
+		u.errorLoggerService.LogError(
+			fmt.Sprintf(
+				"no translation for key `%s`",
+				key.String(),
+			),
+		)
+
 		return key.String()
 	}
 
@@ -109,6 +130,13 @@ func (u *translationService) GetTextWithVars(
 	}
 
 	if translationTextEntity.Status == entity.TranslationStatusNew.String() {
+		u.errorLoggerService.LogError(
+			fmt.Sprintf(
+				"no translation for key `%s`",
+				key.String(),
+			),
+		)
+
 		return key.String()
 	}
 
