@@ -20,4 +20,5 @@ const (
 	FieldTypeCoordinates = "Coordinates"
 	FieldTypeDateTime    = "DateTime"
 	FieldTypePhoneNumber = "PhoneNumber"
+	FieldTypePrice       = "Price"
 )
