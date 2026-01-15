@@ -109,8 +109,10 @@ type Crud struct {
 
 func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []*Column) []*Column {
 	for _, col := range cols {
-		col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
-
+		if col.Label != "" {
+			col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
+		}
+		
 		if col.TranslationDataEnabled {
 			if col.DataIntKeyStringValue != nil {
 				for _, row := range col.DataIntKeyStringValue {
