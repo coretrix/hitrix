@@ -38,7 +38,7 @@ var TranslationStatusAll = translationStatus{
 }
 
 type TranslationTextEntity struct {
-	beeorm.ORM `orm:"table=translation_texts;log=log_db_pool;localCache;redisCache"`
+	beeorm.ORM `orm:"table=translation_texts;log=log_db_pool;localCache"`
 	ID         uint64
 	Lang       string `orm:"required;unique=Lang_Key:1"`
 	Key        string `orm:"required;unique=Lang_Key:2"`
