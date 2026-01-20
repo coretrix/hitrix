@@ -5,12 +5,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/coretrix/hitrix/pkg/response"
+	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 	"github.com/gin-gonic/gin"
 
 	"github.com/coretrix/hitrix/pkg/entity"
-	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/service"
-	requestlogger "github.com/coretrix/hitrix/service/component/request_logger"
 )
 
 type dbLogger struct {
@@ -38,7 +38,11 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 		panic("you should register RequestLoggerEntity")
 	}
 
-	ginEngine.Use(func(context *gin.Context) {
+	ginEngine.Use(RequestLoggerHandler(extender))
+}
+
+func RequestLoggerHandler(extender func(context *gin.Context, requestEntity *entity.RequestLoggerEntity)) func(context *gin.Context) {
+	return func(context *gin.Context) {
 		requestStart := time.Now()
 
 		ormService := service.DI().OrmEngineForContext(context.Request.Context())
@@ -77,5 +81,5 @@ func RequestLogger(ginEngine *gin.Engine, extender func(context *gin.Context, re
 		requestLoggerEntity.Log = encoded
 
 		requestLoggerService.LogResponse(ormService, requestLoggerEntity, responseBodyByte, context.Writer.Status())
-	})
+	}
 }
