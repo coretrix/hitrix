@@ -32,6 +32,10 @@ func NewTranslationService(errorLoggerService errorlogger.ErrorLogger) ITranslat
 }
 
 func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.TranslationTextLang, key entity.TranslationTextKey) string {
+	if key == "" {
+		return ""
+	}
+
 	translationTextEntity := &entity.TranslationTextEntity{}
 
 	found := ormService.CachedSearchOne(
@@ -90,6 +94,10 @@ func (u *translationService) GetTextWithVars(
 	key entity.TranslationTextKey,
 	variables map[string]interface{},
 ) string {
+	if key == "" {
+		return ""
+	}
+
 	keys := make([]string, 0, len(variables))
 
 	for k := range variables {
