@@ -159,7 +159,9 @@ func (e *RedisErrorLogger) log(errData interface{}, callerSkip int, c *gin.Conte
 
 	logg := math.Log10(float64(counter))
 
-	if (e.slackService != nil && !e.appService.IsInLocalMode() && !e.appService.IsInTestMode()) && logg == float64(int64(logg)) {
+	if group == GroupError &&
+		(e.slackService != nil && !e.appService.IsInLocalMode() && !e.appService.IsInTestMode()) &&
+		logg == float64(int64(logg)) {
 		_ = e.slackService.SendToChannel(
 			"errors",
 			e.slackService.GetErrorChannel(),
