@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"math"
 	"net/http/httputil"
 	"os"
 	"runtime"
@@ -157,11 +156,9 @@ func (e *RedisErrorLogger) log(errData interface{}, callerSkip int, c *gin.Conte
 	e.redisStorage.HSet(group, errorKey+":time", time.Now().Unix())
 	counter := e.redisStorage.HIncrBy(group, errorKey+":counter", 1)
 
-	logg := math.Log10(float64(counter))
-
 	if group == GroupError &&
 		(e.slackService != nil && !e.appService.IsInLocalMode() && !e.appService.IsInTestMode()) &&
-		logg == float64(int64(logg)) {
+		shouldSendNotification(counter) {
 		_ = e.slackService.SendToChannel(
 			"errors",
 			e.slackService.GetErrorChannel(),
@@ -178,9 +175,33 @@ func (e *RedisErrorLogger) log(errData interface{}, callerSkip int, c *gin.Conte
 	}
 
 	if (e.sentryService != nil && !e.appService.IsInLocalMode() && !e.appService.IsInTestMode() && !e.appService.IsInQAMode()) &&
-		logg == float64(int64(logg)) {
+		shouldSendNotification(counter) {
 		e.sentryService.CaptureException(fmt.Errorf(value.Message))
 	}
+}
+
+func shouldSendNotification(counter int64) bool {
+	if counter >= 1 && counter <= 20 {
+		return true
+	}
+
+	if counter == 50 || counter == 100 {
+		return true
+	}
+
+	if counter < 1000 {
+		return false
+	}
+
+	for counter > 1 {
+		if counter%10 != 0 {
+			return false
+		}
+
+		counter /= 10
+	}
+
+	return true
 }
 
 func stack(skip int) []byte {
