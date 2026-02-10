@@ -59,6 +59,7 @@ func DevPanelRouter(ginEngine *gin.Engine) {
 		errorLogGroup.GET("errors/", errorLog.GetErrors)
 		errorLogGroup.GET("errors/remove/:id/", errorLog.DeleteError)
 		errorLogGroup.GET("errors/remove-all/", errorLog.DeleteAllErrors)
+		errorLogGroup.GET("counters/", errorLog.GetCounters)
 		errorLogGroup.GET("warnings/", errorLog.GetWarnings)
 		errorLogGroup.GET("warnings/remove/:id/", errorLog.DeleteWarning)
 		errorLogGroup.GET("warnings/remove-all/", errorLog.DeleteAllWarnings)
