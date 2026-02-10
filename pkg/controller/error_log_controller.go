@@ -112,7 +112,7 @@ func (controller *ErrorLogController) GetWarnings(c *gin.Context) {
 		Time    string
 	}
 
-	data := ormService.GetRedis().HGetAll(errorlogger.GroupError)
+	data := ormService.GetRedis().HGetAll(errorlogger.GroupWarning)
 
 	errorsList := map[string]*errorRow{}
 
@@ -166,16 +166,16 @@ func (controller *ErrorLogController) DeleteWarning(c *gin.Context) {
 		return
 	}
 
-	ormService.GetRedis().HDel(errorlogger.GroupError, id)
-	ormService.GetRedis().HDel(errorlogger.GroupError, id+":time")
-	ormService.GetRedis().HDel(errorlogger.GroupError, id+":counter")
+	ormService.GetRedis().HDel(errorlogger.GroupWarning, id)
+	ormService.GetRedis().HDel(errorlogger.GroupWarning, id+":time")
+	ormService.GetRedis().HDel(errorlogger.GroupWarning, id+":counter")
 
 	response.SuccessResponse(c, nil)
 }
 
 func (controller *ErrorLogController) DeleteAllWarnings(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
-	ormService.GetRedis().Del(errorlogger.GroupError)
+	ormService.GetRedis().Del(errorlogger.GroupWarning)
 
 	response.SuccessResponse(c, nil)
 }
@@ -194,7 +194,7 @@ func (controller *ErrorLogController) GetMissingTranslations(c *gin.Context) {
 		Time    string
 	}
 
-	data := ormService.GetRedis().HGetAll(errorlogger.GroupError)
+	data := ormService.GetRedis().HGetAll(errorlogger.GroupMissingTranslation)
 
 	errorsList := map[string]*errorRow{}
 
@@ -248,16 +248,16 @@ func (controller *ErrorLogController) DeleteMissingTranslation(c *gin.Context) {
 		return
 	}
 
-	ormService.GetRedis().HDel(errorlogger.GroupError, id)
-	ormService.GetRedis().HDel(errorlogger.GroupError, id+":time")
-	ormService.GetRedis().HDel(errorlogger.GroupError, id+":counter")
+	ormService.GetRedis().HDel(errorlogger.GroupMissingTranslation, id)
+	ormService.GetRedis().HDel(errorlogger.GroupMissingTranslation, id+":time")
+	ormService.GetRedis().HDel(errorlogger.GroupMissingTranslation, id+":counter")
 
 	response.SuccessResponse(c, nil)
 }
 
 func (controller *ErrorLogController) DeleteAllMissingTranslations(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
-	ormService.GetRedis().Del(errorlogger.GroupError)
+	ormService.GetRedis().Del(errorlogger.GroupMissingTranslation)
 
 	response.SuccessResponse(c, nil)
 }

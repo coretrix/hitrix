@@ -45,7 +45,7 @@ func (l *SimpleLocalizer) T(bucket string, key string) string {
 		return val
 	}
 
-	l.errorLogger.LogError("missing translations for key " + l.genKey(bucket, key))
+	l.errorLogger.LogMissingTranslation("missing translations for key " + l.genKey(bucket, key))
 
 	return key
 }

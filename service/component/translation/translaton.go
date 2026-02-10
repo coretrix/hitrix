@@ -51,7 +51,7 @@ func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.Tran
 
 		ormService.Flush(translationTextEntity)
 
-		u.errorLoggerService.LogError(
+		u.errorLoggerService.LogMissingTranslation(
 			fmt.Sprintf(
 				"no translation for key `%s`",
 				key.String(),
@@ -62,7 +62,7 @@ func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.Tran
 	}
 
 	if translationTextEntity.Status == entity.TranslationStatusNew.String() {
-		u.errorLoggerService.LogError(
+		u.errorLoggerService.LogMissingTranslation(
 			fmt.Sprintf(
 				"no translation for key `%s`",
 				key.String(),
@@ -76,7 +76,7 @@ func (u *translationService) GetText(ormService *beeorm.Engine, lang entity.Tran
 	subMatchAll := re.FindAllString(translationTextEntity.Text, -1)
 
 	if len(subMatchAll) > 0 {
-		u.errorLoggerService.LogError(
+		u.errorLoggerService.LogMissingTranslation(
 			fmt.Sprintf(
 				"not assigned vars (%s) for translation key `%s`",
 				strings.Join(subMatchAll, ", "),
@@ -122,7 +122,7 @@ func (u *translationService) GetTextWithVars(
 
 		ormService.Flush(translationTextEntity)
 
-		u.errorLoggerService.LogError(
+		u.errorLoggerService.LogMissingTranslation(
 			fmt.Sprintf(
 				"no translation for key `%s`",
 				key.String(),
@@ -138,7 +138,7 @@ func (u *translationService) GetTextWithVars(
 	}
 
 	if translationTextEntity.Status == entity.TranslationStatusNew.String() {
-		u.errorLoggerService.LogError(
+		u.errorLoggerService.LogMissingTranslation(
 			fmt.Sprintf(
 				"no translation for key `%s`",
 				key.String(),
@@ -158,7 +158,7 @@ func (u *translationService) GetTextWithVars(
 	subMatchAll := re.FindAllString(text, -1)
 
 	if len(subMatchAll) > 0 {
-		u.errorLoggerService.LogError(
+		u.errorLoggerService.LogMissingTranslation(
 			fmt.Sprintf(
 				"not assigned vars (%s) for translation key `%s`",
 				strings.Join(subMatchAll, ", "),

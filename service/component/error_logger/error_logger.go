@@ -25,7 +25,11 @@ import (
 	"github.com/coretrix/hitrix/service/component/slack"
 )
 
-const GroupError = "error"
+const (
+	GroupError              = "error"
+	GroupWarning            = "warning"
+	GroupMissingTranslation = "missing-translation"
+)
 
 var (
 	dunno     = []byte("???")
@@ -38,6 +42,9 @@ type ErrorLogger interface {
 	LogError(dataFromRecover interface{})
 	LogErrorWithRequest(c *gin.Context, errData interface{})
 	LogPanicWithRequest(c *gin.Context, errData interface{})
+	LogWarning(data interface{})
+	LogWarningWithRequest(c *gin.Context, data interface{})
+	LogMissingTranslation(data interface{})
 }
 
 type ErrorMessage struct {
@@ -74,18 +81,30 @@ func NewRedisErrorLogger(
 }
 
 func (e *RedisErrorLogger) LogError(errData interface{}) {
-	e.log(errData, 2, nil)
+	e.log(errData, 2, nil, GroupError)
 }
 
 func (e *RedisErrorLogger) LogErrorWithRequest(c *gin.Context, errData interface{}) {
-	e.log(errData, 2, c)
+	e.log(errData, 2, c, GroupError)
 }
 
 func (e *RedisErrorLogger) LogPanicWithRequest(c *gin.Context, errData interface{}) {
-	e.log(errData, 4, c)
+	e.log(errData, 4, c, GroupError)
 }
 
-func (e *RedisErrorLogger) log(errData interface{}, callerSkip int, c *gin.Context) {
+func (e *RedisErrorLogger) LogWarning(data interface{}) {
+	e.log(data, 2, nil, GroupWarning)
+}
+
+func (e *RedisErrorLogger) LogWarningWithRequest(c *gin.Context, data interface{}) {
+	e.log(data, 2, c, GroupWarning)
+}
+
+func (e *RedisErrorLogger) LogMissingTranslation(data interface{}) {
+	e.log(data, 2, nil, GroupMissingTranslation)
+}
+
+func (e *RedisErrorLogger) log(errData interface{}, callerSkip int, c *gin.Context, group string) {
 	var msg string
 
 	err, ok := errData.(error)
@@ -134,9 +153,9 @@ func (e *RedisErrorLogger) log(errData interface{}, callerSkip int, c *gin.Conte
 		panic(err)
 	}
 
-	e.redisStorage.HSet(GroupError, errorKey, marshalValue)
-	e.redisStorage.HSet(GroupError, errorKey+":time", time.Now().Unix())
-	counter := e.redisStorage.HIncrBy(GroupError, errorKey+":counter", 1)
+	e.redisStorage.HSet(group, errorKey, marshalValue)
+	e.redisStorage.HSet(group, errorKey+":time", time.Now().Unix())
+	counter := e.redisStorage.HIncrBy(group, errorKey+":counter", 1)
 
 	logg := math.Log10(float64(counter))
 
