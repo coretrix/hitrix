@@ -8,12 +8,14 @@ import (
 )
 
 type Statistics struct {
-	RedisPool string
-	Info      map[string]string
+	RedisPool    string
+	RedisAddress string
+	Info         map[string]string
 }
 
 func GetRedisStatistics(engine *orm.Engine, dragonflyDBPools map[string]struct{}) []*Statistics {
 	pools := getRedisPools(engine)
+	redisPools := engine.GetRegistry().GetRedisPools()
 	results := make([]*Statistics, len(pools))
 
 	for i, pool := range pools {
@@ -25,6 +27,10 @@ func GetRedisStatistics(engine *orm.Engine, dragonflyDBPools map[string]struct{}
 		}
 
 		poolStats := &Statistics{RedisPool: pool, Info: make(map[string]string)}
+		if redisPool, hasPool := redisPools[pool]; hasPool {
+			poolStats.RedisAddress = redisPool.GetAddress()
+		}
+
 		r := engine.GetRedis(pool)
 		info := r.Info(infoSection)
 		lines := strings.Split(info, "\r\n")
