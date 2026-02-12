@@ -11,7 +11,10 @@ import (
 	"log"
 	"net/http/httputil"
 	"os"
+	"regexp"
 	"runtime"
+	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -85,44 +88,91 @@ func NewRedisErrorLogger(
 }
 
 func (e *RedisErrorLogger) LogError(errData interface{}) {
-	e.log(errData, 2, nil, GroupError)
+	e.log(errData, nil, GroupError, debug.Stack())
 }
 
 func (e *RedisErrorLogger) LogErrorWithRequest(c *gin.Context, errData interface{}) {
-	e.log(errData, 2, c, GroupError)
+	e.log(errData, c, GroupError, debug.Stack())
 }
 
 func (e *RedisErrorLogger) LogPanicWithRequest(c *gin.Context, errData interface{}) {
-	e.log(errData, 4, c, GroupError)
+	e.log(errData, c, GroupError, debug.Stack())
 }
 
 func (e *RedisErrorLogger) LogWarning(data interface{}) {
-	e.log(data, 2, nil, GroupWarning)
+	e.log(data, nil, GroupWarning, nil)
 }
 
 func (e *RedisErrorLogger) LogWarningWithRequest(c *gin.Context, data interface{}) {
-	e.log(data, 2, c, GroupWarning)
+	e.log(data, c, GroupWarning, nil)
 }
 
 func (e *RedisErrorLogger) LogMissingTranslation(data interface{}) {
-	e.log(data, 2, nil, GroupMissingTranslation)
+	e.log(data, nil, GroupMissingTranslation, nil)
 }
 
-func (e *RedisErrorLogger) log(errData interface{}, callerSkip int, c *gin.Context, group string) {
+// stackFileLineRe matches the file:line line in debug.Stack() output (tab-indented path).
+var stackFileLineRe = regexp.MustCompile(`^\s+(.+\.go):(\d+)\s+`)
+
+// parseStackFileLine parses debug.Stack() output and returns file and line for the error location.
+// Skips frames inside this package (error_logger). When the caller is a defer after recover(),
+// the first external frame is the defer; the second is the panic site. So we use frame[1] when
+// we have 2+ external frames, otherwise frame[0].
+func parseStackFileLine(stack []byte) (file string, line int) {
+	var external []struct {
+		file string
+		line int
+	}
+	for _, lineBytes := range bytes.Split(stack, []byte{'\n'}) {
+		if m := stackFileLineRe.FindSubmatch(lineBytes); len(m) == 3 {
+			f := string(m[1])
+			if strings.Contains(f, "error_logger") {
+				continue
+			}
+			var l int
+			_, _ = fmt.Sscanf(string(m[2]), "%d", &l)
+			external = append(external, struct {
+				file string
+				line int
+			}{f, l})
+		}
+	}
+	if len(external) == 0 {
+		return "", 0
+	}
+	idx := 0
+	if len(external) >= 2 {
+		idx = 1 // panic path: first external is defer, second is panic site
+	}
+	return external[idx].file, external[idx].line
+}
+
+func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context, group string, capturedStack []byte) {
 	var msg string
 
-	err, ok := errData.(error)
-	if ok {
-		msg = err.Error()
+	switch v := errData.(type) {
+	case error:
+		msg = v.Error()
+	case string:
+		msg = v
+	default:
+		msg = fmt.Sprint(v)
+	}
+
+	var stackTrace []byte
+	var file string
+	var line int
+
+	if len(capturedStack) > 0 {
+		stackTrace = capturedStack
+		file, line = parseStackFileLine(capturedStack)
 	} else {
-		msg = errData.(string)
+		stackTrace = stack(0)
+		_, file, line, _ = runtime.Caller(2)
 	}
 
 	logger := log.New(os.Stderr, "\n\n\x1b[31m", log.LstdFlags)
-	stackTrace := stack(0)
 	logger.Printf("[Error]:\n%s\n%s%s", msg, stackTrace, "\033[0m")
-
-	_, file, line, _ := runtime.Caller(callerSkip)
 
 	//nolint //G401: Use of weak cryptographic primitive
 	errorKeyBinary := md5.Sum([]byte(e.appService.Name + ":" + file + ":" + fmt.Sprint(line)))

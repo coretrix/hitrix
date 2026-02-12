@@ -183,16 +183,7 @@ func (processor *BackgroundProcessor) runScript(s app.IScript) bool {
 
 		defer func() {
 			if err := recover(); err != nil {
-				var message string
-
-				asErr, is := err.(error)
-				if is {
-					message = asErr.Error()
-				} else {
-					message = fmt.Sprint(err)
-				}
-
-				service.DI().ErrorLogger().LogError(message)
+				service.DI().ErrorLogger().LogError(err)
 
 				valid = false
 			}
