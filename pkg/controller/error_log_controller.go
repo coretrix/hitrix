@@ -248,13 +248,6 @@ func (controller *ErrorLogController) createJiraTicketByGroup(c *gin.Context, gr
 		return
 	}
 
-	jiraUser, has := service.DI().Config().String("jira.user")
-	if !has || jiraUser == "" {
-		response.ErrorResponseGlobal(c, "missing jira.user config", nil)
-
-		return
-	}
-
 	jiraToken, has := service.DI().Config().String("jira.token")
 	if !has || jiraToken == "" {
 		response.ErrorResponseGlobal(c, "missing jira.token config", nil)
@@ -335,7 +328,7 @@ func (controller *ErrorLogController) createJiraTicketByGroup(c *gin.Context, gr
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth(jiraUser, jiraToken)
+	req.Header.Set("Authorization", "Bearer "+jiraToken)
 
 	client := &http.Client{Timeout: 20 * time.Second}
 	resp, err := client.Do(req)
