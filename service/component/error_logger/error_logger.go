@@ -70,8 +70,13 @@ func NewRedisErrorLogger(
 	sentryService sentry.ISentry,
 	requestBodyKey interface{},
 ) ErrorLogger {
+	redisStorage := ormService.GetRedis()
+	if appService.RedisPools != nil && appService.RedisPools.Persistent != "" {
+		redisStorage = ormService.GetRedis(appService.RedisPools.Persistent)
+	}
+
 	return &RedisErrorLogger{
-		redisStorage:   ormService.GetRedis(),
+		redisStorage:   redisStorage,
 		slackService:   slackService,
 		appService:     appService,
 		sentryService:  sentryService,

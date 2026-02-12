@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/service"
@@ -27,9 +28,19 @@ type errorRow struct {
 	Time    string
 }
 
-func (controller *ErrorLogController) getByGroup(c *gin.Context, group string) {
+func (controller *ErrorLogController) getErrorLogRedis(c *gin.Context) *beeorm.RedisCache {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
-	data := ormService.GetRedis().HGetAll(group)
+	appService := service.DI().App()
+
+	if appService.RedisPools != nil && appService.RedisPools.Persistent != "" {
+		return ormService.GetRedis(appService.RedisPools.Persistent)
+	}
+
+	return ormService.GetRedis()
+}
+
+func (controller *ErrorLogController) getByGroup(c *gin.Context, group string) {
+	data := controller.getErrorLogRedis(c).HGetAll(group)
 
 	errorsList := map[string]*errorRow{}
 
@@ -78,7 +89,7 @@ func (controller *ErrorLogController) getByGroup(c *gin.Context, group string) {
 }
 
 func (controller *ErrorLogController) deleteSingleByGroup(c *gin.Context, group string) {
-	ormService := service.DI().OrmEngineForContext(c.Request.Context())
+	redisStorage := controller.getErrorLogRedis(c)
 
 	id := c.Param("id")
 	if len(id) <= 0 {
@@ -87,16 +98,15 @@ func (controller *ErrorLogController) deleteSingleByGroup(c *gin.Context, group 
 		return
 	}
 
-	ormService.GetRedis().HDel(group, id)
-	ormService.GetRedis().HDel(group, id+":time")
-	ormService.GetRedis().HDel(group, id+":counter")
+	redisStorage.HDel(group, id)
+	redisStorage.HDel(group, id+":time")
+	redisStorage.HDel(group, id+":counter")
 
 	response.SuccessResponse(c, nil)
 }
 
 func (controller *ErrorLogController) deleteAllByGroup(c *gin.Context, group string) {
-	ormService := service.DI().OrmEngineForContext(c.Request.Context())
-	ormService.GetRedis().Del(group)
+	controller.getErrorLogRedis(c).Del(group)
 
 	response.SuccessResponse(c, nil)
 }
@@ -106,9 +116,9 @@ func (controller *ErrorLogController) GetErrors(c *gin.Context) {
 }
 
 func (controller *ErrorLogController) GetCounters(c *gin.Context) {
-	ormService := service.DI().OrmEngineForContext(c.Request.Context())
+	redisStorage := controller.getErrorLogRedis(c)
 	countByGroup := func(group string) int {
-		data := ormService.GetRedis().HGetAll(group)
+		data := redisStorage.HGetAll(group)
 		counterEntries := 0
 		messageEntries := 0
 
