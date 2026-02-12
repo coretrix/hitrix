@@ -59,13 +59,19 @@ func DevPanelRouter(ginEngine *gin.Engine) {
 		errorLogGroup.GET("errors/", errorLog.GetErrors)
 		errorLogGroup.GET("errors/remove/:id/", errorLog.DeleteError)
 		errorLogGroup.GET("errors/remove-all/", errorLog.DeleteAllErrors)
+		errorLogGroup.POST("errors/create-jira-ticket/:id/", errorLog.CreateErrorJiraTicket)
 		errorLogGroup.GET("counters/", errorLog.GetCounters)
 		errorLogGroup.GET("warnings/", errorLog.GetWarnings)
 		errorLogGroup.GET("warnings/remove/:id/", errorLog.DeleteWarning)
 		errorLogGroup.GET("warnings/remove-all/", errorLog.DeleteAllWarnings)
+		errorLogGroup.POST("warnings/create-jira-ticket/:id/", errorLog.CreateWarningJiraTicket)
 		errorLogGroup.GET("missing-translations/", errorLog.GetMissingTranslations)
 		errorLogGroup.GET("missing-translations/remove/:id/", errorLog.DeleteMissingTranslation)
 		errorLogGroup.GET("missing-translations/remove-all/", errorLog.DeleteAllMissingTranslations)
+		errorLogGroup.POST(
+			"missing-translations/create-jira-ticket/:id/",
+			errorLog.CreateMissingTranslationJiraTicket,
+		)
 		errorLogGroup.GET("panic/", errorLog.Panic)
 	}
 }

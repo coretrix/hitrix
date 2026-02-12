@@ -41,3 +41,10 @@ google_calendar:
   credential_file: "./credentials.json"
   scopes:
     - "https://www.googleapis.com/auth/calendar"
+
+jira:
+  url: "https://your-company.atlassian.net"
+  user: "jira-user@example.com"
+  token: "jira-api-token"
+  project_key: "PROJ"
+  issue_type: "Task"
