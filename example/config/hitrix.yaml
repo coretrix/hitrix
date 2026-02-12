@@ -44,6 +44,8 @@ google_calendar:
 
 jira:
   url: "https://your-company.atlassian.net"
+  user: "user@jira.com"
   token: "jira-api-token"
   project_key: "PROJ"
   issue_type: "Task"
+  assignee_account_id: ""

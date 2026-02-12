@@ -255,6 +255,13 @@ func (controller *ErrorLogController) createJiraTicketByGroup(c *gin.Context, gr
 		return
 	}
 
+	jiraUser, has := service.DI().Config().String("jira.user")
+	if !has || jiraUser == "" {
+		response.ErrorResponseGlobal(c, "missing jira.user config", nil)
+
+		return
+	}
+
 	projectKey, has := service.DI().Config().String("jira.project_key")
 	if !has || projectKey == "" {
 		response.ErrorResponseGlobal(c, "missing jira.project_key config", nil)
@@ -312,6 +319,12 @@ func (controller *ErrorLogController) createJiraTicketByGroup(c *gin.Context, gr
 		},
 	}
 
+	if assigneeAccountID, has := service.DI().Config().String("jira.assignee_account_id"); has && assigneeAccountID != "" {
+		requestBody["fields"].(map[string]interface{})["assignee"] = map[string]string{
+			"accountId": assigneeAccountID,
+		}
+	}
+
 	bodyBinary, err := json.Marshal(requestBody)
 	if err != nil {
 		response.ErrorResponseGlobal(c, err, nil)
@@ -328,7 +341,7 @@ func (controller *ErrorLogController) createJiraTicketByGroup(c *gin.Context, gr
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+jiraToken)
+	req.SetBasicAuth(jiraUser, jiraToken)
 
 	client := &http.Client{Timeout: 20 * time.Second}
 	resp, err := client.Do(req)
