@@ -31,6 +31,7 @@ type SearchParams struct {
 	RangeDateFilters     map[string][]time.Time
 	BooleanFilters       map[string]bool
 	Sort                 map[string]bool
+	Cols                 map[string]Column `json:"-"`
 }
 
 type Column struct {
@@ -104,7 +105,6 @@ type groupedFilterTypes struct {
 type Crud struct {
 	ExportConfigs      []ExportConfig
 	TranslationService translation.ITranslationService
-	cols               map[string]Column
 }
 
 func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []*Column) []*Column {
@@ -112,7 +112,7 @@ func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.Translati
 		if col.Label != "" {
 			col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
 		}
-		
+
 		if col.TranslationDataEnabled {
 			if col.DataIntKeyStringValue != nil {
 				for _, row := range col.DataIntKeyStringValue {
@@ -167,7 +167,7 @@ func (c *Crud) ExtractListParams(cols []*Column, request *ListRequest) SearchPar
 		finalPageSize = *request.PageSize
 	}
 
-	filterTypes := c.groupColumnNamesByFilterType(cols, request)
+	filterTypes, colsMap := c.groupColumnNamesByFilterType(cols, request)
 
 	var selectedMapStringStringFilters = make(map[string]string)
 	var selectedStringStartsWithFilters = make(map[string]string)
@@ -360,10 +360,11 @@ mainLoop:
 		RangeDateFilters:     selectedRangeDateFilters,
 		BooleanFilters:       selectedBooleanFilters,
 		Sort:                 selectedSort,
+		Cols:                 colsMap,
 	}
 }
 
-func (c *Crud) groupColumnNamesByFilterType(cols []*Column, request *ListRequest) groupedFilterTypes {
+func (c *Crud) groupColumnNamesByFilterType(cols []*Column, request *ListRequest) (groupedFilterTypes, map[string]Column) {
 	var stringStartsWithSearch = make([]string, 0)
 	var arrayStringFilters = make([]string, 0)
 	var booleanFilters = make([]string, 0)
@@ -378,11 +379,11 @@ func (c *Crud) groupColumnNamesByFilterType(cols []*Column, request *ListRequest
 	var rangeDateFilters = make([]string, 0)
 	var sortables = make([]string, 0)
 
-	c.cols = map[string]Column{}
+	colsMap := map[string]Column{}
 
 	for _, column := range cols {
 
-		c.cols[column.Key] = *column
+		colsMap[column.Key] = *column
 
 		if column.Sortable {
 			sortables = append(sortables, column.Key)
@@ -440,7 +441,7 @@ func (c *Crud) groupColumnNamesByFilterType(cols []*Column, request *ListRequest
 		rangeDateTimeFilters:   rangeDateTimeFilters,
 		rangeDateFilters:       rangeDateFilters,
 		sortables:              sortables,
-	}
+	}, colsMap
 }
 
 func fetchDependencyValue(dependentCol *Column, cols []*Column, request *ListRequest) (bool, interface{}) {
@@ -559,11 +560,11 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 	}
 
 	for field, value := range params.StringFilters {
-		if c.cols[field].Normalize != nil {
-			value = c.cols[field].Normalize(value).(string)
+		if params.Cols[field].Normalize != nil {
+			value = params.Cols[field].Normalize(value).(string)
 		}
 
-		if c.cols[field].FullTextSearch {
+		if params.Cols[field].FullTextSearch {
 			query.QueryRaw(fmt.Sprintf(
 				"@%s:*%v* ",
 				field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
