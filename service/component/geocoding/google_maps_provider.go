@@ -2,6 +2,8 @@ package geocoding
 
 import (
 	"context"
+	"strings"
+
 	"googlemaps.github.io/maps"
 )
 
@@ -97,6 +99,10 @@ func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng,
 	}
 
 	administrativeAreaL1, cityName := g.extractRegionAndCity(response)
+
+	if response[0].PlusCode.GlobalCode != "" {
+		response[0].FormattedAddress = strings.TrimPrefix(response[0].FormattedAddress, response[0].PlusCode.GlobalCode+" ")
+	}
 
 	return &Address{
 		Found:                    true,
