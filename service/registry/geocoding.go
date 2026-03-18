@@ -32,6 +32,7 @@ func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 
 			cacheTTLMinDays := 0
 			cacheTTLMaxDays := 0
+			saveRawResponse := false
 
 			if okUseCaching && useCaching {
 				ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
@@ -54,6 +55,8 @@ func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 				if !has {
 					return nil, fmt.Errorf("you must specify geocoding.cache_ttl_max_days")
 				}
+
+				saveRawResponse, _ = configService.Bool("geocoding.save_raw_response")
 			}
 
 			provider, err := providerConstructor(configService)
@@ -65,6 +68,7 @@ func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 				useCaching,
 				cacheTTLMinDays,
 				cacheTTLMaxDays,
+				saveRawResponse,
 				ctn.Get(service.ClockService).(clock.IClock),
 				provider,
 			), nil

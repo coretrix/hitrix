@@ -3,6 +3,7 @@ package geocoding
 import (
 	"context"
 	"errors"
+
 	"googlemaps.github.io/maps"
 
 	//nolint //G501: Blocklisted import crypto/md5: weak cryptographic primitive, but just fine for caching
@@ -47,6 +48,7 @@ type Geocoding struct {
 	useCaching      bool
 	cacheTTLMinDays int
 	cacheTTLMaxDays int
+	saveRawResponse bool
 	clock           clock.IClock
 	provider        Provider
 }
@@ -55,6 +57,7 @@ func NewGeocoding(
 	useCaching bool,
 	cacheTTLMinDays int,
 	cacheTTLMaxDays int,
+	saveRawResponse bool,
 	clock clock.IClock,
 	provider Provider,
 ) IGeocoding {
@@ -62,6 +65,7 @@ func NewGeocoding(
 		useCaching:      useCaching,
 		cacheTTLMinDays: cacheTTLMinDays,
 		cacheTTLMaxDays: cacheTTLMaxDays,
+		saveRawResponse: saveRawResponse,
 		clock:           clock,
 		provider:        provider,
 	}
@@ -99,7 +103,7 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 	if g.useCaching && geocodedAddress.Found {
 		now := g.clock.Now()
 
-		ormService.Flush(&entity.GeocodingCacheEntity{
+		geocodingCacheEntity := &entity.GeocodingCacheEntity{
 			Lat:                      geocodedAddress.Location.Lat,
 			Lng:                      geocodedAddress.Location.Lng,
 			AdministrativeAreaLevel1: geocodedAddress.AdministrativeAreaLevel1,
@@ -108,10 +112,15 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 			AddressHash:              g.getAddressHash(address),
 			Language:                 language,
 			Provider:                 g.provider.GetName(),
-			RawResponse:              providerRawResponse,
 			ExpiresAt:                now.Add(time.Duration(g.getCacheTTL(g.cacheTTLMinDays, g.cacheTTLMaxDays)) * time.Hour * 24),
 			CreatedAt:                now,
-		})
+		}
+
+		if g.saveRawResponse {
+			geocodingCacheEntity.RawResponse = providerRawResponse
+		}
+
+		ormService.Flush(geocodingCacheEntity)
 	}
 
 	return geocodedAddress, nil
@@ -161,7 +170,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 	if g.useCaching && geocodedAddress.Found {
 		now := g.clock.Now()
 
-		err := ormService.FlushWithCheck(&entity.GeocodingReverseCacheEntity{
+		geocodingReverseCacheEntity := &entity.GeocodingReverseCacheEntity{
 			Lat:                      cacheLat,
 			Lng:                      cacheLng,
 			AdministrativeAreaLevel1: geocodedAddress.AdministrativeAreaLevel1,
@@ -169,10 +178,15 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 			Address:                  strings.TrimSpace(geocodedAddress.Address),
 			Language:                 language,
 			Provider:                 g.provider.GetName(),
-			RawResponse:              providerRawResponse,
 			ExpiresAt:                now.Add(time.Duration(g.getCacheTTL(g.cacheTTLMinDays, g.cacheTTLMaxDays)) * time.Hour * 24),
 			CreatedAt:                now,
-		})
+		}
+
+		if g.saveRawResponse {
+			geocodingReverseCacheEntity.RawResponse = providerRawResponse
+		}
+
+		err := ormService.FlushWithCheck(geocodingReverseCacheEntity)
 
 		//TODO Krasi: needed due to issue when localCache and redisCache used together
 		if err != nil {
