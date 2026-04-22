@@ -108,6 +108,23 @@ func (e *RedisErrorLogger) LogWarningWithRequest(c *gin.Context, data interface{
 }
 
 func (e *RedisErrorLogger) LogMissingTranslation(data interface{}) {
+	if e.appService.IsInTestMode() {
+		var msg string
+
+		switch v := data.(type) {
+		case error:
+			msg = v.Error()
+		case string:
+			msg = v
+		default:
+			msg = fmt.Sprint(v)
+		}
+
+		log.Printf("missing translation: %s \n", msg)
+
+		return
+	}
+
 	e.log(data, nil, GroupMissingTranslation, nil)
 }
 
