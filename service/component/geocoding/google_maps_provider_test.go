@@ -36,9 +36,3 @@ func TestExcludeFormattedAddressComponentsRemovesAdministrativeAreaLevel1(t *tes
 
 	assert.Equal(t, `ул. „Стефан Стамболов“ 44, 2140 Botevgrad, Bulgaria`, actual)
 }
-
-func TestShouldSkipFormattedAddressComponents(t *testing.T) {
-	assert.False(t, shouldSkipFormattedAddressComponents(nil))
-	assert.False(t, shouldSkipFormattedAddressComponents([]bool{false}))
-	assert.True(t, shouldSkipFormattedAddressComponents([]bool{true}))
-}

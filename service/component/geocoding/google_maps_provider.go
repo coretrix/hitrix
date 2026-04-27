@@ -79,7 +79,7 @@ func (g *GoogleMapsProvider) extractRegionAndCity(results []maps.GeocodingResult
 	return
 }
 
-func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng, language string, skipFormattedAddressComponents ...bool) (*Address, interface{}, error) {
+func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng, language string, skipFormattedAddressComponents bool) (*Address, interface{}, error) {
 	response, err := g.client.ReverseGeocode(
 		ctx,
 		&maps.GeocodingRequest{
@@ -105,7 +105,7 @@ func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng,
 
 	administrativeAreaL1, cityName := g.extractRegionAndCity(response)
 	formattedAddress := response[0].FormattedAddress
-	if shouldSkipFormattedAddressComponents(skipFormattedAddressComponents) {
+	if skipFormattedAddressComponents {
 		formattedAddress = excludeFormattedAddressComponents(
 			formattedAddress,
 			response[0].AddressComponents,
@@ -138,10 +138,6 @@ func (g *GoogleMapsProvider) SnapToRoad(ctx context.Context, dto *maps.SnapToRoa
 
 func (g *GoogleMapsProvider) GetName() string {
 	return "google_maps"
-}
-
-func shouldSkipFormattedAddressComponents(skipFormattedAddressComponents []bool) bool {
-	return len(skipFormattedAddressComponents) > 0 && skipFormattedAddressComponents[0]
 }
 
 func excludeFormattedAddressComponents(

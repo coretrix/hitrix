@@ -24,7 +24,7 @@ import (
 type IGeocoding interface {
 	SnapToRoad(ctx context.Context, dto *maps.SnapToRoadRequest) (*maps.SnapToRoadResponse, error)
 	Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language string) (*Address, error)
-	ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string, skipFormattedAddressComponents ...bool) (*Address, error)
+	ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string, skipFormattedAddressComponents bool) (*Address, error)
 	CutCoordinates(float float64, precision int) (float64, error)
 }
 
@@ -117,10 +117,10 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 	return geocodedAddress, nil
 }
 
-func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string, skipFormattedAddressComponents ...bool) (*Address, error) {
+func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string, skipFormattedAddressComponents bool) (*Address, error) {
 	cacheLat := latLng.Lat
 	cacheLng := latLng.Lng
-	useCache := g.useCaching && !shouldSkipFormattedAddressComponents(skipFormattedAddressComponents)
+	useCache := g.useCaching && !skipFormattedAddressComponents
 
 	if useCache {
 		var err error
@@ -154,7 +154,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 		}
 	}
 
-	geocodedAddress, providerRawResponse, err := g.provider.ReverseGeocode(ctx, latLng, language, skipFormattedAddressComponents...)
+	geocodedAddress, providerRawResponse, err := g.provider.ReverseGeocode(ctx, latLng, language, skipFormattedAddressComponents)
 	if err != nil {
 		return nil, err
 	}
