@@ -7,6 +7,11 @@ import (
 	"googlemaps.github.io/maps"
 )
 
+var excludedFormattedAddressComponentTypes = map[string]struct{}{
+	"administrative_area_level_1": {},
+	"neighborhood":                {},
+}
+
 type GoogleMapsProvider struct {
 	client *maps.Client
 }
@@ -74,7 +79,7 @@ func (g *GoogleMapsProvider) extractRegionAndCity(results []maps.GeocodingResult
 	return
 }
 
-func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng, language string) (*Address, interface{}, error) {
+func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng, language string, skipFormattedAddressComponents bool) (*Address, interface{}, error) {
 	response, err := g.client.ReverseGeocode(
 		ctx,
 		&maps.GeocodingRequest{
@@ -99,6 +104,14 @@ func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng,
 	}
 
 	administrativeAreaL1, cityName := g.extractRegionAndCity(response)
+	formattedAddress := response[0].FormattedAddress
+	if skipFormattedAddressComponents {
+		formattedAddress = excludeFormattedAddressComponents(
+			formattedAddress,
+			response[0].AddressComponents,
+			excludedFormattedAddressComponentTypes,
+		)
+	}
 
 	if response[0].PlusCode.GlobalCode != "" {
 		response[0].FormattedAddress = strings.TrimPrefix(response[0].FormattedAddress, response[0].PlusCode.GlobalCode+" ")
@@ -108,7 +121,7 @@ func (g *GoogleMapsProvider) ReverseGeocode(ctx context.Context, latLng *LatLng,
 		Found:                    true,
 		AdministrativeAreaLevel1: administrativeAreaL1,
 		CityName:                 cityName,
-		Address:                  response[0].FormattedAddress,
+		Address:                  formattedAddress,
 		Language:                 language,
 		Location: &LatLng{
 			Lat: response[0].Geometry.Location.Lat,
@@ -129,4 +142,61 @@ func (g *GoogleMapsProvider) SnapToRoad(ctx context.Context, dto *maps.SnapToRoa
 
 func (g *GoogleMapsProvider) GetName() string {
 	return "google_maps"
+}
+
+func excludeFormattedAddressComponents(
+	formattedAddress string,
+	addressComponents []maps.AddressComponent,
+	excludedTypes map[string]struct{},
+) string {
+	addressParts := strings.Split(formattedAddress, ",")
+	filteredAddressParts := make([]string, 0, len(addressParts))
+	excludedComponentNames := getExcludedAddressComponentNames(addressComponents, excludedTypes)
+
+	for _, addressPart := range addressParts {
+		trimmedAddressPart := strings.TrimSpace(addressPart)
+		if trimmedAddressPart == "" {
+			continue
+		}
+
+		if _, excluded := excludedComponentNames[trimmedAddressPart]; excluded {
+			continue
+		}
+
+		filteredAddressParts = append(filteredAddressParts, trimmedAddressPart)
+	}
+
+	return strings.Join(filteredAddressParts, ", ")
+}
+
+func getExcludedAddressComponentNames(
+	addressComponents []maps.AddressComponent,
+	excludedTypes map[string]struct{},
+) map[string]struct{} {
+	excludedNames := make(map[string]struct{})
+
+	for _, addressComponent := range addressComponents {
+		if !hasExcludedAddressComponentType(addressComponent.Types, excludedTypes) {
+			continue
+		}
+
+		if addressComponent.LongName != "" {
+			excludedNames[addressComponent.LongName] = struct{}{}
+		}
+		if addressComponent.ShortName != "" {
+			excludedNames[addressComponent.ShortName] = struct{}{}
+		}
+	}
+
+	return excludedNames
+}
+
+func hasExcludedAddressComponentType(types []string, excludedTypes map[string]struct{}) bool {
+	for _, componentType := range types {
+		if _, excluded := excludedTypes[componentType]; excluded {
+			return true
+		}
+	}
+
+	return false
 }

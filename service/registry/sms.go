@@ -3,7 +3,7 @@ package registry
 import (
 	"errors"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -17,7 +17,7 @@ func ServiceProviderSMS(primaryNewFunc sms.NewProviderFunc, secondaryNewFunc sms
 	return &service.DefinitionGlobal{
 		Name: service.SMSService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
+			ormConfig := ctn.Get(service.ORMConfigService).(trixorm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()
 			if _, ok := entities["entity.SmsTrackerEntity"]; !ok {
 				return nil, errors.New("you should register SmsTrackerEntity")

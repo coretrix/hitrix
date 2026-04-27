@@ -1,12 +1,12 @@
 package acl
 
 import (
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 )
 
-func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource string, permissions ...string) bool {
+func ACL(ormService *trixorm.Engine, roleEntity *entity.RoleEntity, resource string, permissions ...string) bool {
 	resourceEntity := &entity.ResourceEntity{}
 	if !ormService.CachedSearchOne(resourceEntity, "CachedQueryName", resource) {
 		return false
@@ -16,7 +16,7 @@ func ACL(ormService *beeorm.Engine, roleEntity *entity.RoleEntity, resource stri
 	ormService.CachedSearch(
 		&allPermissionEntities,
 		"CachedQueryResourceID",
-		beeorm.NewPager(1, 1000),
+		trixorm.NewPager(1, 1000),
 		resourceEntity.ID,
 	)
 

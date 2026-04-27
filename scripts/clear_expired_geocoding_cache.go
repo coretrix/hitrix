@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
@@ -14,7 +14,7 @@ import (
 type ClearExpiredGeocodingCache struct {
 }
 
-func (script *ClearExpiredGeocodingCache) Run(_ context.Context, _ app.IExit, ormService *beeorm.Engine) {
+func (script *ClearExpiredGeocodingCache) Run(_ context.Context, _ app.IExit, ormService *trixorm.Engine) {
 	now := service.DI().Clock().Now()
 
 	fiveAM := time.Date(now.Year(), now.Month(), now.Day(), 5, 0, 0, 0, now.Location())
@@ -24,10 +24,10 @@ func (script *ClearExpiredGeocodingCache) Run(_ context.Context, _ app.IExit, or
 		return
 	}
 
-	where := beeorm.NewWhere("ExpiresAt < ?", now)
+	where := trixorm.NewWhere("ExpiresAt < ?", now)
 
 	geocodingEntities := make([]*entity.GeocodingCacheEntity, 0)
-	ormService.Search(where, beeorm.NewPager(1, 10000), &geocodingEntities)
+	ormService.Search(where, trixorm.NewPager(1, 10000), &geocodingEntities)
 
 	flusher := ormService.NewFlusher()
 
@@ -37,10 +37,10 @@ func (script *ClearExpiredGeocodingCache) Run(_ context.Context, _ app.IExit, or
 
 	flusher.Flush()
 
-	where = beeorm.NewWhere("ExpiresAt < ?", now)
+	where = trixorm.NewWhere("ExpiresAt < ?", now)
 
 	reverseGeocodingEntities := make([]*entity.GeocodingReverseCacheEntity, 0)
-	ormService.Search(where, beeorm.NewPager(1, 10000), &reverseGeocodingEntities)
+	ormService.Search(where, trixorm.NewPager(1, 10000), &reverseGeocodingEntities)
 
 	flusher = ormService.NewFlusher()
 

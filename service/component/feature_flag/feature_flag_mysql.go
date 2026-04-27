@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -32,7 +32,7 @@ func NewFeatureFlagService(errorLoggerService errorlogger.ErrorLogger) ServiceFe
 	}
 }
 
-func (s *serviceFeatureFlag) IsActive(ormService *beeorm.Engine, name string) bool {
+func (s *serviceFeatureFlag) IsActive(ormService *trixorm.Engine, name string) bool {
 	if name == "" {
 		panic("name cannot be empty")
 	}
@@ -47,7 +47,7 @@ func (s *serviceFeatureFlag) IsActive(ormService *beeorm.Engine, name string) bo
 	return featureFlagEntity.Enabled && featureFlagEntity.Registered
 }
 
-func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *trixorm.Engine, name string) error {
 	isActive := s.IsActive(ormService, name)
 	if !isActive {
 		return fmt.Errorf("feature (%s) is not active", name)
@@ -56,7 +56,7 @@ func (s *serviceFeatureFlag) FailIfIsNotActive(ormService *beeorm.Engine, name s
 	return nil
 }
 
-func (s *serviceFeatureFlag) Enable(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlag) Enable(ormService *trixorm.Engine, name string) error {
 	if name == "" {
 		panic("name cannot be empty")
 	}
@@ -74,7 +74,7 @@ func (s *serviceFeatureFlag) Enable(ormService *beeorm.Engine, name string) erro
 	return nil
 }
 
-func (s *serviceFeatureFlag) Disable(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlag) Disable(ormService *trixorm.Engine, name string) error {
 	if name == "" {
 		panic("name cannot be empty")
 	}
@@ -92,7 +92,7 @@ func (s *serviceFeatureFlag) Disable(ormService *beeorm.Engine, name string) err
 	return nil
 }
 
-func (s *serviceFeatureFlag) getAllActive(ormService *beeorm.Engine, pager *beeorm.Pager) []IFeatureFlag {
+func (s *serviceFeatureFlag) getAllActive(ormService *trixorm.Engine, pager *trixorm.Pager) []IFeatureFlag {
 	var featureFlagEntities []*entity.FeatureFlagEntity
 	ormService.CachedSearch(&featureFlagEntities, "CachedQueryRegisteredEnabled", pager, true, true)
 
@@ -111,8 +111,8 @@ func (s *serviceFeatureFlag) getAllActive(ormService *beeorm.Engine, pager *beeo
 	return activeFeatureFlags
 }
 
-func (s *serviceFeatureFlag) GetScriptsSingleInstance(ormService *beeorm.Engine) []app.IScript {
-	activeFeatureFlags := s.getAllActive(ormService, beeorm.NewPager(1, 1000))
+func (s *serviceFeatureFlag) GetScriptsSingleInstance(ormService *trixorm.Engine) []app.IScript {
+	activeFeatureFlags := s.getAllActive(ormService, trixorm.NewPager(1, 1000))
 
 	allScripts := make([]app.IScript, 0)
 	for _, featureFlag := range activeFeatureFlags {
@@ -122,8 +122,8 @@ func (s *serviceFeatureFlag) GetScriptsSingleInstance(ormService *beeorm.Engine)
 	return allScripts
 }
 
-func (s *serviceFeatureFlag) GetScriptsMultiInstance(ormService *beeorm.Engine) []app.IScript {
-	activeFeatureFlags := s.getAllActive(ormService, beeorm.NewPager(1, 1000))
+func (s *serviceFeatureFlag) GetScriptsMultiInstance(ormService *trixorm.Engine) []app.IScript {
+	activeFeatureFlags := s.getAllActive(ormService, trixorm.NewPager(1, 1000))
 
 	allScripts := make([]app.IScript, 0)
 	for _, featureFlag := range activeFeatureFlags {
@@ -145,14 +145,14 @@ func (s *serviceFeatureFlag) Register(featureFlags ...IFeatureFlag) {
 	}
 }
 
-func (s *serviceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.IClock) {
+func (s *serviceFeatureFlag) Sync(ormService *trixorm.Engine, clockService clock.IClock) {
 	var featureFlagEntities []*entity.FeatureFlagEntity
 	var lastID uint64
 
 	for {
 		var rows []*entity.FeatureFlagEntity
-		pager := beeorm.NewPager(1, 1000)
-		ormService.Search(beeorm.NewWhere("ID > ? ORDER BY ID ASC", lastID), pager, &rows)
+		pager := trixorm.NewPager(1, 1000)
+		ormService.Search(trixorm.NewWhere("ID > ? ORDER BY ID ASC", lastID), pager, &rows)
 
 		if len(rows) == 0 {
 			break
@@ -191,7 +191,7 @@ func (s *serviceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.
 			err := ormService.FlushWithCheck(featureFlagEntity)
 
 			if err != nil {
-				if duplicateKeyError, ok := err.(*beeorm.DuplicatedKeyError); ok {
+				if duplicateKeyError, ok := err.(*trixorm.DuplicatedKeyError); ok {
 					if duplicateKeyError.Index != "Name" {
 						panic(err)
 					}

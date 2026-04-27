@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/dto/acl"
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -67,7 +67,7 @@ func UpdateRole(c *gin.Context, roleID *acl.RoleRequestDTO, request *acl.CreateO
 	ormService.CachedSearch(
 		&privilegeEntitiesToDelete,
 		"CachedQueryPrivilegeRoleID",
-		beeorm.NewPager(1, 1000),
+		trixorm.NewPager(1, 1000),
 		roleEntity.ID)
 
 	now := service.DI().Clock().Now()
@@ -114,7 +114,7 @@ func DeleteRole(c *gin.Context, roleID *acl.RoleRequestDTO) error {
 	ormService.CachedSearch(
 		&privilegeEntitiesToDelete,
 		"CachedQueryPrivilegeRoleID",
-		beeorm.NewPager(1, 1000),
+		trixorm.NewPager(1, 1000),
 		roleEntity.ID)
 
 	err := helper.DBTransaction(ormService, func() error {
@@ -135,7 +135,7 @@ func DeleteRole(c *gin.Context, roleID *acl.RoleRequestDTO) error {
 	return nil
 }
 
-func PostAssignRoleToUserAction(c *gin.Context, getUserFunc func() beeorm.Entity, request *acl.AssignRoleToUserRequestDTO) error {
+func PostAssignRoleToUserAction(c *gin.Context, getUserFunc func() trixorm.Entity, request *acl.AssignRoleToUserRequestDTO) error {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	roleEntity := &entity.RoleEntity{}
@@ -155,7 +155,7 @@ func PostAssignRoleToUserAction(c *gin.Context, getUserFunc func() beeorm.Entity
 
 	userWithSettableRole.SetRole(roleEntity)
 
-	userEntityWithNewRole, _ := userWithSettableRole.(beeorm.Entity)
+	userEntityWithNewRole, _ := userWithSettableRole.(trixorm.Entity)
 
 	ormService.Flush(userEntityWithNewRole)
 
@@ -166,7 +166,7 @@ type resourceMapping map[uint64]*entity.ResourceEntity
 
 type permissionMapping map[uint64]*entity.PermissionEntity
 
-func validateResourcesAndPermissions(ormService *beeorm.Engine, resources []*acl.RoleResourceRequestDTO) (resourceMapping, permissionMapping, error) {
+func validateResourcesAndPermissions(ormService *trixorm.Engine, resources []*acl.RoleResourceRequestDTO) (resourceMapping, permissionMapping, error) {
 	resourceIDs := make([]uint64, len(resources))
 	permissionIDs := make([]uint64, 0)
 
@@ -176,11 +176,11 @@ func validateResourcesAndPermissions(ormService *beeorm.Engine, resources []*acl
 		permissionIDs = append(permissionIDs, resource.PermissionIDs...)
 	}
 
-	resourcesQuery := beeorm.NewRedisSearchQuery()
+	resourcesQuery := trixorm.NewRedisSearchQuery()
 	resourcesQuery.FilterUint("ID", resourceIDs...)
 
 	resourceEntities := make([]*entity.ResourceEntity, 0)
-	ormService.RedisSearch(&resourceEntities, resourcesQuery, beeorm.NewPager(1, 1000))
+	ormService.RedisSearch(&resourceEntities, resourcesQuery, trixorm.NewPager(1, 1000))
 
 	if len(resourceEntities) != len(resourceIDs) {
 		return nil, nil, fmt.Errorf("some of the provided resources is not found")
@@ -219,7 +219,7 @@ func validateResourcesAndPermissions(ormService *beeorm.Engine, resources []*acl
 }
 
 func createPrivileges(
-	flusher beeorm.Flusher,
+	flusher trixorm.Flusher,
 	roleEntity *entity.RoleEntity,
 	resources []*acl.RoleResourceRequestDTO,
 	resourcesMapping resourceMapping,

@@ -4,12 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 )
 
 type IScript interface {
 	Description() string
-	Run(ctx context.Context, exit IExit, ormService *beeorm.Engine)
+	Run(ctx context.Context, exit IExit, ormService *trixorm.Engine)
 	Unique() bool
 }
 

@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/queue/streams"
@@ -13,12 +13,12 @@ import (
 )
 
 type OTPRetryConsumer struct {
-	ormService      *beeorm.Engine
+	ormService      *trixorm.Engine
 	maxRetries      int
 	gatewayRegistry map[string]otp.IOTPSMSGateway
 }
 
-func NewOTPRetryConsumer(ormService *beeorm.Engine, maxRetries int, gatewayRegistry map[string]otp.IOTPSMSGateway) *OTPRetryConsumer {
+func NewOTPRetryConsumer(ormService *trixorm.Engine, maxRetries int, gatewayRegistry map[string]otp.IOTPSMSGateway) *OTPRetryConsumer {
 	return &OTPRetryConsumer{ormService: ormService, maxRetries: maxRetries, gatewayRegistry: gatewayRegistry}
 }
 
@@ -30,7 +30,7 @@ func (c *OTPRetryConsumer) GetGroupName(suffix *string) string {
 	return streams.GetGroupName(c.GetQueueName(), suffix)
 }
 
-func (c *OTPRetryConsumer) Consume(_ *beeorm.Engine, event beeorm.Event) error {
+func (c *OTPRetryConsumer) Consume(_ *trixorm.Engine, event trixorm.Event) error {
 	log.Println(".")
 
 	ormService := c.ormService.Clone()
@@ -51,7 +51,7 @@ func (c *OTPRetryConsumer) Consume(_ *beeorm.Engine, event beeorm.Event) error {
 }
 
 func RetryOTP(
-	ormService *beeorm.Engine,
+	ormService *trixorm.Engine,
 	gatewayRegistry map[string]otp.IOTPSMSGateway,
 	retryDTO *otp.RetryDTO,
 	otpTrackerEntity *entity.OTPTrackerEntity,

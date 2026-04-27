@@ -3,7 +3,7 @@ package registry
 import (
 	"errors"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -17,7 +17,7 @@ func ServiceProviderAmazonS3(bucketsMapping map[string]uint64) *service.Definiti
 	return &service.DefinitionGlobal{
 		Name: service.AmazonS3Service,
 		Build: func(ctn di.Container) (interface{}, error) {
-			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
+			ormConfig := ctn.Get(service.ORMConfigService).(trixorm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()
 			if _, ok := entities["entity.S3BucketCounterEntity"]; !ok {
 				return nil, errors.New("you should register S3BucketCounterEntity")

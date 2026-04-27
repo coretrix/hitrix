@@ -1,7 +1,7 @@
 package mock
 
 import (
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -14,43 +14,43 @@ type FakeServiceFeatureFlag struct {
 	mock.Mock
 }
 
-func (s *FakeServiceFeatureFlag) IsActive(_ *beeorm.Engine, name string) bool {
+func (s *FakeServiceFeatureFlag) IsActive(_ *trixorm.Engine, name string) bool {
 	called := s.Called(name)
 
 	return called.Bool(0)
 }
 
-func (s *FakeServiceFeatureFlag) FailIfIsNotActive(_ *beeorm.Engine, name string) error {
+func (s *FakeServiceFeatureFlag) FailIfIsNotActive(_ *trixorm.Engine, name string) error {
 	called := s.Called(name)
 
 	return called.Error(0)
 }
 
-func (s *FakeServiceFeatureFlag) Enable(_ *beeorm.Engine, name string) error {
+func (s *FakeServiceFeatureFlag) Enable(_ *trixorm.Engine, name string) error {
 	called := s.Called(name)
 
 	return called.Error(0)
 }
 
-func (s *FakeServiceFeatureFlag) Disable(_ *beeorm.Engine, name string) error {
+func (s *FakeServiceFeatureFlag) Disable(_ *trixorm.Engine, name string) error {
 	called := s.Called(name)
 
 	return called.Error(0)
 }
 
-func (s *FakeServiceFeatureFlag) GetAll(_ *beeorm.Engine, pager *beeorm.Pager) []*entity.FeatureFlagEntity {
+func (s *FakeServiceFeatureFlag) GetAll(_ *trixorm.Engine, pager *trixorm.Pager) []*entity.FeatureFlagEntity {
 	called := s.Called(pager)
 
 	return called.Get(0).([]*entity.FeatureFlagEntity)
 }
 
-func (s *FakeServiceFeatureFlag) GetScriptsSingleInstance(ormService *beeorm.Engine) []app.IScript {
+func (s *FakeServiceFeatureFlag) GetScriptsSingleInstance(ormService *trixorm.Engine) []app.IScript {
 	called := s.Called(ormService)
 
 	return called.Get(0).([]app.IScript)
 }
 
-func (s *FakeServiceFeatureFlag) GetScriptsMultiInstance(ormService *beeorm.Engine) []app.IScript {
+func (s *FakeServiceFeatureFlag) GetScriptsMultiInstance(ormService *trixorm.Engine) []app.IScript {
 	called := s.Called(ormService)
 
 	return called.Get(0).([]app.IScript)
@@ -60,6 +60,6 @@ func (s *FakeServiceFeatureFlag) Register(featureFlags ...featureflag.IFeatureFl
 	s.Called(featureFlags)
 }
 
-func (s *FakeServiceFeatureFlag) Sync(ormService *beeorm.Engine, clockService clock.IClock) {
+func (s *FakeServiceFeatureFlag) Sync(ormService *trixorm.Engine, clockService clock.IClock) {
 	s.Called(ormService, clockService)
 }

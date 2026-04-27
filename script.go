@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/TwiN/go-color"
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 	"github.com/ryanuber/columnize"
 
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -207,7 +207,7 @@ func (processor *BackgroundProcessor) RunAsyncOrmConsumer() {
 	GoroutineWithRestart(func() {
 		log.Println("starting orm background consumer")
 
-		asyncConsumer := beeorm.NewBackgroundConsumer(ormService)
+		asyncConsumer := trixorm.NewBackgroundConsumer(ormService)
 		for {
 			if asyncConsumer.Digest(appService.GlobalContext) {
 				log.Println("orm background consumer exited successfully")
@@ -400,11 +400,11 @@ func (processor *BackgroundProcessor) RunAsyncRequestLoggerCleaner() {
 	})
 }
 
-func removeAllOldRequestLoggerRows(ormService *beeorm.Engine, ttlInDays int) {
-	pager := beeorm.NewPager(1, 1000)
+func removeAllOldRequestLoggerRows(ormService *trixorm.Engine, ttlInDays int) {
+	pager := trixorm.NewPager(1, 1000)
 
 	for {
-		where := beeorm.NewWhere("CreatedAt < ?", service.DI().Clock().Now().AddDate(0, 0, -ttlInDays).Format(helper.TimeLayoutYMDHMS))
+		where := trixorm.NewWhere("CreatedAt < ?", service.DI().Clock().Now().AddDate(0, 0, -ttlInDays).Format(helper.TimeLayoutYMDHMS))
 
 		var requestLoggerEntities []*entity.RequestLoggerEntity
 		ormService.Search(where, pager, &requestLoggerEntities)
@@ -454,11 +454,11 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCleaner() {
 	})
 }
 
-func removeAllOldMetricsRows(ormService *beeorm.Engine, ttlInDays int) {
-	pager := beeorm.NewPager(1, 1000)
+func removeAllOldMetricsRows(ormService *trixorm.Engine, ttlInDays int) {
+	pager := trixorm.NewPager(1, 1000)
 
 	for {
-		where := beeorm.NewWhere("CreatedAt < ?", service.DI().Clock().Now().AddDate(0, 0, -ttlInDays).Format(helper.TimeLayoutYMDHMS))
+		where := trixorm.NewWhere("CreatedAt < ?", service.DI().Clock().Now().AddDate(0, 0, -ttlInDays).Format(helper.TimeLayoutYMDHMS))
 
 		var metricsEntities []*entity.MetricsEntity
 		ormService.Search(where, pager, &metricsEntities)

@@ -1,14 +1,14 @@
 package entity
 
 import (
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 )
 
 type DevPanelUserEntity struct {
-	beeorm.ORM `orm:"table=dev_panel_users;redisCache;redisSearch=search_pool"`
-	ID         uint64
-	Email      string `orm:"unique=Email;searchable"`
-	Password   string
+	trixorm.ORM `orm:"table=dev_panel_users;redisCache;redisSearch=search_pool"`
+	ID          uint64
+	Email       string `orm:"unique=Email;searchable"`
+	Password    string
 }
 
 func (u *DevPanelUserEntity) GetUniqueFieldName() string {

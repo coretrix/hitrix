@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix"
 	"github.com/coretrix/hitrix/service"
@@ -104,7 +104,7 @@ func CreateAPIContext(
 	return &Environment{t: t, Hitrix: testSpringInstance, GinEngine: ginTestInstance, Cxt: c, ResponseRecorder: resp}
 }
 
-func executeAlters(ormService *beeorm.Engine) {
+func executeAlters(ormService *trixorm.Engine) {
 	if dbAlters == "" {
 		dropTables(ormService.GetMysql())
 
@@ -160,7 +160,7 @@ func getParallelID() string {
 	return parallelTestID
 }
 
-func dropTables(dbService *beeorm.DB) {
+func dropTables(dbService *trixorm.DB) {
 	var query string
 	rows, deferF := dbService.Query(
 		"SELECT CONCAT('DROP TABLE IF EXISTS ',table_schema,'.',table_name,';') AS query " +
@@ -183,7 +183,7 @@ func dropTables(dbService *beeorm.DB) {
 	}
 }
 
-func truncateTables(dbService *beeorm.DB) {
+func truncateTables(dbService *trixorm.DB) {
 	var query string
 	rows, deferF := dbService.Query(
 		"SELECT CONCAT('delete from  ',table_schema,'.',table_name,';' , 'ALTER TABLE ', table_schema,'.',table_name , ' AUTO_INCREMENT = 1;') AS query " +

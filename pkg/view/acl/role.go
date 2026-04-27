@@ -3,8 +3,8 @@ package acl
 import (
 	"fmt"
 
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/dto/acl"
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -45,7 +45,7 @@ func ListRoles(c *gin.Context, request *crud.ListRequest) *acl.RolesResponseDTO 
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	allRoleEntities := make([]*entity.RoleEntity, 0)
-	total := ormService.RedisSearch(&allRoleEntities, query, beeorm.NewPager(searchParams.Page, searchParams.PageSize))
+	total := ormService.RedisSearch(&allRoleEntities, query, trixorm.NewPager(searchParams.Page, searchParams.PageSize))
 
 	result := &acl.RolesResponseDTO{
 		Total:       int(total),
@@ -71,7 +71,7 @@ func GetRole(c *gin.Context, request *acl.RoleRequestDTO) (*acl.RoleResponseDTO,
 	ormService.CachedSearchWithReferences(
 		&allPrivilegeEntities,
 		"CachedQueryPrivilegeRoleID",
-		beeorm.NewPager(1, 4000),
+		trixorm.NewPager(1, 4000),
 		[]interface{}{request.ID},
 		[]string{"RoleID", "ResourceID", "PermissionIDs"},
 	)

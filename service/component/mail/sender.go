@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
@@ -14,8 +14,8 @@ import (
 
 type ISender interface {
 	GetTemplateKeyFromConfig(templateName string) (string, error)
-	SendTemplate(ormService *beeorm.Engine, message *Message) error
-	SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error
+	SendTemplate(ormService *trixorm.Engine, message *Message) error
+	SendTemplateWithAttachments(ormService *trixorm.Engine, message *MessageAttachment) error
 	GetTemplateHTMLCode(templateName string) (string, error)
 }
 
@@ -49,7 +49,7 @@ type Sender struct {
 }
 
 func NewSender(
-	ormConfig beeorm.ValidatedRegistry,
+	ormConfig trixorm.ValidatedRegistry,
 	configService config.IConfig,
 	clockService clock.IClock,
 	errorLogger errorlogger.ErrorLogger,
@@ -77,7 +77,7 @@ func (s *Sender) GetTemplateKeyFromConfig(templateName string) (string, error) {
 	return s.Provider.GetTemplateKeyFromConfig(s.ConfigService, templateName)
 }
 
-func (s *Sender) SendTemplate(ormService *beeorm.Engine, message *Message) error {
+func (s *Sender) SendTemplate(ormService *trixorm.Engine, message *Message) error {
 	if message.From == "" {
 		message.From = s.Provider.GetDefaultFromEmail()
 	}
@@ -112,7 +112,7 @@ func (s *Sender) SendTemplate(ormService *beeorm.Engine, message *Message) error
 	return nil
 }
 
-func (s *Sender) SendTemplateWithAttachments(ormService *beeorm.Engine, message *MessageAttachment) error {
+func (s *Sender) SendTemplateWithAttachments(ormService *trixorm.Engine, message *MessageAttachment) error {
 	mailTrackerEntity, err := s.createTrackingEntity(ormService, &Message{
 		From:         message.From,
 		FromName:     message.FromName,
@@ -151,7 +151,7 @@ func (s *Sender) GetTemplateHTMLCode(templateName string) (string, error) {
 	return s.Provider.GetTemplateHTMLCode(templateName)
 }
 
-func (s *Sender) createTrackingEntity(ormService *beeorm.Engine, message *Message) (*entity.MailTrackerEntity, error) {
+func (s *Sender) createTrackingEntity(ormService *trixorm.Engine, message *Message) (*entity.MailTrackerEntity, error) {
 	mailTrackerEntity := &entity.MailTrackerEntity{
 		Status:       entity.MailTrackerStatusNew,
 		From:         message.From,

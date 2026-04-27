@@ -1,8 +1,8 @@
 package middleware
 
 import (
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/example/entity"
 	"github.com/coretrix/hitrix/pkg/controller"
@@ -21,7 +21,7 @@ func ACLRouter(ginEngine *gin.Engine) {
 		aclGroup.POST("/role/", aclController.CreateRoleAction)
 		aclGroup.PUT("/role/:ID/", aclController.UpdateRoleAction)
 		aclGroup.DELETE("/role/:ID/", aclController.DeleteRoleAction)
-		aclGroup.POST("/assign-role/", aclController.PostAssignRoleToUserAction(func() beeorm.Entity {
+		aclGroup.POST("/assign-role/", aclController.PostAssignRoleToUserAction(func() trixorm.Entity {
 			return &entity.AdminUserEntity{}
 		}))
 	}

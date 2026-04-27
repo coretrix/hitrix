@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -42,7 +42,7 @@ func ServiceProviderOTP(emailSenderFunc mail.NewSenderFunc, SMSForceProviders ..
 					providers = append(providers, provider)
 				}
 			} else {
-				ormService := ctn.Get(service.ORMEngineGlobalService).(*beeorm.Engine)
+				ormService := ctn.Get(service.ORMEngineGlobalService).(*trixorm.Engine)
 
 				settingsEntity := &entity.SettingsEntity{}
 				if has := ormService.CachedSearchOne(settingsEntity, "Key", "otp_sms_provider"); !has {
@@ -86,7 +86,7 @@ func ServiceProviderOTP(emailSenderFunc mail.NewSenderFunc, SMSForceProviders ..
 			if emailSenderFunc != nil {
 				var err error
 				emailSender, err = mail.NewSender(
-					ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry),
+					ctn.Get(service.ORMConfigService).(trixorm.ValidatedRegistry),
 					ctn.Get(service.ConfigService).(config.IConfig),
 					ctn.Get(service.ClockService).(clock.IClock),
 					ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger),

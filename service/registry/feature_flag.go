@@ -3,7 +3,7 @@ package registry
 import (
 	"errors"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -18,7 +18,7 @@ func ServiceProviderFeatureFlag(registry FeatureFlagRegistryInitFunc) *service.D
 	return &service.DefinitionGlobal{
 		Name: service.FeatureFlagService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
+			ormConfig := ctn.Get(service.ORMConfigService).(trixorm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()
 			if _, ok := entities["entity.FeatureFlagEntity"]; !ok {
 				return nil, errors.New("you should register FeatureFlagEntity")
@@ -36,7 +36,7 @@ func ServiceProviderFeatureFlagWithCache(registry FeatureFlagRegistryInitFunc) *
 	return &service.DefinitionGlobal{
 		Name: service.FeatureFlagService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
+			ormConfig := ctn.Get(service.ORMConfigService).(trixorm.ValidatedRegistry)
 			entities := ormConfig.GetEntities()
 			if _, ok := entities["entity.FeatureFlagEntity"]; !ok {
 				return nil, errors.New("you should register FeatureFlagEntity")

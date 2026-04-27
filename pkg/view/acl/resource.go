@@ -3,8 +3,8 @@ package acl
 import (
 	"sort"
 
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/dto/acl"
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -19,7 +19,7 @@ func ListResources(c *gin.Context) *acl.ResourcesResponseDTO {
 	ormService.CachedSearchWithReferences(
 		&allPermissionEntities,
 		"CachedQueryAll",
-		beeorm.NewPager(1, 4000),
+		trixorm.NewPager(1, 4000),
 		nil,
 		[]string{"ResourceID"},
 	)
@@ -61,7 +61,7 @@ type UserRoleGetter interface {
 	GetRole() *entity.RoleEntity
 }
 
-func ListUserResources(c *gin.Context, getUserFunc func(c *gin.Context) beeorm.Entity) *acl.ResourcesResponseDTO {
+func ListUserResources(c *gin.Context, getUserFunc func(c *gin.Context) trixorm.Entity) *acl.ResourcesResponseDTO {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	userEntity := getUserFunc(c)
@@ -76,7 +76,7 @@ func ListUserResources(c *gin.Context, getUserFunc func(c *gin.Context) beeorm.E
 	ormService.CachedSearchWithReferences(
 		&privilegeEntities,
 		"CachedQueryPrivilegeRoleID",
-		beeorm.NewPager(1, 4000),
+		trixorm.NewPager(1, 4000),
 		[]interface{}{userWithGettableRole.GetRole().ID},
 		[]string{"ResourceID", "PermissionIDs"},
 	)

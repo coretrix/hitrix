@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
@@ -66,7 +66,7 @@ type ExportConfig struct {
 	Permissions      []string
 }
 
-type ExportHandler func(entity.TranslationTextLang, *beeorm.Engine, *ListRequest, uint64, map[string]string) ([]string, [][]interface{}, error)
+type ExportHandler func(entity.TranslationTextLang, *trixorm.Engine, *ListRequest, uint64, map[string]string) ([]string, [][]interface{}, error)
 
 type StringKeyStringValue struct {
 	Key   string
@@ -107,7 +107,7 @@ type Crud struct {
 	TranslationService translation.ITranslationService
 }
 
-func (c *Crud) TranslateColumns(ormService *beeorm.Engine, lang entity.TranslationTextLang, cols []*Column) []*Column {
+func (c *Crud) TranslateColumns(ormService *trixorm.Engine, lang entity.TranslationTextLang, cols []*Column) []*Column {
 	for _, col := range cols {
 		if col.Label != "" {
 			col.Label = c.TranslationService.GetText(ormService, lang, entity.TranslationTextKey(col.Label))
@@ -525,8 +525,8 @@ func fetchDependencyValueInt(dependentCol *Column, cols []*Column, request *List
 }
 
 // GenerateListRedisSearchQuery TODO : add full text queries when supported by hitrix
-func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSearchQuery {
-	query := &beeorm.RedisSearchQuery{}
+func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *trixorm.RedisSearchQuery {
+	query := &trixorm.RedisSearchQuery{}
 	for field, value := range params.NumberFilters {
 		query.FilterInt(field, value)
 	}
@@ -567,7 +567,7 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 		if params.Cols[field].FullTextSearch {
 			query.QueryRaw(fmt.Sprintf(
 				"@%s:*%v* ",
-				field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
+				field, strings.TrimSpace(trixorm.EscapeRedisSearchString(value)),
 			))
 		} else {
 			query.QueryFieldPrefixMatch(field, value)
@@ -591,7 +591,7 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 
 		orStatements = append(orStatements, fmt.Sprintf(
 			"(@%s:%v*)",
-			field, strings.TrimSpace(beeorm.EscapeRedisSearchString(value)),
+			field, strings.TrimSpace(trixorm.EscapeRedisSearchString(value)),
 		))
 	}
 
@@ -608,8 +608,8 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *beeorm.RedisSe
 	return query
 }
 
-func (c *Crud) GenerateListMysqlQuery(params SearchParams) *beeorm.Where {
-	where := beeorm.NewWhere("1")
+func (c *Crud) GenerateListMysqlQuery(params SearchParams) *trixorm.Where {
+	where := trixorm.NewWhere("1")
 	for field, value := range params.NumberFilters {
 		where.Append("AND `"+field+"` = ?", value)
 	}

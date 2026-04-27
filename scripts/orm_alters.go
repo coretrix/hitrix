@@ -3,8 +3,8 @@ package scripts
 import (
 	"context"
 
+	"github.com/coretrix/trixorm"
 	"github.com/fatih/color"
-	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -39,7 +39,7 @@ func (script *ORMAltersScript) Description() string {
 	return "show all MySQL schema changes"
 }
 
-func (script *ORMAltersScript) Run(_ context.Context, exit app.IExit, ormService *beeorm.Engine) {
+func (script *ORMAltersScript) Run(_ context.Context, exit app.IExit, ormService *trixorm.Engine) {
 	alters := ormService.GetAlters()
 
 	for _, alter := range alters {

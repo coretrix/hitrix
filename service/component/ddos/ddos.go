@@ -3,17 +3,17 @@ package ddos
 import (
 	"strconv"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 )
 
 type IDDOS interface {
-	ProtectManyAttempts(redis *beeorm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool
+	ProtectManyAttempts(redis *trixorm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool
 }
 
 type DDOS struct {
 }
 
-func (t *DDOS) ProtectManyAttempts(redis *beeorm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool {
+func (t *DDOS) ProtectManyAttempts(redis *trixorm.RedisCache, protectCriterion string, maxAttempts int, ttl int) bool {
 	attempts, has := redis.Get("ddos_" + protectCriterion)
 	count := 0
 

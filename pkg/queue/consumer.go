@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix"
 	"github.com/coretrix/hitrix/service"
@@ -19,36 +19,36 @@ const (
 
 type ConsumerOneByModulo interface {
 	GetMaxModulo() int
-	Consume(ormService *beeorm.Engine, event beeorm.Event) error
+	Consume(ormService *trixorm.Engine, event trixorm.Event) error
 	GetQueueName(moduloID int) string
 	GetGroupName(moduloID int, suffix *string) string
 }
 
 type ConsumerManyByModulo interface {
 	GetMaxModulo() int
-	Consume(ormService *beeorm.Engine, events []beeorm.Event) error
+	Consume(ormService *trixorm.Engine, events []trixorm.Event) error
 	GetQueueName(moduloID int) string
 	GetGroupName(moduloID int, suffix *string) string
 }
 
 type ConsumerOne interface {
-	Consume(ormService *beeorm.Engine, event beeorm.Event) error
+	Consume(ormService *trixorm.Engine, event trixorm.Event) error
 	GetQueueName() string
 	GetGroupName(suffix *string) string
 }
 
 type ConsumerMany interface {
-	Consume(ormService *beeorm.Engine, events []beeorm.Event) error
+	Consume(ormService *trixorm.Engine, events []trixorm.Event) error
 	GetQueueName() string
 	GetGroupName(suffix *string) string
 }
 
 type ConsumerRunner struct {
 	ctx        context.Context
-	ormService *beeorm.Engine
+	ormService *trixorm.Engine
 }
 
-func NewConsumerRunner(ctx context.Context, ormService *beeorm.Engine) *ConsumerRunner {
+func NewConsumerRunner(ctx context.Context, ormService *trixorm.Engine) *ConsumerRunner {
 	return &ConsumerRunner{ctx: ctx, ormService: ormService}
 }
 
@@ -67,7 +67,7 @@ func (r *ConsumerRunner) RunConsumerMany(consumer ConsumerMany, groupNameSuffix 
 		// eventsConsumer.Consume should block and not return anything
 		// if it returns true => this consumer is exited with no errors, but still not consuming
 		// if it returns false => this consumer is exited with error "could not obtain lock", so we should retry
-		if exitedWithNoErrors := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+		if exitedWithNoErrors := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []trixorm.Event) {
 			log.Printf("We have %d new dirty events in %s", len(events), queueName)
 
 			if err := consumer.Consume(r.ormService, events); err != nil {
@@ -104,7 +104,7 @@ func (r *ConsumerRunner) RunConsumerOne(consumer ConsumerOne, groupNameSuffix *s
 		// eventsConsumer.Consume should block and not return anything
 		// if it returns true => this consumer is exited with no errors, but still not consuming
 		// if it returns false => this consumer is exited with error "could not obtain lock", so we should retry
-		if exitedWithNoErrors := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+		if exitedWithNoErrors := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []trixorm.Event) {
 			log.Printf("We have %d new dirty events in %s", len(events), queueName)
 
 			for _, event := range events {
@@ -159,7 +159,7 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 				// eventsConsumer.Consume should block and not return anything
 				// if it returns true => this consumer is exited with no errors, but still not consuming
 				// if it returns false => this consumer is exited with error "could not obtain lock", so we should retry
-				if exitedWithNoErrors := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+				if exitedWithNoErrors := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []trixorm.Event) {
 					log.Printf("We have %d new dirty events in %s", len(events), consumerGroupName)
 
 					for _, event := range events {
@@ -223,7 +223,7 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 				// eventsConsumer.Consume should block and not return anything
 				// if it returns true => this consumer is exited with no errors, but still not consuming
 				// if it returns false => this consumer is exited with error "could not obtain lock", so we should retry
-				if exitedWithNoErrors := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []beeorm.Event) {
+				if exitedWithNoErrors := eventsConsumer.Consume(r.ctx, prefetchCount, func(events []trixorm.Event) {
 					log.Printf("We have %d new dirty events in %s", len(events), consumerGroupName)
 
 					if err := consumer.Consume(ormService, events); err != nil {
@@ -257,11 +257,11 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 type ScalableConsumerRunner struct {
 	ctx        context.Context
-	ormService *beeorm.Engine
+	ormService *trixorm.Engine
 	redisPool  string
 }
 
-func NewScalableConsumerRunner(ctx context.Context, ormService *beeorm.Engine, redisPool string) *ScalableConsumerRunner {
+func NewScalableConsumerRunner(ctx context.Context, ormService *trixorm.Engine, redisPool string) *ScalableConsumerRunner {
 	return &ScalableConsumerRunner{ctx: ctx, ormService: ormService, redisPool: redisPool}
 }
 
@@ -285,7 +285,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerMany(consumer ConsumerMany, 
 		// eventsConsumer.ConsumeMany should block and not return anything
 		// if it returns true => this consumer is exited with no errors, but still not consuming
 		// if it returns false => this consumer is exited with error "could not obtain lock", so we should retry
-		if exitedWithNoErrors := eventsConsumer.ConsumeMany(r.ctx, currentIndex, prefetchCount, func(events []beeorm.Event) {
+		if exitedWithNoErrors := eventsConsumer.ConsumeMany(r.ctx, currentIndex, prefetchCount, func(events []trixorm.Event) {
 			log.Printf("We have %d new dirty events in %s", len(events), queueName)
 
 			if err := consumer.Consume(r.ormService, events); err != nil {
@@ -329,7 +329,7 @@ func (r *ScalableConsumerRunner) RunScalableConsumerOne(consumer ConsumerOne, gr
 		// eventsConsumer.ConsumeMany should block and not return anything
 		// if it returns true => this consumer is exited with no errors, but still not consuming
 		// if it returns false => this consumer is exited with error "could not obtain lock", so we should retry
-		if exitedWithNoErrors := eventsConsumer.ConsumeMany(r.ctx, currentIndex, prefetchCount, func(events []beeorm.Event) {
+		if exitedWithNoErrors := eventsConsumer.ConsumeMany(r.ctx, currentIndex, prefetchCount, func(events []trixorm.Event) {
 			log.Printf("We have %d new dirty events in %s", len(events), queueName)
 
 			for _, event := range events {
@@ -365,7 +365,7 @@ type indexer struct {
 	ActiveConsumerIndexes map[int]*struct{}
 }
 
-func addConsumerGroup(redis *beeorm.RedisCache, consumerGroupName string) int {
+func addConsumerGroup(redis *trixorm.RedisCache, consumerGroupName string) int {
 	indexerValue, err := getConsumerGroupIndexer(redis, consumerGroupName)
 	if err != nil {
 		panic(err)
@@ -390,7 +390,7 @@ func addConsumerGroup(redis *beeorm.RedisCache, consumerGroupName string) int {
 	return indexerValue.LatestIndex
 }
 
-func removeConsumerGroup(consumer beeorm.EventsConsumer, redis *beeorm.RedisCache, consumerGroupName string, indexToRemove int) {
+func removeConsumerGroup(consumer trixorm.EventsConsumer, redis *trixorm.RedisCache, consumerGroupName string, indexToRemove int) {
 	indexerValue, err := getConsumerGroupIndexer(redis, consumerGroupName)
 	if err != nil {
 		panic(err)
@@ -404,7 +404,7 @@ func removeConsumerGroup(consumer beeorm.EventsConsumer, redis *beeorm.RedisCach
 	}
 
 	// transfer pending items from stopped consumer to another if available as per:
-	// https://beeorm.io/guide/event_broker.html#consumers-scaling
+	// https://trixorm.io/guide/event_broker.html#consumers-scaling
 	if len(indexerValue.ActiveConsumerIndexes) != 0 {
 		indexToTransferClaimedItems := 0
 		for index := range indexerValue.ActiveConsumerIndexes {
@@ -420,7 +420,7 @@ func removeConsumerGroup(consumer beeorm.EventsConsumer, redis *beeorm.RedisCach
 	}
 }
 
-func setConsumerGroupIndexer(redis *beeorm.RedisCache, consumerGroupName string, indexer *indexer) error {
+func setConsumerGroupIndexer(redis *trixorm.RedisCache, consumerGroupName string, indexer *indexer) error {
 	marshaled, err := json.Marshal(indexer)
 	if err != nil {
 		return err
@@ -431,7 +431,7 @@ func setConsumerGroupIndexer(redis *beeorm.RedisCache, consumerGroupName string,
 	return err
 }
 
-func getConsumerGroupIndexer(redis *beeorm.RedisCache, consumerGroupName string) (*indexer, error) {
+func getConsumerGroupIndexer(redis *trixorm.RedisCache, consumerGroupName string) (*indexer, error) {
 	marshaled, has := redis.HGet(consumerGroupsKey, consumerGroupName)
 	if !has {
 		return nil, nil

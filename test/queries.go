@@ -3,14 +3,14 @@ package main
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/example/entity"
 	entityHitrix "github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service"
 )
 
-func CreateAdminUser(flusher beeorm.Flusher, row map[string]interface{}) *entity.AdminUserEntity {
+func CreateAdminUser(flusher trixorm.Flusher, row map[string]interface{}) *entity.AdminUserEntity {
 	userEntity := &entity.AdminUserEntity{}
 
 	if len(row) != 0 {
@@ -27,7 +27,7 @@ func CreateAdminUser(flusher beeorm.Flusher, row map[string]interface{}) *entity
 	return userEntity
 }
 
-func CreateRole(flusher beeorm.Flusher, row map[string]interface{}) *entityHitrix.RoleEntity {
+func CreateRole(flusher trixorm.Flusher, row map[string]interface{}) *entityHitrix.RoleEntity {
 	roleEntity := &entityHitrix.RoleEntity{
 		Name:      "admin",
 		CreatedAt: service.DI().Clock().Now(),
@@ -49,7 +49,7 @@ func CreateRole(flusher beeorm.Flusher, row map[string]interface{}) *entityHitri
 	return roleEntity
 }
 
-func CreateResource(flusher beeorm.Flusher, row map[string]interface{}) *entityHitrix.ResourceEntity {
+func CreateResource(flusher trixorm.Flusher, row map[string]interface{}) *entityHitrix.ResourceEntity {
 	resourceEntity := &entityHitrix.ResourceEntity{
 		Name:      "user",
 		CreatedAt: service.DI().Clock().Now(),
@@ -71,7 +71,7 @@ func CreateResource(flusher beeorm.Flusher, row map[string]interface{}) *entityH
 	return resourceEntity
 }
 
-func CreatePermission(flusher beeorm.Flusher, row map[string]interface{}) *entityHitrix.PermissionEntity {
+func CreatePermission(flusher trixorm.Flusher, row map[string]interface{}) *entityHitrix.PermissionEntity {
 	permissionEntity := &entityHitrix.PermissionEntity{
 		ResourceID: nil,
 		Name:       "view",
@@ -96,7 +96,7 @@ func CreatePermission(flusher beeorm.Flusher, row map[string]interface{}) *entit
 	return permissionEntity
 }
 
-func CreatePrivilege(flusher beeorm.Flusher, row map[string]interface{}) {
+func CreatePrivilege(flusher trixorm.Flusher, row map[string]interface{}) {
 	permissionEntity := &entityHitrix.PrivilegeEntity{
 		RoleID:        nil,
 		ResourceID:    nil,

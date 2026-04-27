@@ -3,8 +3,8 @@ package errors
 import (
 	goErrors "errors"
 
+	"github.com/coretrix/trixorm"
 	"github.com/go-playground/validator/v10"
-	"github.com/latolukasz/beeorm"
 )
 
 type FieldErrors map[string]string
@@ -73,12 +73,12 @@ func (fe FieldErrors) Error() string {
 }
 
 func HandleFlushWithCheckError(err, duplicatedKeyError error) error {
-	_, ok := err.(*beeorm.DuplicatedKeyError)
+	_, ok := err.(*trixorm.DuplicatedKeyError)
 	if ok {
 		return duplicatedKeyError
 	}
 
-	foreignKeyErr, ok := err.(*beeorm.ForeignKeyError)
+	foreignKeyErr, ok := err.(*trixorm.ForeignKeyError)
 	if ok {
 		return foreignKeyErr
 	}

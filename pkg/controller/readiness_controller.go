@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/helper"
 	"github.com/coretrix/hitrix/service"
@@ -16,7 +16,7 @@ func (controller *ReadinessController) GetReadinessAction(c *gin.Context) {
 
 	var res int8
 
-	has := ormService.GetMysql().QueryRow(beeorm.NewWhere("SELECT 1"), &res)
+	has := ormService.GetMysql().QueryRow(trixorm.NewWhere("SELECT 1"), &res)
 	if !has || res != 1 {
 		c.JSON(503, gin.H{"error": "mysql do not respond"})
 

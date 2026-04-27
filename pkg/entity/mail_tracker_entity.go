@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 )
 
 const (
@@ -26,7 +26,7 @@ var MailTrackerStatusAll = mailTrackerStatus{
 }
 
 type MailTrackerEntity struct {
-	beeorm.ORM   `orm:"table=email_tracker"`
+	trixorm.ORM  `orm:"table=email_tracker"`
 	ID           uint64
 	Status       string `orm:"enum=entity.MailTrackerStatusAll"`
 	From         string `orm:"varchar=255"`

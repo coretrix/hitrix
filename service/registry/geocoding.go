@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -35,7 +35,7 @@ func ServiceProviderGeocoding(provider string) *service.DefinitionGlobal {
 			saveRawResponse := false
 
 			if okUseCaching && useCaching {
-				ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
+				ormConfig := ctn.Get(service.ORMConfigService).(trixorm.ValidatedRegistry)
 				entities := ormConfig.GetEntities()
 				if _, ok := entities["entity.GeocodingCacheEntity"]; !ok {
 					return nil, errors.New("you should register GeocodingCacheEntity")

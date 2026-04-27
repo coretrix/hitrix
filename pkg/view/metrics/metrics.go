@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/dto/metrics"
 	"github.com/coretrix/hitrix/pkg/entity"
@@ -22,8 +22,8 @@ func Get(ctx context.Context) map[string]metrics.Series {
 
 	ormService := service.DI().OrmEngineForContext(ctx)
 
-	query := beeorm.NewWhere("1 ORDER BY ID DESC")
-	pager := beeorm.NewPager(1, 10000)
+	query := trixorm.NewWhere("1 ORDER BY ID DESC")
+	pager := trixorm.NewPager(1, 10000)
 
 	var allMetricsEntities []*entity.MetricsEntity
 

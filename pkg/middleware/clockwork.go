@@ -10,15 +10,15 @@ import (
 
 	"github.com/coretrix/clockwork"
 	dataSource "github.com/coretrix/clockwork/datasource"
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/service"
 )
 
 type clockWorkHandler struct {
-	ormService           *beeorm.Engine
+	ormService           *trixorm.Engine
 	DatabaseDataSource   dataSource.QueryLoggerDataSourceInterface
 	RedisDataSource      dataSource.CacheLoggerDataSourceInterface
 	LocalCacheDataSource dataSource.UserDataSourceInterface
@@ -296,7 +296,7 @@ func setController(b []byte, profilerService *clockwork.Clockwork) string {
 }
 
 type ormDataProvider struct {
-	RedisStorageProvider *beeorm.RedisCache
+	RedisStorageProvider *trixorm.RedisCache
 }
 
 func (provider *ormDataProvider) Get(key string, id string) dataSource.DataBuffer {

@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/dto/acl"
@@ -25,7 +25,7 @@ type ACLController struct {
 // @Failure 403 "Forbidden"
 // @Failure 500 "Something bad happened"
 // @Security BearerAuth
-func (controller *ACLController) GetUserResourcesAction(getUserFunc func(c *gin.Context) beeorm.Entity) gin.HandlerFunc {
+func (controller *ACLController) GetUserResourcesAction(getUserFunc func(c *gin.Context) trixorm.Entity) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		response.SuccessResponse(c, aclView.ListUserResources(c, getUserFunc))
 	}
@@ -187,7 +187,7 @@ func (controller *ACLController) DeleteRoleAction(c *gin.Context) {
 // @Failure 403 "Forbidden"
 // @Failure 500 "Something bad happened"
 // @Security BearerAuth
-func (controller *ACLController) PostAssignRoleToUserAction(getUserFunc func() beeorm.Entity) gin.HandlerFunc {
+func (controller *ACLController) PostAssignRoleToUserAction(getUserFunc func() trixorm.Entity) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		request := &acl.AssignRoleToUserRequestDTO{}
 

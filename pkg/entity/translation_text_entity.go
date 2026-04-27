@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 )
 
 type TranslationTextLang string
@@ -38,13 +38,13 @@ var TranslationStatusAll = translationStatus{
 }
 
 type TranslationTextEntity struct {
-	beeorm.ORM `orm:"table=translation_texts;log=log_db_pool;localCache;dirty=clear_local_cache"`
-	ID         uint64
-	Lang       string `orm:"required;unique=Lang_Key:1"`
-	Key        string `orm:"required;unique=Lang_Key:2"`
-	Status     string `orm:"required;enum=entity.TranslationStatusAll"`
-	Text       string `orm:"length=max"`
-	Vars       []string
+	trixorm.ORM `orm:"table=translation_texts;log=log_db_pool;localCache;dirty=clear_local_cache"`
+	ID          uint64
+	Lang        string `orm:"required;unique=Lang_Key:1"`
+	Key         string `orm:"required;unique=Lang_Key:2"`
+	Status      string `orm:"required;enum=entity.TranslationStatusAll"`
+	Text        string `orm:"length=max"`
+	Vars        []string
 
-	CachedQueryLangKey *beeorm.CachedQuery `queryOne:":Lang = ? AND :Key = ?"`
+	CachedQueryLangKey *trixorm.CachedQuery `queryOne:":Lang = ? AND :Key = ?"`
 }

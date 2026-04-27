@@ -4,7 +4,7 @@ import (
 	"sort"
 	"strings"
 
-	orm "github.com/latolukasz/beeorm"
+	orm "github.com/coretrix/trixorm"
 )
 
 type Statistics struct {

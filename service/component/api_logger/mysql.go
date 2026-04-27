@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 )
 
 type mysqlDBLog struct {
@@ -16,7 +16,7 @@ func NewMysqlAPILogger(entity ILogEntity) IAPILogger {
 	return &mysqlDBLog{logEntity: entity}
 }
 
-func (l *mysqlDBLog) LogStart(ormService *beeorm.Engine, logType string, request interface{}) {
+func (l *mysqlDBLog) LogStart(ormService *trixorm.Engine, logType string, request interface{}) {
 	var logEntity ILogEntity
 
 	if l.logEntity.GetID() == 0 {
@@ -35,7 +35,7 @@ func (l *mysqlDBLog) LogStart(ormService *beeorm.Engine, logType string, request
 	l.currentLog = logEntity
 }
 
-func (l *mysqlDBLog) LogError(ormService *beeorm.Engine, message string, response interface{}) {
+func (l *mysqlDBLog) LogError(ormService *trixorm.Engine, message string, response interface{}) {
 	if l.currentLog == nil {
 		panic("log is not created")
 	}
@@ -48,7 +48,7 @@ func (l *mysqlDBLog) LogError(ormService *beeorm.Engine, message string, respons
 	ormService.Flush(currentLog)
 }
 
-func (l *mysqlDBLog) LogSuccess(ormService *beeorm.Engine, response interface{}) {
+func (l *mysqlDBLog) LogSuccess(ormService *trixorm.Engine, response interface{}) {
 	if l.currentLog == nil {
 		panic("log is not created")
 	}

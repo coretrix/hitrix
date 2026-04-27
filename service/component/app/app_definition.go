@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 )
 
 const ModeLocal = "local"
@@ -16,7 +16,7 @@ const ModeProd = "prod"
 const ModeQA = "qa"
 
 type IDevPanelUserEntity interface {
-	beeorm.Entity
+	trixorm.Entity
 	GetUsername() string
 	GetPassword() string
 }
