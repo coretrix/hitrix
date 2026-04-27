@@ -120,9 +120,8 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string, skipFormattedAddressComponents bool) (*Address, error) {
 	cacheLat := latLng.Lat
 	cacheLng := latLng.Lng
-	useCache := g.useCaching && !skipFormattedAddressComponents
 
-	if useCache {
+	if g.useCaching {
 		var err error
 
 		cacheLat, err = g.CutCoordinates(cacheLat, 5)
@@ -159,7 +158,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 		return nil, err
 	}
 
-	if useCache && geocodedAddress.Found {
+	if g.useCaching && geocodedAddress.Found {
 		now := g.clock.Now()
 
 		err := ormService.FlushWithCheck(&entity.GeocodingReverseCacheEntity{
