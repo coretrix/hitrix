@@ -34,8 +34,9 @@ func (f *FakeGeocoding) ReverseGeocode(
 	_ *beeorm.Engine,
 	latLng *geocoding.LatLng,
 	language string,
+	skipFormattedAddressComponents bool,
 ) (*geocoding.Address, error) {
-	args := f.Called(latLng, language)
+	args := f.Called(latLng, language, skipFormattedAddressComponents)
 
 	return args.Get(0).(*geocoding.Address), args.Error(1)
 }
