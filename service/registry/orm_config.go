@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/coretrix/trixorm"
 	"github.com/fatih/color"
-	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -16,14 +16,14 @@ import (
 	"github.com/coretrix/hitrix/service/component/config"
 )
 
-type ORMRegistryInitFunc func(registry *beeorm.Registry)
+type ORMRegistryInitFunc func(registry *trixorm.Registry)
 
 var sequence int
 
 func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlobal {
 	var defferFunc func()
 	var err error
-	var ormConfig beeorm.ValidatedRegistry
+	var ormConfig trixorm.ValidatedRegistry
 	var appService *app.App
 	var configService config.IConfig
 
@@ -33,7 +33,7 @@ func ServiceProviderOrmRegistry(init ORMRegistryInitFunc) *service.DefinitionGlo
 			appService = ctn.Get(service.AppService).(*app.App)
 			configService = ctn.Get(service.ConfigService).(config.IConfig)
 
-			registry := beeorm.NewRegistry()
+			registry := trixorm.NewRegistry()
 
 			configuration, ok := configService.Get("orm")
 			if !ok {

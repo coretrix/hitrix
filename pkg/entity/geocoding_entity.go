@@ -3,11 +3,11 @@ package entity
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 )
 
 type GeocodingCacheEntity struct {
-	beeorm.ORM               `orm:"table=geocoding_cache;localCache;redisCache"`
+	trixorm.ORM              `orm:"table=geocoding_cache;localCache;redisCache"`
 	ID                       uint64
 	Lat                      float64 `orm:"decimal=8,5"`
 	Lng                      float64 `orm:"decimal=8,5"`
@@ -21,5 +21,5 @@ type GeocodingCacheEntity struct {
 	ExpiresAt                time.Time `orm:"time=true;index=ExpiresAt"`
 	CreatedAt                time.Time `orm:"time=true"`
 
-	CachedQueryAddressHashLanguage *beeorm.CachedQuery `queryOne:":AddressHash = ? AND :Language = ?"`
+	CachedQueryAddressHashLanguage *trixorm.CachedQuery `queryOne:":AddressHash = ? AND :Language = ?"`
 }

@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 	slackgo "github.com/slack-go/slack"
 
 	"github.com/coretrix/hitrix/service/component/app"
@@ -59,7 +59,7 @@ type ErrorMessage struct {
 }
 
 type RedisErrorLogger struct {
-	redisStorage   *beeorm.RedisCache
+	redisStorage   *trixorm.RedisCache
 	sentryService  sentry.ISentry
 	slackService   slack.Slack
 	appService     *app.App
@@ -68,7 +68,7 @@ type RedisErrorLogger struct {
 
 func NewRedisErrorLogger(
 	appService *app.App,
-	ormService *beeorm.Engine,
+	ormService *trixorm.Engine,
 	slackService slack.Slack,
 	sentryService sentry.ISentry,
 	requestBodyKey interface{},

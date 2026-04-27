@@ -7,9 +7,9 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/coretrix/trixorm"
+	"github.com/coretrix/trixorm/tools"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
-	"github.com/latolukasz/beeorm/tools"
 
 	"github.com/coretrix/hitrix/pkg/binding"
 	"github.com/coretrix/hitrix/pkg/dto/indexes"
@@ -389,7 +389,7 @@ func (controller *DevPanelController) PostRedisSearchIndexInfo(c *gin.Context) {
 		panic("stream pool is not defined")
 	}
 
-	var info *beeorm.RedisSearchIndexInfo
+	var info *trixorm.RedisSearchIndexInfo
 
 	for _, searchPool := range appService.RedisPools.Search {
 		poolIndices := ormService.GetRedisSearch(searchPool).ListIndices()
@@ -409,7 +409,7 @@ func (controller *DevPanelController) GetFeatureFlags(c *gin.Context) {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
 	var featureFlagEntities []*entity.FeatureFlagEntity
-	ormService.CachedSearch(&featureFlagEntities, "CachedQueryAll", beeorm.NewPager(1, 1000))
+	ormService.CachedSearch(&featureFlagEntities, "CachedQueryAll", trixorm.NewPager(1, 1000))
 
 	type feature struct {
 		Name       string
@@ -440,7 +440,7 @@ func (controller *DevPanelController) PostEnableFeatureFlag(c *gin.Context) {
 
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	query := beeorm.NewRedisSearchQuery()
+	query := trixorm.NewRedisSearchQuery()
 	query.FilterString("Name", name)
 
 	featureFlagEntity := &entity.FeatureFlagEntity{}
@@ -468,7 +468,7 @@ func (controller *DevPanelController) PostDisableFeatureFlag(c *gin.Context) {
 
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 
-	query := beeorm.NewRedisSearchQuery()
+	query := trixorm.NewRedisSearchQuery()
 	query.FilterString("Name", name)
 
 	featureFlagEntity := &entity.FeatureFlagEntity{}

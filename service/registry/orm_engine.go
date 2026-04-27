@@ -1,8 +1,8 @@
 package registry
 
 import (
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -19,7 +19,7 @@ func ServiceProviderOrmEngine() *service.DefinitionGlobal {
 				return nil, err
 			}
 
-			ormEngine := ormConfigService.(beeorm.ValidatedRegistry).CreateEngine()
+			ormEngine := ormConfigService.(trixorm.ValidatedRegistry).CreateEngine()
 
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
@@ -20,7 +20,7 @@ func NewDBLogger(clockService clock.IClock) IRequestLogger {
 	return &DBLogger{clockService}
 }
 
-func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
+func (g *DBLogger) LogRequest(ormService *trixorm.Engine, appName, url string, request *http.Request, contentType string) *entity.RequestLoggerEntity {
 	headers, err := httputil.DumpRequest(request, false)
 	if err != nil {
 		panic(err)
@@ -63,7 +63,7 @@ func (g *DBLogger) LogRequest(ormService *beeorm.Engine, appName, url string, re
 	return requestLoggerEntity
 }
 
-func (g *DBLogger) LogResponse(ormService *beeorm.Engine, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
+func (g *DBLogger) LogResponse(ormService *trixorm.Engine, requestLoggerEntity *entity.RequestLoggerEntity, responseBody []byte, status int) {
 	requestLoggerEntity.Status = status
 
 	if len(responseBody) > 0 {

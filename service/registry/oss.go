@@ -3,7 +3,7 @@ package registry
 import (
 	"errors"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -16,7 +16,7 @@ func ServiceProviderOSS(newFunc oss.NewProviderFunc, namespaces oss.Namespaces) 
 	return &service.DefinitionGlobal{
 		Name: service.OSService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			ormConfig := ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry)
+			ormConfig := ctn.Get(service.ORMConfigService).(trixorm.ValidatedRegistry)
 
 			entities := ormConfig.GetEntities()
 

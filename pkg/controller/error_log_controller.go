@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/service"
@@ -33,7 +33,7 @@ type errorRow struct {
 	TicketLink string
 }
 
-func (controller *ErrorLogController) getErrorLogRedis(c *gin.Context) *beeorm.RedisCache {
+func (controller *ErrorLogController) getErrorLogRedis(c *gin.Context) *trixorm.RedisCache {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 	appService := service.DI().App()
 

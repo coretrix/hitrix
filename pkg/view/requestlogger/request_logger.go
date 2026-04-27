@@ -3,7 +3,7 @@ package requestlogger
 import (
 	"context"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 	"github.com/xorcare/pointer"
 
 	listDto "github.com/coretrix/hitrix/pkg/dto/list"
@@ -126,7 +126,7 @@ func RequestsLogger(ctx context.Context, userListRequest listDto.RequestDTOList)
 
 	total := ormService.SearchWithCount(
 		query,
-		beeorm.NewPager(searchParams.Page, searchParams.PageSize),
+		trixorm.NewPager(searchParams.Page, searchParams.PageSize),
 		&requestLoggerEntities,
 	)
 

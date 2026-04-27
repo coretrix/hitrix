@@ -3,7 +3,7 @@ package entity
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 )
 
 type FileStatus string
@@ -34,10 +34,10 @@ type FileObject struct {
 }
 
 type FileEntity struct {
-	beeorm.ORM `orm:"table=files;redisSearch=search_pool"`
-	ID         uint64 `orm:"searchable;sortable"`
-	File       *FileObject
-	Status     string    `orm:"required;enum=entity.FileStatusAll"`
-	Namespace  string    `orm:"required;searchable"`
-	CreatedAt  time.Time `orm:"time=true"`
+	trixorm.ORM `orm:"table=files;redisSearch=search_pool"`
+	ID          uint64 `orm:"searchable;sortable"`
+	File        *FileObject
+	Status      string    `orm:"required;enum=entity.FileStatusAll"`
+	Namespace   string    `orm:"required;searchable"`
+	CreatedAt   time.Time `orm:"time=true"`
 }

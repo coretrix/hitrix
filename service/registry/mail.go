@@ -1,7 +1,7 @@
 package registry
 
 import (
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -17,7 +17,7 @@ func ServiceProviderMail(newFunc mail.NewSenderFunc) *service.DefinitionGlobal {
 		Name: service.MailService,
 		Build: func(ctn di.Container) (interface{}, error) {
 			return mail.NewSender(
-				ctn.Get(service.ORMConfigService).(beeorm.ValidatedRegistry),
+				ctn.Get(service.ORMConfigService).(trixorm.ValidatedRegistry),
 				ctn.Get(service.ConfigService).(config.IConfig),
 				ctn.Get(service.ClockService).(clock.IClock),
 				ctn.Get(service.ErrorLoggerService).(errorlogger.ErrorLogger),

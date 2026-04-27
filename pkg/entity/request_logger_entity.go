@@ -3,11 +3,11 @@ package entity
 import (
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 )
 
 type RequestLoggerEntity struct {
-	beeorm.ORM      `orm:"table=request_logger"`
+	trixorm.ORM     `orm:"table=request_logger"`
 	ID              uint64
 	URL             string `orm:"length=500;index=URL"`
 	UserID          uint64 `orm:"index=UserID"`

@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/app"
@@ -35,7 +35,7 @@ func NewFeatureFlagWithCacheService(errorLoggerService errorlogger.ErrorLogger, 
 	return cachedService
 }
 
-func (s *serviceFeatureFlagWithCache) IsActive(ormService *beeorm.Engine, name string) bool {
+func (s *serviceFeatureFlagWithCache) IsActive(ormService *trixorm.Engine, name string) bool {
 	if name == "" {
 		panic("name cannot be empty")
 	}
@@ -64,11 +64,11 @@ func (s *serviceFeatureFlagWithCache) IsActive(ormService *beeorm.Engine, name s
 	return featureFlagEntity.Enabled && featureFlagEntity.Registered
 }
 
-func (s *serviceFeatureFlagWithCache) FailIfIsNotActive(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlagWithCache) FailIfIsNotActive(ormService *trixorm.Engine, name string) error {
 	return s.featureFlagService.FailIfIsNotActive(ormService, name)
 }
 
-func (s *serviceFeatureFlagWithCache) Enable(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlagWithCache) Enable(ormService *trixorm.Engine, name string) error {
 	err := s.featureFlagService.Enable(ormService, name)
 	s.Lock()
 	delete(s.cache, name)
@@ -77,7 +77,7 @@ func (s *serviceFeatureFlagWithCache) Enable(ormService *beeorm.Engine, name str
 	return err
 }
 
-func (s *serviceFeatureFlagWithCache) Disable(ormService *beeorm.Engine, name string) error {
+func (s *serviceFeatureFlagWithCache) Disable(ormService *trixorm.Engine, name string) error {
 	err := s.featureFlagService.Disable(ormService, name)
 	s.Lock()
 	delete(s.cache, name)
@@ -86,11 +86,11 @@ func (s *serviceFeatureFlagWithCache) Disable(ormService *beeorm.Engine, name st
 	return err
 }
 
-func (s *serviceFeatureFlagWithCache) GetScriptsSingleInstance(ormService *beeorm.Engine) []app.IScript {
+func (s *serviceFeatureFlagWithCache) GetScriptsSingleInstance(ormService *trixorm.Engine) []app.IScript {
 	return s.featureFlagService.GetScriptsSingleInstance(ormService)
 }
 
-func (s *serviceFeatureFlagWithCache) GetScriptsMultiInstance(ormService *beeorm.Engine) []app.IScript {
+func (s *serviceFeatureFlagWithCache) GetScriptsMultiInstance(ormService *trixorm.Engine) []app.IScript {
 	return s.featureFlagService.GetScriptsMultiInstance(ormService)
 }
 
@@ -98,6 +98,6 @@ func (s *serviceFeatureFlagWithCache) Register(featureFlags ...IFeatureFlag) {
 	s.featureFlagService.Register(featureFlags...)
 }
 
-func (s *serviceFeatureFlagWithCache) Sync(ormService *beeorm.Engine, clockService clock.IClock) {
+func (s *serviceFeatureFlagWithCache) Sync(ormService *trixorm.Engine, clockService clock.IClock) {
 	s.featureFlagService.Sync(ormService, clockService)
 }

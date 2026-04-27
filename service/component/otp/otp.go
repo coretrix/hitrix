@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/coretrix/trixorm"
 	"github.com/dongri/phonenumber"
-	"github.com/latolukasz/beeorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/pkg/helper"
@@ -23,8 +23,8 @@ import (
 )
 
 type IOTP interface {
-	Send(ormService *beeorm.Engine, send Send) (string, error)
-	Verify(ormService *beeorm.Engine, verify Verify) (bool, bool, error)
+	Send(ormService *trixorm.Engine, send Send) (string, error)
+	Verify(ormService *trixorm.Engine, verify Verify) (bool, bool, error)
 	GetSMSGatewayRegistry() map[string]IOTPSMSGateway
 }
 
@@ -134,7 +134,7 @@ func NewOTP(config Config) *OTP {
 	return otp
 }
 
-func (o *OTP) Send(ormService *beeorm.Engine, send Send) (string, error) {
+func (o *OTP) Send(ormService *trixorm.Engine, send Send) (string, error) {
 	if send.Phone != nil {
 		return o.sendSMS(ormService, send)
 	} else if send.Email != nil {
@@ -144,7 +144,7 @@ func (o *OTP) Send(ormService *beeorm.Engine, send Send) (string, error) {
 	panic("no send method selected")
 }
 
-func (o *OTP) Verify(ormService *beeorm.Engine, verify Verify) (bool, bool, error) {
+func (o *OTP) Verify(ormService *trixorm.Engine, verify Verify) (bool, bool, error) {
 	if verify.Phone != nil {
 		return o.verifySMS(ormService, verify)
 	} else if verify.Email != nil {
@@ -158,7 +158,7 @@ func (o *OTP) GetSMSGatewayRegistry() map[string]IOTPSMSGateway {
 	return o.SMSGatewayName
 }
 
-func (o *OTP) sendSMS(ormService *beeorm.Engine, send Send) (string, error) {
+func (o *OTP) sendSMS(ormService *trixorm.Engine, send Send) (string, error) {
 	//validate phone
 	phone := send.Phone
 	var code string
@@ -221,7 +221,7 @@ func (o *OTP) sendSMS(ormService *beeorm.Engine, send Send) (string, error) {
 	return code, err
 }
 
-func (o *OTP) sendEmail(ormService *beeorm.Engine, send Send) (string, error) {
+func (o *OTP) sendEmail(ormService *trixorm.Engine, send Send) (string, error) {
 	if o.MailSender == nil {
 		panic("mail sender not defined")
 	}
@@ -265,7 +265,7 @@ func (o *OTP) sendEmail(ormService *beeorm.Engine, send Send) (string, error) {
 	return code, err
 }
 
-func (o *OTP) verifySMS(ormService *beeorm.Engine, verify Verify) (bool, bool, error) {
+func (o *OTP) verifySMS(ormService *trixorm.Engine, verify Verify) (bool, bool, error) {
 	otpTrackerEntity, err := o.getOTPTrackerEntity(ormService, verify.Phone.Number)
 	if err != nil {
 		return false, false, err
@@ -294,7 +294,7 @@ func (o *OTP) verifySMS(ormService *beeorm.Engine, verify Verify) (bool, bool, e
 	return otpRequestValid, otpCodeValid, err
 }
 
-func (o *OTP) verifyEmail(ormService *beeorm.Engine, verify Verify) (bool, bool, error) {
+func (o *OTP) verifyEmail(ormService *trixorm.Engine, verify Verify) (bool, bool, error) {
 	otpTrackerEntity, err := o.getOTPTrackerEntity(ormService, verify.Email.Email)
 	if err != nil {
 		return false, false, err
@@ -311,7 +311,7 @@ func (o *OTP) verifyEmail(ormService *beeorm.Engine, verify Verify) (bool, bool,
 	return true, otpTrackerEntity.Code == verify.Code, nil
 }
 
-func (o *OTP) getOTPTrackerEntity(ormService *beeorm.Engine, verifyKey string) (*entity.OTPTrackerEntity, error) {
+func (o *OTP) getOTPTrackerEntity(ormService *trixorm.Engine, verifyKey string) (*entity.OTPTrackerEntity, error) {
 	otpTrackerEntityIDString, has := ormService.GetRedis().Get(o.getRedisKey(verifyKey))
 
 	if !has {

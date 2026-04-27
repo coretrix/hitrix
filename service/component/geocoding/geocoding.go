@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
@@ -23,8 +23,8 @@ import (
 
 type IGeocoding interface {
 	SnapToRoad(ctx context.Context, dto *maps.SnapToRoadRequest) (*maps.SnapToRoadResponse, error)
-	Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language string) (*Address, error)
-	ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string, skipFormattedAddressComponents bool) (*Address, error)
+	Geocode(ctx context.Context, ormService *trixorm.Engine, address string, language string) (*Address, error)
+	ReverseGeocode(ctx context.Context, ormService *trixorm.Engine, latLng *LatLng, language string, skipFormattedAddressComponents bool) (*Address, error)
 	CutCoordinates(float float64, precision int) (float64, error)
 }
 
@@ -71,7 +71,7 @@ func (g *Geocoding) SnapToRoad(ctx context.Context, dto *maps.SnapToRoadRequest)
 	return g.provider.SnapToRoad(ctx, dto)
 }
 
-func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, address string, language string) (*Address, error) {
+func (g *Geocoding) Geocode(ctx context.Context, ormService *trixorm.Engine, address string, language string) (*Address, error) {
 	address = strings.TrimSpace(address)
 
 	if g.useCaching {
@@ -117,7 +117,7 @@ func (g *Geocoding) Geocode(ctx context.Context, ormService *beeorm.Engine, addr
 	return geocodedAddress, nil
 }
 
-func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engine, latLng *LatLng, language string, skipFormattedAddressComponents bool) (*Address, error) {
+func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *trixorm.Engine, latLng *LatLng, language string, skipFormattedAddressComponents bool) (*Address, error) {
 	cacheLat := latLng.Lat
 	cacheLng := latLng.Lng
 
@@ -176,7 +176,7 @@ func (g *Geocoding) ReverseGeocode(ctx context.Context, ormService *beeorm.Engin
 
 		//TODO Krasi: needed due to issue when localCache and redisCache used together
 		if err != nil {
-			var duplicateKeyError *beeorm.DuplicatedKeyError
+			var duplicateKeyError *trixorm.DuplicatedKeyError
 			if errors.As(err, &duplicateKeyError) {
 				if duplicateKeyError.Index != "geocoding_reverse_cache.Lat_Lng_Language" {
 					panic(err)

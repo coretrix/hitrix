@@ -3,7 +3,7 @@ package sms
 import (
 	"fmt"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 	"github.com/coretrix/hitrix/service/component/clock"
@@ -11,7 +11,7 @@ import (
 )
 
 type ISender interface {
-	SendMessage(ormService *beeorm.Engine, message *Message) error
+	SendMessage(ormService *trixorm.Engine, message *Message) error
 }
 
 type Sender struct {
@@ -23,7 +23,7 @@ type Sender struct {
 	TrackerEnabled     bool
 }
 
-func (s *Sender) SendMessage(ormService *beeorm.Engine, message *Message) error {
+func (s *Sender) SendMessage(ormService *trixorm.Engine, message *Message) error {
 	var primaryProvider IProvider
 	var secondaryProvider IProvider
 

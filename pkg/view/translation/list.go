@@ -3,7 +3,7 @@ package translation
 import (
 	"context"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	listDto "github.com/coretrix/hitrix/pkg/dto/list"
 	"github.com/coretrix/hitrix/pkg/dto/translation"
@@ -86,7 +86,7 @@ func List(ctx context.Context, userListRequest listDto.RequestDTOList) (*transla
 	ormService := service.DI().OrmEngineForContext(ctx)
 	var translationTextEntities []*entity.TranslationTextEntity
 
-	total := ormService.SearchWithCount(query, beeorm.NewPager(searchParams.Page, searchParams.PageSize), &translationTextEntities)
+	total := ormService.SearchWithCount(query, trixorm.NewPager(searchParams.Page, searchParams.PageSize), &translationTextEntities)
 
 	rows := make([]*translation.ListRow, len(translationTextEntities))
 

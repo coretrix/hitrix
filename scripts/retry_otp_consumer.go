@@ -3,7 +3,7 @@ package scripts
 import (
 	"context"
 
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/queue"
 	"github.com/coretrix/hitrix/pkg/queue/consumers"
@@ -14,7 +14,7 @@ import (
 type RetryOTPConsumer struct {
 }
 
-func (script *RetryOTPConsumer) Run(ctx context.Context, _ app.IExit, ormService *beeorm.Engine) {
+func (script *RetryOTPConsumer) Run(ctx context.Context, _ app.IExit, ormService *trixorm.Engine) {
 	configService := service.DI().Config()
 	otpService := service.DI().OTP()
 

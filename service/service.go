@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/coretrix/clockwork"
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	s3 "github.com/coretrix/hitrix/service/component/amazon/storage"
 	apilogger "github.com/coretrix/hitrix/service/component/api_logger"
@@ -135,16 +135,16 @@ func (d *DIContainer) Config() config.IConfig {
 	return GetServiceRequired(ConfigService).(config.IConfig)
 }
 
-func (d *DIContainer) OrmConfig() beeorm.ValidatedRegistry {
-	return GetServiceRequired(ORMConfigService).(beeorm.ValidatedRegistry)
+func (d *DIContainer) OrmConfig() trixorm.ValidatedRegistry {
+	return GetServiceRequired(ORMConfigService).(trixorm.ValidatedRegistry)
 }
 
-func (d *DIContainer) OrmEngine() *beeorm.Engine {
-	return GetServiceRequired(ORMEngineGlobalService).(*beeorm.Engine)
+func (d *DIContainer) OrmEngine() *trixorm.Engine {
+	return GetServiceRequired(ORMEngineGlobalService).(*trixorm.Engine)
 }
 
-func (d *DIContainer) OrmEngineForContext(ctx context.Context) *beeorm.Engine {
-	return GetServiceForRequestRequired(ctx, ORMEngineRequestService).(*beeorm.Engine)
+func (d *DIContainer) OrmEngineForContext(ctx context.Context) *trixorm.Engine {
+	return GetServiceForRequestRequired(ctx, ORMEngineRequestService).(*trixorm.Engine)
 }
 
 func (d *DIContainer) ClockWorkForContext(ctx context.Context) *clockwork.Clockwork {

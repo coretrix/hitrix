@@ -1,12 +1,12 @@
 package entity
 
 import (
-	"github.com/latolukasz/beeorm"
+	"github.com/coretrix/trixorm"
 
 	"github.com/coretrix/hitrix/pkg/entity"
 )
 
-func Init(registry *beeorm.Registry) {
+func Init(registry *trixorm.Registry) {
 	registry.RegisterEntity(
 		&APILogEntity{},
 		&AdminUserEntity{},
