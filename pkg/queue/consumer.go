@@ -191,6 +191,9 @@ func (r *ConsumerRunner) RunConsumerOneByModulo(consumer ConsumerOneByModulo, gr
 
 		time.Sleep(time.Second)
 	}
+
+	<-r.ctx.Done()
+	log.Printf("RunConsumerOneByModulo exited (%s)", baseQueueName)
 }
 
 func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, groupNameSuffix *string, prefetchCount int) {
@@ -253,6 +256,9 @@ func (r *ConsumerRunner) RunConsumerManyByModulo(consumer ConsumerManyByModulo, 
 
 		time.Sleep(time.Second)
 	}
+
+	<-r.ctx.Done()
+	log.Printf("RunConsumerManyByModulo exited (%s)", baseQueueName)
 }
 
 type ScalableConsumerRunner struct {
