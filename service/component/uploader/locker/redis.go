@@ -1,6 +1,7 @@
 package locker
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -23,7 +24,7 @@ type redisLock struct {
 }
 
 func (lock *redisLock) Lock() error {
-	redisLock, obtained := lock.redis.GetLocker().Obtain("tusd:upload:lock:"+lock.id, time.Hour*24, time.Second*2)
+	redisLock, obtained := lock.redis.GetLocker().ObtainContext(context.Background(), "tusd:upload:lock:"+lock.id, time.Hour*24, time.Second*2)
 	if !obtained {
 		return errors.New("cannot obtain lock")
 	}

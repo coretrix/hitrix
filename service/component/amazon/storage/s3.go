@@ -70,7 +70,7 @@ func (amazonS3 *AmazonS3) getCounter(ormService *trixorm.Engine, bucket string) 
 
 	locker := ormService.GetRedis().GetLocker()
 
-	lock, hasLock := locker.Obtain("locker_amazon_s3_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
+	lock, hasLock := locker.ObtainContext(context.Background(), "locker_amazon_s3_counters_bucket_"+bucket, 2*time.Second, 5*time.Second)
 	if !hasLock {
 		panic("Failed to obtain lock for locker_amazon_s3_counters_bucket_" + bucket)
 	}
@@ -88,7 +88,7 @@ func (amazonS3 *AmazonS3) getCounter(ormService *trixorm.Engine, bucket string) 
 	ormService.Flush(amazonS3BucketCounterEntity)
 
 	ttl := lock.TTL()
-	if ttl == 0 {
+	if ttl <= 0 {
 		panic("lock lost")
 	}
 
