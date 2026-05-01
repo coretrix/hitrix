@@ -1,6 +1,6 @@
 module github.com/coretrix/hitrix
 
-go 1.19
+go 1.23.1
 
 require (
 	cloud.google.com/go/storage v1.40.0
@@ -14,7 +14,7 @@ require (
 	github.com/chromedp/cdproto v0.0.0-20210910012206-68626162910d
 	github.com/chromedp/chromedp v0.7.4
 	github.com/coretrix/clockwork v1.1.1
-	github.com/coretrix/trixorm v1.0.1
+	github.com/coretrix/trixorm v1.0.2
 	github.com/dongri/phonenumber v0.0.0-20210304071411-690733f34185
 	github.com/fatih/color v1.13.0
 	github.com/gin-contrib/cors v1.3.1
@@ -62,9 +62,8 @@ require (
 	cloud.google.com/go/longrunning v0.5.5 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40 // indirect
-	github.com/bsm/redislock v0.7.2 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
-	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/cockroachdb/apd/v3 v3.1.0 // indirect
@@ -82,6 +81,7 @@ require (
 	github.com/go-openapi/swag v0.19.14 // indirect
 	github.com/go-redis/redis/v7 v7.4.1 // indirect
 	github.com/go-redis/redis_rate/v9 v9.1.2 // indirect
+	github.com/go-redsync/redsync/v4 v4.13.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
@@ -101,6 +101,8 @@ require (
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect

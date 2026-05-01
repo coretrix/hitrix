@@ -1,6 +1,7 @@
 package oss
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -182,7 +183,7 @@ func getStorageCounter(ormService *trixorm.Engine, bucketConfig *BucketConfig) u
 	locker := ormService.GetRedis().GetLocker()
 	lockerKey := "locker_oss_counters_bucket_" + strconv.FormatUint(bucketID, 10)
 
-	lock, hasLock := locker.Obtain(lockerKey, 2*time.Second, 5*time.Second)
+	lock, hasLock := locker.ObtainContext(context.Background(), lockerKey, 2*time.Second, 5*time.Second)
 	if !hasLock {
 		panic("Failed to obtain lock for :" + lockerKey)
 	}
@@ -200,7 +201,7 @@ func getStorageCounter(ormService *trixorm.Engine, bucketConfig *BucketConfig) u
 
 	ormService.Flush(ossBucketCounterEntity)
 
-	if lock.TTL() == 0 {
+	if lock.TTL() <= 0 {
 		panic("lock lost for :" + lockerKey)
 	}
 
