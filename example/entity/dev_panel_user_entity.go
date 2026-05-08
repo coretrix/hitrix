@@ -7,7 +7,7 @@ import (
 type DevPanelUserEntity struct {
 	trixorm.ORM `orm:"table=dev_panel_users;redisCache;redisSearch=search_pool"`
 	ID          uint64
-	Email       string `orm:"unique=Email;searchable"`
+	Email       string `orm:"unique=Email;searchable=text"`
 	Password    string
 }
 

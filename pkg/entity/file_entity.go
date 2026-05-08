@@ -38,6 +38,6 @@ type FileEntity struct {
 	ID          uint64 `orm:"searchable;sortable"`
 	File        *FileObject
 	Status      string    `orm:"required;enum=entity.FileStatusAll"`
-	Namespace   string    `orm:"required;searchable"`
+	Namespace   string    `orm:"required;searchable=text"`
 	CreatedAt   time.Time `orm:"time=true"`
 }
