@@ -25,6 +25,7 @@ type errorRow struct {
 	File       string
 	Line       int
 	AppName    string
+	Service    string
 	Request    string
 	Message    string
 	Stack      string
@@ -81,6 +82,7 @@ func (controller *ErrorLogController) getByGroup(c *gin.Context, group string) {
 			errorsList[entryID].Message = errorMessage.Message
 			errorsList[entryID].Line = errorMessage.Line
 			errorsList[entryID].AppName = errorMessage.AppName
+			errorsList[entryID].Service = errorMessage.Service
 		} else if field == "time" {
 			i, _ := strconv.ParseInt(strings.TrimSpace(value), 10, 64)
 			errorsList[entryID].Time = time.Unix(i, 0).String()
@@ -157,6 +159,7 @@ func (controller *ErrorLogController) GetCounters(c *gin.Context) {
 
 	response.SuccessResponse(c, map[string]int{
 		"errors":              countByGroup(errorlogger.GroupError),
+		"services":            countByGroup(errorlogger.GroupService),
 		"warnings":            countByGroup(errorlogger.GroupWarning),
 		"missingTranslations": countByGroup(errorlogger.GroupMissingTranslation),
 	})
@@ -172,6 +175,22 @@ func (controller *ErrorLogController) CreateErrorJiraTicket(c *gin.Context) {
 
 func (controller *ErrorLogController) DeleteAllErrors(c *gin.Context) {
 	controller.deleteAllByGroup(c, errorlogger.GroupError)
+}
+
+func (controller *ErrorLogController) GetServices(c *gin.Context) {
+	controller.getByGroup(c, errorlogger.GroupService)
+}
+
+func (controller *ErrorLogController) DeleteService(c *gin.Context) {
+	controller.deleteSingleByGroup(c, errorlogger.GroupService)
+}
+
+func (controller *ErrorLogController) CreateServiceJiraTicket(c *gin.Context) {
+	controller.createJiraTicketByGroup(c, errorlogger.GroupService, "Service")
+}
+
+func (controller *ErrorLogController) DeleteAllServices(c *gin.Context) {
+	controller.deleteAllByGroup(c, errorlogger.GroupService)
 }
 
 func (controller *ErrorLogController) GetWarnings(c *gin.Context) {

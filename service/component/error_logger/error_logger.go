@@ -29,6 +29,7 @@ import (
 
 const (
 	GroupError              = "error"
+	GroupService            = "service"
 	GroupWarning            = "warning"
 	GroupMissingTranslation = "missing-translation"
 )
@@ -44,6 +45,9 @@ type ErrorLogger interface {
 	LogError(dataFromRecover interface{})
 	LogErrorWithRequest(c *gin.Context, errData interface{})
 	LogPanicWithRequest(c *gin.Context, errData interface{})
+	LogServiceError(service string, dataFromRecover interface{}, notify bool)
+	LogServiceErrorWithRequest(service string, c *gin.Context, errData interface{}, notify bool)
+	LogServicePanicWithRequest(service string, c *gin.Context, errData interface{}, notify bool)
 	LogWarning(data interface{})
 	LogWarningWithRequest(c *gin.Context, data interface{})
 	LogMissingTranslation(data interface{})
@@ -53,6 +57,7 @@ type ErrorMessage struct {
 	File    string
 	Line    int
 	AppName string
+	Service string
 	Request []byte
 	Message string
 	Stack   []byte
@@ -88,23 +93,45 @@ func NewRedisErrorLogger(
 }
 
 func (e *RedisErrorLogger) LogError(errData interface{}) {
-	e.log(errData, nil, GroupError, debug.Stack())
+	e.log(errData, nil, GroupError, debug.Stack(), "", false)
 }
 
 func (e *RedisErrorLogger) LogErrorWithRequest(c *gin.Context, errData interface{}) {
-	e.log(errData, c, GroupError, debug.Stack())
+	e.log(errData, c, GroupError, debug.Stack(), "", false)
 }
 
 func (e *RedisErrorLogger) LogPanicWithRequest(c *gin.Context, errData interface{}) {
-	e.log(errData, c, GroupError, debug.Stack())
+	e.log(errData, c, GroupError, debug.Stack(), "", false)
+}
+
+func (e *RedisErrorLogger) LogServiceError(service string, errData interface{}, notify bool) {
+	e.log(errData, nil, GroupService, debug.Stack(), service, notify)
+}
+
+func (e *RedisErrorLogger) LogServiceErrorWithRequest(
+	service string,
+	c *gin.Context,
+	errData interface{},
+	notify bool,
+) {
+	e.log(errData, c, GroupService, debug.Stack(), service, notify)
+}
+
+func (e *RedisErrorLogger) LogServicePanicWithRequest(
+	service string,
+	c *gin.Context,
+	errData interface{},
+	notify bool,
+) {
+	e.log(errData, c, GroupService, debug.Stack(), service, notify)
 }
 
 func (e *RedisErrorLogger) LogWarning(data interface{}) {
-	e.log(data, nil, GroupWarning, nil)
+	e.log(data, nil, GroupWarning, nil, "", false)
 }
 
 func (e *RedisErrorLogger) LogWarningWithRequest(c *gin.Context, data interface{}) {
-	e.log(data, c, GroupWarning, nil)
+	e.log(data, c, GroupWarning, nil, "", false)
 }
 
 func (e *RedisErrorLogger) LogMissingTranslation(data interface{}) {
@@ -125,7 +152,7 @@ func (e *RedisErrorLogger) LogMissingTranslation(data interface{}) {
 		return
 	}
 
-	e.log(data, nil, GroupMissingTranslation, nil)
+	e.log(data, nil, GroupMissingTranslation, nil, "", false)
 }
 
 // stackFileLineRe matches the file:line line in debug.Stack() output (tab-indented path).
@@ -164,7 +191,14 @@ func parseStackFileLine(stack []byte) (file string, line int) {
 	return external[idx].file, external[idx].line
 }
 
-func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context, group string, capturedStack []byte) {
+func (e *RedisErrorLogger) log(
+	errData interface{},
+	c *gin.Context,
+	group string,
+	capturedStack []byte,
+	service string,
+	notify bool,
+) {
 	var msg string
 
 	switch v := errData.(type) {
@@ -198,6 +232,7 @@ func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context, group string
 		File:    file,
 		Line:    line,
 		AppName: e.appService.Name,
+		Service: service,
 		Message: msg,
 		Stack:   stackTrace,
 	}
@@ -228,7 +263,7 @@ func (e *RedisErrorLogger) log(errData interface{}, c *gin.Context, group string
 	e.redisStorage.HSet(group, errorKey+":time", time.Now().Unix())
 	counter := e.redisStorage.HIncrBy(group, errorKey+":counter", 1)
 
-	if group == GroupError &&
+	if (group == GroupError || notify) &&
 		(e.slackService != nil && !e.appService.IsInLocalMode() && !e.appService.IsInTestMode()) &&
 		shouldSendNotification(counter) {
 		_ = e.slackService.SendToChannel(
