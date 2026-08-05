@@ -33,8 +33,8 @@ type MailTrackerEntity struct {
 	To           string `orm:"varchar=255"`
 	Subject      string
 	TemplateFile string
-	TemplateData string `orm:"length=max"`
-	SenderError  string
+	TemplateData string     `orm:"length=max"`
+	SenderError  string     `orm:"length=max"`
 	ReadAt       *time.Time `orm:"time"`
 	CreatedAt    time.Time  `orm:"time"`
 }
