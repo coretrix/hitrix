@@ -19,3 +19,9 @@ It can be used to save custom errors as well:
 		errorLoggerService.LogErrorWithRequest(c, err) //if you provide context we will save request body as well
 		errorLoggerService.LogError(err)
 ```
+
+If multiple errors are logged from the same file and line, you can split them by error code and optional scope:
+```go
+		errorLoggerService.LogErrorWithCode(err, "WORKSTATION_HEALTHCHECK_FAILED")
+		errorLoggerService.LogErrorWithCodeAndScope(err, "WORKSTATION_HEALTHCHECK_FAILED", workstationUID)
+```

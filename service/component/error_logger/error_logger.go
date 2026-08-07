@@ -43,7 +43,11 @@ var (
 
 type ErrorLogger interface {
 	LogError(dataFromRecover interface{})
+	LogErrorWithCode(errData interface{}, errorCode string)
+	LogErrorWithCodeAndScope(errData interface{}, errorCode string, scopeID string)
 	LogErrorWithRequest(c *gin.Context, errData interface{})
+	LogErrorWithRequestAndCode(c *gin.Context, errData interface{}, errorCode string)
+	LogErrorWithRequestAndCodeAndScope(c *gin.Context, errData interface{}, errorCode string, scopeID string)
 	LogPanicWithRequest(c *gin.Context, errData interface{})
 	LogServiceError(service string, dataFromRecover interface{}, notify bool)
 	LogServiceErrorWithRequest(service string, c *gin.Context, errData interface{}, notify bool)
@@ -54,13 +58,15 @@ type ErrorLogger interface {
 }
 
 type ErrorMessage struct {
-	File    string
-	Line    int
-	AppName string
-	Service string
-	Request []byte
-	Message string
-	Stack   []byte
+	File      string
+	Line      int
+	AppName   string
+	Service   string
+	ErrorCode string
+	ScopeID   string
+	Request   []byte
+	Message   string
+	Stack     []byte
 }
 
 type RedisErrorLogger struct {
@@ -93,19 +99,35 @@ func NewRedisErrorLogger(
 }
 
 func (e *RedisErrorLogger) LogError(errData interface{}) {
-	e.log(errData, nil, GroupError, debug.Stack(), "", false)
+	e.log(errData, nil, GroupError, debug.Stack(), "", "", "", false)
+}
+
+func (e *RedisErrorLogger) LogErrorWithCode(errData interface{}, errorCode string) {
+	e.log(errData, nil, GroupError, debug.Stack(), "", errorCode, "", false)
+}
+
+func (e *RedisErrorLogger) LogErrorWithCodeAndScope(errData interface{}, errorCode string, scopeID string) {
+	e.log(errData, nil, GroupError, debug.Stack(), "", errorCode, scopeID, false)
 }
 
 func (e *RedisErrorLogger) LogErrorWithRequest(c *gin.Context, errData interface{}) {
-	e.log(errData, c, GroupError, debug.Stack(), "", false)
+	e.log(errData, c, GroupError, debug.Stack(), "", "", "", false)
+}
+
+func (e *RedisErrorLogger) LogErrorWithRequestAndCode(c *gin.Context, errData interface{}, errorCode string) {
+	e.log(errData, c, GroupError, debug.Stack(), "", errorCode, "", false)
+}
+
+func (e *RedisErrorLogger) LogErrorWithRequestAndCodeAndScope(c *gin.Context, errData interface{}, errorCode string, scopeID string) {
+	e.log(errData, c, GroupError, debug.Stack(), "", errorCode, scopeID, false)
 }
 
 func (e *RedisErrorLogger) LogPanicWithRequest(c *gin.Context, errData interface{}) {
-	e.log(errData, c, GroupError, debug.Stack(), "", false)
+	e.log(errData, c, GroupError, debug.Stack(), "", "", "", false)
 }
 
 func (e *RedisErrorLogger) LogServiceError(service string, errData interface{}, notify bool) {
-	e.log(errData, nil, GroupService, debug.Stack(), service, notify)
+	e.log(errData, nil, GroupService, debug.Stack(), service, "", "", notify)
 }
 
 func (e *RedisErrorLogger) LogServiceErrorWithRequest(
@@ -114,7 +136,7 @@ func (e *RedisErrorLogger) LogServiceErrorWithRequest(
 	errData interface{},
 	notify bool,
 ) {
-	e.log(errData, c, GroupService, debug.Stack(), service, notify)
+	e.log(errData, c, GroupService, debug.Stack(), service, "", "", notify)
 }
 
 func (e *RedisErrorLogger) LogServicePanicWithRequest(
@@ -123,15 +145,15 @@ func (e *RedisErrorLogger) LogServicePanicWithRequest(
 	errData interface{},
 	notify bool,
 ) {
-	e.log(errData, c, GroupService, debug.Stack(), service, notify)
+	e.log(errData, c, GroupService, debug.Stack(), service, "", "", notify)
 }
 
 func (e *RedisErrorLogger) LogWarning(data interface{}) {
-	e.log(data, nil, GroupWarning, nil, "", false)
+	e.log(data, nil, GroupWarning, nil, "", "", "", false)
 }
 
 func (e *RedisErrorLogger) LogWarningWithRequest(c *gin.Context, data interface{}) {
-	e.log(data, c, GroupWarning, nil, "", false)
+	e.log(data, c, GroupWarning, nil, "", "", "", false)
 }
 
 func (e *RedisErrorLogger) LogMissingTranslation(data interface{}) {
@@ -152,7 +174,7 @@ func (e *RedisErrorLogger) LogMissingTranslation(data interface{}) {
 		return
 	}
 
-	e.log(data, nil, GroupMissingTranslation, nil, "", false)
+	e.log(data, nil, GroupMissingTranslation, nil, "", "", "", false)
 }
 
 // stackFileLineRe matches the file:line line in debug.Stack() output (tab-indented path).
@@ -197,6 +219,8 @@ func (e *RedisErrorLogger) log(
 	group string,
 	capturedStack []byte,
 	service string,
+	errorCode string,
+	scopeID string,
 	notify bool,
 ) {
 	var msg string
@@ -226,15 +250,17 @@ func (e *RedisErrorLogger) log(
 	logger.Printf("[Error]:\n%s\n%s%s", msg, stackTrace, "\033[0m")
 
 	//nolint //G401: Use of weak cryptographic primitive
-	errorKeyBinary := md5.Sum([]byte(e.appService.Name + ":" + file + ":" + fmt.Sprint(line)))
+	errorKeyBinary := md5.Sum([]byte(buildErrorKeySource(e.appService.Name, file, line, errorCode, scopeID)))
 	errorKey := hex.EncodeToString(errorKeyBinary[:])
 	value := &ErrorMessage{
-		File:    file,
-		Line:    line,
-		AppName: e.appService.Name,
-		Service: service,
-		Message: msg,
-		Stack:   stackTrace,
+		File:      file,
+		Line:      line,
+		AppName:   e.appService.Name,
+		Service:   service,
+		ErrorCode: errorCode,
+		ScopeID:   scopeID,
+		Message:   msg,
+		Stack:     stackTrace,
 	}
 
 	if c != nil {
@@ -285,6 +311,18 @@ func (e *RedisErrorLogger) log(
 		shouldSendNotification(counter) {
 		e.sentryService.CaptureException(fmt.Errorf(value.Message))
 	}
+}
+
+func buildErrorKeySource(appName string, file string, line int, errorCode string, scopeID string) string {
+	keySource := appName + ":" + file + ":" + fmt.Sprint(line)
+	if errorCode != "" {
+		keySource += ":" + errorCode
+	}
+	if scopeID != "" {
+		keySource += ":" + scopeID
+	}
+
+	return keySource
 }
 
 func shouldSendNotification(counter int64) bool {
