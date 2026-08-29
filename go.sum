@@ -62,8 +62,8 @@ github.com/cockroachdb/apd/v3 v3.1.0 h1:MK3Ow7LH0W8zkd5GMKA1PvS9qG3bWFI95WaVNfyZ
 github.com/cockroachdb/apd/v3 v3.1.0/go.mod h1:6qgPBMXjATAdD/VefbRP9NoSLKjbB4LCoA7gN4LpHs4=
 github.com/coretrix/clockwork v1.1.1 h1:/w1KcZ17pST2vYhFg1ZgD0ZuDgnIVqQpxXHZvmD88CA=
 github.com/coretrix/clockwork v1.1.1/go.mod h1:HpUDo6SdLzvophOiyfO+BUJyg114CD1WUHpw06PbnQM=
-github.com/coretrix/trixorm v1.1.1 h1:tBDQLFANMHXTtVCCYkgQJei29qZfsqjvVw6zy3pDH20=
-github.com/coretrix/trixorm v1.1.1/go.mod h1:dnb+D3A4W5qebnK5PbAKhxZCF/ejcaxLY0Ip7XRVU7s=
+github.com/coretrix/trixorm v1.1.2 h1:VPWT6WicGfDoPAWbJntZKkoG3zW/lra6SnZjXJDXHu8=
+github.com/coretrix/trixorm v1.1.2/go.mod h1:dnb+D3A4W5qebnK5PbAKhxZCF/ejcaxLY0Ip7XRVU7s=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
