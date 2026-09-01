@@ -1,9 +1,31 @@
 # WebSocket
-This service add support of websockets. It manage the connections and provide you easy way to read and write messages
+
+The socket registry owns the complete WebSocket lifecycle: HTTP upgrade,
+registration, ping/pong keepalive, reads, buffered writes and cleanup.
 
 Register the service into your `main.go` file:
 ```go
-registry.ServiceProviderSocketRegistry(registerHandler, unregisterHandler func(s *socket.Socket))
+eventHandlersMap := socket.NamespaceEventHandlerMap{
+	"default": {
+		RegisterHandler:   registerHandler,
+		UnregisterHandler: unregisterHandler,
+	},
+}
+
+registry.ServiceProviderSocketRegistry(eventHandlersMap)
+```
+
+The default origin policy accepts requests without an `Origin` header and
+same-origin browser requests. Cross-origin applications must provide an
+explicit policy:
+
+```go
+socketConfig := socket.DefaultConfig()
+socketConfig.CheckOrigin = func(request *http.Request) bool {
+	return request.Header.Get("Origin") == "https://business.example.com"
+}
+
+registry.ServiceProviderSocketRegistryWithConfig(eventHandlersMap, socketConfig)
 ```
 
 Access the service:
@@ -11,60 +33,42 @@ Access the service:
 service.DI().SocketRegistry()
 ```
 
-To be able to handle new connections you should create your own route and create a handler for it.
-Your handler should looks like that:
+Authenticate and authorize the request before calling `ServeHTTP`. For example,
+an application using short-lived, single-use socket tickets must consume and
+validate the ticket first. Invalid requests should never be upgraded.
+
+`ServeHTTP` blocks until the connection closes and manages its goroutines:
+
 ```go
 type WebsocketController struct {
 }
 
 func (controller *WebsocketController) InitConnection(c *gin.Context) {
-	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		panic(err)
-	}
-
-	socketRegistryService, has := service.DI().SocketRegistry()
-	if !has {
-		panic("Socket Registry is not registered")
-	}
-
+	// Validate and consume the application's socket ticket here.
+	socketRegistryService := service.DI().SocketRegistry()
 	errorLoggerService := service.DI().ErrorLogger()
 
-	connection := &socket.Connection{Send: make(chan []byte, 256), Ws: ws}
-	socketHolder := &socket.Socket{
-		ErrorLogger: errorLoggerService,
-		Connection:  connection,
-		ID:          "unique connection hash based on userID, deviceID and timestamp",
+	err := socketRegistryService.ServeHTTP(c.Writer, c.Request, socket.ConnectionOptions{
+		ID:          "unique authenticated connection ID",
 		Namespace:   model.DefaultNamespace,
-	}
-
-	socketRegistryService.Register <- socketHolder
-
-	go socketHolder.WritePump()
-	go socketHolder.ReadPump(socketRegistryService, func(rawData []byte) {
-		s, _ := socketRegistryService.Sockets.Load(socketHolder.ID)
-		
-        dto := &DTOMessage{}
-        err = json.Unmarshal(rawData, dto)
-        if err != nil {
-            errorLoggerService.LogError(err)
-            retrun
-        }
-        //handle business logic here
-        s.(*socket.Socket).Emit(dto)
+		Context:     c.Request.Context(),
+		ErrorLogger: errorLoggerService,
+		ReadMessageHandler: func(socketHolder *socket.Socket, rawData []byte) {
+			// Handle application messages here.
+		},
 	})
+	if err != nil {
+		errorLoggerService.LogErrorWithRequest(c, err)
+	}
 }
-
-```
-This handler initializes the new coming connections and have 2 go routines - one for writing messages and the second one for reading messages
-If you want to send message you should use ```socketRegistryService.Emit```
-
-If you want to read coming messages you should do it in the function we are passing as second parameter of ```ReadPump``` method
-
-If you want to select certain connection you can do it by the ID and this method 
-```go 
-s, err := socketRegistryService.Sockets.Load(ID)
 ```
 
-Also websocket service provide you hooks for registering new connections and for unregistering already existing connections.
-You can define those handlers when you register the service based on namespace of socket.
+Send a message to one connection by ID:
+
+```go
+err := socketRegistryService.Emit(socketID, dto)
+```
+
+`Emit` is non-blocking. It returns `socket.ErrSendBufferFull` when a slow
+consumer fills its outbound buffer and `socket.ErrSocketClosed` after the
+connection is gone. Register and unregister hooks are configured per namespace.

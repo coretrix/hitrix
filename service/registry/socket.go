@@ -9,12 +9,21 @@ import (
 )
 
 func ServiceProviderSocketRegistry(eventHandlersMap socket.NamespaceEventHandlerMap) *service.DefinitionGlobal {
+	return ServiceProviderSocketRegistryWithConfig(eventHandlersMap, socket.DefaultConfig())
+}
+
+func ServiceProviderSocketRegistryWithConfig(
+	eventHandlersMap socket.NamespaceEventHandlerMap,
+	config socket.Config,
+) *service.DefinitionGlobal {
 	return &service.DefinitionGlobal{
 		Name: service.SocketRegistryService,
 		Build: func(ctn di.Container) (interface{}, error) {
-			return socket.NewSocketRegistry(
+			return socket.NewSocketRegistryWithConfig(
 					eventHandlersMap,
-					ctn.Get(service.GoroutineService).(goroutine.IGoroutine)),
+					ctn.Get(service.GoroutineService).(goroutine.IGoroutine),
+					config,
+				),
 				nil
 		},
 	}

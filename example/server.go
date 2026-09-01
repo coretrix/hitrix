@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/coretrix/hitrix"
@@ -24,6 +26,13 @@ var eventHandlersMap = socket.NamespaceEventHandlerMap{
 }
 
 func main() {
+	socketConfig := socket.DefaultConfig()
+	socketConfig.CheckOrigin = func(request *http.Request) bool {
+		origin := request.Header.Get("Origin")
+
+		return origin == "" || origin == "http://localhost:9999" || origin == "http://localhost:63342"
+	}
+
 	s, deferFunc := hitrix.New(
 		"my-app", "secret",
 	).RegisterDIGlobalService(
@@ -35,7 +44,7 @@ func main() {
 		registry.ServiceProviderOSS(oss.NewAmazonOSS, exampleOSS.Namespaces),
 		registry.ServiceProviderJWT(),
 		registry.ServiceProviderPassword(password.NewSimpleManager),
-		registry.ServiceProviderSocketRegistry(eventHandlersMap),
+		registry.ServiceProviderSocketRegistryWithConfig(eventHandlersMap, socketConfig),
 		registry.ServiceProviderOTP(nil),
 	).RegisterDIRequestService(
 		registry.ServiceProviderOrmEngineForContext(),
