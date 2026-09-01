@@ -11,6 +11,8 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/require"
+
+	componentmetrics "github.com/coretrix/hitrix/service/component/metrics"
 )
 
 const testNamespace = "test"
@@ -58,6 +60,7 @@ func TestServeHTTPManagesSocketLifecycle(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("socket was not registered")
 	}
+	require.Equal(t, float64(1), componentmetrics.Snapshot()[MetricActiveConnections])
 
 	require.NoError(t, registry.Emit("socket-1", map[string]string{"source": "server"}))
 	_, serverMessage, err := connection.ReadMessage()
@@ -84,6 +87,7 @@ func TestServeHTTPManagesSocketLifecycle(t *testing.T) {
 
 	_, ok := registry.Sockets.Load("socket-1")
 	require.False(t, ok)
+	require.Equal(t, float64(0), componentmetrics.Snapshot()[MetricActiveConnections])
 
 	select {
 	case handlerErr := <-handlerErrors:

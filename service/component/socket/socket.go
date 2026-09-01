@@ -10,18 +10,11 @@ import (
 	"github.com/gorilla/websocket"
 
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
-	componentmetrics "github.com/coretrix/hitrix/service/component/metrics"
 )
 
 var (
 	ErrSocketClosed   = errors.New("socket is closed")
 	ErrSendBufferFull = errors.New("socket send buffer is full")
-)
-
-const (
-	MetricFramesSentTotal     = "SocketFramesSentTotal"
-	MetricFramesDroppedTotal  = "SocketFramesDroppedTotal"
-	MetricSendBufferFullTotal = "SocketSendBufferFullTotal"
 )
 
 type Connection struct {
@@ -121,23 +114,17 @@ func (s *Socket) writePump() {
 func (s *Socket) Emit(dto interface{}) error {
 	data, err := json.Marshal(dto)
 	if err != nil {
-		componentmetrics.Add(MetricFramesDroppedTotal, 1)
 		return err
 	}
 
 	select {
 	case <-s.Ctx.Done():
-		componentmetrics.Add(MetricFramesDroppedTotal, 1)
 		return ErrSocketClosed
 	case <-s.done:
-		componentmetrics.Add(MetricFramesDroppedTotal, 1)
 		return ErrSocketClosed
 	case s.Connection.Send <- data:
-		componentmetrics.Add(MetricFramesSentTotal, 1)
 		return nil
 	default:
-		componentmetrics.Add(MetricFramesDroppedTotal, 1)
-		componentmetrics.Add(MetricSendBufferFullTotal, 1)
 		return ErrSendBufferFull
 	}
 }

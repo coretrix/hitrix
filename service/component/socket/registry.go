@@ -27,8 +27,6 @@ const (
 	defaultSendBufferSize  = 256
 
 	MetricActiveConnections = "SocketActiveConnections"
-	MetricConnectionsTotal  = "SocketConnectionsTotal"
-	MetricDisconnectsTotal  = "SocketDisconnectsTotal"
 )
 
 var (
@@ -93,6 +91,7 @@ func NewSocketRegistryWithConfig(
 	config Config,
 ) *Registry {
 	config.applyDefaults()
+	componentmetrics.Set(MetricActiveConnections, 0)
 
 	return &Registry{
 		Sockets:          &sync.Map{},
@@ -201,7 +200,6 @@ func (registry *Registry) register(socketHolder *Socket) {
 	}
 	registry.Sockets.Store(socketHolder.ID, socketHolder)
 	componentmetrics.Add(MetricActiveConnections, 1)
-	componentmetrics.Add(MetricConnectionsTotal, 1)
 
 	if handler := registry.eventHandlersMap[socketHolder.Namespace].RegisterHandler; handler != nil {
 		handler(socketHolder)
@@ -219,7 +217,6 @@ func (registry *Registry) unregisterLocked(socketHolder *Socket) {
 	socketHolder.unregisterOnce.Do(func() {
 		registry.Sockets.CompareAndDelete(socketHolder.ID, socketHolder)
 		componentmetrics.Add(MetricActiveConnections, -1)
-		componentmetrics.Add(MetricDisconnectsTotal, 1)
 
 		if handler := registry.eventHandlersMap[socketHolder.Namespace].UnregisterHandler; handler != nil {
 			handler(socketHolder)
