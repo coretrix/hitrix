@@ -3,7 +3,6 @@ package hitrix
 import (
 	"encoding/json"
 	"expvar"
-	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -269,6 +268,9 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 
 	ticker := time.NewTicker(time.Duration(intervalCollectorInMilli) * time.Millisecond)
 	appName := service.DI().App().Name
+	if instanceName, hasInstanceName := configService.String("metrics.instance_name"); hasInstanceName && instanceName != "" {
+		appName += "/" + instanceName
+	}
 	counter := 0
 
 	GoroutineWithRestart(func() {
@@ -278,7 +280,7 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 		log.Println("starting metrics collector")
 
 		for range ticker.C {
-			data := "{"
+			data := make(map[string]interface{})
 
 			expvar.Do(func(kv expvar.KeyValue) {
 				if kv.Key == "memstats" {
@@ -332,32 +334,37 @@ func (processor *BackgroundProcessor) RunAsyncMetricsCollector(fieldProcessor Fi
 					for k, v := range *memStats {
 						if _, ok := fieldsMap[k]; ok {
 							if k == "PauseNs" {
-								data += fmt.Sprintf("%q: %d,", k, pauseNSNumGC)
+								data[k] = pauseNSNumGC
 
 								continue
 							}
 
 							if _, hasFieldProcessor := fieldProcessor[k]; hasFieldProcessor {
-								data += fmt.Sprintf("%q: %f,", k, fieldProcessor[k](v))
+								data[k] = fieldProcessor[k](v)
 							} else {
-								data += fmt.Sprintf("%q: %f,", k, v)
+								data[k] = v
 							}
 						}
 					}
 
 					if _, ok := fieldsMap["NumGoroutine"]; ok {
-						data += fmt.Sprintf("\"NumGoroutine\": %d,", runtime.NumGoroutine())
+						data["NumGoroutine"] = runtime.NumGoroutine()
 					}
-
-					data = strings.TrimSuffix(data, ",")
 				}
 			})
 
-			data += "}"
+			for name, value := range customMetricsSnapshot() {
+				data[name] = value
+			}
+
+			encodedData, err := json.Marshal(data)
+			if err != nil {
+				panic(err)
+			}
 
 			flusher.Track(&entity.MetricsEntity{
 				AppName:   appName,
-				Metrics:   data,
+				Metrics:   string(encodedData),
 				CreatedAt: clockService.Now(),
 			})
 

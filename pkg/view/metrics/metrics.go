@@ -63,12 +63,11 @@ func Get(ctx context.Context) map[string]metrics.Series {
 
 			if _, ok := result[k].Data[metricsEntity.AppName]; !ok {
 				result[k].Data[metricsEntity.AppName] = make([]metrics.Row, 0)
-			} else {
-				result[k].Data[metricsEntity.AppName] = append(result[k].Data[metricsEntity.AppName], metrics.Row{
-					Value:     v,
-					CreatedAt: metricsEntity.CreatedAt.UnixMilli(),
-				})
 			}
+			result[k].Data[metricsEntity.AppName] = append(result[k].Data[metricsEntity.AppName], metrics.Row{
+				Value:     v,
+				CreatedAt: metricsEntity.CreatedAt.UnixMilli(),
+			})
 		}
 	}
 

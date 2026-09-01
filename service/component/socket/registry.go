@@ -14,6 +14,7 @@ import (
 
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/coretrix/hitrix/service/component/goroutine"
+	componentmetrics "github.com/coretrix/hitrix/service/component/metrics"
 )
 
 const (
@@ -24,6 +25,10 @@ const (
 	defaultReadBufferSize  = 1024
 	defaultWriteBufferSize = 1024
 	defaultSendBufferSize  = 256
+
+	MetricActiveConnections = "SocketActiveConnections"
+	MetricConnectionsTotal  = "SocketConnectionsTotal"
+	MetricDisconnectsTotal  = "SocketDisconnectsTotal"
 )
 
 var (
@@ -195,6 +200,8 @@ func (registry *Registry) register(socketHolder *Socket) {
 		registry.unregisterLocked(currentSocket)
 	}
 	registry.Sockets.Store(socketHolder.ID, socketHolder)
+	componentmetrics.Add(MetricActiveConnections, 1)
+	componentmetrics.Add(MetricConnectionsTotal, 1)
 
 	if handler := registry.eventHandlersMap[socketHolder.Namespace].RegisterHandler; handler != nil {
 		handler(socketHolder)
@@ -211,6 +218,8 @@ func (registry *Registry) unregister(socketHolder *Socket) {
 func (registry *Registry) unregisterLocked(socketHolder *Socket) {
 	socketHolder.unregisterOnce.Do(func() {
 		registry.Sockets.CompareAndDelete(socketHolder.ID, socketHolder)
+		componentmetrics.Add(MetricActiveConnections, -1)
+		componentmetrics.Add(MetricDisconnectsTotal, 1)
 
 		if handler := registry.eventHandlersMap[socketHolder.Namespace].UnregisterHandler; handler != nil {
 			handler(socketHolder)
