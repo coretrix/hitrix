@@ -8,13 +8,13 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/websocket"
 
 	errorlogger "github.com/coretrix/hitrix/service/component/error_logger"
 	"github.com/coretrix/hitrix/service/component/goroutine"
-	componentmetrics "github.com/coretrix/hitrix/service/component/metrics"
 )
 
 const (
@@ -25,8 +25,6 @@ const (
 	defaultReadBufferSize  = 1024
 	defaultWriteBufferSize = 1024
 	defaultSendBufferSize  = 256
-
-	MetricActiveConnections = "SocketActiveConnections"
 )
 
 var (
@@ -76,9 +74,10 @@ type Registry struct {
 	Sockets          *sync.Map
 	ServiceGoroutine goroutine.IGoroutine
 
-	eventHandlersMap NamespaceEventHandlerMap
-	config           Config
-	lifecycleMu      sync.Mutex
+	eventHandlersMap  NamespaceEventHandlerMap
+	config            Config
+	lifecycleMu       sync.Mutex
+	activeConnections atomic.Int64
 }
 
 func NewSocketRegistry(eventHandlersMap NamespaceEventHandlerMap, serviceGoroutine goroutine.IGoroutine) *Registry {
@@ -91,7 +90,6 @@ func NewSocketRegistryWithConfig(
 	config Config,
 ) *Registry {
 	config.applyDefaults()
-	componentmetrics.Set(MetricActiveConnections, 0)
 
 	return &Registry{
 		Sockets:          &sync.Map{},
@@ -189,6 +187,10 @@ func (registry *Registry) Close(socketID string) bool {
 	return true
 }
 
+func (registry *Registry) ActiveConnections() int64 {
+	return registry.activeConnections.Load()
+}
+
 func (registry *Registry) register(socketHolder *Socket) {
 	registry.lifecycleMu.Lock()
 	defer registry.lifecycleMu.Unlock()
@@ -199,7 +201,7 @@ func (registry *Registry) register(socketHolder *Socket) {
 		registry.unregisterLocked(currentSocket)
 	}
 	registry.Sockets.Store(socketHolder.ID, socketHolder)
-	componentmetrics.Add(MetricActiveConnections, 1)
+	registry.activeConnections.Add(1)
 
 	if handler := registry.eventHandlersMap[socketHolder.Namespace].RegisterHandler; handler != nil {
 		handler(socketHolder)
@@ -216,7 +218,7 @@ func (registry *Registry) unregister(socketHolder *Socket) {
 func (registry *Registry) unregisterLocked(socketHolder *Socket) {
 	socketHolder.unregisterOnce.Do(func() {
 		registry.Sockets.CompareAndDelete(socketHolder.ID, socketHolder)
-		componentmetrics.Add(MetricActiveConnections, -1)
+		registry.activeConnections.Add(-1)
 
 		if handler := registry.eventHandlersMap[socketHolder.Namespace].UnregisterHandler; handler != nil {
 			handler(socketHolder)

@@ -11,8 +11,6 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/require"
-
-	componentmetrics "github.com/coretrix/hitrix/service/component/metrics"
 )
 
 const testNamespace = "test"
@@ -60,7 +58,7 @@ func TestServeHTTPManagesSocketLifecycle(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("socket was not registered")
 	}
-	require.Equal(t, float64(1), componentmetrics.Snapshot()[MetricActiveConnections])
+	require.Equal(t, int64(1), registry.ActiveConnections())
 
 	require.NoError(t, registry.Emit("socket-1", map[string]string{"source": "server"}))
 	_, serverMessage, err := connection.ReadMessage()
@@ -87,7 +85,7 @@ func TestServeHTTPManagesSocketLifecycle(t *testing.T) {
 
 	_, ok := registry.Sockets.Load("socket-1")
 	require.False(t, ok)
-	require.Equal(t, float64(0), componentmetrics.Snapshot()[MetricActiveConnections])
+	require.Equal(t, int64(0), registry.ActiveConnections())
 
 	select {
 	case handlerErr := <-handlerErrors:
@@ -168,6 +166,7 @@ func TestServeHTTPReplacesDuplicateConnectionID(t *testing.T) {
 	current, ok := registry.Sockets.Load("same-socket")
 	require.True(t, ok)
 	require.Same(t, secondSocket, current)
+	require.Equal(t, int64(1), registry.ActiveConnections())
 
 	_, _, err = firstConnection.ReadMessage()
 	require.Error(t, err)
@@ -178,6 +177,9 @@ func TestServeHTTPReplacesDuplicateConnectionID(t *testing.T) {
 		websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""),
 	))
 	require.Same(t, secondSocket, receiveSocket(t, unregistered, "second socket was not unregistered"))
+	require.Eventually(t, func() bool {
+		return registry.ActiveConnections() == 0
+	}, time.Second, 10*time.Millisecond)
 }
 
 func TestDefaultOriginPolicy(t *testing.T) {
