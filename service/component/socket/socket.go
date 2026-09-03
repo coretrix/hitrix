@@ -72,7 +72,7 @@ func (s *Socket) readPump(readMessageHandler ReadMessageHandler) {
 	for {
 		_, rawData, err := s.Connection.Ws.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseNormalClosure) {
+			if isUnexpectedSocketCloseError(err) {
 				s.logError(err)
 			}
 
@@ -83,6 +83,15 @@ func (s *Socket) readPump(readMessageHandler ReadMessageHandler) {
 			readMessageHandler(s, rawData)
 		}
 	}
+}
+
+func isUnexpectedSocketCloseError(err error) bool {
+	return websocket.IsUnexpectedCloseError(
+		err,
+		websocket.CloseGoingAway,
+		websocket.CloseNormalClosure,
+		websocket.CloseNoStatusReceived,
+	)
 }
 
 func (s *Socket) writePump() {

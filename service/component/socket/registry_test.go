@@ -208,6 +208,20 @@ func TestEmitDoesNotBlockSlowOrClosedConnections(t *testing.T) {
 	require.ErrorIs(t, socketHolder.Emit("third"), ErrSocketClosed)
 }
 
+func TestExpectedSocketCloseErrorsAreNotReported(t *testing.T) {
+	testCases := []int{
+		websocket.CloseNormalClosure,
+		websocket.CloseGoingAway,
+		websocket.CloseNoStatusReceived,
+	}
+
+	for _, closeCode := range testCases {
+		require.False(t, isUnexpectedSocketCloseError(&websocket.CloseError{Code: closeCode}))
+	}
+
+	require.True(t, isUnexpectedSocketCloseError(&websocket.CloseError{Code: websocket.CloseAbnormalClosure}))
+}
+
 func newTestRegistry(registered chan *Socket, unregistered chan *Socket) *Registry {
 	return NewSocketRegistry(
 		NamespaceEventHandlerMap{
