@@ -2,9 +2,11 @@ package crud
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/coretrix/trixorm"
 	"github.com/stretchr/testify/assert"
 	"github.com/xorcare/pointer"
 )
@@ -362,4 +364,63 @@ func TestExtractListParams(t *testing.T) {
 		}
 		assert.Equal(t, expected, searchParam)
 	})
+}
+
+func TestGenerateListRedisSearchQueryFullText(t *testing.T) {
+	testCases := []struct {
+		name      string
+		value     string
+		normalize func(interface{}) interface{}
+		query     string
+	}{
+		{name: "empty", value: "", query: ""},
+		{name: "spaces", value: "   ", query: ""},
+		{name: "unicode whitespace", value: "\t\r\n\u00a0", query: ""},
+		{
+			name: "empty after normalization", value: "removed",
+			normalize: func(interface{}) interface{} { return "" },
+			query:     "",
+		},
+		{
+			name: "whitespace after normalization", value: "removed",
+			normalize: func(interface{}) interface{} { return " \t" },
+			query:     "",
+		},
+		{name: "contains", value: "CA1234AB", query: "@LicencePlate:*CA1234AB* "},
+		{name: "trimmed", value: "  CA1234AB  ", query: "@LicencePlate:*CA1234AB* "},
+		{name: "escaped", value: "CA-1234", query: `@LicencePlate:*CA\-1234* `},
+		{
+			name: "normalized", value: "ca1234ab",
+			normalize: func(value interface{}) interface{} { return strings.ToUpper(value.(string)) },
+			query:     "@LicencePlate:*CA1234AB* ",
+		},
+	}
+
+	crudService := &Crud{}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			params := SearchParams{
+				StringFilters: map[string]string{"LicencePlate": testCase.value},
+				NumberFilters: map[string]int64{"BOMemberID": 42},
+				Cols: map[string]Column{
+					"LicencePlate": {FullTextSearch: true, Normalize: testCase.normalize},
+				},
+			}
+			expected := trixorm.NewRedisSearchQuery().FilterInt("BOMemberID", 42).QueryRaw(testCase.query)
+			assert.Equal(t, expected, crudService.GenerateListRedisSearchQuery(params))
+			assert.Equal(t, testCase.value, params.StringFilters["LicencePlate"])
+		})
+	}
+}
+
+func TestGenerateListRedisSearchQueryPreservesEmptyPrefixFilter(t *testing.T) {
+	crudService := &Crud{}
+	params := SearchParams{
+		StringFilters: map[string]string{"Name": "removed"},
+		Cols: map[string]Column{
+			"Name": {Normalize: func(interface{}) interface{} { return "" }},
+		},
+	}
+	expected := trixorm.NewRedisSearchQuery().QueryFieldPrefixMatch("Name", "")
+	assert.Equal(t, expected, crudService.GenerateListRedisSearchQuery(params))
 }

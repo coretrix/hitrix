@@ -565,9 +565,14 @@ func (c *Crud) GenerateListRedisSearchQuery(params SearchParams) *trixorm.RedisS
 		}
 
 		if params.Cols[field].FullTextSearch {
+			value = strings.TrimSpace(value)
+			if value == "" {
+				continue
+			}
+
 			query.QueryRaw(fmt.Sprintf(
 				"@%s:*%v* ",
-				field, strings.TrimSpace(trixorm.EscapeRedisSearchString(value)),
+				field, trixorm.EscapeRedisSearchString(value),
 			))
 		} else {
 			query.QueryFieldPrefixMatch(field, value)
