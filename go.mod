@@ -40,7 +40,7 @@ require (
 	github.com/sarulabs/di v2.0.0+incompatible
 	github.com/slack-go/slack v0.9.0
 	github.com/stretchr/testify v1.8.4
-	github.com/stripe/stripe-go/v72 v72.91.0
+	github.com/stripe/stripe-go/v85 v85.2.0
 	github.com/tealeg/xlsx v1.0.5
 	github.com/tus/tusd v1.6.0
 	github.com/twilio/twilio-go v0.15.0

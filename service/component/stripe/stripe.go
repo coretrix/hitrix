@@ -1,17 +1,20 @@
 package stripe
 
 import (
-	"github.com/stripe/stripe-go/v72"
-	"github.com/stripe/stripe-go/v72/account"
-	"github.com/stripe/stripe-go/v72/accountlink"
-	portalsession "github.com/stripe/stripe-go/v72/billingportal/session"
-	"github.com/stripe/stripe-go/v72/checkout/session"
-	"github.com/stripe/stripe-go/v72/customer"
-	"github.com/stripe/stripe-go/v72/paymentintent"
-	"github.com/stripe/stripe-go/v72/refund"
-	"github.com/stripe/stripe-go/v72/setupintent"
-	"github.com/stripe/stripe-go/v72/sub"
-	"github.com/stripe/stripe-go/v72/webhook"
+	"fmt"
+
+	"github.com/stripe/stripe-go/v85"
+	"github.com/stripe/stripe-go/v85/account"
+	"github.com/stripe/stripe-go/v85/accountlink"
+	portalsession "github.com/stripe/stripe-go/v85/billingportal/session"
+	"github.com/stripe/stripe-go/v85/checkout/session"
+	"github.com/stripe/stripe-go/v85/customer"
+	"github.com/stripe/stripe-go/v85/paymentintent"
+	"github.com/stripe/stripe-go/v85/paymentmethod"
+	"github.com/stripe/stripe-go/v85/refund"
+	"github.com/stripe/stripe-go/v85/setupintent"
+	sub "github.com/stripe/stripe-go/v85/subscription"
+	"github.com/stripe/stripe-go/v85/webhook"
 
 	"github.com/coretrix/hitrix/service/component/app"
 )
@@ -134,12 +137,42 @@ func (s *Stripe) CreateSetupIntent(setupIntentParams *stripe.SetupIntentParams) 
 	return setupintent.New(setupIntentParams)
 }
 
+func (s *Stripe) GetSetupIntent(setupIntentID string, setupIntentParams *stripe.SetupIntentParams) (*stripe.SetupIntent, error) {
+	return setupintent.Get(setupIntentID, setupIntentParams)
+}
+
+func (s *Stripe) GetPaymentMethod(paymentMethodID string, paymentMethodParams *stripe.PaymentMethodParams) (*stripe.PaymentMethod, error) {
+	return paymentmethod.Get(paymentMethodID, paymentMethodParams)
+}
+
+func (s *Stripe) DetachPaymentMethod(paymentMethodID string, paymentMethodDetachParams *stripe.PaymentMethodDetachParams) (*stripe.PaymentMethod, error) {
+	return paymentmethod.Detach(paymentMethodID, paymentMethodDetachParams)
+}
+
 func (s *Stripe) CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error) {
 	return accountlink.New(accountLinkParams)
 }
 
 func (s *Stripe) GetPaymentIntent(paymentIntentID string, paymentIntentParams *stripe.PaymentIntentParams) (*stripe.PaymentIntent, error) {
 	return paymentintent.Get(paymentIntentID, paymentIntentParams)
+}
+
+func (s *Stripe) CreatePaymentIntent(paymentIntentParams *stripe.PaymentIntentParams) (*stripe.PaymentIntent, error) {
+	if paymentIntentParams.Params.Metadata == nil {
+		paymentIntentParams.Params.Metadata = map[string]string{Env: s.appService.Mode}
+	} else {
+		paymentIntentParams.Params.Metadata[Env] = s.appService.Mode
+	}
+
+	return paymentintent.New(paymentIntentParams)
+}
+
+func (s *Stripe) ConfirmPaymentIntent(paymentIntentID string, paymentIntentConfirmParams *stripe.PaymentIntentConfirmParams) (*stripe.PaymentIntent, error) {
+	return paymentintent.Confirm(paymentIntentID, paymentIntentConfirmParams)
+}
+
+func (s *Stripe) CancelPaymentIntent(paymentIntentID string, paymentIntentCancelParams *stripe.PaymentIntentCancelParams) (*stripe.PaymentIntent, error) {
+	return paymentintent.Cancel(paymentIntentID, paymentIntentCancelParams)
 }
 
 func (s *Stripe) CreatePaymentIntentMultiparty(
@@ -198,7 +231,7 @@ func (s *Stripe) NewCheckoutSession(
 func (s *Stripe) ConstructWebhookEvent(reqBody []byte, signature string, webhookKey string) (stripe.Event, error) {
 	secret, ok := s.webhookSecrets[webhookKey]
 	if !ok {
-		panic("stripe webhook secret [" + webhookKey + "] not found")
+		return stripe.Event{}, fmt.Errorf("stripe webhook secret [%s] not found", webhookKey)
 	}
 
 	return webhook.ConstructEvent(reqBody, signature, secret)
@@ -216,9 +249,15 @@ type IStripe interface {
 	UpdateSubscription(subscriptionID string, subscriptionParams *stripe.SubscriptionParams) (*stripe.Subscription, error)
 	CancelSubscription(subscriptionID string, subscriptionCancelParams *stripe.SubscriptionCancelParams) (*stripe.Subscription, error)
 	CreateSetupIntent(setupIntentParams *stripe.SetupIntentParams) (*stripe.SetupIntent, error)
+	GetSetupIntent(setupIntentID string, setupIntentParams *stripe.SetupIntentParams) (*stripe.SetupIntent, error)
+	GetPaymentMethod(paymentMethodID string, paymentMethodParams *stripe.PaymentMethodParams) (*stripe.PaymentMethod, error)
+	DetachPaymentMethod(paymentMethodID string, paymentMethodDetachParams *stripe.PaymentMethodDetachParams) (*stripe.PaymentMethod, error)
 	CreateBillingPortalSession(billingPortalSessionParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error)
 	CreateAccountLink(accountLinkParams *stripe.AccountLinkParams) (*stripe.AccountLink, error)
 	GetPaymentIntent(paymentIntentID string, paymentIntentParams *stripe.PaymentIntentParams) (*stripe.PaymentIntent, error)
+	CreatePaymentIntent(paymentIntentParams *stripe.PaymentIntentParams) (*stripe.PaymentIntent, error)
+	ConfirmPaymentIntent(paymentIntentID string, paymentIntentConfirmParams *stripe.PaymentIntentConfirmParams) (*stripe.PaymentIntent, error)
+	CancelPaymentIntent(paymentIntentID string, paymentIntentCancelParams *stripe.PaymentIntentCancelParams) (*stripe.PaymentIntent, error)
 	CreatePaymentIntentMultiparty(paymentIntentParams *stripe.PaymentIntentParams, linkedAccountID string) (*stripe.PaymentIntent, error)
 	CreateRefundMultiparty(refundParams *stripe.RefundParams, linkedAccountID string) (*stripe.Refund, error)
 	ConstructWebhookEvent(reqBody []byte, signature string, webhookKey string) (stripe.Event, error)

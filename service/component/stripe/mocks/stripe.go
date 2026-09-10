@@ -2,7 +2,7 @@ package mocks
 
 import (
 	"github.com/stretchr/testify/mock"
-	"github.com/stripe/stripe-go/v72"
+	"github.com/stripe/stripe-go/v85"
 )
 
 type FakeStripeClient struct {
@@ -75,6 +75,24 @@ func (t *FakeStripeClient) CreateSetupIntent(setupIntentParams *stripe.SetupInte
 	return args.Get(0).(*stripe.SetupIntent), args.Error(1)
 }
 
+func (t *FakeStripeClient) GetSetupIntent(setupIntentID string, setupIntentParams *stripe.SetupIntentParams) (*stripe.SetupIntent, error) {
+	args := t.Called(setupIntentID, setupIntentParams)
+
+	return args.Get(0).(*stripe.SetupIntent), args.Error(1)
+}
+
+func (t *FakeStripeClient) GetPaymentMethod(paymentMethodID string, paymentMethodParams *stripe.PaymentMethodParams) (*stripe.PaymentMethod, error) {
+	args := t.Called(paymentMethodID, paymentMethodParams)
+
+	return args.Get(0).(*stripe.PaymentMethod), args.Error(1)
+}
+
+func (t *FakeStripeClient) DetachPaymentMethod(paymentMethodID string, paymentMethodDetachParams *stripe.PaymentMethodDetachParams) (*stripe.PaymentMethod, error) {
+	args := t.Called(paymentMethodID, paymentMethodDetachParams)
+
+	return args.Get(0).(*stripe.PaymentMethod), args.Error(1)
+}
+
 func (t *FakeStripeClient) CreateBillingPortalSession(billingPortalSParams *stripe.BillingPortalSessionParams) (*stripe.BillingPortalSession, error) {
 	args := t.Called(billingPortalSParams)
 
@@ -89,6 +107,24 @@ func (t *FakeStripeClient) CreateAccountLink(accountLinkParams *stripe.AccountLi
 
 func (t *FakeStripeClient) GetPaymentIntent(paymentIntentID string, paymentIntentParams *stripe.PaymentIntentParams) (*stripe.PaymentIntent, error) {
 	args := t.Called(paymentIntentID, paymentIntentParams)
+
+	return args.Get(0).(*stripe.PaymentIntent), args.Error(1)
+}
+
+func (t *FakeStripeClient) CreatePaymentIntent(paymentIntentParams *stripe.PaymentIntentParams) (*stripe.PaymentIntent, error) {
+	args := t.Called(paymentIntentParams)
+
+	return args.Get(0).(*stripe.PaymentIntent), args.Error(1)
+}
+
+func (t *FakeStripeClient) ConfirmPaymentIntent(paymentIntentID string, paymentIntentConfirmParams *stripe.PaymentIntentConfirmParams) (*stripe.PaymentIntent, error) {
+	args := t.Called(paymentIntentID, paymentIntentConfirmParams)
+
+	return args.Get(0).(*stripe.PaymentIntent), args.Error(1)
+}
+
+func (t *FakeStripeClient) CancelPaymentIntent(paymentIntentID string, paymentIntentCancelParams *stripe.PaymentIntentCancelParams) (*stripe.PaymentIntent, error) {
+	args := t.Called(paymentIntentID, paymentIntentCancelParams)
 
 	return args.Get(0).(*stripe.PaymentIntent), args.Error(1)
 }

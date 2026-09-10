@@ -1,8 +1,6 @@
 package registry
 
 import (
-	"errors"
-
 	"github.com/sarulabs/di"
 
 	"github.com/coretrix/hitrix/service"
@@ -17,15 +15,9 @@ func ServiceProviderStripe() *service.DefinitionGlobal {
 		Build: func(ctn di.Container) (interface{}, error) {
 			configService := ctn.Get(service.ConfigService).(config.IConfig)
 
-			key, ok := configService.String("stripe.key")
-			if !ok {
-				return nil, errors.New("missing stripe key")
-			}
+			key, _ := configService.String("stripe.key")
 
-			secrets, ok := configService.StringMap("stripe.webhook_secrets")
-			if !ok {
-				return nil, errors.New("missing stripe secrets")
-			}
+			secrets, _ := configService.StringMap("stripe.webhook_secrets")
 
 			appService := ctn.Get(service.AppService).(*app.App)
 
