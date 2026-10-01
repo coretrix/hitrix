@@ -67,6 +67,10 @@ module.exports = [
                         link: '/guide/services/error_logger',
                     },
                     {
+                        text: 'Read-only MCP',
+                        link: '/guide/services/mcp',
+                    },
+                    {
                         text: 'Firebase cloud messaging',
                         link: '/guide/services/fcm',
                     },

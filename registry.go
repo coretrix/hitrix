@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sarulabs/di"
 
+	"github.com/coretrix/hitrix/pkg/mcp"
 	"github.com/coretrix/hitrix/service"
 	"github.com/coretrix/hitrix/service/component/app"
 	"github.com/coretrix/hitrix/service/registry"
@@ -86,6 +87,13 @@ func (r *Registry) RegisterRedisPools(pools *app.RedisPools) *Registry {
 
 func (r *Registry) RegisterRedisDelayedQueues(queues []string) *Registry {
 	r.app.RedisDelayedQueues = queues
+
+	return r
+}
+
+// RegisterMCPCommands adds read-only tools to the opt-in dev-panel MCP endpoint.
+func (r *Registry) RegisterMCPCommands(commands []mcp.Command) *Registry {
+	r.app.MCPCommands = append(r.app.MCPCommands, commands...)
 
 	return r
 }

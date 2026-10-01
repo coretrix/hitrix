@@ -16,12 +16,13 @@ func Cors(ginEngine *gin.Engine) {
 	}
 
 	corsConfig := cors.Config{
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization", "X-Requested-With", "User-Agent", "X-Lang"},
+		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders: []string{"Origin", "Content-Length", "Content-Type", "Authorization", "X-Requested-With",
+			"User-Agent", "X-Lang", "Mcp-Protocol-Version", "Mcp-Session-Id"},
 		AllowOrigins:     origins,
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
-		ExposeHeaders:    []string{"X-Invalid-Authorization", "X-Clockwork-Id", "X-Clockwork-Version"},
+		ExposeHeaders:    []string{"X-Invalid-Authorization", "X-Clockwork-Id", "X-Clockwork-Version", "Mcp-Protocol-Version", "Mcp-Session-Id"},
 	}
 
 	ginEngine.Use(cors.New(corsConfig))

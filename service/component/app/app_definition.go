@@ -6,6 +6,7 @@ import (
 
 	"github.com/coretrix/trixorm"
 	"github.com/gin-gonic/gin"
+	sdk "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 const ModeLocal = "local"
@@ -43,6 +44,7 @@ type App struct {
 	DevPanel           *DevPanel
 	RedisPools         *RedisPools
 	RedisDelayedQueues []string
+	MCPCommands        []func(*sdk.Server)
 	GlobalContext      context.Context
 	CancelContext      context.CancelFunc
 	waitGroup          *sync.WaitGroup

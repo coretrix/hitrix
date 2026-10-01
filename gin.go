@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 
 	hitrixBinding "github.com/coretrix/hitrix/pkg/binding"
+	"github.com/coretrix/hitrix/pkg/mcp"
 	"github.com/coretrix/hitrix/service"
 )
 
@@ -55,6 +56,8 @@ func InitGin(ginInitHandler GinInitHandler) *gin.Engine {
 		devRouter := app.DevPanel.Router
 		devRouter(ginEngine)
 	}
+
+	mcp.RegisterRoutes(ginEngine)
 
 	binding.Validator = hitrixBinding.NewValidator()
 

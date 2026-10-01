@@ -21,19 +21,6 @@ import (
 type ErrorLogController struct {
 }
 
-type errorRow struct {
-	File       string
-	Line       int
-	AppName    string
-	Service    string
-	Request    string
-	Message    string
-	Stack      string
-	Counter    int
-	Time       string
-	TicketLink string
-}
-
 func (controller *ErrorLogController) getErrorLogRedis(c *gin.Context) *trixorm.RedisCache {
 	ormService := service.DI().OrmEngineForContext(c.Request.Context())
 	appService := service.DI().App()
@@ -46,55 +33,12 @@ func (controller *ErrorLogController) getErrorLogRedis(c *gin.Context) *trixorm.
 }
 
 func (controller *ErrorLogController) getByGroup(c *gin.Context, group string) {
-	data := controller.getErrorLogRedis(c).HGetAll(group)
-
-	errorsList := map[string]*errorRow{}
-
-	for key, value := range data {
-		// TODO: fix this hack
-		if len(value) == 0 {
-			continue
-		}
-
-		entryID := key
-		field := ""
-		lastSplitIndex := strings.LastIndex(key, ":")
-		if lastSplitIndex > 0 {
-			entryID = key[0:lastSplitIndex]
-			field = key[lastSplitIndex+1:]
-		}
-
-		if _, ok := errorsList[entryID]; !ok {
-			errorsList[entryID] = &errorRow{}
-		}
-
-		if field == "" {
-			errorMessage := &errorlogger.ErrorMessage{}
-
-			err := json.Unmarshal([]byte(value), errorMessage)
-			if err != nil {
-				panic(err)
-			}
-
-			errorsList[entryID].Request = string(errorMessage.Request)
-			errorsList[entryID].Stack = string(errorMessage.Stack)
-			errorsList[entryID].File = errorMessage.File
-			errorsList[entryID].Message = errorMessage.Message
-			errorsList[entryID].Line = errorMessage.Line
-			errorsList[entryID].AppName = errorMessage.AppName
-			errorsList[entryID].Service = errorMessage.Service
-		} else if field == "time" {
-			i, _ := strconv.ParseInt(strings.TrimSpace(value), 10, 64)
-			errorsList[entryID].Time = time.Unix(i, 0).String()
-		} else if field == "counter" {
-			counter, _ := strconv.Atoi(strings.TrimSpace(value))
-			errorsList[entryID].Counter = counter
-		} else if field == "ticket_link" {
-			errorsList[entryID].TicketLink = value
-		}
+	entries, err := errorlogger.ParseEntries(controller.getErrorLogRedis(c).HGetAll(group))
+	if err != nil {
+		panic(err)
 	}
 
-	response.SuccessResponse(c, errorsList)
+	response.SuccessResponse(c, entries)
 }
 
 func (controller *ErrorLogController) deleteSingleByGroup(c *gin.Context, group string) {
