@@ -28,6 +28,7 @@ func DevPanelRouter(ginEngine *gin.Engine) {
 			devGroup.GET("redis-search/alters/", devPanel.GetRedisSearchAlters)
 			devGroup.GET("redis-search/statistics/", devPanel.GetRedisSearchStatistics)
 			devGroup.GET("redis-search/indexes/", devPanel.GetRedisSearchIndexes)
+			devGroup.POST("redis-search/reindex-entity/:pool/:index/", devPanel.PostRedisSearchReindexEntity)
 			devGroup.GET("redis-search/index/info/:index/", devPanel.PostRedisSearchIndexInfo)
 			devGroup.GET("redis-search/force-reindex/:index/", devPanel.PostRedisSearchForceReindex)
 			devGroup.GET("redis-search/force-reindex-all/", devPanel.PostRedisSearchForceReindexAll)

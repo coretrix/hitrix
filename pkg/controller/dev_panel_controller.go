@@ -18,6 +18,7 @@ import (
 	errorhandling "github.com/coretrix/hitrix/pkg/error_handling"
 	hitrixErrors "github.com/coretrix/hitrix/pkg/errors"
 	accountModel "github.com/coretrix/hitrix/pkg/model/account"
+	"github.com/coretrix/hitrix/pkg/model/redissearch"
 	"github.com/coretrix/hitrix/pkg/redis"
 	"github.com/coretrix/hitrix/pkg/response"
 	"github.com/coretrix/hitrix/pkg/view/account"
@@ -280,9 +281,11 @@ func (controller *DevPanelController) GetRedisSearchIndexes(c *gin.Context) {
 			indexList = append(
 				indexList,
 				indexes.Index{
-					Name:      indexName,
-					TotalDocs: info.NumDocs,
-					TotalSize: uint64(info.DocTableSizeMB + info.KeyTableSizeMB + info.SortableValuesSizeMB + info.InvertedSzMB + info.OffsetVectorsSzMB),
+					Name:             indexName,
+					Pool:             searchPool,
+					CanReindexEntity: redissearch.EntityIndex(ormService, searchPool, indexName) != nil,
+					TotalDocs:        info.NumDocs,
+					TotalSize:        uint64(info.DocTableSizeMB + info.KeyTableSizeMB + info.SortableValuesSizeMB + info.InvertedSzMB + info.OffsetVectorsSzMB),
 				})
 		}
 	}

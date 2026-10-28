@@ -5,7 +5,9 @@ type ResponseDTOList struct {
 }
 
 type Index struct {
-	Name      string
-	TotalDocs uint64
-	TotalSize uint64
+	Name             string
+	Pool             string
+	CanReindexEntity bool
+	TotalDocs        uint64
+	TotalSize        uint64
 }
