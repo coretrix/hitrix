@@ -68,3 +68,45 @@ Access the service:
 ```go
 service.DI().OSService()
 ```
+
+## Direct browser uploads (Google Cloud Storage)
+
+GoogleOSS implements the optional `IResumableUploadProvider` interface. Existing
+`IProvider` methods and other storage providers are unchanged. Check support first:
+
+```go
+uploads, supported := service.DI().OSService().(oss.IResumableUploadProvider)
+// Handle !supported before calling uploads.
+upload, err := uploads.StartResumableUpload(ctx, ormService, namespace, oss.ResumableUploadOptions{
+    Extension: ".apk", ContentType: "application/vnd.android.package-archive",
+    Size: fileSize, Origin: allowedBrowserOrigin, CRC32C: fileCRC32C,
+})
+// Handle err, then save upload server-side with its owner, namespace and expiry.
+// Return only your pending-upload ID and upload.UploadURL to the browser.
+// After upload, load the saved record using that ID and check owner and expiry:
+fileObject, err := uploads.CompleteResumableUpload(ctx, namespace, upload)
+// Handle err, then publish fileObject exactly once in your application.
+```
+
+- Authorize the user, namespace, browser origin and size before initiation. CRC32C
+  is the Castagnoli checksum encoded as four big-endian bytes in standard base64;
+  it verifies transfer integrity, not APK validity or publisher identity.
+- Initiation reserves the normal Hitrix file ID/key and prevents overwrites.
+  File bytes go directly to GCS. Failed attempts can leave gaps in file IDs.
+- Upload with `PUT` to the returned URL using a client without your API's auth
+  headers/cookies. For chunked uploads, use `Content-Range`; non-final chunks must
+  be multiples of 256 KiB. An HTTP 308 is incomplete, not failure. After a network
+  interruption, query the persisted offset with an empty PUT and
+  `Content-Range: bytes */TOTAL`, then resume from Google's `Range` response.
+- Completion verifies the stored object's size, content type and checksum before
+  returning a FileObject. Pass the original server-stored record, never browser
+  fields. Completion is retryable; the application must prevent duplicate publishing.
+- Session URLs are bearer credentials: share over HTTPS and exclude them from logs.
+  GCS sessions expire after one week. Applications own pending-record expiry,
+  cancellation and cleanup of unpublished objects; keep published objects immutable.
+- Reuses `.oss.json`; requires object-create/get permissions and delete permission
+  for cleanup. The bucket stays private. This JSON API flow includes Origin and
+  does not require bucket CORS changes; XML API uploads have different CORS rules.
+
+See [Google's resumable upload protocol](https://cloud.google.com/storage/docs/performing-resumable-uploads)
+and [CORS behavior](https://cloud.google.com/storage/docs/cross-origin).

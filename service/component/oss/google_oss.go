@@ -12,6 +12,7 @@ import (
 	"cloud.google.com/go/storage"
 	"github.com/coretrix/trixorm"
 	"golang.org/x/net/context"
+	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 
@@ -23,6 +24,8 @@ import (
 
 type GoogleOSS struct {
 	client       *storage.Client
+	uploadClient *http.Client
+	uploadAuth   func(context.Context) oauth2.TokenSource
 	clockService clock.IClock
 	ctx          context.Context
 	buckets      bucketsConfig
@@ -50,12 +53,26 @@ func NewGoogleOSS(configService config.IConfig, clockService clock.IClock, names
 		return nil, err
 	}
 
-	jwtConfig, _ := google.JWTConfigFromJSON(jwtCredentialsJSONString)
+	jwtConfig, err := google.JWTConfigFromJSON(jwtCredentialsJSONString, storage.ScopeReadWrite)
+	if err != nil {
+		_ = client.Close()
+
+		return nil, err
+	}
+
+	uploadClient := &http.Client{
+		Timeout: 30 * time.Second,
+		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 
 	bucketsConfiguration, namespacesConfiguration := loadConfig(configService, namespaces)
 
 	return &GoogleOSS{
 		client:       client,
+		uploadClient: uploadClient,
+		uploadAuth:   jwtConfig.TokenSource,
 		clockService: clockService,
 		ctx:          ctx,
 		buckets:      bucketsConfiguration,
